@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Test builds only (app/src/crashpage): the crash report screen. -->
+<resources>
+    <string name="debug_crash_title">Tempo stopped</string>
+    <string name="debug_crash_body">This is a test build. The error below is what made it stop: copy it or share it, and send it to whoever is building the app. Nothing has been sent.</string>
+    <string name="debug_crash_copy">Copy</string>
+    <string name="debug_crash_copied">Copied</string>
+    <string name="debug_crash_share">Share</string>
+</resources>

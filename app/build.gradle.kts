@@ -59,6 +59,22 @@ android {
         }
     }
 
+    // The crash page (src/crashpage, CrashCatcher): a crash on a test device shows its stack trace,
+    // to copy or share, with no adb at hand. In debug builds, and in the debug-signed release built
+    // for testing (-PsignReleaseWithDebugKey), where R8's breakage shows and nowhere else; never in
+    // a release signed with the release key.
+    val crashPage = "src/crashpage"
+    val testingRelease = signingConfigs.findByName("release") == null && project.hasProperty("signReleaseWithDebugKey")
+    sourceSets {
+        listOfNotNull("debug", "release".takeIf { testingRelease }).forEach { name ->
+            getByName(name) {
+                kotlin.directories += "$crashPage/kotlin"
+                res.directories += "$crashPage/res"
+                manifest.srcFile("$crashPage/AndroidManifest.xml")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             signingConfig = signingConfigs.getByName("debug")
@@ -101,4 +117,8 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
+}
+
+dependencies {
+    testImplementation(libs.androidx.junit)
 }
