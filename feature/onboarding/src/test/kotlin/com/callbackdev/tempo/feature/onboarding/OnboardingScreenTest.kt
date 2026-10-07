@@ -38,6 +38,7 @@ class OnboardingScreenTest {
         var next = false
         draw(OnboardingStep.WELCOME, CalendarPermission.ASKABLE, OnboardingActions(next = { next = true }))
         compose.onNodeWithText("The time, and what comes next.").assertIsDisplayed()
+        compose.onNodeWithTag(OnboardingTags.MARK).assertIsDisplayed()
         compose.assertAccessible()
         compose.onNodeWithTag(OnboardingTags.PRIMARY).performClick()
         assertThat(next).isTrue()

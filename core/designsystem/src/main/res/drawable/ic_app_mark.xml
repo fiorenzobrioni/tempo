@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Written by tools/draw_launcher_icon.py: change the script and run it, never this file.
-     The mark: Chiaro's ring shading through slate, cut by an amber clock
-     face at the lower left, its hands cut out. Everything sits inside the
-     33-unit safe circle of every launcher mask (ring edge 26, face edge 29.2). -->
+     The whole launcher icon, cropped round as a launcher shows it, for the welcome
+     page: the warm white, the ring and the clock face. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:width="72dp"
+    android:height="72dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+<path android:pathData="M 0.00,36.00 a 36.00,36.00 0 1,0 72.00,0 a 36.00,36.00 0 1,0 -72.00,0 z" android:fillColor="#FFF7F4EE"/>
+<group android:translateX="-18" android:translateY="-18">
 <group>
     <clip-path android:pathData="M 0,0 H 108 V 108 H 0 Z M 26.71,67.50 a 11.20,11.20 0 1,0 22.40,0 a 11.20,11.20 0 1,0 -22.40,0 z"/>
     <path android:pathData="M 33.00,54.00 a 21.00,21.00 0 1,0 42.00,0 a 21.00,21.00 0 1,0 -42.00,0 z" android:strokeWidth="10.00" android:fillColor="#00000000">
@@ -38,4 +39,5 @@
 </group>
 </group>
 
+</group>
 </vector>

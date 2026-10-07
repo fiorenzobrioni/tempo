@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Draws Tempo's launcher mark: the two adaptive-icon layers in app/src/main/res/drawable.
+"""Draws Tempo's launcher mark: the two adaptive-icon layers in app/src/main/res/drawable, and the
+whole icon as the welcome page shows it (core/designsystem/src/main/res/drawable/ic_app_mark.xml).
 
     python3 tools/draw_launcher_icon.py
 
@@ -7,22 +8,24 @@ The mark is Chiaro's ring, as Passo and Saldo carry it: the same ring (radius 21
 the same warm white, cut by an amber emblem the way Chiaro's sun (upper right), Passo's shoe
 print (upper left) and Saldo's coin (lower right) cut theirs. Tempo's emblem is a small clock
 face at the lower left, the one place none of its sisters has hers, so the four marks side by
-side turn the emblem once round the ring. The ring is the day, shading clockwise from just past
-the clock round to it again, the way the hours go: dawn's peach, the rose of the day, dusk's deep
-berry. The clock's hands are cut out
+side turn the emblem once round the ring. The ring is slate, shading clockwise from just past the
+clock round to it again, the way the hours go: a pale morning grey-blue to the deep slate of a
+watch's case, so the amber face is the one warm thing in the mark. The clock's hands are cut out
 of its face: the minute hand at twelve, the hour hand towards four, the drawing the usual clock
 symbol uses, so the face reads as a clock at a launcher's size (ten past ten, tried first, read
 as a tick).
 
-Re-running this script IS the drawing: ic_launcher_foreground.xml and ic_launcher_monochrome.xml
-are its output and are not edited by hand. Only the standard library is used, so any Python 3
-runs it.
+Re-running this script IS the drawing: ic_launcher_foreground.xml, ic_launcher_monochrome.xml and
+ic_app_mark.xml are its output and are not edited by hand. Only the standard library is used, so
+any Python 3 runs it.
 """
 
 import math
 from pathlib import Path
 
-RES = Path(__file__).resolve().parent.parent / "app/src/main/res/drawable"
+ROOT = Path(__file__).resolve().parent.parent
+RES = ROOT / "app/src/main/res/drawable"
+MARK = ROOT / "core/designsystem/src/main/res/drawable/ic_app_mark.xml"
 
 CENTRE = 54.0
 RING_RADIUS = 21.0  # Chiaro's
@@ -37,11 +40,15 @@ HANDS = [(-90.0, 5.9), (32.0, 4.3)]
 HAND_WIDTH = 1.8
 HAND_TAIL = 0.9  # how far each hand reaches back past the centre, so the two meet in one hub
 
-# The day, from just past the clock round to it again: (position along the sweep, colour). Dawn's
-# peach, the rose of the day, dusk's deep berry. A hue none of the sisters' rings has: Chiaro's is
-# sky blue to indigo, Passo's green, Saldo's sea green and brick. Violet, tried first, sat too
-# close to the indigo end of Chiaro's ring (owner, 7 Oct 2026: more shading, not violet).
-RING_STOPS = [(0.0, "FFB48C"), (0.4, "E85A7A"), (1.0, "6B1D4F")]
+# The ring, from just past the clock round to it again: (position along the sweep, colour). Slate,
+# from a pale morning grey-blue to a watch case's deep slate. A colour none of the sisters' rings
+# has (Chiaro's is a sky, amber through violet to night blue; Passo's green; Saldo's sea green and
+# brick), and calm enough that the amber face is the mark's one warm note. Two rings came before
+# it: violet sat too close to Chiaro's (owner, 7 Oct 2026), and the peach, rose and berry day that
+# replaced it did not please (owner, 7 Oct 2026). Brighter blues met Chiaro's night again, copper
+# melted into the amber face, and a plain graphite read as a disabled icon.
+RING_STOPS = [(0.0, "C9D3E0"), (0.45, "6A7F9C"), (1.0, "283548")]
+BACKGROUND = "F7F4EE"  # app/src/main/res/values/colors.xml, ic_launcher_background
 AMBER = ("FFC658", "EF8618")  # the family's emblem amber (Chiaro's sun, Passo's print, Saldo's coin)
 
 
@@ -167,11 +174,30 @@ def vector(body, aapt=True):
 """
 
 
+def mark():
+    """The whole icon as a launcher's round mask shows it: the 72 units in the middle of the
+    108-unit layers, on the warm white, for the welcome page (an app's module cannot reach the
+    adaptive icon itself, and a round crop is what the reader recognises from the home screen)."""
+    body = ring(sweep_stroke()) + "\n" + face(amber_fill())
+    return f"""<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="72dp"
+    android:height="72dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+<path android:pathData="{circle(36, 36, 36)}" android:fillColor="#FF{BACKGROUND}"/>
+<group android:translateX="-18" android:translateY="-18">
+{body}
+</group>
+</vector>
+"""
+
+
 def main():
     RES.mkdir(parents=True, exist_ok=True)
     (RES / "ic_launcher_foreground.xml").write_text(
         HEADER.format(
-            what="The mark: Chiaro's ring shading through a day (peach, rose, berry), cut by an amber clock\n"
+            what="The mark: Chiaro's ring shading through slate, cut by an amber clock\n"
             "     face at the lower left, its hands cut out. Everything sits inside the\n"
             "     33-unit safe circle of every launcher mask (ring edge 26, face edge 29.2)."
         )
@@ -184,7 +210,15 @@ def main():
         )
         + vector(ring(' android:strokeColor="#FF000000"/>') + "\n" + face(' android:fillColor="#FF000000"/>'), aapt=False)
     )
-    print("wrote", RES / "ic_launcher_foreground.xml", "and", RES / "ic_launcher_monochrome.xml")
+    MARK.parent.mkdir(parents=True, exist_ok=True)
+    MARK.write_text(
+        HEADER.format(
+            what="The whole launcher icon, cropped round as a launcher shows it, for the welcome\n"
+            "     page: the warm white, the ring and the clock face."
+        )
+        + mark()
+    )
+    print("wrote", RES / "ic_launcher_foreground.xml", RES / "ic_launcher_monochrome.xml", "and", MARK)
 
 
 if __name__ == "__main__":
