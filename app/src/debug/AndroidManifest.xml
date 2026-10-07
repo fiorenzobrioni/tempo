@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug builds only: a crash on a test device shows its stack trace, ready to share, so a crash
+  can be reported from a phone or a tablet with no computer and no adb at hand. The release
+  build has none of this.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- A provider, so the catcher is in place before the Application and Hilt start. -->
+        <provider
+            android:name=".debug.CrashCatcher"
+            android:authorities="${applicationId}.crashcatcher"
+            android:exported="false"
+            android:initOrder="1000" />
+
+        <!-- Its own process: the one that crashed is gone by the time this one draws. -->
+        <activity
+            android:name=".debug.CrashReportActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:process=":crash"
+            android:theme="@android:style/Theme.DeviceDefault.DayNight" />
+    </application>
+
+</manifest>

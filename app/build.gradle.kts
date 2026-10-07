@@ -102,3 +102,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
 }
+
+dependencies {
+    testImplementation(libs.androidx.junit)
+}
