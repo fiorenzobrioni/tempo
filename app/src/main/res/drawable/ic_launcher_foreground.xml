@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Written by tools/draw_launcher_icon.py: change the script and run it, never this file.
-     The mark: Chiaro's ring in the violets of a day going round, cut by an amber clock
+     The mark: Chiaro's ring shading through a day (peach, rose, berry), cut by an amber clock
      face at the lower left, its hands cut out. Everything sits inside the
      33-unit safe circle of every launcher mask (ring edge 26, face edge 29.2). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -14,10 +14,11 @@
     <path android:pathData="M 33.00,54.00 a 21.00,21.00 0 1,0 42.00,0 a 21.00,21.00 0 1,0 -42.00,0 z" android:strokeWidth="10.00" android:fillColor="#00000000">
         <aapt:attr name="android:strokeColor">
             <gradient android:type="sweep" android:centerX="54.00" android:centerY="54.00">
-                <item android:offset="0.0000" android:color="#FF6C55A6"/>
-                <item android:offset="0.3883" android:color="#FF47307F"/>
-                <item android:offset="0.3894" android:color="#FFA68FE3"/>
-                <item android:offset="1.0000" android:color="#FF6C55A6"/>
+                <item android:offset="0.0000" android:color="#FFBC456B"/>
+                <item android:offset="0.3883" android:color="#FF6B1D4F"/>
+                <item android:offset="0.3894" android:color="#FFFFB48C"/>
+                <item android:offset="0.7889" android:color="#FFE85A7A"/>
+                <item android:offset="1.0000" android:color="#FFBC456B"/>
             </gradient>
         </aapt:attr>
     </path>

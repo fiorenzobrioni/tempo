@@ -1,5 +1,5 @@
-// The home-screen widget (Jetpack Glance, PLANNING.md §7): the agenda card with its clock and
-// date, its receiver, the per-widget settings screen, and what refreshes it (the calendar's
+// The home-screen widgets (Jetpack Glance, PLANNING.md §7): «Agenda» and «In words», with their
+// clock and date, their receivers, the per-widget settings screen, and what refreshes them (the calendar's
 // content-URI trigger, an inexact alarm at the next boundary). The card, its inks and its
 // colours are Chiaro's and Passo's, so the family's widgets sit side by side as one.
 plugins {

@@ -25,15 +25,16 @@ Source of truth:
   every decision and deviation with its reason in §15 (and as an ADR in `docs/adr/` when it
   is architectural).
 
-Work one phase at a time, starting from the phase's section in PLANNING.md §11. While VISION.md's
-open questions are unanswered, do not build what depends on them: ask.
+Work one phase at a time, starting from the phase's section in PLANNING.md §11. The owner
+answered VISION.md's questions on 7 Oct 2026 (VISION, "The owner's answers"; PLANNING §15); a
+new question is written in PLANNING §15's Open list and asked before it is built.
 
 ## Build and commands
 
 Stack: Kotlin 2.4 (compiled by AGP 9's built-in Kotlin), Compose Material 3, Hilt, DataStore,
 Glance, WorkManager (Glance's, pinned); Gradle 9.8 / AGP 9.4, version catalog in
 `gradle/libs.versions.toml`, convention plugins in `build-logic/`. **No Room**: Tempo stores no
-event. Package/applicationId: `com.callbackdev.tempo`. minSdk 33, compile/targetSdk 37. Java 21.
+event. Package/applicationId: `com.callbackdev.tempo`. minSdk 34, compile/targetSdk 37 (Passo's). Java 21.
 
 - Build debug APK: `./gradlew :app:assembleDebug` (output: `app/build/outputs/apk/debug/app-debug.apk`)
 - All unit tests: `./gradlew test`
@@ -72,7 +73,7 @@ that does not match it.
 | `:core:designsystem` | Android library | M3 theme (Chiaro's dresses through Passo), typography, shapes, motion, page gutter, the widget card colours, `TempoIcons` |
 | `:core:testing` | Android library, test-only | `assertAccessible()` (labels, 48dp touch targets) and `walkPage()`, shared by the UI tests as `testImplementation` |
 | `:feature:*` | Android library | `today` (the clock, the sentence, the agenda), `settings`, `onboarding`; `guide` joins in Phase 5 |
-| `:widget` | Android library | the Glance card(s), their settings screen, the refresh (content-URI work, boundary alarm, receivers) |
+| `:widget` | Android library | the two Glance cards («Agenda», «In words»), their settings screen, the refresh (content-URI work, boundary alarm, receivers) |
 | `:app` | application | `Application`, `MainActivity`, navigation, DI entry points; wires everything |
 
 Rules: `:core:model` and `:core:domain` stay pure Kotlin/JVM; if a class there needs a `Context`
@@ -130,8 +131,8 @@ Chiaro's shapes and springs, and every animation collapses to a fade under reduc
 principles hold here too: one sentence before any number, every number with the line that says
 what it means, no dead tab and no switch for a feature that has not shipped, a section with
 nothing to say is not drawn. Icons are `TempoIcons` (Passo's drawings), drawn in code. The
-launcher icon (the family's ring in violet, with a clock face where Chiaro has its sun, at the
-lower left) is written by `tools/draw_launcher_icon.py`: change the script and re-run it, never
+launcher icon (the family's ring shading from peach through rose to berry, with an amber clock
+face at the lower left) is written by `tools/draw_launcher_icon.py`: change the script and re-run it, never
 the two XML layers. The Compose UI tests write screenshots to each module's `build/screenshots`:
 look at them after changing a screen.
 
@@ -141,7 +142,7 @@ foldable (`walkPage()`); text inks are pinned at 4.5:1 by `ContrastTest`. A page
 `pageGutter()` on each side (in a list's content padding, never by narrowing the list), so an
 open foldable shows a centred column and a phone upright is untouched. No tablet layout.
 
-**Widget** (PLANNING.md §7): the family's card (Passo's ADR 0005, from Chiaro): its corner, insets,
+**Widgets** (PLANNING.md §7): the family's pair, «Agenda» and «In words», on the family's card (Passo's ADR 0005, from Chiaro): its corner, insets,
 grounds, Chiaro's six colours (`WidgetPalette.kt`), opacity and ink rule. The forms' arithmetic
 is pure (`AgendaFit`) and pinned by tests at the family's reference grants; a gallery test draws
 every form to `widget/build/screenshots`: look at them after changing the card.

@@ -36,7 +36,10 @@ shortest way to the same look, and keeps one drawing of each thing in the family
    on the warm white `#F7F4EE`), cut by an amber emblem as the sisters' are: Chiaro's sun at the
    upper right, Passo's shoe print at the upper left, Saldo's coin at the lower right, and
    Tempo's **clock face at the lower left**, so the four marks turn the emblem once round the
-   ring. The ring is the day in violet, light to deep clockwise; the face has its hands cut out,
+   ring. The ring shades through a day, clockwise from just past the clock: dawn's peach, the
+   rose of the day, dusk's deep berry, a hue none of the sisters' rings has (violet, drawn first,
+   sat too close to the indigo end of Chiaro's ring; the owner asked for more shading and another
+   colour). The face has its hands cut out,
    the minute hand at twelve and the hour hand towards four (ten past ten, tried first, read as a
    tick at launcher size). The monochrome layer restates the same shapes for themed icons.
 7. **Tests carried over**: `TypographyTest` (every Material role follows the typeface setting)

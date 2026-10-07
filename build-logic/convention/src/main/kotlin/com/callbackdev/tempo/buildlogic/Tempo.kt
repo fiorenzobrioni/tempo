@@ -10,13 +10,13 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 /**
  * The platform levels, in one place (VISION.md, Key decisions; PLANNING.md §1).
  *
- * minSdk 33 (Android 13), as Chiaro and Saldo: the system per-app language picker, one runtime
- * path for POST_NOTIFICATIONS, themed icons and the widget APIs of Android 12 are all native.
- * Tempo needs nothing from 34 (Passo's 34 is for the `health` foreground service type), so it
- * reaches the phones Chiaro reaches. 37 is Android 17, as Passo.
+ * minSdk 34 (Android 14), Passo's level (owner, 7 Oct 2026): the per-app language picker, themed
+ * icons and the widget APIs of Android 12 are all native, and the two apps built from one
+ * build-logic share their platform floor too. Tempo needs nothing from 34 itself; 33 was
+ * proposed and set aside for the family's sameness (ADR 0001). 37 is Android 17, as Passo.
  */
 object TempoSdk {
-    const val MIN = 33
+    const val MIN = 34
     const val TARGET = 37
     const val COMPILE = 37
 }

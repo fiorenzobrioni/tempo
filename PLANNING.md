@@ -16,7 +16,7 @@ The family's stack, as Passo set it up (Passo ADR 0001), minus what Tempo has no
 | Language | Kotlin 2.4, compiled by AGP 9's built-in Kotlin, with the Compose compiler Gradle plugin |
 | Build | Gradle 9.8 with Kotlin DSL, AGP 9.4; version catalog (`gradle/libs.versions.toml`); convention plugins in `build-logic/` |
 | JDK | Java 21, `jvmTarget` 21, without a Gradle toolchain |
-| SDK levels | `minSdk 33`, `targetSdk 37`, `compileSdk 37` |
+| SDK levels | `minSdk 34`, `targetSdk 37`, `compileSdk 37` (Passo's) |
 | UI | Jetpack Compose, Material 3 in Chiaro's design language (its generated schemes, dynamic color on request), edge-to-edge |
 | Widget | Jetpack Glance (`glance-appwidget` + `glance-material3`) 1.2.x, `SizeMode.Exact`, the system `TextClock` through `AndroidRemoteViews` |
 | Architecture | MVVM with unidirectional data flow; coroutines and `Flow` |
@@ -222,11 +222,11 @@ Tempo has no database. The Calendar Provider is the only truth for events; Tempo
 | `theme`, `palette`, `font`, `dynamic_color` | system, VIVID, GOOGLE_SANS, false | The family's appearance |
 | `clock_format` | SYSTEM | `ClockFormat` |
 | `date_style` | LONG | `DateStyle` |
-| `horizon_days` | 2 (today and tomorrow; Open question 2) | Days shown |
+| `horizon_days` | 7 (a week; owner, §15) | Days shown: 1, 2 or 7 |
 | `hidden_calendars` | empty | Calendars the reader hid, each kept as `id` **and** `account_type/account_name/display name`, so a restore that renews the ids can still match them |
 | `show_declined` | false | Declined invitations |
 | `show_all_day` | true | All-day events |
-| `show_next_alarm` | true (Open question 3) | The next alarm line |
+| `show_next_alarm` | true | The next alarm line |
 | `onboarding_completed` | false | |
 
 ### DataStore, file `widgets` (not backed up)
@@ -243,7 +243,7 @@ One `WidgetLook` per `appWidgetId`: show clock, clock format, show date, date st
 
 - **`AgendaBuilder`**: instances + calendars + settings + now + zone → `Agenda`. Applies §4.2–§4.4. Pure, the most tested class of the app.
 - **`DaySentence`**: the day in one sentence, from the agenda alone: the count of what is left, the next event and when, the free time before it, the end of the day ("Nothing left today; tomorrow starts at 9"). Returns a structure (kind + values), never a string: the words are resources, in both languages, with plurals (`:feature:today` and `:widget` format it).
-- **`FreeTime`**: the gaps between timed events within waking hours, for the sentence and (Open question 4) the timeline.
+- **`FreeTime`**: the gaps between timed events within waking hours: every gap feeds the sentence; a gap of an hour or more is also a row of the timeline (owner, §15).
 - **`NextBoundary`**: the next moment the agenda changes by itself: the nearest `BEGIN` or `END` after now, or the next midnight, whichever is first. The widget arms its alarm on it.
 - **`AgendaFit`** (pure arithmetic, as Passo's `GlanceLayout`): given a card's granted size in dp, the header's choice and the text sizes measured in the system face, how many event rows fit, which form the card takes, and what the "N more" line says. Pinned by tests at the family's reference grants (one row ≈ 85 dp tall, two ≈ 189; widths 2 cells ≈ 159 dp, 3 ≈ 250, 4 ≈ 340).
 - **Calendar colours are data, not roles.** They are chosen in the calendar app with no thought for Tempo's grounds, so they mark an event (a dot, a bar at the start of its row) and never colour its text or its ground. A mark keeps a 3:1 contrast with its ground by stepping its lightness when it must, a pure function with a test.
@@ -252,7 +252,7 @@ One `WidgetLook` per `appWidgetId`: show clock, clock format, show date, date st
 
 ## 7. Widget (Glance)
 
-One card in v1, «Agenda» (Open question 1 may add «In words»). The family's card (Passo's ADR 0005, from Chiaro): its corner, insets, grounds, Chiaro's six colours, opacity, and Chiaro's ink rule.
+Two cards in v1, the family's pair (owner, §15): «Agenda» (`AgendaWidget`, the concept's) and «In words» (`WordsWidget`, Chiaro's «In parole», Passo's «In words»). The same size spec, the same settings screen, the same refresh. The family's card (Passo's ADR 0005, from Chiaro): its corner, insets, grounds, Chiaro's six colours, opacity, and Chiaro's ink rule.
 
 ### Configuration
 
@@ -267,6 +267,13 @@ One card in v1, «Agenda» (Open question 1 may add «In words»). The family's 
 | LINE | one row, wider than two cells | The time on the leading side; the next event (or the sentence) at the far edge |
 | AGENDA | two rows and up | The header (clock and date, each optional), then the events that fit, then "N more today" |
 | SIDE | two rows and up, four cells or wider, header on | The clock and date in a column on the leading side, the events beside them |
+
+| «In words» form | When | Content |
+|---|---|---|
+| NEXT | one cell | The next event's time alone (or "Free" when nothing is left today) |
+| LINE | one row | The next event's time and title on one line; the time and date as a small line where there is room |
+| STACK | two rows and up | The time and date on top; the next event large (time, then title); the day's sentence at the bottom |
+| PANEL | two rows and up, four cells | The same, with the rest of the day as a line of times ("then 16:30, 18:00") under the sentence |
 
 ### Rendering
 
@@ -297,7 +304,7 @@ One card in v1, «Agenda» (Open question 1 may add «In words»). The family's 
 ## 8. Notifications and system surfaces
 
 - **No notification channel in v1**, and so no `POST_NOTIFICATIONS` (VISION, System surfaces).
-- **Launcher shortcut** (static, `shortcuts.xml`): "New event", the `ACTION_INSERT` of §4.7 (Open question 7).
+- **Launcher shortcut** (static, `shortcuts.xml`): "New event", the `ACTION_INSERT` of §4.7 (owner, §15).
 - **Pin request**: onboarding and Settings offer "Add the widget to the home screen" through `AppWidgetManager.requestPinAppWidget`, where the launcher supports it.
 
 ---
@@ -345,7 +352,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - [ ] Generate the **release keystore** (owner): outside the repo, with an offline backup, in the four GitHub secrets (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`). Its fingerprint goes into `keystore/README.md` and the README's Install section.
 - [x] `CLAUDE.md`
 - [x] `docs/adr/0001-foundations.md`, `docs/adr/0002-design-language.md`
-- [ ] The owner's review of VISION.md and answers to its open questions (recorded in §15)
+- [x] The owner's review of VISION.md and answers to its open questions (recorded in §15)
 
 **Acceptance:**
 - CI is green.
@@ -384,7 +391,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - [ ] Touch an event (VIEW), the new-event button (INSERT), touch the date (VIEW of today)
 - [ ] Live while visible: the minute ticker and `CalendarChanges`, both lifecycle-bound
 - [ ] Onboarding: welcome, the permission (with "Not now"), the widget (pin request)
-- [ ] The launcher shortcut "New event" (Open question 7)
+- [ ] The launcher shortcut "New event"
 - [ ] UI tests on states, not databases (Robolectric), `assertAccessible()` and `walkPage()` at twice the text size and on an open foldable
 - [ ] README screenshots: Today, onboarding (`ReadmeScreenshots`, sample data, English)
 
@@ -394,13 +401,13 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 
 ### Phase 4 — The widget
 
-- [ ] `AgendaFit` (pure, §6) with tests at the reference grants; the forms of §7
+- [ ] `AgendaFit` (pure, §6) with tests at the reference grants; the forms of §7, for both cards
 - [ ] The card in Glance: the `TextClock` header through `AndroidRemoteViews`, the event groups, "N more", the states
 - [ ] The refresh: the content-URI work, the boundary alarm, the exempt broadcasts; the battery check of §9.6
 - [ ] The per-widget settings screen, with the live preview (Passo's, from Chiaro)
 - [ ] Previews (static and generated)
 - [ ] `WidgetGalleryTest` draws every form to `widget/build/screenshots`; a README screenshot of the card
-- [ ] «In words», if the owner wants it (Open question 1)
+- [ ] «In words» (`WordsWidget`): its forms (§7) in the same `AgendaFit` arithmetic, its gallery, its README screenshot
 
 **Acceptance:**
 - [ ] On the owner's phone, beside Chiaro's and Passo's cards: the same card, the same colours.
@@ -470,22 +477,23 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 
 - **7 Oct 2026, Phase 0.** The repository is `fiorenzobrioni/tempo`; package and applicationId `com.callbackdev.tempo` (debug `.debug`), as the family. License GPL-3.0. (ADR 0001)
 - **7 Oct 2026, Phase 0.** Passo's build, copied: Gradle 9.8.0, AGP 9.4.1, Kotlin 2.4.20, KSP 2.3.12, Compose BOM 2026.09.00, Hilt 2.60.1, Glance 1.2.0, WorkManager 2.10.5 (pinned), Navigation 3 1.2.0, DataStore 1.2.1; convention plugins; ktlint through Spotless; JUnit 4 + Truth + Turbine + Robolectric. (ADR 0001)
-- **7 Oct 2026, Phase 0.** `minSdk 33` rather than Passo's 34, as Chiaro and Saldo: Tempo has no `health` foreground service; 33 already gives the per-app language picker, themed icons and the Android 12 widget APIs. Pending the owner's confirmation (VISION, Open question 5). (ADR 0001)
+- **7 Oct 2026, Phase 0.** `minSdk 34`, Passo's (owner). 33, as Chiaro and Saldo, was proposed because Tempo needs nothing from 34 and would reach Android 13 phones too; the owner chose one platform floor for the two apps built from one build-logic. (ADR 0001)
 - **7 Oct 2026, Phase 0.** **No Room.** Tempo stores no event; the provider is the truth. The `passo.android.room` convention was not carried over; it returns with the first table. (ADR 0001)
 - **7 Oct 2026, Phase 0.** The forbidden list is Passo's, plus `WRITE_CALENDAR`, `READ_CONTACTS`, `WRITE_CONTACTS`: the read-only promise is checked by the build. (ADR 0001)
 - **7 Oct 2026, Phase 0.** Tempo's own debug key (`tempo-debug` / `android`, committed), not a sister's. (ADR 0001)
 - **7 Oct 2026, Phase 0.** The design system is Passo's (itself Chiaro's): the two generated dresses, the type, the shapes, the motion, the page gutter, the widget colours, the icons; the semantic colours reduced to `attention` until a phase needs another. (ADR 0002)
-- **7 Oct 2026, Phase 0.** The launcher mark: the family's ring in violet, an amber clock face at the lower left (140°), the quadrant none of the sisters uses. (ADR 0002)
+- **7 Oct 2026, Phase 0.** The launcher mark: the family's ring, an amber clock face at the lower left (140°), the quadrant none of the sisters uses. The ring shades through a day, dawn's peach to the rose of the day to dusk's deep berry (owner: more shading, and not violet, which sat too close to the indigo end of Chiaro's ring). (ADR 0002)
 - **7 Oct 2026, Phase 0.** The concept's corrections (VISION, From the concept to this vision): all-day events in UTC; VIEW over EDIT; a content-URI trigger instead of `PROVIDER_CHANGED`; Glance with `SizeMode.Exact` instead of a hand-written `onAppWidgetOptionsChanged`; `TextClock` kept through `AndroidRemoteViews`; digital clock in v1; no notifications in v1.
+
+- **7 Oct 2026, owner's review of VISION.md.** Every suggestion of the vision accepted, and its open questions answered:
+  1. **Widgets**: the pair, «Agenda» and «In words», both in v1 (§7, Phase 4).
+  2. **Default horizon**: a week (`horizon_days = 7`). The owner was torn between a week and today-and-tomorrow; a week holds because Today keeps today on top and whole, draws the days after tomorrow compact, and the widgets give the days ahead only the room today leaves. The setting offers 1, 2 and 7.
+  3. **The next alarm** on Today: yes, on by default, with a switch.
+  4. **Free time**: in the sentence, and as a timeline row for a gap of an hour or more.
+  5. **minSdk 34**, Passo's (above).
+  6. **Name**: "Tempo", plain; GitHub Releases is the only channel. A store subtitle is Phase 7's question, if Google Play comes.
+  7. **The launcher shortcut "New event"**: in v1 (Phase 3).
 
 ### Open
 
-The owner's answers to VISION's open questions:
-
-1. One widget («Agenda») or the pair («Agenda» and «In words»)?
-2. The default horizon: today and tomorrow, or a week?
-3. The next alarm on Today?
-4. Free time: in the sentence only, as rows, or neither?
-5. minSdk 33?
-6. The store title?
-7. The launcher shortcut "New event" in v1?
+None. A question that comes up during a phase is written here, with its options, before it is built.

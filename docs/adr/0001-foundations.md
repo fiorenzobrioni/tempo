@@ -22,11 +22,11 @@ stack, the same technical choices, the same design, the same licence, so the fam
    convention plugins in `build-logic/` (renamed `tempo.*`); Java 21 without a toolchain;
    ktlint through Spotless; JUnit 4, Truth, Turbine, Robolectric. Passo's reasons hold
    unchanged (Passo ADR 0001).
-3. **minSdk 33**, not Passo's 34. Passo needs 34 for its `health` foreground service; Tempo has
-   no service at all. 33 is Chiaro's and Saldo's level and already gives what Tempo uses: the
-   per-app language picker, themed icons, the Android 12 widget APIs, `java.time` in full.
-   target and compile SDK 37, as Passo. Pending the owner's confirmation (VISION, Open
-   question 5).
+3. **minSdk 34**, Passo's, target and compile SDK 37 (owner, 7 Oct 2026). 33, Chiaro's and
+   Saldo's level, was proposed first: Tempo has no `health` foreground service, the reason Passo
+   takes 34, and 33 already gives what Tempo uses (the per-app language picker, themed icons, the
+   Android 12 widget APIs, `java.time` in full) while reaching Android 13 phones too. The owner
+   chose Passo's floor, so the two apps built from one build-logic share it.
 4. **No Room.** Tempo stores no event: the Calendar Provider is the only truth (VISION,
    principle 1). The settings and the widgets' looks are DataStore. Passo's Room convention
    plugin is not carried over; it returns with the first table, if one ever comes.
@@ -55,5 +55,5 @@ stack, the same technical choices, the same design, the same licence, so the fam
 - AGP 9's DSL, as Passo's: snippets from Chiaro (AGP 8.13) or Saldo need translating.
 - A change in Passo's build-logic is not inherited: it is copied here by hand when it matters,
   as Passo copies Chiaro's design.
-- Should the owner choose minSdk 34 to match Passo exactly, it is one constant (`TempoSdk.MIN`)
-  and this ADR's third point.
+- Android 13 phones cannot install Tempo. Lowering the floor later is one constant
+  (`TempoSdk.MIN`) and this ADR's third point; nothing in the code depends on 34.

@@ -8,14 +8,14 @@ A private, battery-friendly Android clock and agenda: the time, the date and the
 one calm view, in the app and on a home-screen widget that never scrolls.
 Free, no account, no ads, no tracking, and no permission to use the internet at all.
 
-![Platform](https://img.shields.io/badge/platform-Android-5B4596?labelColor=FCFAF6)
-![Status](https://img.shields.io/badge/status-in%20development-5B4596?labelColor=FCFAF6)
-![CI](https://img.shields.io/github/actions/workflow/status/fiorenzobrioni/tempo/android-ci.yml?branch=main&label=CI&labelColor=FCFAF6&color=5B4596)
+![Platform](https://img.shields.io/badge/platform-Android-A8325E?labelColor=FCFAF6)
+![Status](https://img.shields.io/badge/status-in%20development-A8325E?labelColor=FCFAF6)
+![CI](https://img.shields.io/github/actions/workflow/status/fiorenzobrioni/tempo/android-ci.yml?branch=main&label=CI&labelColor=FCFAF6&color=A8325E)
 ![License](https://img.shields.io/badge/license-GPL--3.0-007DB6?labelColor=FCFAF6)
-![minSdk](https://img.shields.io/badge/minSdk-33-70569C?labelColor=FCFAF6)
+![minSdk](https://img.shields.io/badge/minSdk-34-70569C?labelColor=FCFAF6)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4-F1A000?labelColor=FCFAF6)
 ![Compose](https://img.shields.io/badge/UI-Compose%20Material%203-007DB6?labelColor=FCFAF6)
-![Internet](https://img.shields.io/badge/INTERNET%20permission-none-5B4596?labelColor=FCFAF6)
+![Internet](https://img.shields.io/badge/INTERNET%20permission-none-A8325E?labelColor=FCFAF6)
 
 **In development.** The first release comes with Phase 6 of the [plan](./PLANNING.md).
 
@@ -34,7 +34,7 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
 
 ## Screenshots
 
-The screens arrive with Phase 3 and the widget with Phase 4, drawn by the app's own tests from
+The screens arrive with Phase 3 and the widgets with Phase 4, drawn by the app's own tests from
 sample days, as in the sister apps.
 
 ## Features
@@ -42,10 +42,12 @@ sample days, as in the sister apps.
 Planned for 1.0 ([VISION.md](./VISION.md) has the full scope, and what is still open):
 
 - 🕰️ **Today**: the time large, the date, and one sentence on the day ("Three things today; the next, Dentist, in 40 minutes").
-- 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it, then tomorrow and the days after.
+- 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and the free hours between them, then the rest of the week.
+- ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow.
 - ✏️ **Your calendar app does the writing**: touch an event to open it there; the new-event button opens its new-event page, the start already set.
-- 🏠 **A widget that never scrolls**: the clock and the date (each optional, in your format), then as many events as the card's size allows, and how many more.
-- ⏰ **A clock that costs nothing**: the widget's time is drawn by Android itself, right to the minute, with no work by the app.
+- 🏠 **Two widgets that never scroll**: «Agenda», the clock and the date (each optional, in your format) over as many events as the card's size allows, and how many more; «In words», the next event large and the day in one sentence.
+- 🕐 **A clock that costs nothing**: the widget's time is drawn by Android itself, right to the minute, with no work by the app.
+- ➕ **New event** from the launcher icon's long press, straight to your calendar app.
 - 🗂️ **Your calendars, your choice**: every account's calendars with their colours, each shown or hidden; declined invitations kept out.
 - 🎨 **Appearance**: light or dark, two palettes, three typefaces, the same as Chiaro's and Passo's.
 - 🇮🇹 🇬🇧 **Italian and English**, through the system per-app language picker.
@@ -65,7 +67,7 @@ Planned for 1.0 ([VISION.md](./VISION.md) has the full scope, and what is still 
 
 Not yet: there is no release. When there is, it will be the family's way: a signed APK on
 [GitHub Releases](https://github.com/fiorenzobrioni/tempo/releases), with its SHA-256 checksum
-and the release key's fingerprint here, for Android 13 (API 33) or newer.
+and the release key's fingerprint here, for Android 14 (API 34) or newer.
 
 ## Roadmap
 
@@ -73,7 +75,7 @@ The phased plan, with every decision and its reason, is in [PLANNING.md](./PLANN
 
 - **Phase 0**, foundations: the build, the design system, CI. *Done.*
 - **Phase 1**, the calendar engine: reading the phone's calendars right, every edge case tested.
-- **Phase 2**, settings; **Phase 3**, Today and the first run; **Phase 4**, the widget.
+- **Phase 2**, settings; **Phase 3**, Today and the first run; **Phase 4**, the two widgets.
 - **Phase 5**, the guide and the accessibility pass; **Phase 6**, the 1.0 release on GitHub.
 
 ## Build
@@ -100,11 +102,11 @@ then publishes the signed APK, its checksum and the R8 mapping, with the matchin
 
 ## Tech stack
 
-- **Kotlin** 2.4, **Jetpack Compose** with Material 3, Gradle 9.8 and AGP 9.4, minSdk **33**
-  (Android 13), target and compile SDK **37**
+- **Kotlin** 2.4, **Jetpack Compose** with Material 3, Gradle 9.8 and AGP 9.4, minSdk **34**
+  (Android 14), target and compile SDK **37**
 - The system **Calendar Provider**, read through the `ContentResolver`; no calendar library
 - **DataStore** (settings), **Hilt**, **Coroutines** and **Flow**; no database: the events stay in your calendar
-- **Glance** for the widget, with Android's own `TextClock` for its clock
+- **Glance** for the widgets, with Android's own `TextClock` for their clock
 - **Navigation 3**, as in Passo
 - Unit tests on the JVM for every edge case of the calendar engine; Compose UI tests with
   Robolectric, accessibility checks included
@@ -128,7 +130,7 @@ tempo/
 │   ├── designsystem/       # theme, components, icons
 │   └── testing/            # shared UI test helpers (accessibility, page walks)
 ├── feature/                # today, settings, onboarding (and the guide, later)
-├── widget/                 # the Glance widget and its settings
+├── widget/                 # the two Glance widgets and their settings
 ├── build-logic/            # convention plugins, the forbidden-permission check
 ├── tools/                  # the launcher icon script
 └── keystore/               # the shared debug key (deliberately committed)

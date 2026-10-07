@@ -1,14 +1,14 @@
 # Tempo — Product Vision
 
 > **Tempo** (Italian for "time") is the fourth of a small family of focused, single-purpose apps, alongside **Chiaro** (weather), **Passo** (step counter) and **Saldo** (personal finance).
-> Store title: "Tempo – Orologio e agenda" / "Tempo – Clock & Agenda". Repository: `fiorenzobrioni/tempo`.
+> Name: **Tempo**, in the launcher and on GitHub Releases (the only channel for now). Repository: `fiorenzobrioni/tempo`.
 > Package name: `com.callbackdev.tempo`, the `callbackdev` namespace shared with the sibling apps.
 >
-> **Status: draft for the owner's review** (7 Oct 2026). Written from the owner's concept document
+> **Status: reviewed by the owner** (7 Oct 2026). Written from the owner's concept document
 > «Concept App: Tempo (Orologio & Agenda)»; what this vision changes in it, and why, is in
-> [From the concept to this vision](#from-the-concept-to-this-vision); what is still the owner's
-> to decide is in [Open questions](#open-questions-for-the-owner). Development starts once both
-> are settled (PLANNING §11, Phase 1).
+> [From the concept to this vision](#from-the-concept-to-this-vision), accepted in full by the
+> owner; the questions the review settled are in [The owner's answers](#the-owners-answers).
+> Development starts with PLANNING §11, Phase 1.
 
 ## One-liner
 
@@ -77,16 +77,21 @@ app the reader already uses.
 - **The clock**: the time large (the family's hero type, tabular figures so the minutes do not
   wobble), the date under it, both in the reader's format. Digital (Key decisions).
 - **The day's sentence**, before any list.
-- **The next alarm**, if the reader wants it: "Alarm tomorrow at 7:00", from the system's own
-  next alarm clock, which needs no permission (Open question 3).
+- **The next alarm**: "Alarm tomorrow at 7:00", from the system's own next alarm clock, which
+  needs no permission. On by default, one switch hides it.
 - **All-day and multi-day events** in a row of their own above the timeline ("Holiday, day 2 of 5").
 - **The timeline of the day's timed events**: the time range, the title, the calendar's colour
   as a mark, the location as one line of text (no map). The event under way says how much is
   left ("ends in 25 min"), past events are quieter, and a "now" line stands between what has
   been and what is next.
-- **The days ahead**: tomorrow and the following days up to the reader's horizon (Open question
-  2), each with its own short sentence. In the evening, when today has nothing left, tomorrow
-  moves up.
+- **Free time**: said in the day's sentence ("Free until 3 pm"), and drawn as a quiet row of its
+  own only for a gap of an hour or more between two events, so the timeline does not fill up
+  with the ten minutes between two meetings.
+- **The days ahead**: tomorrow and the rest of the week (a week by default, the reader's
+  horizon), each day with its own short sentence. Today stays on top, whole; tomorrow is drawn as
+  today is; the days after it are compact (a heading and one line per event), so a full week
+  stays a glance below the fold and never pushes today out of view. In the evening, when today
+  has nothing left, tomorrow moves up.
 - **Touch an event**: the calendar app opens it, at that occurrence of it; editing is one tap
   away there.
 - **The new-event button** (Material's floating action button): the calendar app's new event
@@ -98,7 +103,13 @@ app the reader already uses.
   agenda needs the permission and asks), no calendar on the phone, nothing today, every
   calendar hidden, no calendar app to hand an event to.
 
-### The widget («Agenda», Jetpack Glance)
+### The widgets (Jetpack Glance)
+
+Two cards, the family's pair (owner, 7 Oct 2026), as Chiaro's «Colpo d'occhio» and «In parole»
+and Passo's «At a glance» and «In words»: the same sizes for both, the same card, the same
+settings screen.
+
+#### «Agenda»
 
 The concept's widget, in the family's dress.
 
@@ -123,8 +134,20 @@ The concept's widget, in the family's dress.
   tomorrow's first event, if the reader wants it).
 - **Updates without polling**: when the calendar changes, when the next event starts or ends,
   at midnight, and when the clock, the time zone or the language changes. Never on a timer.
-- **A second card, «In words»** (the family's typographic card: the day's sentence and the next
-  event in type alone), if the owner wants the pair the family has (Open question 1).
+#### «In words» («In parole»)
+
+The family's typographic card: the day in type alone, for a reader who wants to know where the
+day stands rather than read its list.
+
+- **The next event large**, as the family's hero: its time, and its title under it ("15:00",
+  "Dentist"); the event under way instead while one is ("Until 11:00, Standup").
+- **The day's sentence** under it ("Two more today; free until 3 pm").
+- **The time and the date** as a small line on top, each optional, drawn by `TextClock` like
+  the «Agenda» card's.
+- **Forms for every size**: one cell is the next time alone; one row is the time and the title on
+  one line; two rows and up add the sentence and, with height to spare, the rest of the day as a
+  line of times ("then 16:30, 18:00").
+- The same settings, states and updates as «Agenda».
 
 ### Calendars and filters
 
@@ -132,7 +155,7 @@ The concept's widget, in the family's dress.
   switch. A calendar added later is shown until the reader hides it.
 - **Declined invitations** hidden by default. Cancelled events never shown.
 - **All-day events** shown or not.
-- **Days ahead**: today only, today and tomorrow, or a week.
+- **Days ahead**: today only, today and tomorrow, or a week (the default).
 
 ### Settings and personalization
 
@@ -187,7 +210,6 @@ The concept's widget, in the family's dress.
 
 - An analog face, in the family's style: the ring of the icon as the dial.
 - A second time zone, as one line under the clock.
-- The «In words» card, if it is not in v1.
 - A lock-screen (keyguard) form of the widget, where the launcher offers it.
 - A morning summary notification, opt-in.
 - A countdown to an event the reader picks.
@@ -213,7 +235,7 @@ corrections and the additions, each with its reason.
 | (not in the concept) | **When the list of events changes**: a job triggered by the calendar's own changes, an inexact alarm at the next start or end of an event and at midnight, and the system's time, zone and language broadcasts | Since Android 8 an app cannot listen for "the calendar changed" from its manifest; the documented replacement is a job with a content-URI trigger, which costs nothing while nothing changes. The alarm is inexact and does not wake the phone: it is delivered when the screen is next on, which is when someone can see the card |
 | A configuration activity "when the widget is added" | Optional at placement, reachable later from the launcher's widget settings | The family's choice (Passo's ADR 0005): the card is on the home screen at once with sensible defaults, and nothing is lost by changing it later |
 | "Control centre of the day" | Kept as an aim, bounded by the non-goals | Tempo answers "what time, what day, what is next". Alarms, tasks, weather and reminders each already have their app |
-| The name **Tempo** | Kept, with the store title "Tempo – Orologio e agenda" | In Italian *tempo* also means weather, which is Chiaro's. The subtitle settles it, in the store and in the launcher's search |
+| The name **Tempo** | Kept, plain, as the owner chose: the app is published on GitHub only | In Italian *tempo* also means weather, which is Chiaro's, and many apps are called Tempo. A store listing would need a subtitle ("Orologio e agenda"); that is Phase 7's to decide, if Google Play ever comes |
 
 ## Key decisions
 
@@ -224,7 +246,7 @@ corrections and the additions, each with its reason.
 | Storage | No database: DataStore for the settings and the widgets' looks | There is nothing of Tempo's to store; the provider is the truth. Room joins the stack the day a feature needs a table (none in v1) |
 | Widget | Jetpack Glance, `SizeMode.Exact`, a plain `Column`, the system `TextClock` for the clock | The family's widget technology; exact sizes; no scrolling; a clock that costs nothing |
 | Refresh | Content-URI-triggered job on calendar changes; inexact non-wakeup alarm at the next event boundary and at midnight; exempt broadcasts for time, zone and language | Event-driven, never periodic. No exact alarms and no `SCHEDULE_EXACT_ALARM`: a card that drops a finished event a few minutes late is acceptable; one that drains the battery is not |
-| Platform | `minSdk 33` (Android 13), `targetSdk`/`compileSdk 37` (Android 17) | 33 as Chiaro and Saldo: the per-app language picker, themed icons and the Android 12 widget APIs are native. Tempo needs nothing from 34, which Passo takes for its `health` foreground service (Open question 5) |
+| Platform | `minSdk 34` (Android 14), `targetSdk`/`compileSdk 37` (Android 17) | Passo's levels (owner): one platform floor for the two apps built from one build-logic. Per-app languages, themed icons and the Android 12 widget APIs are native. Android 13 phones are left out, a choice the owner made knowingly |
 | UI | Jetpack Compose + Material 3 in Chiaro's design language; Jetpack Glance for the widget | One design system for the family |
 | Languages | Italian and English for the app; English for code and documentation | As the family |
 | Name | **Tempo** | Consistent with Chiaro, Passo and Saldo |
@@ -250,23 +272,20 @@ corrections and the additions, each with its reason.
 - **For every reader.** TalkBack reads each event as one sentence; text works at twice its size;
   an open foldable shows a centred column.
 
-## Open questions for the owner
+## The owner's answers
 
-To settle before Phase 1; each answer goes into PLANNING §15.
+The questions this vision left open, settled in the owner's review (7 Oct 2026; PLANNING §15).
+Every suggestion of the vision was accepted with them.
 
-1. **One widget or two?** The concept's «Agenda» card alone, or the family's pair with a second,
-   typographic «In words» card (the day's sentence and the next event, Chiaro's «In parole»)?
-   Proposal: «Agenda» in v1, «In words» right after if wanted.
-2. **How far ahead by default?** Today and tomorrow, or a week? Proposal: today and tomorrow,
-   with a week one setting away.
-3. **The next alarm on Today?** It needs no permission and answers "when do I have to get up
-   tomorrow?" next to the clock. Proposal: yes, on by default, one switch to hide it.
-4. **Free time between events?** As rows in the timeline ("Free until 15:00"), only in the
-   sentence, or not at all. Proposal: in the sentence, and as a row only for gaps of an hour or
-   more.
-5. **minSdk 33** (as Chiaro and Saldo) rather than Passo's 34? Proposal: 33.
-6. **The store title**: "Tempo – Orologio e agenda" / "Tempo – Clock & Agenda"?
-7. **The launcher shortcut "New event"**: in v1?
+1. **Widgets**: the family's pair, «Agenda» and «In words», both in v1.
+2. **Default horizon**: a week. Today stays on top and the days after tomorrow are compact, so
+   the week costs the screen nothing at a glance; on the widgets the days ahead only fill the
+   room today leaves.
+3. **The next alarm** on Today: yes, on by default, one switch hides it.
+4. **Free time**: in the sentence, and as a row for gaps of an hour or more.
+5. **minSdk 34**, Passo's.
+6. **Name**: Tempo, plain; GitHub Releases is the only channel for now.
+7. **The launcher shortcut "New event"**: in v1.
 
 ## Glossary
 

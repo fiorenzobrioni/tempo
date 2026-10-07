@@ -7,8 +7,9 @@ The mark is Chiaro's ring, as Passo and Saldo carry it: the same ring (radius 21
 the same warm white, cut by an amber emblem the way Chiaro's sun (upper right), Passo's shoe
 print (upper left) and Saldo's coin (lower right) cut theirs. Tempo's emblem is a small clock
 face at the lower left, the one place none of its sisters has hers, so the four marks side by
-side turn the emblem once round the ring. The ring is the day: a violet that deepens clockwise,
-from just past the clock round to it again, the way the hours go. The clock's hands are cut out
+side turn the emblem once round the ring. The ring is the day, shading clockwise from just past
+the clock round to it again, the way the hours go: dawn's peach, the rose of the day, dusk's deep
+berry. The clock's hands are cut out
 of its face: the minute hand at twelve, the hour hand towards four, the drawing the usual clock
 symbol uses, so the face reads as a clock at a launcher's size (ten past ten, tried first, read
 as a tick).
@@ -36,8 +37,11 @@ HANDS = [(-90.0, 5.9), (32.0, 4.3)]
 HAND_WIDTH = 1.8
 HAND_TAIL = 0.9  # how far each hand reaches back past the centre, so the two meet in one hub
 
-# The day, light to deep clockwise: Chiaro's tertiary violet, the plum of the family's cards.
-RING = ("A68FE3", "47307F")
+# The day, from just past the clock round to it again: (position along the sweep, colour). Dawn's
+# peach, the rose of the day, dusk's deep berry. A hue none of the sisters' rings has: Chiaro's is
+# sky blue to indigo, Passo's green, Saldo's sea green and brick. Violet, tried first, sat too
+# close to the indigo end of Chiaro's ring (owner, 7 Oct 2026: more shading, not violet).
+RING_STOPS = [(0.0, "FFB48C"), (0.4, "E85A7A"), (1.0, "6B1D4F")]
 AMBER = ("FFC658", "EF8618")  # the family's emblem amber (Chiaro's sun, Passo's print, Saldo's coin)
 
 
@@ -89,15 +93,19 @@ def without(hole):
 def ring_stops():
     """The day as one sweep (which starts at three o'clock): its seam hides under the clock."""
 
-    def colour(deg):
-        return mix(RING[0], RING[1], ((deg - FACE_ANGLE) % 360) / 360)
+    def colour_at(t):
+        for (t0, c0), (t1, c1) in zip(RING_STOPS, RING_STOPS[1:]):
+            if t0 <= t <= t1:
+                return mix(c0, c1, (t - t0) / (t1 - t0))
+        raise ValueError(t)
 
-    stops = [
-        (0.0, colour(0.0)),
-        (FACE_ANGLE - 0.2, RING[1]),
-        (FACE_ANGLE + 0.2, RING[0]),
-        (360.0, colour(360.0)),
-    ]
+    def colour(deg):
+        return colour_at(((deg - FACE_ANGLE) % 360) / 360)
+
+    stops = [(0.0, colour(0.0))]
+    stops += [((FACE_ANGLE + t * 360) % 360, c) for t, c in RING_STOPS[1:-1]]
+    stops += [(FACE_ANGLE - 0.2, RING_STOPS[-1][1]), (FACE_ANGLE + 0.2, RING_STOPS[0][1]), (360.0, colour(360.0))]
+    stops.sort()
     return "\n".join(
         f'                <item android:offset="{d / 360:.4f}" android:color="#FF{c}"/>' for d, c in stops
     )
@@ -163,7 +171,7 @@ def main():
     RES.mkdir(parents=True, exist_ok=True)
     (RES / "ic_launcher_foreground.xml").write_text(
         HEADER.format(
-            what="The mark: Chiaro's ring in the violets of a day going round, cut by an amber clock\n"
+            what="The mark: Chiaro's ring shading through a day (peach, rose, berry), cut by an amber clock\n"
             "     face at the lower left, its hands cut out. Everything sits inside the\n"
             "     33-unit safe circle of every launcher mask (ring edge 26, face edge 29.2)."
         )
