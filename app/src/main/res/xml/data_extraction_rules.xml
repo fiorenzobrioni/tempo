@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  What Android's backup and device transfer carry, decided rather than inherited (Passo's
+  ADR 0007, the family's rule; PLANNING.md §5).
+
+  Tempo keeps no event of its own: the calendar is the reader's calendar app's, and travels
+  with it (its account's sync, or its own backup). What is Tempo's is the reader's choices, so
+  an allowlist of one file:
+
+  - `files/datastore/settings.preferences_pb`: the appearance, the clock and date formats, which
+    calendars the agenda shows (Phase 2).
+
+  Left out by not being named: the widgets' looks (keyed by widget ids, which a restore renews;
+  Passo's reasoning, the same here), caches, and `no_backup`. A chosen calendar is kept by its
+  account and name as well as its id (PLANNING.md §5), because a restored phone gives the same
+  calendars new ids.
+
+  The same list twice on purpose: `<cloud-backup>` is the copy Android sends to Google Drive,
+  end-to-end encrypted with the phone's PIN, pattern or password since Android 9, and only if
+  the reader turned backup on; `<device-transfer>` is the direct phone-to-phone move. Tempo
+  sends neither itself and needs no permission for them: Android does the moving.
+
+  NOT `android:allowBackup="false"`: on Android 12 and later some makers' phones still move the
+  app's data in a device transfer anyway (Chiaro's reasoning, the same here).
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="file" path="datastore/settings.preferences_pb" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="file" path="datastore/settings.preferences_pb" />
+    </device-transfer>
+</data-extraction-rules>

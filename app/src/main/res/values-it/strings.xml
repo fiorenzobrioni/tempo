@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The name is the same in both languages; this file exists so every string resource of the
+         app has its Italian home from the first phase (CLAUDE.md, Invariants). -->
+</resources>

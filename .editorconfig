@@ -1,0 +1,26 @@
+# The formatting rules, read by the IDE and by ktlint through Spotless (./gradlew spotlessApply).
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+max_line_length = 120
+# Closest to the Kotlin coding conventions the project follows (kotlin.code.style=official).
+ktlint_code_style = intellij_idea
+# Composables are named like types: PascalCase functions are how Compose is written.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
+[*.{yml,yaml,json}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[{gradlew,gradlew.bat}]
+ktlint = disabled

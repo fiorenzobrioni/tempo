@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Written by tools/draw_launcher_icon.py: change the script and run it, never this file.
+     The mark: Chiaro's ring in the violets of a day going round, cut by an amber clock
+     face at the lower left, its hands cut out. Everything sits inside the
+     33-unit safe circle of every launcher mask (ring edge 26, face edge 29.2). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+<group>
+    <clip-path android:pathData="M 0,0 H 108 V 108 H 0 Z M 26.71,67.50 a 11.20,11.20 0 1,0 22.40,0 a 11.20,11.20 0 1,0 -22.40,0 z"/>
+    <path android:pathData="M 33.00,54.00 a 21.00,21.00 0 1,0 42.00,0 a 21.00,21.00 0 1,0 -42.00,0 z" android:strokeWidth="10.00" android:fillColor="#00000000">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="sweep" android:centerX="54.00" android:centerY="54.00">
+                <item android:offset="0.0000" android:color="#FF6C55A6"/>
+                <item android:offset="0.3883" android:color="#FF47307F"/>
+                <item android:offset="0.3894" android:color="#FFA68FE3"/>
+                <item android:offset="1.0000" android:color="#FF6C55A6"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+</group>
+<group>
+    <clip-path android:pathData="M 0,0 H 108 V 108 H 0 Z M 38.81,68.40 L 38.81,61.60 L 37.01,61.60 L 37.01,68.40 Z"/>
+<group>
+    <clip-path android:pathData="M 0,0 H 108 V 108 H 0 Z M 36.67,67.78 L 41.08,70.54 L 42.04,69.01 L 37.63,66.26 Z"/>
+<path android:pathData="M 29.71,67.50 a 8.20,8.20 0 1,0 16.40,0 a 8.20,8.20 0 1,0 -16.40,0 z">
+    <aapt:attr name="android:fillColor">
+        <gradient android:type="linear" android:startX="31.91" android:startY="61.50" android:endX="43.91" android:endY="73.50">
+            <item android:offset="0" android:color="#FFFFC658"/>
+            <item android:offset="1" android:color="#FFEF8618"/>
+        </gradient>
+    </aapt:attr>
+</path>
+</group>
+</group>
+
+</vector>

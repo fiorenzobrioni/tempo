@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The launcher badge's ground: the same warm daylight white as Chiaro's, Passo's and
+         Saldo's, so the family reads as one on a home screen. The mark on it is
+         tools/draw_launcher_icon.py's. -->
+    <color name="ic_launcher_background">#F7F4EE</color>
+</resources>

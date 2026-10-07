@@ -1,0 +1,46 @@
+# Gradle
+.gradle/
+build/
+*/build/
+.kotlin/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+captures/
+.navigation/
+.externalNativeBuild/
+.cxx/
+output.json
+
+# Local configuration (SDK path, local signing properties)
+local.properties
+
+# Compiled / generated
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+gen/
+out/
+
+# Signing. Only the shared debug key is committed, ON PURPOSE (keystore/README.md says why).
+# The real release key must NEVER enter the repo, whatever its extension.
+*.jks
+*.keystore
+*.p12
+*.pfx
+!keystore/debug.keystore
+
+# Logs and profiling
+*.log
+*.hprof
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python caches of the tools/ scripts
+tools/__pycache__/

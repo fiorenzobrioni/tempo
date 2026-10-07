@@ -1,0 +1,163 @@
+<div align="center">
+
+# 🕰️ Tempo
+
+**The time, and what comes next. Read from your calendar, sent nowhere.**
+
+A private, battery-friendly Android clock and agenda: the time, the date and the day's events in
+one calm view, in the app and on a home-screen widget that never scrolls.
+Free, no account, no ads, no tracking, and no permission to use the internet at all.
+
+![Platform](https://img.shields.io/badge/platform-Android-5B4596?labelColor=FCFAF6)
+![Status](https://img.shields.io/badge/status-in%20development-5B4596?labelColor=FCFAF6)
+![CI](https://img.shields.io/github/actions/workflow/status/fiorenzobrioni/tempo/android-ci.yml?branch=main&label=CI&labelColor=FCFAF6&color=5B4596)
+![License](https://img.shields.io/badge/license-GPL--3.0-007DB6?labelColor=FCFAF6)
+![minSdk](https://img.shields.io/badge/minSdk-33-70569C?labelColor=FCFAF6)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.4-F1A000?labelColor=FCFAF6)
+![Compose](https://img.shields.io/badge/UI-Compose%20Material%203-007DB6?labelColor=FCFAF6)
+![Internet](https://img.shields.io/badge/INTERNET%20permission-none-5B4596?labelColor=FCFAF6)
+
+**In development.** The first release comes with Phase 6 of the [plan](./PLANNING.md).
+
+</div>
+
+## What Tempo is
+
+"What time is it, and what is next?" is answered on most home screens by two widgets from two
+apps that do not match: a clock that knows nothing about the day, and a calendar's agenda that
+scrolls inside a page that already scrolls. Tempo joins the two. It reads the calendars the
+phone already has (every account it syncs: Google, Exchange, CalDAV, a calendar kept on the
+phone), shows the time and what is coming, and hands every change to the calendar app you
+already use.
+
+Tempo only reads. It cannot write your calendar, so it can never damage it.
+
+## Screenshots
+
+The screens arrive with Phase 3 and the widget with Phase 4, drawn by the app's own tests from
+sample days, as in the sister apps.
+
+## Features
+
+Planned for 1.0 ([VISION.md](./VISION.md) has the full scope, and what is still open):
+
+- 🕰️ **Today**: the time large, the date, and one sentence on the day ("Three things today; the next, Dentist, in 40 minutes").
+- 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it, then tomorrow and the days after.
+- ✏️ **Your calendar app does the writing**: touch an event to open it there; the new-event button opens its new-event page, the start already set.
+- 🏠 **A widget that never scrolls**: the clock and the date (each optional, in your format), then as many events as the card's size allows, and how many more.
+- ⏰ **A clock that costs nothing**: the widget's time is drawn by Android itself, right to the minute, with no work by the app.
+- 🗂️ **Your calendars, your choice**: every account's calendars with their colours, each shown or hidden; declined invitations kept out.
+- 🎨 **Appearance**: light or dark, two palettes, three typefaces, the same as Chiaro's and Passo's.
+- 🇮🇹 🇬🇧 **Italian and English**, through the system per-app language picker.
+
+## Principles
+
+| | |
+|---|---|
+| 🔒 **Private by design** | no `INTERNET` permission: Tempo cannot send anything. The build fails if a network, location, exact-alarm, calendar-writing or contacts permission appears |
+| 📖 **Read-only** | one calendar permission, to read. Creating and editing stay in your calendar app |
+| 📅 **One source** | the phone's own calendar storage. No account, no sync of its own, no Google services |
+| 🔋 **Battery is a feature** | no service, no polling, nothing on a timer with the screen off; the widget changes only when your calendar does, or an event starts or ends |
+| 🗓️ **The right day** | all-day events on their own day in every time zone; recurring events as your calendar app shows them |
+| 🧾 **The screen does not lie** | a missing permission says so, a hidden calendar stays hidden, and what does not fit on the widget is counted, never cut |
+
+## Install
+
+Not yet: there is no release. When there is, it will be the family's way: a signed APK on
+[GitHub Releases](https://github.com/fiorenzobrioni/tempo/releases), with its SHA-256 checksum
+and the release key's fingerprint here, for Android 13 (API 33) or newer.
+
+## Roadmap
+
+The phased plan, with every decision and its reason, is in [PLANNING.md](./PLANNING.md):
+
+- **Phase 0**, foundations: the build, the design system, CI. *Done.*
+- **Phase 1**, the calendar engine: reading the phone's calendars right, every edge case tested.
+- **Phase 2**, settings; **Phase 3**, Today and the first run; **Phase 4**, the widget.
+- **Phase 5**, the guide and the accessibility pass; **Phase 6**, the 1.0 release on GitHub.
+
+## Build
+
+Requires JDK 21 (the one bundled with Android Studio works) and the Android SDK.
+
+```bash
+./gradlew :app:assembleDebug        # app/build/outputs/apk/debug/app-debug.apk
+./gradlew test                      # unit tests, every module
+./gradlew :app:lintDebug            # lint, every module
+./gradlew spotlessApply             # format the code
+./gradlew :app:checkForbiddenPermissions
+```
+
+For an installable minified build to test with:
+`./gradlew :app:assembleRelease -PsignReleaseWithDebugKey`. It is signed with the debug key
+committed in `keystore/`, on purpose, so builds from CI and any machine share one signature.
+Debug builds carry `applicationIdSuffix ".debug"` and install side by side with the release.
+
+CI runs formatting, the permission check, the tests and lint **before** building the APKs,
+so a red suite never produces an installable artifact. A `vX.Y.Z` tag runs the same gates,
+then publishes the signed APK, its checksum and the R8 mapping, with the matching
+[CHANGELOG.md](./CHANGELOG.md) section as the release notes.
+
+## Tech stack
+
+- **Kotlin** 2.4, **Jetpack Compose** with Material 3, Gradle 9.8 and AGP 9.4, minSdk **33**
+  (Android 13), target and compile SDK **37**
+- The system **Calendar Provider**, read through the `ContentResolver`; no calendar library
+- **DataStore** (settings), **Hilt**, **Coroutines** and **Flow**; no database: the events stay in your calendar
+- **Glance** for the widget, with Android's own `TextClock` for its clock
+- **Navigation 3**, as in Passo
+- Unit tests on the JVM for every edge case of the calendar engine; Compose UI tests with
+  Robolectric, accessibility checks included
+
+```text
+Compose UI → ViewModel → :core:calendar (Calendar Provider, intents) → the calendar app
+                      ↘ :core:domain (pure Kotlin: the agenda, the sentence, the widget's fit)
+                      ↘ :core:data (DataStore settings)
+```
+
+## Project structure
+
+```text
+tempo/
+├── app/                    # Application, MainActivity, navigation, DI
+├── core/
+│   ├── model/              # pure Kotlin data classes
+│   ├── domain/             # pure Kotlin: the agenda, the day's sentence, the widget's fit
+│   ├── data/               # DataStore settings, repositories
+│   ├── calendar/           # the Calendar Provider, the change observer, the intents
+│   ├── designsystem/       # theme, components, icons
+│   └── testing/            # shared UI test helpers (accessibility, page walks)
+├── feature/                # today, settings, onboarding (and the guide, later)
+├── widget/                 # the Glance widget and its settings
+├── build-logic/            # convention plugins, the forbidden-permission check
+├── tools/                  # the launcher icon script
+└── keystore/               # the shared debug key (deliberately committed)
+```
+
+`:core:model` and `:core:domain` are pure Kotlin: a class in them that needs a `Context` is in
+the wrong module.
+
+## Project documentation
+
+| File | Contents |
+|---|---|
+| [VISION.md](./VISION.md) | the product: principles, scope, non-goals, key decisions, open questions |
+| [PLANNING.md](./PLANNING.md) | architecture, calendar engine, data, widget, the phased plan and its decisions |
+| [docs/adr/](./docs/adr/) | the architecture decision records |
+| [CHANGELOG.md](./CHANGELOG.md) | what shipped, per version; a section is written before its tag |
+| [CLAUDE.md](./CLAUDE.md) | the operating rules for AI-assisted development in this repo |
+
+## The family
+
+Tempo is one of four focused apps with the same look and the same rules:
+[Chiaro](https://github.com/fiorenzobrioni/chiaro) (weather),
+[Passo](https://github.com/fiorenzobrioni/passo) (step counter) and
+[Saldo](https://github.com/fiorenzobrioni/saldo) (personal finance).
+
+## License
+
+[GPL-3.0](./LICENSE) © 2026 Fiorenzo Brioni
+
+[Google Sans](https://fonts.google.com/specimen/Google+Sans) and
+[Inter](https://github.com/rsms/inter) under the SIL Open Font License 1.1. Full attributions
+in [licenses/](./licenses/).

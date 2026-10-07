@@ -1,0 +1,51 @@
+# ADR 0002: The family's design language, and Tempo's mark (Phase 0)
+
+- Status: accepted
+- Date: 2026-10-07
+
+## Context
+
+The owner asked for Tempo's style, design and typography to be consistent with the sister apps.
+Passo already carries Chiaro's design language as code (Passo ADR 0004): the generated dresses,
+the type, the shapes, the motion, the page gutter, the widget colours. Copying that code is the
+shortest way to the same look, and keeps one drawing of each thing in the family.
+
+## Decisions
+
+1. **Passo's design system, copied** into `:core:designsystem`: `Scheme.kt` (Chiaro's two
+   generated dresses, Paper and Vivid, never hand-edited, provenance in the file), `Type.kt`
+   (Google Sans by default, Inter, the phone's sans; the same scale; the hero and the reading
+   styles, tabular), `Shape.kt`, `Motion.kt` (springs, a 100 ms fade under reduced motion, read
+   live), `PageWidth.kt` (the centred column on an open foldable), `WidgetPalette.kt` (Chiaro's
+   six card colours, hex for hex), `DenseTargets.kt`. Vivid is the default and dynamic colour is
+   off by default, as in the family. Both fonts are the same files (OFL, credited in
+   `licenses/`).
+2. **Semantic colours only when a phase needs them.** Passo's goal, effort, water and park inks
+   mean nothing in Tempo; only `attention` (Chiaro's freshness amber: "this is not live right
+   now") comes over, for the missing-permission states. A new one is added with its phase and
+   its contrast test.
+3. **The reader's calendar colours are data, not roles.** They are chosen in the calendar app
+   with no thought for Tempo's grounds, so they mark an event and never paint its text or
+   ground (PLANNING.md §6).
+4. **The hero is the time.** `heroNumber` is Chiaro's temperature and Passo's step count; in
+   Tempo it is the clock, tabular so the minutes do not wobble as they change. Whether the clock
+   wants a larger cut than 64sp is Phase 3's to measure on a phone, not a guess made now.
+5. **Icons**: `TempoIcons`, a dozen of Passo's line icons (Chiaro's weight, drawn in code); new
+   shapes are drawn the same way.
+6. **The launcher mark** (`tools/draw_launcher_icon.py`): the family's ring (radius 21, stroke 10,
+   on the warm white `#F7F4EE`), cut by an amber emblem as the sisters' are: Chiaro's sun at the
+   upper right, Passo's shoe print at the upper left, Saldo's coin at the lower right, and
+   Tempo's **clock face at the lower left**, so the four marks turn the emblem once round the
+   ring. The ring is the day in violet, light to deep clockwise; the face has its hands cut out,
+   the minute hand at twelve and the hour hand towards four (ten past ten, tried first, read as a
+   tick at launcher size). The monochrome layer restates the same shapes for themed icons.
+7. **Tests carried over**: `TypographyTest` (every Material role follows the typeface setting)
+   and `ContrastTest` (every text ink at 4.5:1 on every ground, in both dresses and themes), and
+   the shared UI checks of `:core:testing` (`assertAccessible`, `walkPage`).
+
+## Consequences
+
+- A change of Chiaro's schemes or fonts reaches Tempo by hand, as it reaches Passo.
+- Two fonts travel in the APK (about 1.2 MB), whatever the setting says.
+- The widget is drawn by the launcher in the system face whatever the setting says, as the
+  family's are; the `TextClock` header too.
