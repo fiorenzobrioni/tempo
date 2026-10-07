@@ -190,6 +190,15 @@ class CalendarSourceTest {
         assertThat(event.end).isEqualTo(event.begin)
     }
 
+    @Test
+    fun `the calendars alone, for Settings, and none without the permission`() = runTest {
+        FakeCalendarProvider.calendars = listOf(mapOf(Calendars._ID to 1L, Calendars.CALENDAR_DISPLAY_NAME to "Home"))
+        assertThat(source.readCalendars()?.map { it.name }).containsExactly("Home")
+        assertThat(FakeCalendarProvider.queries.none { it.pathSegments.first() == "instances" }).isTrue()
+        shadowOf(app).denyPermissions(Manifest.permission.READ_CALENDAR)
+        assertThat(source.readCalendars()).isNull()
+    }
+
     private fun instance(
         id: Long,
         begin: String = "2026-10-07T08:00:00Z",

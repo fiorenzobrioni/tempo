@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.tempo.android.application)
     alias(libs.plugins.tempo.android.compose)
     alias(libs.plugins.tempo.android.hilt)
+    // The navigation keys are serializable, so the back stack survives a rotation and process death.
+    alias(libs.plugins.kotlin.serialization)
 }
 
 // The version lives in gradle.properties; versionCode follows from it (PLANNING.md §11 Phase 6),
@@ -95,5 +97,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
 }

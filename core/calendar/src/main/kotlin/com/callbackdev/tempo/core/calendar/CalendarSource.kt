@@ -42,6 +42,19 @@ class CalendarSource @Inject constructor(@ApplicationContext private val context
         }
     }
 
+    /**
+     * The phone's calendars alone, for Settings' list; null without the permission. The same
+     * read as [read]'s first half: what the list shows is what the agenda filters.
+     */
+    suspend fun readCalendars(): List<CalendarInfo>? = withContext(Dispatchers.IO) {
+        if (!CalendarAccess.isGranted(context)) return@withContext null
+        try {
+            calendars()
+        } catch (_: SecurityException) {
+            null
+        }
+    }
+
     private fun calendars(): List<CalendarInfo> =
         context.contentResolver.query(Calendars.CONTENT_URI, CalendarProjection, null, null, null)
             ?.use { cursor -> cursor.rows { calendarOf(it) } }

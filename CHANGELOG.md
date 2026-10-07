@@ -20,3 +20,8 @@ All notable changes to Tempo are documented here. The format follows
   midnight and daylight saving, leaves out cancelled events and, unless you want them, declined
   invitations and the calendars you hide, and finds the free time between your events. Not on
   screen yet: Today shows it from Phase 3.
+- Settings: the time (the phone's, 24-hour or 12-hour) and the date (long, short or numeric),
+  the days ahead (a week by default), all-day events, declined invitations, the next alarm, which
+  calendars to show (by account, with their colours), and the family's appearance (light or dark,
+  two palettes, three typefaces, wallpaper colours), with a live preview. Today's clock already
+  follows the formats and the appearance.

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Impostazioni</string>
+    <string name="settings_back">Indietro</string>
+
+    <string name="settings_group_clock">Orologio</string>
+    <string name="settings_time_format">Ora</string>
+    <string name="settings_time_system">Come il telefono (%1$s)</string>
+    <string name="settings_time_24">24 ore (%1$s)</string>
+    <string name="settings_time_12">12 ore (%1$s)</string>
+    <string name="settings_time_note">Tempo scrive così ogni orario: su Oggi, nell’agenda e nei widget.</string>
+    <string name="settings_date_format">Data</string>
+    <string name="settings_date_note">Con le parole e l’ordine della lingua dell’app.</string>
+
+    <string name="settings_group_agenda">Agenda</string>
+    <string name="settings_horizon">Giorni in avanti</string>
+    <string name="settings_horizon_1">Solo oggi</string>
+    <string name="settings_horizon_2">Oggi e domani</string>
+    <string name="settings_horizon_7">Una settimana</string>
+    <string name="settings_horizon_note">Oggi è sempre in cima. I giorni dopo domani sono elencati in breve, così una settimana resta facile da leggere.</string>
+    <string name="settings_all_day">Eventi di tutto il giorno</string>
+    <string name="settings_all_day_note">Feste, compleanni e viaggi, in una riga sopra gli impegni del giorno.</string>
+    <string name="settings_declined">Inviti rifiutati</string>
+    <string name="settings_declined_note">Gli inviti a cui hai detto di no. Non occupano mai il tuo tempo libero.</string>
+    <string name="settings_next_alarm">Prossima sveglia</string>
+    <string name="settings_next_alarm_note">Accanto all’orologio su Oggi, quando sul telefono c’è una sveglia impostata.</string>
+
+    <string name="settings_group_calendars">Calendari</string>
+    <plurals name="settings_calendars_summary">
+        <item quantity="one">%1$d calendario sul telefono, %2$d mostrati. Quelli nascosti restano fuori da Oggi e dai widget.</item>
+        <item quantity="many">%1$d calendari sul telefono, %2$d mostrati. Quelli nascosti restano fuori da Oggi e dai widget.</item>
+        <item quantity="other">%1$d calendari sul telefono, %2$d mostrati. Quelli nascosti restano fuori da Oggi e dai widget.</item>
+    </plurals>
+    <string name="settings_calendars_none">Sul telefono non c’è ancora nessun calendario. Uno aggiunto nella tua app calendario, o con un account, comparirà qui.</string>
+    <string name="settings_calendars_permission_title">Tempo non può ancora leggere i tuoi calendari</string>
+    <string name="settings_calendars_permission_body">Per elencarli, e per mostrarti i tuoi impegni, Tempo deve leggere il calendario del telefono. Lo legge soltanto: creare e modificare gli eventi resta compito della tua app calendario.</string>
+    <string name="settings_calendars_allow">Consenti</string>
+    <string name="settings_calendars_denied_body">Hai negato questo permesso. Android lascia riattivarlo solo dalla pagina dell’app nelle impostazioni del telefono, in Autorizzazioni, Calendario.</string>
+    <string name="settings_calendars_open_settings">Apri le impostazioni dell’app</string>
+    <string name="settings_calendar_phone">Su questo telefono</string>
+    <string name="settings_calendar_shown">%1$s, mostrato</string>
+    <string name="settings_calendar_hidden">%1$s, nascosto</string>
+
+    <string name="settings_group_appearance">Aspetto</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_system">Come il telefono</string>
+    <string name="settings_theme_light">Chiaro</string>
+    <string name="settings_theme_dark">Scuro</string>
+    <string name="settings_palette">Palette</string>
+    <string name="settings_palette_paper">Carta</string>
+    <string name="settings_palette_vivid">Brillante</string>
+    <string name="settings_palette_note">Carta è bianco caldo e ambra. Brillante è bianco freddo e azzurro. Le stesse due di Chiaro e Passo.</string>
+    <string name="settings_font">Carattere</string>
+    <string name="settings_font_google_sans">Google Sans</string>
+    <string name="settings_font_inter">Inter</string>
+    <string name="settings_font_system">Di sistema</string>
+    <string name="settings_font_note">Google Sans e Inter vengono con l’app, quindi si vedono uguali su ogni telefono. Di sistema prende il carattere impostato sul telefono.</string>
+    <string name="settings_dynamic_color">Colori dallo sfondo</string>
+    <string name="settings_dynamic_color_note">I colori arrivano dallo sfondo del telefono invece che dalla palette qui sopra.</string>
+    <string name="settings_preview_event">Riunione</string>
+
+    <string name="settings_group_language">Lingua</string>
+    <string name="settings_language">Lingua dell’app</string>
+    <string name="settings_language_system">Come il telefono</string>
+
+    <string name="settings_privacy">Privacy</string>
+    <string name="settings_privacy_headline">Niente account, niente pubblicità, niente tracciamento.</string>
+    <string name="settings_privacy_body">Tempo non ha alcun permesso di accesso a internet, quindi non può mandare i tuoi impegni da nessuna parte. Legge il tuo calendario e non lo scrive mai: creare e modificare un evento avviene nella tua app calendario. Il backup di Android, se l’hai attivato, tiene una copia delle impostazioni di Tempo nel tuo account Google, cifrata con il blocco schermo; i tuoi impegni sono del tuo calendario, e viaggiano con lui.</string>
+
+    <string name="settings_group_about">Informazioni</string>
+    <string name="settings_version">Versione</string>
+    <string name="settings_developer">Sviluppo</string>
+    <string name="settings_copyright">Copyright</string>
+    <string name="settings_license">Licenza</string>
+    <string name="settings_license_note">GPL-3.0: libera di usare, studiare, modificare e condividere, senza garanzia</string>
+    <string name="settings_source_code">Codice sorgente</string>
+    <string name="settings_source_code_note">Software libero, GPL-3.0, su GitHub</string>
+
+    <string name="settings_group_credits">Riconoscimenti</string>
+    <string name="settings_credit_font">Caratteri</string>
+    <string name="settings_credit_font_note">Inter di Rasmus Andersson e Google Sans di Google, entrambi SIL Open Font License 1.1</string>
+    <string name="settings_credit_font_inuse">in uso: %1$s</string>
+    <string name="settings_credit_font_inuse_system">in uso: il carattere impostato sul telefono</string>
+</resources>

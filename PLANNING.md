@@ -224,7 +224,7 @@ Tempo has no database. The Calendar Provider is the only truth for events; Tempo
 | `clock_format` | SYSTEM | `ClockFormat` |
 | `date_style` | LONG | `DateStyle` |
 | `horizon_days` | 7 (a week; owner, §15) | Days shown: 1, 2 or 7 |
-| `hidden_calendars` | empty | Calendars the reader hid, each kept as `id` **and** `account_type/account_name/display name`, so a restore that renews the ids can still match them |
+| `calendar_choices` | empty | The calendars the reader turned on or off in Tempo (a string set, one `CalendarChoice` per line, URL-encoded fields), each kept as `id` **and** `account_type/account_name/display name`, so a restore that renews the ids can still match them (`CalendarChoices`, §15) |
 | `show_declined` | false | Declined invitations |
 | `show_all_day` | true | All-day events |
 | `show_next_alarm` | true | The next alarm line |
@@ -387,16 +387,22 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 
 ### Phase 2 — Settings
 
-- [ ] `SettingsRepository` on DataStore (§5); the appearance applied by `MainActivity` (theme, palette, typeface, wallpaper colours), as Passo's
-- [ ] Settings screen: clock, date, horizon, the calendars (grouped by account, with colours and switches), declined, all-day, next alarm, appearance, language (the system picker), about, credits, licence
-- [ ] The guide's entry, waiting for Phase 5
+- [x] `SettingsRepository` on DataStore (§5); the appearance applied by `MainActivity` (theme, palette, typeface, wallpaper colours), as Passo's
+  - Only what differs from a default is stored; an unreadable value reads as its default; a corrupt file is replaced by an empty one. 5 tests on a real DataStore file (a restart is a second store on the same file), 2 for the encoding of the calendar choices.
+- [x] Settings screen: clock, date, horizon, the calendars (grouped by account, with colours and switches), declined, all-day, next alarm, appearance (with a live preview), language (the system picker), privacy, about, credits, licence
+  - The calendars: `CalendarGroups` (accounts alphabetically, the phone's own last, the primary calendar first), each with its colour as a `CalendarDot` stepped to 3:1 (`markColor`), the count shown, and, with no permission, a card that asks for it (or, refused for good, opens the app's system page). Read again on the provider's changes and on every return to the page.
+  - 13 UI tests from states, `assertAccessible()` on each, the page walked at twice the text size and on an open foldable; screenshots looked at.
+- [x] The guide's entry, waiting for Phase 5
+  - *Deviation:* not drawn at all until the guide exists: a card to a page that does not exist would be the screen lying (CLAUDE.md, Design). It comes first in the list, as in the sisters', with Phase 5.
+- *Brought forward from Phase 3:* the shell's first part, so Settings can be reached: Navigation 3 with Today and Settings (`TempoRoot`), Passo's transitions, and a gear on Today. The onboarding joins it in Phase 3.
 
 **Acceptance:**
-- [ ] Every setting changes what it says, and survives a restart; hiding a calendar hides its events at once.
+- [x] Every setting changes what it says, and survives a restart; hiding a calendar hides its events at once.
+  - On screen now: the time and date formats (Today and the preview) and the appearance. The agenda's settings (days ahead, all-day, declined, next alarm, the calendars) change the agenda, which Today draws from Phase 3: until then they are proven by `CalendarChoicesTest` ("hiding a calendar takes its events off the agenda at once") and `AgendaBuilderTest`. Every setting surviving a restart: `SettingsRepositoryTest`.
 
 ### Phase 3 — Today and onboarding
 
-- [ ] The shell (Navigation 3, as Passo's): onboarding, Today, Settings
+- [ ] The shell (Navigation 3, as Passo's): onboarding, Today, Settings (Today and Settings since Phase 2)
 - [ ] Today: the clock, the date, the sentence, the next alarm, the all-day row, the timeline with "now", the days ahead, the states of §VISION (no permission, nothing today, no calendars, no calendar app)
 - [ ] Touch an event (VIEW), the new-event button (INSERT), touch the date (VIEW of today); the device check of the intents moved here from Phase 1 (`docs/device-checks/calendar-intents.md`)
 - [ ] Live while visible: the minute ticker and `CalendarChanges`, both lifecycle-bound
@@ -512,6 +518,11 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - **7 Oct 2026, Phase 1.** `ACTION_EDIT` is not built: `CalendarIntents` has view, insert and open-a-day. It joins if the device check (Phase 3, or `docs/device-checks/calendar-intents.md` sooner) shows the owner's calendar apps honouring it.
 - **7 Oct 2026, Phase 1.** "Denied for good" needs to know whether the permission was ever asked, which Android does not say: `calendarPermission(granted, askedBefore, showRationale)` takes it from the settings (an `asked_calendar_permission` key, Phase 2).
 - **7 Oct 2026, Phase 1.** The query window is today's start minus a day to the horizon's end plus a day (`AgendaWindow`), so an all-day event, stored in UTC, is never cut by the window west or east of Greenwich; the builder trims to the dates.
+
+- **7 Oct 2026, Phase 2.** A calendar choice finds its calendar by id within the same account first (a calendar renamed in its app keeps the reader's choice), then by account and name (a restored phone, new ids). A choice whose calendar is gone is kept, in case the account comes back. A calendar with no choice follows the calendar app's `VISIBLE` (`CalendarChoices`).
+- **7 Oct 2026, Phase 2.** The calendar's colour is a dot (`CalendarDot`), stepped in lightness by `markColor` until it reads at 3:1 on its ground (WCAG's ratio for a meaningful graphic); its hue is never changed. Measured: Google's "Banana" yellow is darkened on the light card, kept on the dark one.
+- **7 Oct 2026, Phase 2.** The guide's card is not drawn until the guide exists (Phase 5), and the agenda's settings are on the page before the agenda (Phase 3): on a development branch, with no release between the two phases, the second is accepted; a release never ships one without the other.
+- **7 Oct 2026, Phase 2.** The permission card's button is a filled one: the tonal one wore the card's own ground (secondary container) and read as plain text in the screenshots.
 
 ### Open
 
