@@ -58,6 +58,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callbackdev.tempo.core.calendar.CalendarAccess
 import com.callbackdev.tempo.core.designsystem.components.CalendarDot
+import com.callbackdev.tempo.core.designsystem.components.CalendarPermissionCard
 import com.callbackdev.tempo.core.designsystem.components.GroupDivider
 import com.callbackdev.tempo.core.designsystem.components.GroupHeader
 import com.callbackdev.tempo.core.designsystem.components.InfoRow
@@ -412,7 +413,12 @@ private fun CalendarsSection(
     when (calendars) {
         null -> Unit
 
-        CalendarsState.NoPermission -> PermissionCard(permission, actions)
+        CalendarsState.NoPermission -> CalendarPermissionCard(
+            permission = permission,
+            onAsk = actions.askPermission,
+            onOpenAppSettings = actions.openAppSettings,
+            modifier = Modifier.padding(horizontal = ScreenMargin).testTag(SettingsTags.PERMISSION),
+        )
 
         is CalendarsState.Listed -> {
             val all = calendars.accounts.flatMap { it.calendars }
@@ -486,55 +492,6 @@ private fun CalendarRow(calendar: CalendarInfo, shown: Boolean, onChange: (Boole
         CalendarDot(calendar.color, MaterialTheme.colorScheme.surfaceContainerLow, size = 14.dp)
         Text(calendar.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         Switch(checked = shown, onCheckedChange = null)
-    }
-}
-
-/**
- * No list without the permission: what Tempo would read and why, and the one way forward that
- * works now. Asked again while Android allows it; refused for good, the app's system page. A
- * filled button: a tonal one would wear the card's own ground and read as plain text.
- */
-@Composable
-private fun PermissionCard(permission: CalendarPermission, actions: SettingsActions) {
-    Surface(
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        shape = GroupShape,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = ScreenMargin)
-            .testTag(SettingsTags.PERMISSION),
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(16.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                Icon(TempoIcons.Calendar, contentDescription = null, modifier = Modifier.size(24.dp))
-                Text(
-                    stringResource(R.string.settings_calendars_permission_title),
-                    style = MaterialTheme.typography.titleSmall,
-                )
-            }
-            val forGood = permission == CalendarPermission.DENIED_FOR_GOOD
-            val body = if (forGood) {
-                R.string.settings_calendars_denied_body
-            } else {
-                R.string.settings_calendars_permission_body
-            }
-            Text(
-                text = stringResource(body),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Button(
-                onClick = if (forGood) actions.openAppSettings else actions.askPermission,
-                modifier = Modifier.align(Alignment.End),
-            ) {
-                val label = if (forGood) {
-                    R.string.settings_calendars_open_settings
-                } else {
-                    R.string.settings_calendars_allow
-                }
-                Text(stringResource(label))
-            }
-        }
     }
 }
 

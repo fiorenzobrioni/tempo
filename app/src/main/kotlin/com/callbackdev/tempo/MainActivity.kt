@@ -1,5 +1,6 @@
 package com.callbackdev.tempo
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,16 +14,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.callbackdev.tempo.core.calendar.CalendarIntents
 import com.callbackdev.tempo.core.data.settings.SettingsRepository
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
+import com.callbackdev.tempo.core.domain.clock.nextHalfHour
 import com.callbackdev.tempo.core.model.ThemeMode
+import com.callbackdev.tempo.shell.NewEventShortcut
 import com.callbackdev.tempo.shell.TempoRoot
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.Instant
+import java.time.ZoneId
 import javax.inject.Inject
 
 /**
  * The one activity, edge to edge. It wears the reader's appearance (theme, palette, typeface,
- * wallpaper colours: Settings, Phase 2) and hands the pages to [TempoRoot].
+ * wallpaper colours), hands the pages to [TempoRoot], and answers the launcher's "New event"
+ * ([NewEventShortcut]) by handing a new event to the calendar app, over Today.
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -31,6 +38,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        NewEventShortcut.publish(this)
+        if (savedInstanceState == null) newEventIfAsked(intent)
         setContent {
             val settings by settingsRepository.settings.collectAsStateWithLifecycle(initialValue = null)
             val dark = when (settings?.theme) {
@@ -62,5 +71,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        newEventIfAsked(intent)
+    }
+
+    /** The shortcut's new event, once per touch, if a calendar app takes it; otherwise Today alone. */
+    private fun newEventIfAsked(intent: Intent?) {
+        if (intent?.getBooleanExtra(NewEventShortcut.EXTRA_NEW_EVENT, false) != true) return
+        intent.removeExtra(NewEventShortcut.EXTRA_NEW_EVENT)
+        val insert = CalendarIntents.insert(nextHalfHour(Instant.now(), ZoneId.systemDefault()))
+        if (CalendarIntents.canOpen(this, insert)) runCatching { startActivity(insert) }
     }
 }

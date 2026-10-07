@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="today_settings">Settings</string>
+    <string name="today_open_day">Open the day in your calendar</string>
+    <string name="today_new_event">New event</string>
+    <string name="today_now">Now</string>
+    <string name="today_tomorrow">Tomorrow</string>
+
+    <string name="today_all_day">All day</string>
+    <string name="today_day_of">Day %1$d of %2$d</string>
+    <string name="today_left">%1$s left</string>
+    <string name="today_started_before">Started the day before</string>
+    <string name="today_ends_after">Ends the next day</string>
+    <string name="today_declined">Declined</string>
+    <string name="today_maybe">Maybe</string>
+    <string name="today_free_for">Free for %1$s</string>
+    <plurals name="today_earlier">
+        <item quantity="one">%1$d event earlier today</item>
+        <item quantity="other">%1$d events earlier today</item>
+    </plurals>
+    <string name="today_show">Show</string>
+    <string name="today_hide">Hide</string>
+
+    <!-- What TalkBack reads for a row: one sentence (PLANNING.md §11 Phase 3, acceptance). -->
+    <string name="a11y_range">%1$s to %2$s</string>
+    <string name="a11y_in_calendar">in %1$s</string>
+    <string name="a11y_under_way">under way, %1$s left</string>
+    <string name="a11y_over">over</string>
+    <string name="a11y_declined">declined</string>
+    <string name="a11y_maybe">maybe</string>
+    <string name="a11y_open_event">Open in your calendar</string>
+    <string name="a11y_free">Free from %1$s, for %2$s</string>
+
+    <string name="today_no_calendars_title">There is no calendar on this phone yet</string>
+    <string name="today_no_calendars_body">Add one in your calendar app, or add an account that has one in the phone’s settings: its events appear here.</string>
+    <string name="today_all_hidden_title">Every calendar is hidden</string>
+    <string name="today_all_hidden_body">Tempo shows only the calendars you choose, and right now none is chosen.</string>
+    <string name="today_all_hidden_action">Choose calendars</string>
+    <string name="today_no_app_title">No calendar app on this phone</string>
+    <string name="today_no_app_body">Tempo shows your events, but opening or creating one happens in a calendar app, such as Google Calendar or Etar.</string>
 </resources>

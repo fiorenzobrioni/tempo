@@ -31,11 +31,6 @@
         <item quantity="other">%1$d calendars on this phone, %2$d shown. Hidden ones stay out of Today and the widgets.</item>
     </plurals>
     <string name="settings_calendars_none">There is no calendar on this phone yet. One added in your calendar app, or with an account, appears here.</string>
-    <string name="settings_calendars_permission_title">Tempo cannot read your calendars yet</string>
-    <string name="settings_calendars_permission_body">To list them, and to show your events, Tempo needs to read the phone’s calendar. It only reads: creating and changing events stay in your calendar app.</string>
-    <string name="settings_calendars_allow">Allow</string>
-    <string name="settings_calendars_denied_body">You turned this permission off. Android only lets you turn it back on from the app’s page in the phone’s settings, under Permissions, Calendar.</string>
-    <string name="settings_calendars_open_settings">Open the app’s settings</string>
     <string name="settings_calendar_phone">On this phone</string>
     <string name="settings_calendar_shown">%1$s, shown</string>
     <string name="settings_calendar_hidden">%1$s, hidden</string>

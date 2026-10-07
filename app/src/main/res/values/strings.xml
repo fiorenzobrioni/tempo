@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">Tempo</string>
+    <string name="shortcut_new_event">New event</string>
+    <string name="shortcut_new_event_long">New event in your calendar</string>
 </resources>

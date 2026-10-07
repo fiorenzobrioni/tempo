@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The calendar permission's card, on Today and in Settings. -->
+    <string name="permission_title">Tempo cannot read your calendar yet</string>
+    <string name="permission_body">To show your events, Tempo needs to read the phone’s calendar. It only reads: creating and changing events stay in your calendar app.</string>
+    <string name="permission_allow">Allow</string>
+    <string name="permission_denied_body">You turned this permission off. Android only lets you turn it back on from the app’s page in the phone’s settings, under Permissions, Calendar.</string>
+    <string name="permission_open_settings">Open the app’s settings</string>
+
+    <string name="event_no_title">(No title)</string>
+    <string name="time_range">%1$s – %2$s</string>
+    <string name="time_from">from %1$s</string>
+    <string name="time_until">until %1$s</string>
+    <string name="duration_m">%1$d min</string>
+    <string name="duration_h">%1$d h</string>
+    <string name="duration_hm">%1$d h %2$d min</string>
+
+    <!-- The day's sentence (PLANNING.md §6). Each case is a whole clause; the endings follow. -->
+    <string name="sentence_under_way">%1$s until %2$s</string>
+    <plurals name="sentence_soon">
+        <item quantity="one">%1$s in %2$d minute</item>
+        <item quantity="other">%1$s in %2$d minutes</item>
+    </plurals>
+    <string name="sentence_free_until">Free until %1$s, then %2$s</string>
+    <plurals name="sentence_then_more">
+        <item quantity="one">, then one more today.</item>
+        <item quantity="other">, then %1$d more today.</item>
+    </plurals>
+    <plurals name="sentence_and_more">
+        <item quantity="one">, and one more after it.</item>
+        <item quantity="other">, and %1$d more after it.</item>
+    </plurals>
+    <string name="sentence_end">.</string>
+    <string name="sentence_last">, the last today.</string>
+    <string name="sentence_done_tomorrow">Nothing left today; tomorrow starts at %1$s with %2$s.</string>
+    <string name="sentence_done_tomorrow_free">Nothing left today, and tomorrow is free.</string>
+    <string name="sentence_done">Nothing left today.</string>
+    <string name="sentence_free_day_tomorrow">Nothing on the calendar today; tomorrow starts at %1$s with %2$s.</string>
+    <string name="sentence_free_day_tomorrow_free">Nothing on the calendar today or tomorrow.</string>
+    <string name="sentence_free_day">Nothing on the calendar today.</string>
+
+    <!-- A day after today, in a few words. -->
+    <plurals name="summary_events">
+        <item quantity="one">%1$d event, %2$s to %3$s.</item>
+        <item quantity="other">%1$d events, %2$s to %3$s.</item>
+    </plurals>
+    <plurals name="summary_events_count">
+        <item quantity="one">%1$d event.</item>
+        <item quantity="other">%1$d events.</item>
+    </plurals>
+    <plurals name="summary_all_day">
+        <item quantity="one">%1$d all-day event.</item>
+        <item quantity="other">%1$d all-day events.</item>
+    </plurals>
+    <string name="summary_nothing">Nothing planned.</string>
+
+    <string name="alarm_today">Alarm at %1$s</string>
+    <string name="alarm_tomorrow">Alarm tomorrow at %1$s</string>
+    <string name="alarm_on">Alarm %1$s at %2$s</string>
+</resources>

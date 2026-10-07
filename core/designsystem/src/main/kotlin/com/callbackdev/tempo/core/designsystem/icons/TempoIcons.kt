@@ -159,6 +159,28 @@ object TempoIcons {
         }
     }
 
+    /** A battery with a bolt: the battery promise. */
+    val Battery: ImageVector by lazy {
+        icon("battery") {
+            moveTo(5f, 7f)
+            lineTo(17f, 7f)
+            curveTo(18.1f, 7f, 19f, 7.9f, 19f, 9f)
+            lineTo(19f, 15f)
+            curveTo(19f, 16.1f, 18.1f, 17f, 17f, 17f)
+            lineTo(5f, 17f)
+            curveTo(3.9f, 17f, 3f, 16.1f, 3f, 15f)
+            lineTo(3f, 9f)
+            curveTo(3f, 7.9f, 3.9f, 7f, 5f, 7f)
+            close()
+            moveTo(21.5f, 10.5f)
+            lineTo(21.5f, 13.5f)
+            moveTo(11.5f, 9f)
+            lineTo(8.5f, 12.3f)
+            lineTo(12.5f, 12.3f)
+            lineTo(9.5f, 15f)
+        }
+    }
+
     /** A shield: the privacy statement. */
     val Shield: ImageVector by lazy {
         icon("shield") {

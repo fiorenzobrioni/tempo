@@ -84,9 +84,9 @@ app the reader already uses.
   as a mark, the location as one line of text (no map). The event under way says how much is
   left ("ends in 25 min"), past events are quieter, and a "now" line stands between what has
   been and what is next.
-- **Free time**: said in the day's sentence ("Free until 3 pm"), and drawn as a quiet row of its
-  own only for a gap of an hour or more between two events, so the timeline does not fill up
-  with the ten minutes between two meetings.
+- **Free time**: said in the day's sentence ("Free until 3 pm"), and drawn on today's timeline as
+  a quiet row of its own only for a gap of an hour or more, so the timeline does not fill up with
+  the ten minutes between two meetings. A touch on the row starts a new event there.
 - **The days ahead**: tomorrow and the rest of the week (a week by default, the reader's
   horizon), each day with its own short sentence. Today stays on top, whole; tomorrow is drawn as
   today is; the days after it are compact (a heading and one line per event), so a full week
@@ -172,7 +172,8 @@ day stands rather than read its list.
 ### Onboarding
 
 - A short flow: welcome; the calendar permission, with what it reads and what it never does;
-  the widget, with a button that offers to put it on the home screen (Android's pin request).
+  the widget, with a button that offers to put it on the home screen (Android's pin request),
+  from Phase 4, when the widgets exist.
 - Refusing the permission is a choice the app respects: the clock and the widget's clock work
   without it, and the agenda's place says how to change one's mind.
 

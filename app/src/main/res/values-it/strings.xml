@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The name is the same in both languages; this file exists so every string resource of the
-         app has its Italian home from the first phase (CLAUDE.md, Invariants). -->
+    <!-- The name is the same in both languages (values/). -->
+    <string name="shortcut_new_event">Nuovo evento</string>
+    <string name="shortcut_new_event_long">Nuovo evento nel tuo calendario</string>
 </resources>

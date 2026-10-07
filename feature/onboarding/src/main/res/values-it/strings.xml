@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_tagline">L’ora, e quello che viene dopo.</string>
+    <string name="onboarding_calendars_title">I tuoi calendari, in un colpo d’occhio</string>
+    <string name="onboarding_calendars_body">Ogni calendario che il telefono già ha, di ogni account. Niente da cui accedere, niente da sincronizzare.</string>
+    <string name="onboarding_private_title">Solo lettura, e privato</string>
+    <string name="onboarding_private_body">Tempo legge i tuoi impegni e non li scrive mai: crearne e modificarne uno resta compito della tua app calendario. Non ha alcun permesso di accesso a internet.</string>
+    <string name="onboarding_battery_title">La batteria conta</string>
+    <string name="onboarding_battery_body">Nessun servizio, nessun controllo continuo. Tempo lavora mentre guardi, o quando il calendario cambia, e mai a orario.</string>
+    <string name="onboarding_start">Inizia</string>
+
+    <string name="onboarding_calendar_title">Il tuo calendario</string>
+    <string name="onboarding_calendar_body">Per mostrarti la giornata, Tempo deve leggere il calendario del telefono. Legge gli impegni dei giorni che mostra, sul telefono, e nient’altro: niente contatti, niente posizione, niente internet.</string>
+    <string name="onboarding_calendar_later">Senza, l’orologio e la data funzionano lo stesso, e puoi consentirlo più tardi da Oggi o dalle Impostazioni.</string>
+    <string name="onboarding_calendar_granted">Tempo può leggere il tuo calendario.</string>
+    <string name="onboarding_allow">Consenti</string>
+    <string name="onboarding_open_settings">Apri le impostazioni dell’app</string>
+    <string name="onboarding_not_now">Non ora</string>
+    <string name="onboarding_back">Indietro</string>
+    <string name="onboarding_done">Fatto</string>
+    <string name="onboarding_progress">Passo %1$d di %2$d</string>
+</resources>

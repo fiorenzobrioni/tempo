@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The "New event" shortcut's mark (PLANNING.md §8): TempoIcons.Plus inside the calendar page
+     (TempoIcons.Calendar) in the launcher ring's rose (tools/draw_launcher_icon.py, #E85A7A
+     darkened for a line), on its warm white (ic_launcher_background), as Passo's shortcut is drawn.
+     Launchers draw shortcut icons as they are. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FFF7F4EE"
+        android:pathData="M24,24m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0" />
+    <group
+        android:scaleX="1.1"
+        android:scaleY="1.1"
+        android:translateX="10.8"
+        android:translateY="10.8">
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFB83A62"
+            android:strokeWidth="1.8"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M6,5L18,5C19.1,5 20,5.9 20,7L20,18C20,19.1 19.1,20 18,20L6,20C4.9,20 4,19.1 4,18L4,7C4,5.9 4.9,5 6,5Z M4,9.5L20,9.5 M8,3L8,6.5 M16,3L16,6.5 M12,12L12,17.5 M9.25,14.75L14.75,14.75" />
+    </group>
+</vector>

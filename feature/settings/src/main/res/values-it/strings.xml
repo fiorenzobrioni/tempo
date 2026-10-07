@@ -32,11 +32,6 @@
         <item quantity="other">%1$d calendari sul telefono, %2$d mostrati. Quelli nascosti restano fuori da Oggi e dai widget.</item>
     </plurals>
     <string name="settings_calendars_none">Sul telefono non c’è ancora nessun calendario. Uno aggiunto nella tua app calendario, o con un account, comparirà qui.</string>
-    <string name="settings_calendars_permission_title">Tempo non può ancora leggere i tuoi calendari</string>
-    <string name="settings_calendars_permission_body">Per elencarli, e per mostrarti i tuoi impegni, Tempo deve leggere il calendario del telefono. Lo legge soltanto: creare e modificare gli eventi resta compito della tua app calendario.</string>
-    <string name="settings_calendars_allow">Consenti</string>
-    <string name="settings_calendars_denied_body">Hai negato questo permesso. Android lascia riattivarlo solo dalla pagina dell’app nelle impostazioni del telefono, in Autorizzazioni, Calendario.</string>
-    <string name="settings_calendars_open_settings">Apri le impostazioni dell’app</string>
     <string name="settings_calendar_phone">Su questo telefono</string>
     <string name="settings_calendar_shown">%1$s, mostrato</string>
     <string name="settings_calendar_hidden">%1$s, nascosto</string>

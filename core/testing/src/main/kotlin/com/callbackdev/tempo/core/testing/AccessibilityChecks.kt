@@ -36,7 +36,7 @@ fun SemanticsNodeInteractionsProvider.assertAccessible() {
         val controls = mutableListOf<Control>()
         fun visit(node: SemanticsNode, dense: Boolean, ancestors: List<Int>) {
             val inDense = dense || node.config.getOrNull(SemanticsProperties.TestTag) == DENSE_TARGETS_TAG
-            controlOf(node, inDense, ancestors)?.let { controls += it }
+            controlOf(node, inDense, ancestors, order = controls.size)?.let { controls += it }
             node.children.forEach { visit(it, inDense, ancestors + node.id) }
         }
         visit(root, dense = false, ancestors = emptyList())
@@ -51,6 +51,8 @@ private class Control(
     val ancestors: List<Int>,
     val label: String,
     val area: Rect,
+    val bounds: Rect,
+    val order: Int,
     val pxPerDp: Float,
     val measured: Boolean,
 ) {
@@ -58,7 +60,7 @@ private class Control(
     fun apartFrom(other: Control) = id != other.id && id !in other.ancestors && other.id !in ancestors
 }
 
-private fun controlOf(node: SemanticsNode, dense: Boolean, ancestors: List<Int>): Control? {
+private fun controlOf(node: SemanticsNode, dense: Boolean, ancestors: List<Int>, order: Int): Control? {
     val config = node.config
     if (SemanticsActions.OnClick !in config || SemanticsProperties.Disabled in config) return null
     if (SemanticsProperties.HideFromAccessibility in config) return null
@@ -72,6 +74,8 @@ private fun controlOf(node: SemanticsNode, dense: Boolean, ancestors: List<Int>)
         ancestors = ancestors,
         label = labelOf(node),
         area = if (clipped) bounds else node.touchBoundsInRoot,
+        bounds = bounds,
+        order = order,
         pxPerDp = node.layoutInfo.density.density,
         measured = !dense && !clipped,
     )
@@ -80,6 +84,11 @@ private fun controlOf(node: SemanticsNode, dense: Boolean, ancestors: List<Int>)
 /**
  * Where two touch areas overlap, a touch goes to the nearer control (Compose's hit test), so each
  * keeps half the overlap: what is left of [control]'s area once its neighbours have taken theirs.
+ *
+ * A control drawn over another (a floating action button over a list's row: their drawn bounds
+ * overlap, not only their touch areas) takes the whole overlap, since it is on top, and the one
+ * under it keeps the side that leaves a finger the most room; the one on top loses nothing to it.
+ * Tempo's addition to Passo's checks (Phase 3): halving such an overlap read a 48dp row as 26dp.
  */
 private fun shareOf(control: Control, controls: List<Control>): Rect {
     val area = control.area
@@ -89,7 +98,25 @@ private fun shareOf(control: Control, controls: List<Control>): Rect {
     var bottom = area.bottom
     for (other in controls) {
         if (!other.apartFrom(control) || !other.area.overlaps(area)) continue
-        val overlap = area.intersect(other.area)
+        val drawnOver = other.bounds.overlaps(control.bounds)
+        if (drawnOver && other.order < control.order) continue
+        val overlap = Rect(left, top, right, bottom).intersect(other.area)
+        if (overlap.width <= 0f || overlap.height <= 0f) continue
+        if (drawnOver) {
+            // Under a floating control: keep the larger of the four sides it leaves free.
+            val sides = listOf(
+                Rect(left, top, overlap.left, bottom),
+                Rect(overlap.right, top, right, bottom),
+                Rect(left, top, right, overlap.top),
+                Rect(left, overlap.bottom, right, bottom),
+            ).filter { it.width > 0f && it.height > 0f }
+            val best = sides.maxByOrNull { minOf(it.width, it.height) } ?: Rect(left, top, left, top)
+            left = best.left
+            top = best.top
+            right = best.right
+            bottom = best.bottom
+            continue
+        }
         if (overlap.width <= overlap.height) {
             if (other.area.center.x > area.center.x) right -= overlap.width / 2 else left += overlap.width / 2
         } else {

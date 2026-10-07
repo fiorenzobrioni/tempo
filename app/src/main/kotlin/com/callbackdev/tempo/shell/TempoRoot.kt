@@ -20,6 +20,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.callbackdev.tempo.core.designsystem.theme.TempoMotion
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
 import com.callbackdev.tempo.core.model.UserSettings
+import com.callbackdev.tempo.feature.onboarding.OnboardingRoute
 import com.callbackdev.tempo.feature.settings.SettingsRoute
 import com.callbackdev.tempo.feature.today.TodayRoute
 import kotlinx.serialization.Serializable
@@ -27,7 +28,8 @@ import kotlinx.serialization.Serializable
 /*
  * The shell's destinations as Navigation 3 keys, as in Passo and Chiaro: on one back stack, so
  * back is previewed under the finger (predictive back) and the stack survives a rotation and
- * process death. Phase 2 has two pages; the onboarding joins in Phase 3, the guide in Phase 5.
+ * process death. The onboarding stands before them (it is not a page to go back to); the guide
+ * joins in Phase 5.
  */
 
 @Serializable
@@ -38,12 +40,21 @@ data object TodayKey : NavKey
 data object SettingsKey : NavKey
 
 /**
- * The pages (PLANNING.md §11 Phase 2, the shell's first part; the rest is Phase 3's). The
- * transitions are Passo's: a short slide with a fade, the 300 ms that predictive back seeks, and
- * a plain fade under reduced motion.
+ * The shell (PLANNING.md §11 Phases 2 and 3): the first run until it is done, then the pages.
+ * The transitions are Passo's: a short slide with a fade, the 300 ms that predictive back seeks,
+ * and a plain fade under reduced motion.
  */
 @Composable
 fun TempoRoot(settings: UserSettings) {
+    if (!settings.onboardingCompleted) {
+        OnboardingRoute()
+        return
+    }
+    MainPages()
+}
+
+@Composable
+private fun MainPages() {
     val backStack = rememberNavBackStack(TodayKey)
     val reduced = reducedMotion()
     val goBack: () -> Unit = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) }
@@ -56,13 +67,7 @@ fun TempoRoot(settings: UserSettings) {
             popTransitionSpec = { backward(reduced) },
             predictivePopTransitionSpec = { backward(reduced) },
             entryProvider = entryProvider<NavKey> {
-                entry<TodayKey> {
-                    TodayRoute(
-                        clockFormat = settings.clockFormat,
-                        dateStyle = settings.dateStyle,
-                        onOpenSettings = { backStack.add(SettingsKey) },
-                    )
-                }
+                entry<TodayKey> { TodayRoute(onOpenSettings = { backStack.add(SettingsKey) }) }
                 entry<SettingsKey> { SettingsRoute(onBack = goBack) }
             },
         )

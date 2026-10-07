@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_app_name" translatable="false">Tempo</string>
+    <string name="onboarding_tagline">The time, and what comes next.</string>
+    <string name="onboarding_calendars_title">Your calendars, in one view</string>
+    <string name="onboarding_calendars_body">Every calendar the phone already has, from every account. Nothing to sign in to, nothing to sync.</string>
+    <string name="onboarding_private_title">Read-only, and private</string>
+    <string name="onboarding_private_body">Tempo reads your events and never writes them: creating and changing one stay in your calendar app. It has no internet permission at all.</string>
+    <string name="onboarding_battery_title">Battery is a feature</string>
+    <string name="onboarding_battery_body">No service, no polling. Tempo works while you look, or when your calendar changes, and never on a timer.</string>
+    <string name="onboarding_start">Start</string>
+
+    <string name="onboarding_calendar_title">Your calendar</string>
+    <string name="onboarding_calendar_body">To show your day, Tempo needs to read the phone’s calendar. It reads the events of the days it shows, on the phone, and nothing else: no contacts, no location, no internet.</string>
+    <string name="onboarding_calendar_later">Without it, the clock and the date still work, and you can allow it later from Today or from Settings.</string>
+    <string name="onboarding_calendar_granted">Tempo can read your calendar.</string>
+    <string name="onboarding_allow">Allow</string>
+    <string name="onboarding_open_settings">Open the app’s settings</string>
+    <string name="onboarding_not_now">Not now</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_done">Done</string>
+    <string name="onboarding_progress">Step %1$d of %2$d</string>
+</resources>

@@ -67,14 +67,14 @@ that does not match it.
 | Module | Kind | Holds |
 |---|---|---|
 | `:core:model` | pure Kotlin/JVM | data classes shared by everything: `EventInstance`, `CalendarInfo`, the provider's codes as enums, `Agenda` (`AgendaDay`, `AllDayEntry`, `TimedEntry`, `FreeGap`), `CalendarPermission`, the settings enums (`ClockFormat`, `DateStyle`, appearance) |
-| `:core:domain` | pure Kotlin/JVM | the calendar engine: `AgendaBuilder`, `AgendaFilter`, `allDayDates()` (UTC), `FreeTime`, `NextBoundary`, `AgendaWindow`, `calendarPermission()`; the reader's calendars (`CalendarChoices`, `CalendarGroups`) and their colour as a mark (`markColor`, 3:1); the clock helpers (`uses24Hour`, `untilNextMinute`, `nextHalfHour`); later `DaySentence`, `AgendaFit` |
+| `:core:domain` | pure Kotlin/JVM | the calendar engine: `AgendaBuilder`, `AgendaFilter`, `allDayDates()` (UTC), `FreeTime`, `NextBoundary`, `AgendaWindow`, `calendarPermission()`; the reader's calendars (`CalendarChoices`, `CalendarGroups`) and their colour as a mark (`markColor`, 3:1); the clock helpers (`uses24Hour`, `untilNextMinute`, `nextHalfHour`); Today's views (`DaySentence`, `DaySummary`, `Timeline`, `AlarmDay`); later `AgendaFit` |
 | `:core:data` | Android library | DataStore: `SettingsRepository` (`UserSettings`, only what differs from a default stored), later the widget looks |
 | `:core:calendar` | Android library | the Calendar Provider's Android half: `CalendarSource` (Instances, Calendars → `CalendarRead`), `CalendarChanges` (observer, debounced), `CalendarIntents` (view, insert, open a day, `canOpen`), `CalendarAccess` (the permission); `READ_CALENDAR` and the `<queries>` in its manifest. Tested against `FakeCalendarProvider` under Robolectric |
-| `:core:designsystem` | Android library | M3 theme (Chiaro's dresses through Passo), typography, shapes, motion, page gutter, the widget card colours, `TempoIcons`; Passo's settings rows (`SettingsRows.kt`), `DateTimeText` (times and dates from the locale's patterns), `CalendarDot` |
+| `:core:designsystem` | Android library | M3 theme (Chiaro's dresses through Passo), typography, shapes, motion, page gutter, the widget card colours, `TempoIcons`; Passo's settings rows (`SettingsRows.kt`) and `StatusCard`, `CalendarPermissionCard`, `DateTimeText` (times and dates from the locale's patterns), `AgendaText` (the agenda's words, for Today and the widgets), `CalendarDot`, `CalendarBar` |
 | `:core:testing` | Android library, test-only | `assertAccessible()` (labels, 48dp touch targets) and `walkPage()`, shared by the UI tests as `testImplementation` |
-| `:feature:*` | Android library | `today` (the clock, the sentence, the agenda), `settings` (formats, agenda, calendars, appearance, about), `onboarding`; `guide` joins in Phase 5 |
+| `:feature:*` | Android library | `today` (the clock, the sentence, the agenda, `TodayViewModel`'s ticker and observer), `settings` (formats, agenda, calendars, appearance, about), `onboarding` (welcome, the permission); `guide` joins in Phase 5 |
 | `:widget` | Android library | the two Glance cards («Agenda», «In words»), their settings screen, the refresh (content-URI work, boundary alarm, receivers) |
-| `:app` | application | `Application`, `MainActivity` (the reader's appearance), the shell (`TempoRoot`, Navigation 3), DI entry points; wires everything |
+| `:app` | application | `Application`, `MainActivity` (the reader's appearance, the shortcut's new event), the shell (`TempoRoot`: onboarding, then Navigation 3), `NewEventShortcut`, DI entry points; wires everything |
 
 Rules: `:core:model` and `:core:domain` stay pure Kotlin/JVM; if a class there needs a `Context`
 or a `Resources`, it is in the wrong module. Feature modules depend on `core:*`, never on each

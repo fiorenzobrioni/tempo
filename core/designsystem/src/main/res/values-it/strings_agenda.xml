@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="permission_title">Tempo non può ancora leggere il tuo calendario</string>
+    <string name="permission_body">Per mostrarti i tuoi impegni, Tempo deve leggere il calendario del telefono. Lo legge soltanto: creare e modificare gli eventi resta compito della tua app calendario.</string>
+    <string name="permission_allow">Consenti</string>
+    <string name="permission_denied_body">Hai negato questo permesso. Android lascia riattivarlo solo dalla pagina dell’app nelle impostazioni del telefono, in Autorizzazioni, Calendario.</string>
+    <string name="permission_open_settings">Apri le impostazioni dell’app</string>
+
+    <string name="event_no_title">(Senza titolo)</string>
+    <string name="time_range">%1$s – %2$s</string>
+    <string name="time_from">dalle %1$s</string>
+    <string name="time_until">fino alle %1$s</string>
+    <string name="duration_m">%1$d min</string>
+    <string name="duration_h">%1$d h</string>
+    <string name="duration_hm">%1$d h %2$d min</string>
+
+    <string name="sentence_under_way">%1$s fino alle %2$s</string>
+    <plurals name="sentence_soon">
+        <item quantity="one">%1$s tra %2$d minuto</item>
+        <item quantity="many">%1$s tra %2$d minuti</item>
+        <item quantity="other">%1$s tra %2$d minuti</item>
+    </plurals>
+    <string name="sentence_free_until">Libero fino alle %1$s, poi %2$s</string>
+    <plurals name="sentence_then_more">
+        <item quantity="one">, poi un altro oggi.</item>
+        <item quantity="many">, poi altri %1$d oggi.</item>
+        <item quantity="other">, poi altri %1$d oggi.</item>
+    </plurals>
+    <plurals name="sentence_and_more">
+        <item quantity="one">, e un altro dopo.</item>
+        <item quantity="many">, e altri %1$d dopo.</item>
+        <item quantity="other">, e altri %1$d dopo.</item>
+    </plurals>
+    <string name="sentence_end">.</string>
+    <string name="sentence_last">, l’ultimo di oggi.</string>
+    <string name="sentence_done_tomorrow">Oggi non resta altro; domani si comincia alle %1$s con %2$s.</string>
+    <string name="sentence_done_tomorrow_free">Oggi non resta altro, e domani è libero.</string>
+    <string name="sentence_done">Oggi non resta altro.</string>
+    <string name="sentence_free_day_tomorrow">Oggi niente in calendario; domani si comincia alle %1$s con %2$s.</string>
+    <string name="sentence_free_day_tomorrow_free">Niente in calendario, né oggi né domani.</string>
+    <string name="sentence_free_day">Oggi niente in calendario.</string>
+
+    <plurals name="summary_events">
+        <item quantity="one">%1$d impegno, dalle %2$s alle %3$s.</item>
+        <item quantity="many">%1$d impegni, dalle %2$s alle %3$s.</item>
+        <item quantity="other">%1$d impegni, dalle %2$s alle %3$s.</item>
+    </plurals>
+    <plurals name="summary_events_count">
+        <item quantity="one">%1$d impegno.</item>
+        <item quantity="many">%1$d impegni.</item>
+        <item quantity="other">%1$d impegni.</item>
+    </plurals>
+    <plurals name="summary_all_day">
+        <item quantity="one">%1$d evento di tutto il giorno.</item>
+        <item quantity="many">%1$d eventi di tutto il giorno.</item>
+        <item quantity="other">%1$d eventi di tutto il giorno.</item>
+    </plurals>
+    <string name="summary_nothing">Niente in programma.</string>
+
+    <string name="alarm_today">Sveglia alle %1$s</string>
+    <string name="alarm_tomorrow">Sveglia domani alle %1$s</string>
+    <string name="alarm_on">Sveglia %1$s alle %2$s</string>
+</resources>

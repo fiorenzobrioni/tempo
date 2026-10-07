@@ -25,3 +25,11 @@ All notable changes to Tempo are documented here. The format follows
   calendars to show (by account, with their colours), and the family's appearance (light or dark,
   two palettes, three typefaces, wallpaper colours), with a live preview. Today's clock already
   follows the formats and the appearance.
+- Today: the time large, the date, your next alarm, and the day in one sentence ("Dentist in 40
+  minutes, then 2 more today"); the all-day events; the day's events on a timeline, with the
+  morning folded away, a line for now, the event under way and how long is left, and the free
+  hours between them, each one a touch away from a new event; tomorrow in full and the rest of
+  the week in a line an event. Touch an event to open it in your calendar app, the date to open
+  the day, the button to create one. Live while you look; nothing runs once you leave.
+- The first run: what Tempo is, and the one permission it asks for, with "Not now".
+- "New event" on the launcher icon's long press.

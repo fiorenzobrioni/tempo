@@ -34,14 +34,28 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
 
 ## Screenshots
 
-The screens arrive with Phase 3 and the widgets with Phase 4, drawn by the app's own tests from
-sample days, as in the sister apps.
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="docs/screenshots/today.png" width="250" alt="Today at 10:20: the time large, the date, tomorrow's alarm, the sentence Design review until 11:00, then 3 more today, the all-day events, the morning folded, the line for now, the meeting under way with 40 minutes left, and the free hours ahead"><br><sub><b>Today</b>: the time, and the day in one sentence</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/today-evening-dark.png" width="250" alt="Today at 9:10 PM in the dark theme: nothing left today, tomorrow starts at 9:00 AM with a call, then tomorrow's events in full"><br><sub><b>The evening</b>: tomorrow moves up</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/settings-calendars.png" width="250" alt="Settings: the agenda's choices, and five calendars from two accounts, each with its colour and a switch, one hidden"><br><sub><b>Your calendars</b>, each shown or hidden</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/onboarding.png" width="250" alt="The first run: Tempo, the time and what comes next, with three promises: your calendars in one view, read-only and private, battery is a feature"><br><sub><b>First run</b>: one permission, to read</sub></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+Drawn by the app's own screens from a realistic sample week, in English (the app also speaks
+Italian). The phone's status bar is not in the pictures. The widgets' pictures arrive with
+Phase 4. The command that redraws them is in [Build](#build).
 
 ## Features
 
-Planned for 1.0 ([VISION.md](./VISION.md) has the full scope, and what is still open):
+For 1.0 ([VISION.md](./VISION.md) has the full scope); the widgets are the part still to come:
 
-- 🕰️ **Today**: the time large, the date, and one sentence on the day ("Three things today; the next, Dentist, in 40 minutes").
+- 🕰️ **Today**: the time large, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
 - 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and the free hours between them, then the rest of the week.
 - ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow.
 - ✏️ **Your calendar app does the writing**: touch an event to open it there; the new-event button opens its new-event page, the start already set.
@@ -74,8 +88,9 @@ and the release key's fingerprint here, for Android 14 (API 34) or newer.
 The phased plan, with every decision and its reason, is in [PLANNING.md](./PLANNING.md):
 
 - **Phase 0**, foundations: the build, the design system, CI. *Done.*
-- **Phase 1**, the calendar engine: reading the phone's calendars right, every edge case tested.
-- **Phase 2**, settings; **Phase 3**, Today and the first run; **Phase 4**, the two widgets.
+- **Phase 1**, the calendar engine: reading the phone's calendars right, every edge case tested. *Done.*
+- **Phase 2**, settings; **Phase 3**, Today and the first run. *Done.*
+- **Phase 4**, the two widgets.
 - **Phase 5**, the guide and the accessibility pass; **Phase 6**, the 1.0 release on GitHub.
 
 ## Build
@@ -94,6 +109,8 @@ For an installable minified build to test with:
 `./gradlew :app:assembleRelease -PsignReleaseWithDebugKey`. It is signed with the debug key
 committed in `keystore/`, on purpose, so builds from CI and any machine share one signature.
 Debug builds carry `applicationIdSuffix ".debug"` and install side by side with the release.
+
+README screenshots: `./gradlew test -PupdateScreenshots`.
 
 CI runs formatting, the permission check, the tests and lint **before** building the APKs,
 so a red suite never produces an installable artifact. A `vX.Y.Z` tag runs the same gates,

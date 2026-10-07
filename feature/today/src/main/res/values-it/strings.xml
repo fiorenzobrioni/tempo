@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="today_settings">Impostazioni</string>
+    <string name="today_open_day">Apri il giorno nel tuo calendario</string>
+    <string name="today_new_event">Nuovo evento</string>
+    <string name="today_now">Adesso</string>
+    <string name="today_tomorrow">Domani</string>
+
+    <string name="today_all_day">Tutto il giorno</string>
+    <string name="today_day_of">Giorno %1$d di %2$d</string>
+    <string name="today_left">Ancora %1$s</string>
+    <string name="today_started_before">Iniziato il giorno prima</string>
+    <string name="today_ends_after">Finisce il giorno dopo</string>
+    <string name="today_declined">Rifiutato</string>
+    <string name="today_maybe">Forse</string>
+    <string name="today_free_for">Libero per %1$s</string>
+    <plurals name="today_earlier">
+        <item quantity="one">%1$d impegno già passato</item>
+        <item quantity="many">%1$d impegni già passati</item>
+        <item quantity="other">%1$d impegni già passati</item>
+    </plurals>
+    <string name="today_show">Mostra</string>
+    <string name="today_hide">Nascondi</string>
+
+    <string name="a11y_range">dalle %1$s alle %2$s</string>
+    <string name="a11y_in_calendar">in %1$s</string>
+    <string name="a11y_under_way">in corso, ancora %1$s</string>
+    <string name="a11y_over">finito</string>
+    <string name="a11y_declined">rifiutato</string>
+    <string name="a11y_maybe">forse</string>
+    <string name="a11y_open_event">Apri nel tuo calendario</string>
+    <string name="a11y_free">Libero dalle %1$s, per %2$s</string>
+
+    <string name="today_no_calendars_title">Sul telefono non c’è ancora nessun calendario</string>
+    <string name="today_no_calendars_body">Aggiungine uno nella tua app calendario, o aggiungi nelle impostazioni del telefono un account che ne ha uno: i suoi impegni compariranno qui.</string>
+    <string name="today_all_hidden_title">Tutti i calendari sono nascosti</string>
+    <string name="today_all_hidden_body">Tempo mostra solo i calendari che scegli, e adesso non ne è scelto nessuno.</string>
+    <string name="today_all_hidden_action">Scegli i calendari</string>
+    <string name="today_no_app_title">Sul telefono non c’è un’app calendario</string>
+    <string name="today_no_app_body">Tempo mostra i tuoi impegni, ma aprirne o crearne uno avviene in un’app calendario, come Google Calendar o Etar.</string>
 </resources>
