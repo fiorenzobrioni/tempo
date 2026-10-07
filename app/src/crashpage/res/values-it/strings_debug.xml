@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Solo build di debug (app/src/debug): la schermata dell'errore. -->
+<!-- Solo build di prova (app/src/crashpage): la schermata dell'errore. -->
 <resources>
     <string name="debug_crash_title">Tempo si è fermato</string>
     <string name="debug_crash_body">Questa è una build di prova. Qui sotto c\'è l\'errore che l\'ha fermata: copialo o condividilo e mandalo a chi sviluppa l\'app. Non è stato inviato nulla.</string>

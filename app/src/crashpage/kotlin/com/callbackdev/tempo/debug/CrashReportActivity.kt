@@ -17,7 +17,7 @@ import android.widget.Toast
 import com.callbackdev.tempo.R
 
 /**
- * Debug builds only: the stack trace [CrashCatcher] caught, selectable, with a button to copy it
+ * Test builds only: the stack trace [CrashCatcher] caught, selectable, with a button to copy it
  * and one to share it. Plain views, no Compose and no Hilt, so it draws whatever broke the app.
  */
 class CrashReportActivity : Activity() {

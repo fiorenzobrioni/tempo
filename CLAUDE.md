@@ -158,9 +158,11 @@ caption in the README's table; keep the set small.
 
 - **Debug signing**: `keystore/debug.keystore` is intentionally committed (alias `tempo-debug`,
   passwords `android`) so debug APKs from CI and any machine share one signature. Do not
-  regenerate it. Debug builds carry `applicationIdSuffix ".debug"`, and a crash page
-  (`app/src/debug`): an uncaught exception shows its stack trace, to copy or share, so a test
-  device can report a crash without adb. Never in the release build.
+  regenerate it. Debug builds carry `applicationIdSuffix ".debug"`. Debug builds and the
+  debug-signed release carry a crash page (`app/src/crashpage`): an uncaught exception shows its
+  stack trace, to copy or share, so a test device can report a crash without adb (the minified
+  one's trace is retraced with that run's `mapping.txt`). Never in a release signed with the
+  release key.
 - **Release signing**: the real keystore lives OUTSIDE the repo; the `release` signingConfig is
   created only when the four `TEMPO_KEYSTORE*` / `TEMPO_KEY_*` properties are all set (from
   `~/.gradle/gradle.properties` locally, from `ORG_GRADLE_PROJECT_*` env vars in CI). Without

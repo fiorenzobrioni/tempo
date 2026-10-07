@@ -13,10 +13,12 @@ import java.io.StringWriter
 import kotlin.system.exitProcess
 
 /**
- * Debug builds only: catches an uncaught exception and shows its stack trace in
- * [CrashReportActivity], in a process of its own, instead of the system's bare "Tempo keeps
- * stopping". Installed by a provider so a crash in the Application or in Hilt's graph is caught
- * too. Not a crash reporter: nothing is sent anywhere; the reader shares the text if they choose.
+ * Test builds only (debug, and the debug-signed release; app/build.gradle.kts): catches an
+ * uncaught exception and shows its stack trace in [CrashReportActivity], in a process of its own,
+ * instead of the system's bare "Tempo keeps stopping". Installed by a provider so a crash in the
+ * Application or in Hilt's graph is caught too. Not a crash reporter: nothing is sent anywhere;
+ * the reader shares the text if they choose. In the minified build the trace is R8's: retrace it
+ * with the run's mapping.txt.
  */
 class CrashCatcher : ContentProvider() {
     override fun onCreate(): Boolean {

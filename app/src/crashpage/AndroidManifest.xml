@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Debug builds only: a crash on a test device shows its stack trace, ready to share, so a crash
-  can be reported from a phone or a tablet with no computer and no adb at hand. The release
-  build has none of this.
+  Test builds only (app/build.gradle.kts: debug, and the debug-signed release built for testing):
+  a crash on a test device shows its stack trace, ready to share, so a crash can be reported from
+  a phone or a tablet with no computer and no adb at hand. A release signed with the release key
+  has none of this.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
