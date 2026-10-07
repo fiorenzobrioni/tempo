@@ -358,7 +358,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 
 **Acceptance:**
 - CI is green.
-  - Verified locally on 7 Oct 2026 with CI's own sequence: `spotlessCheck`, `checkForbiddenPermissions`, `test`, `lintDebug`, `assembleDebug`, `assembleRelease -PsignReleaseWithDebugKey`. GitHub's first run is the one that ticks this.
+  - Verified locally on 7 Oct 2026 with CI's own sequence: `spotlessCheck`, `checkForbiddenPermissions`, `test`, `lintDebug`, `assembleDebug`, `assembleRelease -PsignReleaseWithDebugKey`; and on GitHub, Android CI run #1 (Phase 0) and #2 (the owner's review), both green.
 - The app launches and shows the time and the date.
   - Built and tested (`TodayScreenTest`: 24-hour, 12-hour, Italian); not yet run on a device.
 - Adding `INTERNET` or `WRITE_CALENDAR` to any manifest fails `checkForbiddenPermissions`.
