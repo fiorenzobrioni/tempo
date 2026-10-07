@@ -183,7 +183,7 @@ The riskiest part of the app: wrong days, missing occurrences and stale cards ar
 - The night daylight saving starts (the 02:00–03:00 hour does not exist) and ends (01:00–02:00 happens twice); an event in the repeated hour.
 - The phone's zone changing between two reads (travel).
 - A zero-length event (`BEGIN = END`): a moment, shown at its time.
-- An event that started yesterday and ends tomorrow (timed): on today as "all day" or "until …"? (Phase 1 decides and records it.)
+- An event that started yesterday and ends tomorrow (timed): on today it is in the all-day row, "day 2 of 3"; its first date keeps it as "from 21:00", its last as "until 02:00" (decided in Phase 1, §15).
 - Declined, tentative, cancelled; an event with no title; a calendar with no colour.
 - Today empty, the horizon empty, every calendar hidden, no calendar at all.
 - Midnight while the page is open: the day rolls over without a restart.
@@ -211,8 +211,9 @@ Tempo has no database. The Calendar Provider is the only truth for events; Tempo
 ### `:core:model` (pure)
 
 - `CalendarInfo(id, name, accountName, accountType, color, visibleInProvider, isPrimary)`
-- `EventInstance(eventId, calendarId, title, location, begin: Instant, end: Instant, allDay, allDayStart: LocalDate?, allDayEnd: LocalDate?, color, status, selfStatus, timeZone)`
-- `AgendaDay(date, allDay: List<AgendaEntry>, timed: List<AgendaEntry>, sentence)`, `Agenda(days, now, underWay, next)`
+- `EventInstance(eventId, calendarId, title, location, begin: Instant, end: Instant, allDay, color, status, selfStatus, availability, timeZone)`: as stored; an all-day event's dates are derived in the domain (`allDayDates()`, UTC), never stored beside it
+- `EventStatus`, `AttendeeStatus`, `Availability`, `CalendarPermission`
+- `Agenda(now, today, days, underWay, next)`, `AgendaDay(date, allDay: List<AllDayEntry>, timed: List<TimedEntry>, free: List<FreeGap>)`, `AllDayEntry(event, dayNumber, dayCount)`, `TimedEntry(event, startsOnDate, endsOnDate, state)`, `FreeGap(start, end)`. The day's sentence is computed from an `AgendaDay` by `DaySentence` (Phase 3), not stored in it
 - `UserSettings`, `WidgetLook` (below)
 
 ### DataStore (Preferences), file `settings`
@@ -228,6 +229,7 @@ Tempo has no database. The Calendar Provider is the only truth for events; Tempo
 | `show_all_day` | true | All-day events |
 | `show_next_alarm` | true | The next alarm line |
 | `onboarding_completed` | false | |
+| `asked_calendar_permission` | false | Whether the permission was ever asked: what tells "askable" from "denied for good" (§15) |
 
 ### DataStore, file `widgets` (not backed up)
 
@@ -243,7 +245,7 @@ One `WidgetLook` per `appWidgetId`: show clock, clock format, show date, date st
 
 - **`AgendaBuilder`**: instances + calendars + settings + now + zone → `Agenda`. Applies §4.2–§4.4. Pure, the most tested class of the app.
 - **`DaySentence`**: the day in one sentence, from the agenda alone: the count of what is left, the next event and when, the free time before it, the end of the day ("Nothing left today; tomorrow starts at 9"). Returns a structure (kind + values), never a string: the words are resources, in both languages, with plurals (`:feature:today` and `:widget` format it).
-- **`FreeTime`**: the gaps between timed events within waking hours: every gap feeds the sentence; a gap of an hour or more is also a row of the timeline (owner, §15).
+- **`FreeTime`**: the gaps between a date's busy timed events (overlaps merged; free-availability and declined events do not take the time; all-day ones neither), and on today the time from now to the next busy one. Never the evening after the last event or the morning before the first, which are not "free time" any more than the night is (§15). Every gap feeds the sentence; a gap of an hour or more is also a row of the timeline (owner, §15).
 - **`NextBoundary`**: the next moment the agenda changes by itself: the nearest `BEGIN` or `END` after now, or the next midnight, whichever is first. The widget arms its alarm on it.
 - **`AgendaFit`** (pure arithmetic, as Passo's `GlanceLayout`): given a card's granted size in dp, the header's choice and the text sizes measured in the system face, how many event rows fit, which form the card takes, and what the "N more" line says. Pinned by tests at the family's reference grants (one row ≈ 85 dp tall, two ≈ 189; widths 2 cells ≈ 159 dp, 3 ≈ 250, 4 ≈ 340).
 - **Calendar colours are data, not roles.** They are chosen in the calendar app with no thought for Tempo's grounds, so they mark an event (a dot, a bar at the start of its row) and never colour its text or its ground. A mark keeps a 3:1 contrast with its ground by stepping its lightness when it must, a pure function with a test.
@@ -364,16 +366,24 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 
 ### Phase 1 — The calendar engine (highest risk)
 
-- [ ] `core:model`: `CalendarInfo`, `EventInstance`, `Agenda`, `AgendaDay`, `AgendaEntry`
-- [ ] `core:domain`: `AgendaBuilder` test-first, every case of §4.6; `NextBoundary`; `FreeTime`
-- [ ] `core:calendar`: `CalendarSource` (Instances and Calendars queries, §4.1), `CalendarChanges` (§4.5), the permission state (`CalendarAccess`: granted, denied, denied for good)
-- [ ] `core:calendar`: a fake `ContentProvider` for the authority `com.android.calendar` under Robolectric, so the queries themselves are tested (projection, window, cursor reading), not only the domain
-- [ ] `CalendarIntents` (§4.7) with `<queries>`; measured on the owner's phone with the owner's calendar app(s): VIEW of an occurrence, INSERT with a start, VIEW of a day, and whether EDIT is honoured
-- [ ] `READ_CALENDAR` in `:core:calendar`'s manifest; a debug-only screen is **not** built: the engine is proven by tests and by Phase 3's screen
+- [x] `core:model`: `CalendarInfo`, `EventInstance`, `Agenda`, `AgendaDay`, `AllDayEntry`, `TimedEntry`, `FreeGap`, and the provider's codes as enums
+- [x] `core:domain`: `AgendaBuilder` test-first, every case of §4.6; `NextBoundary`; `FreeTime`; `AgendaFilter` (the reader's choices); `AgendaWindow` (the query's span); `allDayDates()`; `calendarPermission()`; `nextHalfHour()`
+  - 50 JVM tests (`AgendaBuilderTest` 27, `FreeTimeTest` 7, `NextBoundaryTest` 5, the rest 11).
+- [x] `core:calendar`: `CalendarSource` (Instances and Calendars queries, §4.1), `CalendarChanges` (§4.5), the permission state (`CalendarAccess`: granted, askable, denied for good, from `calendarPermission()`)
+  - *Deviation:* the read returns `CalendarRead` (`Read` or `NoPermission`), so a missing or revoked permission is a value the screens draw, never an exception.
+- [x] `core:calendar`: a fake `ContentProvider` for the authority `com.android.calendar` under Robolectric (`FakeCalendarProvider`), so the queries themselves are tested (the URI and its window, the projection, the cursor read by column name, missing columns, a revocation mid-read), not only the domain
+  - 16 Robolectric tests. The fake refuses every write: a test would fail if Tempo ever tried one.
+- [x] `CalendarIntents` (§4.7) with `<queries>` (VIEW of an event, INSERT, VIEW of a day), and `canOpen()` before a button is drawn
+- [ ] The intents measured on the owner's phone with the owner's calendar app(s): VIEW of an occurrence, INSERT with a start, VIEW of a day, and whether EDIT is honoured
+  - *Deviation:* moved to Phase 3, where Today's buttons send them; for an earlier answer, `docs/device-checks/calendar-intents.md` has the four `adb` commands, with no Tempo build needed.
+- [x] `READ_CALENDAR` in `:core:calendar`'s manifest; a debug-only screen is **not** built: the engine is proven by tests and by Phase 3's screen
+  - The merged manifest now holds `READ_CALENDAR` beside WorkManager's four and AndroidX's receiver permission; `checkForbiddenPermissions` passes.
 
 **Acceptance:**
-- [ ] All engine tests pass, every §4.6 case included.
+- [x] All engine tests pass, every §4.6 case included.
+  - Every case of §4.6 has its test, except the two that are about a running app (the permission granted from the system's settings while Tempo is in the background; midnight while a page is open, beyond the agenda's own turnover): they need Phase 3's page and are in its UI tests.
 - [ ] On the owner's phone, Tempo's instances for a week match the calendar app's, all-day and recurring events included (a written check in §15).
+  - *Deviation:* with no screen yet, this check moves to Phase 3's acceptance, where Today shows the week.
 
 ### Phase 2 — Settings
 
@@ -388,7 +398,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 
 - [ ] The shell (Navigation 3, as Passo's): onboarding, Today, Settings
 - [ ] Today: the clock, the date, the sentence, the next alarm, the all-day row, the timeline with "now", the days ahead, the states of §VISION (no permission, nothing today, no calendars, no calendar app)
-- [ ] Touch an event (VIEW), the new-event button (INSERT), touch the date (VIEW of today)
+- [ ] Touch an event (VIEW), the new-event button (INSERT), touch the date (VIEW of today); the device check of the intents moved here from Phase 1 (`docs/device-checks/calendar-intents.md`)
 - [ ] Live while visible: the minute ticker and `CalendarChanges`, both lifecycle-bound
 - [ ] Onboarding: welcome, the permission (with "Not now"), the widget (pin request)
 - [ ] The launcher shortcut "New event"
@@ -396,6 +406,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - [ ] README screenshots: Today, onboarding (`ReadmeScreenshots`, sample data, English)
 
 **Acceptance:**
+- [ ] On the owner's phone, Tempo's week matches the calendar app's, all-day and recurring events included (moved from Phase 1; a written check in §15).
 - [ ] A change made in the calendar app is on Today on return, without a gesture.
 - [ ] TalkBack reads each event as one sentence ("10:00 to 11:00, Dentist, Via Roma 3, in Personal").
 
@@ -493,6 +504,14 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
   5. **minSdk 34**, Passo's (above).
   6. **Name**: "Tempo", plain; GitHub Releases is the only channel. A store subtitle is Phase 7's question, if Google Play comes.
   7. **The launcher shortcut "New event"**: in v1 (Phase 3).
+
+- **7 Oct 2026, Phase 1.** A timed event that covers a whole date (a conference from Monday 9:00 to Wednesday 17:00) is in that date's **all-day row**, "day 2 of 3"; its first and last dates keep it with its time ("from 9:00", "until 17:00"). It is not one of the calendars' all-day events: the reader's "all-day events" switch does not hide it, and it does not take the free time of the dates it covers whole.
+- **7 Oct 2026, Phase 1.** **Free time** is the time between two busy events, plus, today, from now to the next one. The evening after the last event and the morning before the first are not counted ("waking hours", in the first draft of §6, would have needed a setting nobody asked for). Free-availability and declined events, and all-day ones, do not take the time; overlapping events merge.
+- **7 Oct 2026, Phase 1.** An instance whose calendar is not in the calendar list (a sync landing between the two queries) is **shown**: hiding an event is worse than showing one a moment early. A calendar whose provider does not say whether it is visible is visible.
+- **7 Oct 2026, Phase 1.** The provider's codes read defensively: an unknown or missing status is "confirmed", an unknown answer "none", an unknown availability "busy"; a row with no begin, no event id or no calendar id is skipped; an end before the begin is read as a moment. A maker's sync adapter must never lose an event to a value Tempo did not expect.
+- **7 Oct 2026, Phase 1.** `ACTION_EDIT` is not built: `CalendarIntents` has view, insert and open-a-day. It joins if the device check (Phase 3, or `docs/device-checks/calendar-intents.md` sooner) shows the owner's calendar apps honouring it.
+- **7 Oct 2026, Phase 1.** "Denied for good" needs to know whether the permission was ever asked, which Android does not say: `calendarPermission(granted, askedBefore, showRationale)` takes it from the settings (an `asked_calendar_permission` key, Phase 2).
+- **7 Oct 2026, Phase 1.** The query window is today's start minus a day to the horizon's end plus a day (`AgendaWindow`), so an all-day event, stored in UTC, is never cut by the window west or east of Greenwich; the builder trims to the dates.
 
 ### Open
 

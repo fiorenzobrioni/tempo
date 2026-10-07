@@ -13,11 +13,12 @@ android {
 
 dependencies {
     api(project(":core:domain"))
-    implementation(project(":core:data"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.android)
 
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
 }

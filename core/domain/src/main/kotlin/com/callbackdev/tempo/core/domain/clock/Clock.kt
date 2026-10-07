@@ -3,6 +3,7 @@ package com.callbackdev.tempo.core.domain.clock
 import com.callbackdev.tempo.core.model.ClockFormat
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 /**
@@ -25,4 +26,15 @@ fun ClockFormat.uses24Hour(phoneUses24Hour: Boolean): Boolean = when (this) {
 fun untilNextMinute(now: Instant): Duration {
     val next = now.truncatedTo(ChronoUnit.MINUTES).plus(1, ChronoUnit.MINUTES)
     return Duration.between(now, next)
+}
+
+/**
+ * Where a new event starts by default (PLANNING.md §4.7): the next half hour after [now] in
+ * [zone], strictly after it, so a reader at 10:00 sharp is offered 10:30 and never a time already
+ * gone by the time the calendar app opens.
+ */
+fun nextHalfHour(now: Instant, zone: ZoneId): Instant {
+    val local = now.atZone(zone).truncatedTo(ChronoUnit.MINUTES)
+    val minutesPast = local.minute % 30
+    return local.plusMinutes((30 - minutesPast).toLong()).toInstant()
 }

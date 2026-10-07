@@ -15,3 +15,8 @@ All notable changes to Tempo are documented here. The format follows
 - The foundations: the build (Passo's, carried over), the family's design system, the launcher
   icon, continuous integration with the permission check, and a first screen with the time and
   the date. Nothing to install yet.
+- The calendar engine: Tempo reads the phone's calendars (every account it syncs) for the week
+  ahead, places all-day events on their own day in every time zone, follows events across
+  midnight and daylight saving, leaves out cancelled events and, unless you want them, declined
+  invitations and the calendars you hide, and finds the free time between your events. Not on
+  screen yet: Today shows it from Phase 3.

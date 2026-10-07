@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The calendar's one permission, next to the code that reads the provider (PLANNING.md §10):
+  READ_CALENDAR, and never WRITE_CALENDAR (on the build's forbidden list). Tempo hands every
+  change to the reader's calendar app.
+
+  <queries>: since Android 11 an app sees only the packages it declares an interest in. These
+  are the three intents CalendarIntents builds (PLANNING.md §4.7), so Tempo can tell whether a
+  calendar app will take one before it draws the button that sends it. Not a permission.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+
+    <queries>
+        <!-- One occurrence of an event: content://com.android.calendar/events/<id>. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="vnd.android.cursor.item/event" />
+        </intent>
+        <!-- A new event: the calendar app's own editor. -->
+        <intent>
+            <action android:name="android.intent.action.INSERT" />
+            <data android:mimeType="vnd.android.cursor.dir/event" />
+        </intent>
+        <!-- A day: content://com.android.calendar/time/<millis>. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="content" android:host="com.android.calendar" />
+        </intent>
+    </queries>
+
+</manifest>

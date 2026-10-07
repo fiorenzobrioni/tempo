@@ -66,10 +66,10 @@ that does not match it.
 
 | Module | Kind | Holds |
 |---|---|---|
-| `:core:model` | pure Kotlin/JVM | data classes shared by everything: settings enums (`ClockFormat`, `DateStyle`, appearance); later `EventInstance`, `CalendarInfo`, `Agenda` |
-| `:core:domain` | pure Kotlin/JVM | the clock helpers (`uses24Hour`, `untilNextMinute`); later `AgendaBuilder`, `DaySentence`, `FreeTime`, `NextBoundary`, `AgendaFit` |
+| `:core:model` | pure Kotlin/JVM | data classes shared by everything: `EventInstance`, `CalendarInfo`, the provider's codes as enums, `Agenda` (`AgendaDay`, `AllDayEntry`, `TimedEntry`, `FreeGap`), `CalendarPermission`, the settings enums (`ClockFormat`, `DateStyle`, appearance) |
+| `:core:domain` | pure Kotlin/JVM | the calendar engine: `AgendaBuilder`, `AgendaFilter`, `allDayDates()` (UTC), `FreeTime`, `NextBoundary`, `AgendaWindow`, `calendarPermission()`; the clock helpers (`uses24Hour`, `untilNextMinute`, `nextHalfHour`); later `DaySentence`, `AgendaFit` |
 | `:core:data` | Android library | DataStore (settings, widget looks), repositories exposing `Flow` |
-| `:core:calendar` | Android library | the Calendar Provider's Android half: `CalendarSource` (Instances, Calendars), `CalendarChanges` (observer), `CalendarIntents` (view, insert, open a day), the permission state |
+| `:core:calendar` | Android library | the Calendar Provider's Android half: `CalendarSource` (Instances, Calendars → `CalendarRead`), `CalendarChanges` (observer, debounced), `CalendarIntents` (view, insert, open a day, `canOpen`), `CalendarAccess` (the permission); `READ_CALENDAR` and the `<queries>` in its manifest. Tested against `FakeCalendarProvider` under Robolectric |
 | `:core:designsystem` | Android library | M3 theme (Chiaro's dresses through Passo), typography, shapes, motion, page gutter, the widget card colours, `TempoIcons` |
 | `:core:testing` | Android library, test-only | `assertAccessible()` (labels, 48dp touch targets) and `walkPage()`, shared by the UI tests as `testImplementation` |
 | `:feature:*` | Android library | `today` (the clock, the sentence, the agenda), `settings`, `onboarding`; `guide` joins in Phase 5 |
