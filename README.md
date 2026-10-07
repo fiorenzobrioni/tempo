@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🕰️ Tempo
+# 🕓 Tempo
 
 **The time, and what comes next. Read from your calendar, sent nowhere.**
 
@@ -55,12 +55,12 @@ Phase 4. The command that redraws them is in [Build](#build).
 
 For 1.0 ([VISION.md](./VISION.md) has the full scope); the widgets are the part still to come:
 
-- 🕰️ **Today**: the time large, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
+- 🕓 **Today**: the time large, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
 - 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and the free hours between them, then the rest of the week.
 - ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow.
 - ✏️ **Your calendar app does the writing**: touch an event to open it there; the new-event button opens its new-event page, the start already set.
 - 🏠 **Two widgets that never scroll**: «Agenda», the clock and the date (each optional, in your format) over as many events as the card's size allows, and how many more; «In words», the next event large and the day in one sentence.
-- 🕐 **A clock that costs nothing**: the widget's time is drawn by Android itself, right to the minute, with no work by the app.
+- 🪶 **A clock that costs nothing**: the widget's time is drawn by Android itself, right to the minute, with no work by the app.
 - ➕ **New event** from the launcher icon's long press, straight to your calendar app.
 - 🗂️ **Your calendars, your choice**: every account's calendars with their colours, each shown or hidden; declined invitations kept out.
 - 🎨 **Appearance**: light or dark, two palettes, three typefaces, the same as Chiaro's and Passo's.
