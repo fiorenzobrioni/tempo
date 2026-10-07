@@ -16,6 +16,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -67,6 +69,7 @@ import com.callbackdev.tempo.core.designsystem.theme.padding
 import com.callbackdev.tempo.core.designsystem.theme.pageGutter
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
 import com.callbackdev.tempo.core.model.CalendarPermission
+import com.callbackdev.tempo.core.designsystem.R as DesignR
 
 /**
  * The first run's pages (PLANNING.md §11 Phase 3), in Passo's shape: what Tempo is, then the one
@@ -246,20 +249,13 @@ private fun BottomBar(step: OnboardingStep, permission: CalendarPermission, acti
 private fun WelcomePage() {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         Spacer(Modifier.height(40.dp))
-        Surface(
-            color = MaterialTheme.colorScheme.primaryContainer,
-            shape = CircleShape,
-            modifier = Modifier.size(112.dp),
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    TempoIcons.Clock,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(56.dp),
-                )
-            }
-        }
+        // The launcher icon itself (owner, 7 Oct 2026), the mark the reader just touched to get
+        // here. Decorative: the app's name follows as the page's heading.
+        Image(
+            painter = painterResource(DesignR.drawable.ic_app_mark),
+            contentDescription = null,
+            modifier = Modifier.size(112.dp).testTag(OnboardingTags.MARK),
+        )
         Spacer(Modifier.height(24.dp))
         Text(
             text = stringResource(R.string.onboarding_app_name),
@@ -347,6 +343,7 @@ private fun CalendarPage(permission: CalendarPermission) {
 object OnboardingTags {
     const val ROOT = "onboarding_root"
     const val PAGE = "onboarding_page"
+    const val MARK = "onboarding_mark"
     const val PRIMARY = "onboarding_primary"
     const val NOT_NOW = "onboarding_not_now"
     const val GRANTED = "onboarding_granted"

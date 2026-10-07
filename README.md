@@ -8,14 +8,14 @@ A private, battery-friendly Android clock and agenda: the time, the date and the
 one calm view, in the app and on a home-screen widget that never scrolls.
 Free, no account, no ads, no tracking, and no permission to use the internet at all.
 
-![Platform](https://img.shields.io/badge/platform-Android-A8325E?labelColor=FCFAF6)
-![Status](https://img.shields.io/badge/status-in%20development-A8325E?labelColor=FCFAF6)
-![CI](https://img.shields.io/github/actions/workflow/status/fiorenzobrioni/tempo/android-ci.yml?branch=main&label=CI&labelColor=FCFAF6&color=A8325E)
+![Platform](https://img.shields.io/badge/platform-Android-4A5E7A?labelColor=FCFAF6)
+![Status](https://img.shields.io/badge/status-in%20development-4A5E7A?labelColor=FCFAF6)
+![CI](https://img.shields.io/github/actions/workflow/status/fiorenzobrioni/tempo/android-ci.yml?branch=main&label=CI&labelColor=FCFAF6&color=4A5E7A)
 ![License](https://img.shields.io/badge/license-GPL--3.0-007DB6?labelColor=FCFAF6)
 ![minSdk](https://img.shields.io/badge/minSdk-34-70569C?labelColor=FCFAF6)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4-F1A000?labelColor=FCFAF6)
 ![Compose](https://img.shields.io/badge/UI-Compose%20Material%203-007DB6?labelColor=FCFAF6)
-![Internet](https://img.shields.io/badge/INTERNET%20permission-none-A8325E?labelColor=FCFAF6)
+![Internet](https://img.shields.io/badge/INTERNET%20permission-none-4A5E7A?labelColor=FCFAF6)
 
 **In development.** The first release comes with Phase 6 of the [plan](./PLANNING.md).
 
