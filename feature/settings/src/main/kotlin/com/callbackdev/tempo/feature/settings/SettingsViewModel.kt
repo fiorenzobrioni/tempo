@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.callbackdev.tempo.core.calendar.CalendarChanges
 import com.callbackdev.tempo.core.calendar.CalendarSource
 import com.callbackdev.tempo.core.data.settings.SettingsRepository
+import com.callbackdev.tempo.core.data.widget.HomeScreenWidgets
+import com.callbackdev.tempo.core.data.widget.TempoWidget
 import com.callbackdev.tempo.core.domain.calendar.AccountCalendars
 import com.callbackdev.tempo.core.domain.calendar.CalendarChoices
 import com.callbackdev.tempo.core.domain.calendar.CalendarGroups
@@ -33,7 +35,15 @@ sealed interface CalendarsState {
 }
 
 /** What Settings shows. [calendars] is null until the first read: the section waits for it. */
-data class SettingsUiState(val settings: UserSettings, val calendars: CalendarsState?, val version: String)
+data class SettingsUiState(
+    val settings: UserSettings,
+    val calendars: CalendarsState?,
+    val version: String,
+    val widgets: WidgetsInfo = WidgetsInfo(),
+)
+
+/** Whether the launcher places a widget on request (Android's pin request). */
+data class WidgetsInfo(val canPin: Boolean = false)
 
 /**
  * Settings (PLANNING.md §11 Phase 2). The settings come from DataStore, the calendars from the
@@ -46,6 +56,7 @@ class SettingsViewModel @Inject constructor(
     private val repository: SettingsRepository,
     private val source: CalendarSource,
     changes: CalendarChanges,
+    private val widgets: HomeScreenWidgets,
 ) : ViewModel() {
     private val version: String = runCatching {
         context.packageManager.getPackageInfo(context.packageName, 0).versionName
@@ -59,7 +70,7 @@ class SettingsViewModel @Inject constructor(
 
     val state: StateFlow<SettingsUiState?> =
         combine(repository.settings, merge(flowOf(null), calendars)) { settings, calendars ->
-            SettingsUiState(settings, calendars, version)
+            SettingsUiState(settings, calendars, version, WidgetsInfo(canPin = widgets.canPin()))
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), null)
 
     fun update(transform: (UserSettings) -> UserSettings) {
@@ -68,6 +79,11 @@ class SettingsViewModel @Inject constructor(
 
     fun setCalendarShown(calendar: CalendarInfo, shown: Boolean) = update {
         CalendarChoices.choose(it, calendar, shown)
+    }
+
+    /** The launcher shows its own dialog; the reader decides there. */
+    fun pinWidget(widget: TempoWidget) {
+        widgets.pin(widget)
     }
 
     /** Reads the calendars again: back on the page, or after the permission's question. */

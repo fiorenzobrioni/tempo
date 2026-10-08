@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  «In words» as the launcher's picker draws it where it asks for a static layout: sample values in
+  the default dress, the tall form of the default 4×2 placement, with the card's ranks: the date
+  at 16 sp beside the dial in the top trailing corner; at the bottom what comes next at 22 sp
+  Medium, when at 16 sp, the day's note at 14 sp.
+  Sample data only: a preview is a drawing of the product, never a reading.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_preview_card"
+    android:padding="14dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:includeFontPadding="false"
+        android:singleLine="true"
+        android:text="@string/widget_preview_top"
+        android:textColor="@color/widget_preview_ink_dim"
+        android:textSize="16sp" />
+
+    <ImageView
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="top|end"
+        android:importantForAccessibility="no"
+        android:src="@drawable/widget_preview_dial" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:singleLine="true"
+            android:text="@string/widget_preview_row1_title"
+            android:textColor="@color/widget_preview_ink"
+            android:textSize="22sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:text="@string/widget_preview_when"
+            android:textColor="@color/widget_preview_ink_dim"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:singleLine="true"
+            android:text="@string/widget_preview_note"
+            android:textColor="@color/widget_preview_ink_dim"
+            android:textSize="14sp" />
+    </LinearLayout>
+</FrameLayout>

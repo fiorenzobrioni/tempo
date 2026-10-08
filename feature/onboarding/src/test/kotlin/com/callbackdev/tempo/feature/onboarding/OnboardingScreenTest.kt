@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.callbackdev.tempo.core.data.widget.TempoWidget
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
 import com.callbackdev.tempo.core.model.CalendarPermission
 import com.callbackdev.tempo.core.testing.assertAccessible
@@ -29,8 +30,9 @@ class OnboardingScreenTest {
         step: OnboardingStep,
         permission: CalendarPermission,
         actions: OnboardingActions = OnboardingActions(),
+        widgets: WidgetOffer = WidgetOffer(),
     ) {
-        compose.setContent { TempoTheme { OnboardingScreen(step, permission, actions) } }
+        compose.setContent { TempoTheme { OnboardingScreen(step, permission, actions, widgets = widgets) } }
     }
 
     @Test
@@ -47,16 +49,16 @@ class OnboardingScreenTest {
     @Test
     fun `the calendar's page asks, and lets the reader through without it`() {
         var asked = false
-        var finished = false
+        var next = false
         draw(
             OnboardingStep.CALENDAR,
             CalendarPermission.ASKABLE,
-            OnboardingActions(ask = { asked = true }, finish = { finished = true }),
+            OnboardingActions(ask = { asked = true }, next = { next = true }),
         )
         compose.onNodeWithText("Allow").performClick()
         assertThat(asked).isTrue()
         compose.onNodeWithTag(OnboardingTags.NOT_NOW).performClick()
-        assertThat(finished).isTrue()
+        assertThat(next).isTrue()
         compose.assertAccessible()
     }
 
@@ -76,13 +78,44 @@ class OnboardingScreenTest {
     }
 
     @Test
-    fun `granted, it says so and finishes`() {
-        var finished = false
-        draw(OnboardingStep.CALENDAR, CalendarPermission.GRANTED, OnboardingActions(finish = { finished = true }))
+    fun `granted, it says so and moves on`() {
+        var next = false
+        draw(OnboardingStep.CALENDAR, CalendarPermission.GRANTED, OnboardingActions(next = { next = true }))
         compose.onNodeWithTag(OnboardingTags.GRANTED).assertIsDisplayed()
         compose.onNodeWithTag(OnboardingTags.NOT_NOW).assertDoesNotExist()
+        compose.onNodeWithText("Next").performClick()
+        assertThat(next).isTrue()
+    }
+
+    @Test
+    fun `the widget's page offers the pair to the launcher, and finishes`() {
+        var pinned: TempoWidget? = null
+        var finished = false
+        draw(
+            OnboardingStep.WIDGET,
+            CalendarPermission.GRANTED,
+            OnboardingActions(pin = { pinned = it }, finish = { finished = true }),
+            WidgetOffer(canPin = true),
+        )
+        compose.onNodeWithTag(OnboardingTags.pin(TempoWidget.WORDS)).performClick()
+        assertThat(pinned).isEqualTo(TempoWidget.WORDS)
+        compose.onNodeWithTag(OnboardingTags.NOT_NOW).assertDoesNotExist()
+        compose.assertAccessible()
         compose.onNodeWithText("Done").performClick()
         assertThat(finished).isTrue()
+    }
+
+    @Test
+    fun `a launcher that places no widget on request gets the way by hand`() {
+        draw(OnboardingStep.WIDGET, CalendarPermission.ASKABLE)
+        compose.onNodeWithTag(OnboardingTags.pin(TempoWidget.AGENDA)).assertDoesNotExist()
+        compose.onNodeWithText("To add one", substring = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun `a card already placed is said, with how to change it`() {
+        draw(OnboardingStep.WIDGET, CalendarPermission.GRANTED, widgets = WidgetOffer(canPin = true, placed = true))
+        compose.onNodeWithTag(OnboardingTags.PLACED).assertIsDisplayed()
     }
 
     @Test
@@ -90,6 +123,13 @@ class OnboardingScreenTest {
     fun `the welcome reads at twice the text size`() {
         draw(OnboardingStep.WELCOME, CalendarPermission.ASKABLE)
         compose.walkPage(hasTestTag(OnboardingTags.PAGE), "onboarding-large-text")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w411dp-h891dp-xxhdpi", fontScale = 2f)
+    fun `the widget's page reads at twice the text size`() {
+        draw(OnboardingStep.WIDGET, CalendarPermission.GRANTED, widgets = WidgetOffer(canPin = true))
+        compose.walkPage(hasTestTag(OnboardingTags.PAGE), "onboarding-widget-large-text")
     }
 
     @Test

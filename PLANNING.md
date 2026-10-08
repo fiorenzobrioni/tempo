@@ -259,23 +259,28 @@ Two cards in v1, the family's pair (owner, §15): «Agenda» (`AgendaWidget`, th
 ### Configuration
 
 - `SizeMode.Exact`: every form is read off the size the launcher really granted. Glance does the work the concept gave to `onAppWidgetOptionsChanged`, and recomposes on every resize.
-- Default placement 4×2 (`targetCellWidth` 4, `targetCellHeight` 2), minimum one cell, `resizeMode="horizontal|vertical"`, **no maximum** (Passo's ADR 0005: Launcher3 turns a dp maximum into the smallest cell count across its grids). Each form has a layout for any grant.
+- Default placement 4×2 (`targetCellWidth` 4, `targetCellHeight` 2), minimum one cell, `resizeMode="horizontal|vertical"`, **no maximum** (Passo's ADR 0005: Launcher3 turns a dp maximum into the smallest cell count across its grids). Each form has a layout for any grant (`AgendaFit`, `WordsFit`, `:core:domain`; ADR 0003).
 - `updatePeriodMillis = 0`. `configure` is the per-widget settings screen, `reconfigurable|configuration_optional`.
 - `widgetCategory="home_screen"` in v1; `keyguard` is a later idea.
 
 | Form | When | Content |
 |---|---|---|
-| CLOCK | one cell, or the header alone was asked for | The time; the date under it where there is room |
-| LINE | one row, wider than two cells | The time on the leading side; the next event (or the sentence) at the far edge |
-| AGENDA | two rows and up | The header (clock and date, each optional), then the events that fit, then "N more today" |
-| SIDE | two rows and up, four cells or wider, header on | The clock and date in a column on the leading side, the events beside them |
+| CLOCK | one cell, or a row too narrow for a list beside the clock (two cells) | The time, as large as the cell holds; the date under it where it still reads (else none) |
+| LINE | one row, three cells and up | The time and, under it at 16 sp (Passo's facts, «In words»'s line on top), the date (shortened before it is shrunk) on the leading side; the next events beside them, and "N more" |
+| AGENDA | two rows and up | The header (clock and date at 16 sp, each optional), then the events that fit, then "N more today" |
+| SIDE | two rows and up, four cells, where a header on top would leave fewer than five rows (the default 4×2) | The clock and the date (over two even lines if need be: "Wednesday, / October 7") in a column on the leading side, the events beside them |
+
+With the clock and the date both hidden, the card is its list alone, on any grant. A date's all-day events share one row ("All day · Design Week, Anna's birthday"), so two holidays never push out what happens next. A row sets its time as a range where the title keeps 120 dp, its start alone where it keeps 72, else over the title.
 
 | «In words» form | When | Content |
 |---|---|---|
-| NEXT | one cell | The next event's time alone (or "Free" when nothing is left today) |
-| LINE | one row | The next event's time and title on one line; the time and date as a small line where there is room |
-| STACK | two rows and up | The time and date on top; the next event large (time, then title); the day's sentence at the bottom |
-| PANEL | two rows and up, four cells | The same, with the rest of the day as a line of times ("then 16:30, 18:00") under the sentence |
+| CELL | one cell wide | The dial, as large as the cell; under it the focus's time ("11:00") where the cell is taller than wide. Without the dial, that time bold in its place, the title under it |
+| ROW | one row | Passo's row: the dial (up to 56 dp, Passo's ring); the title (20 sp, Chiaro's sentence) over when ("Until 11:00", "15:00 – 15:45", "Tomorrow · 9:00 – 9:30", 16 sp, Passo's facts); the date at the far edge over two lines ("Wednesday / 7 October") where the words keep 120 dp. A narrow row sets the words at 16 and 14 sp, a long title over two lines |
+| TALL | two rows and up | Passo's tall card: the dial in the top trailing corner (48 to 104 dp) with the date beside it; the title (22 sp, down to 18 to stay on one line), when, the day's note hanging from the bottom leading corner; on a card four cells wide with height to spare, the rest of the day as a line of times ("Then 13:00 · 15:00 · 18:30") in place of the note's count |
+
+**The dial** (owner, 8 Oct 2026; `DialArcs`, `WidgetDial.kt`, ADR 0003): a clock face where Passo's card has its ring. The hands are the system's `AnalogClock`, drawn by the launcher and moved by the system like the `TextClock`; the face under them is a bitmap Tempo paints at each redraw: the ring's track, the focus as an arc in the accent from its start to its end, what else is still to come in the face's twelve hours as quieter arcs, four quarter dots. The arcs change only where an event starts or ends, the boundaries the card is redrawn at anyway, so the hour hand walks into an arc, through it and out of it with no work by Tempo. A face shows twelve hours: the window opens now (or at the start of the event under way, six hours back at most) and closes eleven and a half hours later, so no arc ever meets the hand from behind; what lies beyond it is left off, never wrapped. The samples paint the hands into the face at their moment.
+
+The focus is the event under way, else the next one today, else (with the days ahead) the first one after today under its day's name, else "Free" (`WordsDay`). The note says times and counts, never minutes from now (§15): "Then 2 more today.", "Free until then; one more after it.", "Nothing left today.", or a free day's all-day events.
 
 ### Rendering
 
@@ -287,10 +292,11 @@ Two cards in v1, the family's pair (owner, §15): «Agenda» (`AgendaWidget`, th
 
 ### Taps
 
-- Header: Tempo's Today, or the calendar app at today (per widget).
-- Event: Tempo's Today, or the event's occurrence in the calendar app (per widget).
-- "N more today": Tempo's Today.
-- No permission: Tempo's onboarding at the permission step.
+- Header (the clock and the date): Tempo's Today (the default), the calendar app at today, or the phone's clock app (owner, §15), per widget.
+- Event: the event's occurrence in the calendar app (the default, as on Today), or Tempo's Today, per widget.
+- "N more today", the rest of the card: Tempo's Today.
+- No permission: Tempo, where Today (or the first run) asks for it.
+- A door that is not on the phone (no calendar app, no clock app) falls back to Tempo, and the settings screen does not offer it.
 
 ### Update strategy (battery-aware)
 
@@ -328,7 +334,8 @@ Two cards in v1, the family's pair (owner, §15): «Agenda» (`AgendaWidget`, th
 |---|---|---|
 | `READ_CALENDAR` | Runtime | Read the Calendar Provider (Phase 1, declared by `:core:calendar`) |
 | `<queries>` for `ACTION_VIEW`/`ACTION_INSERT` on calendar URIs | Manifest | Lets Android 11+ show Tempo the calendar app, to know whether a button can work. Not a permission |
-| `RECEIVE_BOOT_COMPLETED`, `WAKE_LOCK`, `ACCESS_NETWORK_STATE`, `FOREGROUND_SERVICE` | Normal | Brought by WorkManager, which Glance runs its sessions on and the calendar trigger uses, as in Chiaro and Passo. Without `INTERNET` nothing can leave the phone. Tempo's own code uses none of them; each is reviewed in Phase 4 against the merged manifest |
+| `RECEIVE_BOOT_COMPLETED`, `WAKE_LOCK`, `ACCESS_NETWORK_STATE`, `FOREGROUND_SERVICE` | Normal | Brought by WorkManager, which Glance runs its sessions on and the calendar trigger uses, as in Chiaro and Passo. Without `INTERNET` nothing can leave the phone. Tempo's own code uses none of them. Reviewed in Phase 4 against the merged manifest: the same set as Phase 0's, nothing added by the widgets (the boundary alarm is `AlarmManager.set(RTC)`, which needs no permission); kept as WorkManager declares them, as in the sisters |
+| `<queries>` for `AlarmClock.ACTION_SHOW_ALARMS` | Manifest | Lets the widget find the phone's clock app, for a card whose time opens it (Phase 4). Not a permission; Tempo opens the app's front door and never sets an alarm |
 | `android:allowBackup="true"` + `dataExtractionRules` | Manifest | The settings file only (§5) |
 
 **Forbidden:** `INTERNET`, `ACCESS_*_LOCATION`, `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, `SCHEDULE_EXACT_ALARM`, `USE_EXACT_ALARM`, `WRITE_CALENDAR`, `READ_CONTACTS`, `WRITE_CONTACTS`, `HIGH_SAMPLING_RATE_SENSORS`, `BODY_SENSORS*`.
@@ -413,7 +420,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - [x] Live while visible: the minute ticker and `CalendarChanges`, both lifecycle-bound
   - `TodayViewModel`: one ticker on each minute's start and the observer, shared `WhileSubscribed` (five seconds after the page goes, nothing runs); the provider read again on a new date or zone, a new horizon, a calendar change, and every return to the page (the permission, the calendars or the calendar app may have changed meanwhile); the agenda rebuilt at every tick, so "now" moves without a read. The next alarm is read at each tick (no permission).
 - [x] Onboarding: welcome, the permission (with "Not now"), the widget (pin request)
-  - *Deviation:* the widget's page joins with the widgets (Phase 4): a page offering a card that does not exist yet would be the screen lying. The permission's page asks, or, refused for good, opens the app's system page; "Not now" is always a way through.
+  - *Deviation:* the widget's page joins with the widgets (Phase 4): a page offering a card that does not exist yet would be the screen lying. The permission's page asks, or, refused for good, opens the app's system page; "Not now" is always a way through. *Phase 4:* the widget's page is there, third.
 - [x] The launcher shortcut "New event"
   - *Deviation:* dynamic (`NewEventShortcut`), not static XML: a static shortcut names its package, and the debug build's is another. It opens Tempo, which hands the new event to the calendar app at the next half hour, so Back lands on Today.
 - [x] UI tests on states, not databases (Robolectric), `assertAccessible()` and `walkPage()` at twice the text size and on an open foldable
@@ -430,17 +437,28 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 
 ### Phase 4 — The widget
 
-- [ ] `AgendaFit` (pure, §6) with tests at the reference grants; the forms of §7, for both cards
-- [ ] The card in Glance: the `TextClock` header through `AndroidRemoteViews`, the event groups, "N more", the states
-- [ ] The refresh: the content-URI work, the boundary alarm, the exempt broadcasts; the battery check of §9.6
-- [ ] The per-widget settings screen, with the live preview (Passo's, from Chiaro)
-- [ ] Previews (static and generated)
-- [ ] `WidgetGalleryTest` draws every form to `widget/build/screenshots`; a README screenshot of the card
-- [ ] «In words» (`WordsWidget`): its forms (§7) in the same `AgendaFit` arithmetic, its gallery, its README screenshot
+- [x] `AgendaFit` (pure, §6) with tests at the reference grants; the forms of §7, for both cards
+  - `:core:domain`'s `widget/`: `CardAgenda` and `fitLines` (what «Agenda» lists and what fits whole), `AgendaFit`, `WordsDay`, `WordsFit`, the type's arithmetic (`TextMetrics`); 40 JVM tests. `:widget` adds 40 Robolectric tests (the cards drawn, nothing cut, the doors, the alarm, the store, the settings screen) and the README's pictures.
+- [x] The card in Glance: the `TextClock` header through `AndroidRemoteViews`, the event groups, "N more", the states
+  - The clock and the date are the system's `TextClock` (six small layouts, a frozen `TextView` of each for the samples); the rows in groups of five, so no container passes Glance's ten children; the states (no permission, no calendar, every calendar hidden, unreadable) measured to fit, in words that say what a touch does.
+- [x] The refresh: the content-URI work, the boundary alarm, the exempt broadcasts; the battery check of §9.6
+  - `WidgetRefreshArming`: the content-triggered job (re-armed by itself, appended), one `RTC` alarm at `NextBoundary`, `WidgetSystemReceiver` (time, zone, language, package replaced), Tempo's settings and the reader leaving the app (`WidgetUpdater`); the last card removed disarms both. Pinned by `WidgetDoorsTest` (one non-wakeup alarm, replaced, cancelled).
+  - [ ] The battery check of §9.6 on the owner's phone: `docs/device-checks/widget-refresh.md`.
+- [x] The per-widget settings screen, with the live preview (Passo's, from Chiaro)
+  - The time and the date (each shown or not, each in the card's own format or Tempo's), the touches (the time: Tempo, the calendar at today, the clock app; an event: the calendar app or Tempo), the ground and its opacity, all-day events and the days ahead. The real card at the reference grants, "as placed" first.
+- [x] Previews (static and generated)
+  - Static `previewLayout`s of the default 4×2 cards; generated ones on Android 15+ from `WidgetSamples` (the README's week), published once per version by the Application.
+- [x] `WidgetGalleryTest` draws every form to `widget/build/screenshots`; a README screenshot of the card
+  - Every size, every dress, through the day, the reader's choices, Italian, the states; `WidgetFitTest` finds nothing cut, 5% wider than measured, in English and Italian, at 1, 1.15 and 1.3 the text size. README: `widgets.png`, `widget-settings.png`.
+- [x] «In words» (`WordsWidget`): its forms (§7) in the same `AgendaFit` arithmetic, its gallery, its README screenshot; redesigned around the dial after the first cards on the phone (§15)
+- [x] *From Phase 3:* the first run's widget page (the pair, Android's pin request where the launcher takes one, the way by hand where it does not), and a widgets group in Settings
+- [x] *Owner, 8 Oct 2026:* a touch on the time can open the phone's clock app (§7, Taps; §15)
 
 **Acceptance:**
 - [ ] On the owner's phone, beside Chiaro's and Passo's cards: the same card, the same colours.
+  - The card, its colours and inks are Passo's, unchanged (ADR 0003); the side-by-side is the owner's to see (`docs/device-checks/widget-refresh.md`, check 1).
 - [ ] A calendar change reaches the card within about a minute with the screen on; a finished event leaves it within minutes; with the screen off, `dumpsys alarm` shows no wake-up alarm of Tempo's.
+  - Built for (a content trigger quiet for 3 s and at most 20 s late; an `RTC` alarm at the next boundary) and pinned by tests where a JVM can (one non-wakeup alarm at the right moment); the timing on a real phone is checks 2 to 5 of the same page.
 
 ### Phase 5 — The guide, accessibility and polish
 
@@ -548,6 +566,23 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - **7 Oct 2026, after Phase 3.** A crash at launch on a Galaxy Tab S8+ (owner), not reproduced here: `AppLaunchTest` (`:app`) starts the whole app (the real Application, Hilt's graph, the activity) through the first run into Today, on a phone and on a tablet, upright and on its side, Android 14 and 15, with and without the calendar's permission, and passes; the minified release shows no R8 warning and keeps its resources and fonts. With no emulator in the sandbox, debug builds now carry a crash page (`app/src/debug`: `CrashCatcher`, a provider installed before the Application; `CrashReportActivity`, in its own process, plain views): an uncaught exception shows its stack trace with Copy and Share, so a test device reports without adb. Nothing is sent; the release build has none of it.
 - **7 Oct 2026, after Phase 3.** The tablet's crash is the release build's only (owner: the debug build starts), so R8's: the Hilt view-model keys, the Navigation 3 keys' serializers, the DataStore proto and WorkManager's database all survive the shrinking on inspection, so the cause is still to be read from a trace. The crash page moves to `app/src/crashpage` and joins the debug-signed release built for testing (`-PsignReleaseWithDebugKey`, CI's "testing only" APK), never a release signed with the release key: the trace comes back obfuscated and is retraced with the run's `mapping.txt`.
 - **7 Oct 2026, after Phase 3.** The tablet's trace named it: `NoSuchMethodException: WorkDatabase_Impl.<init>`, in the startup provider, before any screen. WorkManager (Glance's) builds its Room database by reflection through the no-argument constructor, and the rule that should keep it, Room 2.6.1's `-keep class * extends androidx.room.RoomDatabase`, names no constructor: R8's full mode, the default, then keeps none. Passo never met it because its own Room (2.7+) ships the rule with `<init>()`. Fixed in `widget/consumer-rules.pro`, the module that brings Glance: the same rule with the constructor, and likewise Glance's `ActionCallback` rule, the same trap for the widgets' touches (Phase 4). Checked in the dex: the constructor was missing and is there now. Any phone was affected, not only the tablet; the debug build was not, since it is not shrunk.
+
+- **8 Oct 2026, Phase 4.** **A touch on the time can open the phone's clock app** (owner: "the tap on the time can be set to open the default clock too"). Weighed before building: it is the door every clock widget has (Android's own, the Pixel's, Samsung's), and the one a reader reaches for from a clock; it matches the vision's own split (alarms are the Clock app's job, VISION non-goals) and Tempo's way of handing every action to the app that owns it. Not noise, so built: a third choice of «Touching the time and the date», beside Tempo and the calendar at today; Tempo stays the default. The clock app is the one that answers `ACTION_SHOW_ALARMS` (the reader's default, else the phone's own), opened by its launcher entry rather than by that action, which a clock app may guard with `SET_ALARM`, a permission Tempo would gain for this alone. Found through `<queries>`, offered only when there is one, and a card whose clock app was uninstalled opens Tempo. (ADR 0003)
+- **8 Oct 2026, Phase 4.** The cards say clock times and counts, never minutes from now: a card is redrawn at the agenda's boundaries, not each minute, so "Dentist in 40 minutes" would be wrong a minute later. «In words» puts the focus's time large ("15:00", "Until 11:00") and says "Free until then; one more after it."; Today keeps its minutes.
+- **8 Oct 2026, Phase 4.** On a card, a date's all-day events share one row ("All day · Design Week, Anna's birthday", counted as each of them in "N more"): on a card of five rows, two holidays first pushed out the meeting under way. On Today they keep their chips.
+- **8 Oct 2026, Phase 4.** The default 4×2 «Agenda» is the side form (the clock and the date in a column, five events beside them) rather than the clock over two rows: the side form is chosen wherever a header on top would leave fewer than five rows. A one-row card shortens a long date ("Wed, 7 Oct") to leave the events beside the clock their times and titles; the side column writes the reader's own date over two lines first. A date that would read under 11 sp is not drawn: the clock stands alone.
+- **8 Oct 2026, Phase 4.** The date on a card is a `TextClock`, so it turns at midnight exactly whatever the alarm's delivery; it is therefore written in the locale's own case ("mercoledì 7 ottobre", as Android's lock screen writes it), where Today capitalises it. A static date would read "Mercoledì" but could be a day late on a phone asleep through midnight.
+- **8 Oct 2026, Phase 4.** An event's touch opens its occurrence in the calendar app by default (Tempo's Today is the other choice): it is what a touch on an event does on Today. Two occurrences of one repeating event are two pending intents (`Intent.setIdentifier`), else the second's times would ride on the first.
+- **8 Oct 2026, Phase 4.** The widgets' refresh also runs when Tempo's settings change and when the reader leaves the app (where they may have granted the permission or hidden a calendar): both are the reader's own acts, never a timer. The Application listens to the settings, which costs nothing until one changes.
+- **8 Oct 2026, Phase 4.** The first run's last button is now «Next» on the calendar's page and «Done» on the widgets' page; "Not now" leads to the widgets, which are offered, never required. The feature modules reach the widgets through `HomeScreenWidgets` (`:core:data`), bound by `:widget`.
+
+- **8 Oct 2026, after Phase 4.** «In words» takes Passo's «At a glance» row sizes (owner, from the phone: beside Passo's card the one-row card showed wide empty bands above and below). The insets were already the family's (6 dp on a row); the content was small for the row (the line on top at 13 sp, the time at most 30 sp), so the air went into the bands. Now the line on top is at Passo's facts' 16 sp ("of 8,000 steps") and the focus's time grows to Passo's count's 34 sp ("86"), with the title at 18 sp on the time's baseline: a 4×1 card holds 19 dp + 45 dp of its 73, as Passo's does. On a narrow card a dated line steps down to 14, then 13 sp, before it loses the date; the tall forms take the same line on top. The line on top is budgeted as the `TextClock` it is (1.2 em, no font padding), not as a Glance text. `WidgetFitTest` still finds nothing cut, in both languages, at 1 to 1.3 the text size.
+- **8 Oct 2026, after Phase 4.** «Agenda»'s one-row date follows (owner): 16 sp under the clock, where it was 13. The clock keeps its 36 sp; the long date gives way to the short one ("Wed, 7 Oct") a little more often, and at twice the text size the date goes, as before, before the clock shrinks.
+- **8 Oct 2026, after Phase 4.** One set of sizes across the family's cards (owner: "where you see other points to make uniform, do"). The date under «Agenda»'s clock is 16 sp in every form (it was 14 on a tall card), as «In words»'s line on top and Passo's facts; the one-row clock is at most 34 sp (it was 36), as «In words»'s time and Passo's count on their rows. Left as they are, because they are already one with the sisters or have another role: the list's rows (13 and 14 sp), the notes (14 sp), the messages (14 and 12 sp, Passo's), the one-cell forms. A two-line date in the side column takes a balanced width, so its lines are even and no word stands alone ("Wednesday, October / 7" before). To keep two events on a 2×2 under the larger date, its clock goes down to 28 sp (from 30) and the gap under the header to 6 dp (from 8).
+- **8 Oct 2026, after Phase 4.** A line of Glance text is budgeted with the pixel its font metrics are rounded up to (+1 dp): without it a list of four rows came out 2 dp taller than its budget and the "N more" line under it was squeezed, its descenders cut (a 2×2, seen in the gallery). `WidgetFitTest` now also fails on a squeezed line and on one past a container's padded area, which it did not see before; a clock line, a `TextClock` without font padding, keeps its own measure. Lists may show a row fewer where they were at the edge.
+
+- **8 Oct 2026, after Phase 4.** «In words» is redesigned around a dial (owner, from the phone: on a 4×1 the time in words at 34 sp, "Until 18:30", left the title three words and an ellipsis, and the band under it was wide; "propose a new layout, beautiful and new, clean, in tune with the sisters"). What the other calendar widgets do: a list, or a line ("Meeting in 15 min", which a card redrawn at boundaries cannot keep true). What none does: show where an event sits in the hours, live, without a repaint. The dial does: the system's `AnalogClock` hands over a face Tempo paints with the focus's arc, so the hour hand walks through the meeting by itself, and the face changes only at the boundaries the card already redraws at (§7, ADR 0003). It stands where Passo's ring stands (the same 56 dp on a row, the same corner on a tall card, the same 0.2 track and accent), so the three cards read as one set. No number is large any more: the title is the words' first rank (20 sp, Chiaro's sentence), when is said under it in clock times (16 sp, Passo's facts), the date goes to the far edge of a row over two lines, like Passo's sentence. The digital time leaves the card: the dial is the clock, and the reader who hides it gets the words alone. The forms are three (CELL, ROW, TALL), from four.
+- **8 Oct 2026, after Phase 4.** A crash on the owner's Galaxy S24 Ultra, retraced with the run's mapping: `TempoWidgetReceiver.onDeleted` called `goAsync()` after Glance's own `onDeleted`, which had already taken the broadcast's pending result (Android hands it out once), and finished the `null` it got. The cleanup now finishes only a result it was given, inside the time Glance's work keeps the broadcast open; `WidgetReceiverTest` delivers a removal as the system does and fails on the crash. Passo's `PassoWidgetReceiver` has the same lines.
 
 ### Open
 

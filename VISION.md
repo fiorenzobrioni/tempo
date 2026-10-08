@@ -125,7 +125,8 @@ The concept's widget, in the family's dress.
   sensible defaults, as the family's are, and changed later):
   - *Clock*: shown or hidden, and its format.
   - *Date*: shown or hidden, and its format.
-  - *Touching the header*: opens Tempo, or opens the calendar app.
+  - *Touching the header*: opens Tempo, the calendar app at today, or the phone's clock app,
+    where the alarms are (owner, 8 Oct 2026).
   - *Touching an event*: opens Tempo, or opens that event in the calendar app.
   - *The card*: light, dark, following the phone, or one of Chiaro's six colours, at any
     opacity, with a live preview: the family's widget settings.
@@ -136,17 +137,20 @@ The concept's widget, in the family's dress.
   at midnight, and when the clock, the time zone or the language changes. Never on a timer.
 #### «In words» («In parole»)
 
-The family's typographic card: the day in type alone, for a reader who wants to know where the
-day stands rather than read its list.
+The family's card in words, for a reader who wants to know where the day stands rather than read
+its list. Redesigned around a dial after the first cards on the phone (owner, 8 Oct 2026).
 
-- **The next event large**, as the family's hero: its time, and its title under it ("15:00",
-  "Dentist"); the event under way instead while one is ("Until 11:00, Standup").
-- **The day's sentence** under it ("Two more today; free until 3 pm").
-- **The time and the date** as a small line on top, each optional, drawn by `TextClock` like
-  the «Agenda» card's.
-- **Forms for every size**: one cell is the next time alone; one row is the time and the title on
-  one line; two rows and up add the sentence and, with height to spare, the rest of the day as a
-  line of times ("then 16:30, 18:00").
+- **A dial where Passo's card has its ring**: the system's own hands, and on the ring what comes
+  next as an arc from its start to its end, the rest of the next twelve hours quieter. The hour
+  hand walks into the meeting, through it and out of it by itself: a progress no other calendar
+  widget shows, at no cost to the battery (the arcs change only where an event starts or ends).
+- **What comes next, in words**: its title, and when ("Until 11:00", "15:00 – 15:45",
+  "Tomorrow · 9:00"); the day's sentence under it on a larger card ("Then 3 more today.").
+- **The date**, drawn by `TextClock` like the «Agenda» card's: at the far edge of a row, beside
+  the dial on a taller card. The dial is the clock; the reader can hide either.
+- **Forms for every size**: one cell is the dial; one row is the dial, the words and the date,
+  Passo's row; two rows and up put the dial and the date on top and the words at the bottom,
+  Passo's tall card, with the rest of the day as a line of times where there is room.
 - The same settings, states and updates as «Agenda».
 
 ### Calendars and filters
@@ -198,7 +202,7 @@ day stands rather than read its list.
   needs the network.
 - **Event reminders and notifications**: the calendar app's job.
 - **Alarms, timers, a stopwatch, a world clock**: the system Clock app's job. Tempo shows the
-  next alarm, read-only, and nothing else of it.
+  next alarm, read-only, and nothing else of it; a widget's time can open the Clock app.
 - **Tasks and to-dos**: they are not in the Calendar Provider (Google Tasks is a separate service).
 - **Week and month grids**: the calendar app's job. Tempo is the day, and the few days after it.
 - **Weather on the agenda**: Chiaro's job, and each app of the family stands alone.

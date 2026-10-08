@@ -34,6 +34,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -63,6 +64,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callbackdev.tempo.core.calendar.CalendarAccess
+import com.callbackdev.tempo.core.data.widget.TempoWidget
 import com.callbackdev.tempo.core.designsystem.icons.TempoIcons
 import com.callbackdev.tempo.core.designsystem.theme.TempoMotion
 import com.callbackdev.tempo.core.designsystem.theme.padding
@@ -72,14 +74,20 @@ import com.callbackdev.tempo.core.model.CalendarPermission
 import com.callbackdev.tempo.core.designsystem.R as DesignR
 
 /**
- * The first run's pages (PLANNING.md §11 Phase 3), in Passo's shape: what Tempo is, then the one
- * permission it needs. The widget's page joins with the widgets (Phase 4): a page offering a card
- * that does not exist yet would be the screen lying.
+ * The first run's pages (PLANNING.md §11 Phases 3 and 4), in Passo's shape: what Tempo is, the one
+ * permission it needs, and the widgets, with the launcher's own way to place one.
  */
 enum class OnboardingStep {
     WELCOME,
     CALENDAR,
+    WIDGET,
 }
+
+/**
+ * The widget page's facts: whether the launcher places a card on request (Android's pin request),
+ * and whether one of Tempo's is on a home screen already.
+ */
+data class WidgetOffer(val canPin: Boolean = false, val placed: Boolean = false)
 
 @Composable
 fun OnboardingRoute(viewModel: OnboardingViewModel = hiltViewModel()) {
@@ -99,12 +107,19 @@ fun OnboardingRoute(viewModel: OnboardingViewModel = hiltViewModel()) {
         refresh()
     }
     var step by rememberSaveable { mutableStateOf(OnboardingStep.WELCOME) }
+    // A card placed from the launcher's dialog is seen when the page is back in front.
+    var offer by remember { mutableStateOf(viewModel.widgetOffer()) }
+    LifecycleResumeEffect(Unit) {
+        offer = viewModel.widgetOffer()
+        onPauseOrDispose { }
+    }
     OnboardingScreen(
         step = step,
         permission = permission,
+        widgets = offer,
         actions = OnboardingActions(
-            next = { step = OnboardingStep.CALENDAR },
-            back = { step = OnboardingStep.WELCOME },
+            next = { OnboardingStep.entries.getOrNull(step.ordinal + 1)?.let { step = it } },
+            back = { OnboardingStep.entries.getOrNull(step.ordinal - 1)?.let { step = it } },
             ask = { ask.launch(CalendarAccess.PERMISSION) },
             openAppSettings = {
                 runCatching {
@@ -113,6 +128,7 @@ fun OnboardingRoute(viewModel: OnboardingViewModel = hiltViewModel()) {
                 }
             },
             finish = viewModel::finish,
+            pin = { widget -> viewModel.pin(widget) },
         ),
     )
 }
@@ -123,6 +139,7 @@ class OnboardingActions(
     val ask: () -> Unit = {},
     val openAppSettings: () -> Unit = {},
     val finish: () -> Unit = {},
+    val pin: (TempoWidget) -> Unit = {},
 )
 
 @Composable
@@ -131,6 +148,7 @@ fun OnboardingScreen(
     permission: CalendarPermission,
     actions: OnboardingActions,
     modifier: Modifier = Modifier,
+    widgets: WidgetOffer = WidgetOffer(),
 ) {
     val reduced = reducedMotion()
     val gutter = pageGutter()
@@ -168,6 +186,7 @@ fun OnboardingScreen(
                     when (page) {
                         OnboardingStep.WELCOME -> WelcomePage()
                         OnboardingStep.CALENDAR -> CalendarPage(permission)
+                        OnboardingStep.WIDGET -> WidgetPage(widgets, actions.pin)
                     }
                 }
             }
@@ -210,6 +229,7 @@ private fun Progress(index: Int, count: Int) {
  * The bar under every page: one wide button that moves on, and the quieter way back or past. On
  * the calendar's page the wide button asks (or, refused for good, opens the system's page) until
  * the permission is there; "Not now" is always a way through, because the clock works without it.
+ * The widget's page ends the run: a card is offered, never required.
  */
 @Composable
 private fun BottomBar(step: OnboardingStep, permission: CalendarPermission, actions: OnboardingActions) {
@@ -220,7 +240,9 @@ private fun BottomBar(step: OnboardingStep, permission: CalendarPermission, acti
         val (label, onClick) = when {
             step == OnboardingStep.WELCOME -> stringResource(R.string.onboarding_start) to actions.next
 
-            permission == CalendarPermission.GRANTED -> stringResource(R.string.onboarding_done) to actions.finish
+            step == OnboardingStep.WIDGET -> stringResource(R.string.onboarding_done) to actions.finish
+
+            permission == CalendarPermission.GRANTED -> stringResource(R.string.onboarding_next) to actions.next
 
             permission == CalendarPermission.DENIED_FOR_GOOD ->
                 stringResource(R.string.onboarding_open_settings) to actions.openAppSettings
@@ -233,8 +255,8 @@ private fun BottomBar(step: OnboardingStep, permission: CalendarPermission, acti
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             if (step != OnboardingStep.WELCOME) {
                 TextButton(onClick = actions.back) { Text(stringResource(R.string.onboarding_back)) }
-                if (permission != CalendarPermission.GRANTED) {
-                    TextButton(onClick = actions.finish, modifier = Modifier.testTag(OnboardingTags.NOT_NOW)) {
+                if (step == OnboardingStep.CALENDAR && permission != CalendarPermission.GRANTED) {
+                    TextButton(onClick = actions.next, modifier = Modifier.testTag(OnboardingTags.NOT_NOW)) {
                         Text(stringResource(R.string.onboarding_not_now))
                     }
                 }
@@ -339,6 +361,105 @@ private fun CalendarPage(permission: CalendarPermission) {
     }
 }
 
+/**
+ * The widgets, offered: the pair, each with what it shows and, where the launcher takes a pin
+ * request, a button that hands the card to the launcher's own dialog (where the reader decides).
+ * Where it does not, the way to add one by hand. A card placed meanwhile is said, with how to
+ * change it.
+ */
+@Composable
+private fun WidgetPage(offer: WidgetOffer, pin: (TempoWidget) -> Unit) {
+    Text(
+        text = stringResource(R.string.onboarding_widget_title),
+        style = MaterialTheme.typography.headlineSmall,
+        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp).semantics { heading() },
+    )
+    Text(
+        text = stringResource(R.string.onboarding_widget_body),
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Spacer(Modifier.height(16.dp))
+    WidgetChoice(
+        TempoWidget.AGENDA,
+        R.string.onboarding_widget_agenda,
+        R.string.onboarding_widget_agenda_body,
+        offer,
+        pin,
+    )
+    Spacer(Modifier.height(12.dp))
+    WidgetChoice(TempoWidget.WORDS, R.string.onboarding_widget_words, R.string.onboarding_widget_words_body, offer, pin)
+    Spacer(Modifier.height(16.dp))
+    if (offer.placed) {
+        Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.large) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp).testTag(OnboardingTags.PLACED),
+            ) {
+                Icon(TempoIcons.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                Text(
+                    stringResource(R.string.onboarding_widget_placed),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+            }
+        }
+    } else if (!offer.canPin) {
+        Text(
+            text = stringResource(R.string.onboarding_widget_manual),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun WidgetChoice(widget: TempoWidget, title: Int, body: Int, offer: WidgetOffer, pin: (TempoWidget) -> Unit) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.large) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+        ) {
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shape = CircleShape,
+                modifier = Modifier.size(40.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        TempoIcons.Widgets,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.weight(1f)) {
+                Text(stringResource(title), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (offer.canPin) {
+                    // Under the words, not beside them: at a large text size a button at the side
+                    // leaves the description a column one word wide.
+                    val label = stringResource(R.string.onboarding_widget_add_a11y, stringResource(title))
+                    FilledTonalButton(
+                        onClick = { pin(widget) },
+                        modifier = Modifier
+                            .padding(top = 6.dp)
+                            .semantics { contentDescription = label }
+                            .testTag(OnboardingTags.pin(widget)),
+                    ) {
+                        Text(stringResource(R.string.onboarding_widget_add))
+                    }
+                }
+            }
+        }
+    }
+}
+
 /** Hooks for the UI tests. */
 object OnboardingTags {
     const val ROOT = "onboarding_root"
@@ -347,4 +468,7 @@ object OnboardingTags {
     const val PRIMARY = "onboarding_primary"
     const val NOT_NOW = "onboarding_not_now"
     const val GRANTED = "onboarding_granted"
+    const val PLACED = "onboarding_widget_placed"
+
+    fun pin(widget: TempoWidget) = "onboarding_pin_${widget.name.lowercase()}"
 }

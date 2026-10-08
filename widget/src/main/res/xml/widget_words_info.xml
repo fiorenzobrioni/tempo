@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  «In words» (PLANNING.md §7). The two cards share one size spec on purpose, so they sit
+  side by side and trade places on a home screen: the same default placement (four cells by two,
+  where «Agenda» has the clock beside a list), the same minimum (one cell: 40 dp by the platform's
+  70 × n − 30), and no maximum (Passo's ADR 0005: Launcher3 turns a dp maximum into the smallest
+  cell count across its grids). Every form has a layout for any grant (AgendaFit, WordsFit).
+
+  updatePeriodMillis is 0: the cards are pushed (the calendar's trigger, the boundary alarm, the
+  exempt broadcasts), never polled, and their clock is the system's TextClock. The configure
+  activity is optional, so a card is placed at once with its defaults; a long press opens it.
+
+  previewLayout is what the picker shows before the launcher asks for a generated preview (API
+  35+, GlanceAppWidget.providePreview): a static drawing of the default card, sample values only.
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="com.callbackdev.tempo.widget.config.WidgetConfigActivity"
+    android:description="@string/widget_words_desc"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:minWidth="250dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="40dp"
+    android:minResizeHeight="40dp"
+    android:previewLayout="@layout/widget_words_preview"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable|configuration_optional" />

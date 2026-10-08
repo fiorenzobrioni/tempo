@@ -15,3 +15,10 @@
 #   and creates a card's callbacks by their no-argument constructor, on a touch: the same trap,
 #   closed before the widgets' first callback (Phase 4).
 -keep public class * extends androidx.glance.appwidget.action.ActionCallback { public <init>(); }
+
+# - The calendar's trigger (CalendarChangeWorker) is built by WorkManager's default factory, by
+#   reflection through its (Context, WorkerParameters) constructor: kept by name, whatever the
+#   library's own rule says in the version that resolves.
+-keep class com.callbackdev.tempo.widget.refresh.CalendarChangeWorker {
+    public <init>(android.content.Context, androidx.work.WorkerParameters);
+}

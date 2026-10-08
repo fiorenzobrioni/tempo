@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_agenda_label">Agenda</string>
+    <string name="widget_agenda_desc">L’ora e la data sopra il resto della giornata: tutti gli impegni che la scheda contiene, e quanti altri</string>
+    <string name="widget_words_label">In parole</string>
+    <string name="widget_words_desc">Un quadrante con quello che viene dopo segnato sull’anello, e la giornata in poche parole</string>
+
+    <string name="widget_tomorrow">Domani</string>
+    <string name="widget_all_day">Tutto il giorno</string>
+    <string name="widget_day_of">Giorno %1$d di %2$d</string>
+    <plurals name="widget_more_today">
+        <item quantity="one">Ancora uno oggi</item>
+        <item quantity="many">Altri %1$d oggi</item>
+        <item quantity="other">Altri %1$d oggi</item>
+    </plurals>
+    <plurals name="widget_more_later">
+        <item quantity="one">Ancora uno nei prossimi giorni</item>
+        <item quantity="many">Altri %1$d nei prossimi giorni</item>
+        <item quantity="other">Altri %1$d nei prossimi giorni</item>
+    </plurals>
+
+    <plurals name="widget_more_short">
+        <item quantity="one">Ancora uno</item>
+        <item quantity="many">Altri %1$d</item>
+        <item quantity="other">Altri %1$d</item>
+    </plurals>
+    <string name="widget_more_count">+%1$d</string>
+
+    <string name="widget_free">Libero</string>
+    <string name="widget_label_until">Fino alle</string>
+    <string name="widget_label_next">Poi</string>
+    <plurals name="widget_note_then_more">
+        <item quantity="one">Poi ancora uno oggi.</item>
+        <item quantity="many">Poi altri %1$d oggi.</item>
+        <item quantity="other">Poi altri %1$d oggi.</item>
+    </plurals>
+    <string name="widget_note_last">L’ultimo di oggi.</string>
+    <plurals name="widget_note_free_until">
+        <item quantity="one">Libero fino ad allora; dopo, ancora uno.</item>
+        <item quantity="many">Libero fino ad allora; dopo, altri %1$d.</item>
+        <item quantity="other">Libero fino ad allora; dopo, altri %1$d.</item>
+    </plurals>
+    <string name="widget_note_free_until_last">Libero fino ad allora; è l’ultimo di oggi.</string>
+    <string name="widget_note_free_until_bare">Libero fino ad allora.</string>
+    <string name="widget_note_all_day">Tutto il giorno: %1$s.</string>
+    <plurals name="widget_note_all_day_more">
+        <item quantity="one">Tutto il giorno: %1$s e un altro.</item>
+        <item quantity="many">Tutto il giorno: %1$s e altri %2$d.</item>
+        <item quantity="other">Tutto il giorno: %1$s e altri %2$d.</item>
+    </plurals>
+    <string name="widget_then">Poi %1$s</string>
+
+    <string name="widget_permission_title">Tempo non può leggere il calendario</string>
+    <string name="widget_permission_hint">Tocca per consentirlo</string>
+    <string name="widget_permission_short">Senza permesso</string>
+    <string name="widget_no_calendars_title">Ancora nessun calendario sul telefono</string>
+    <string name="widget_no_calendars_hint">Aggiungi un account che ne abbia uno nelle impostazioni del telefono</string>
+    <string name="widget_no_calendars_short">Nessun calendario</string>
+    <string name="widget_all_hidden_title">Tutti i calendari sono nascosti</string>
+    <string name="widget_all_hidden_hint">Tocca per sceglierli in Tempo</string>
+    <string name="widget_all_hidden_short">Tutti nascosti</string>
+    <string name="widget_unavailable_title">Il calendario non si legge, per ora</string>
+    <string name="widget_unavailable_hint">Tocca per aprire Tempo</string>
+    <string name="widget_unavailable_short">Non leggibile</string>
+
+    <string name="widget_a11y_range">dalle %1$s alle %2$s</string>
+    <string name="widget_a11y_in_calendar">in %1$s</string>
+
+    <string name="widget_config_title">Questo widget</string>
+    <string name="widget_config_preview_desc">Anteprima del widget</string>
+    <string name="widget_config_size_placed">Com’è ora</string>
+    <string name="widget_config_resize_hint">Nella schermata Home, tieni premuto il widget e trascinane i bordi: si ridispone da solo.</string>
+    <string name="widget_config_clock_group">Ora e data</string>
+    <string name="widget_config_show_clock">L’ora</string>
+    <string name="widget_config_show_clock_note">La disegna Android stesso, giusta al minuto, senza costo per la batteria.</string>
+    <string name="widget_config_clock_format">Formato dell’ora</string>
+    <string name="widget_config_show_date">La data</string>
+    <string name="widget_config_date_format">Formato della data</string>
+    <string name="widget_config_date_format_note">Si accorcia da sola dove la scheda è troppo stretta.</string>
+    <string name="widget_config_as_tempo">Come nelle impostazioni di Tempo</string>
+    <string name="widget_config_as_phone">Come il telefono</string>
+    <string name="widget_config_24">24 ore</string>
+    <string name="widget_config_12">12 ore</string>
+    <string name="widget_config_touches">Tocchi</string>
+    <string name="widget_config_header_tap">Toccando l’ora e la data</string>
+    <string name="widget_config_event_tap">Toccando un impegno</string>
+    <string name="widget_tap_tempo">Si apre Tempo</string>
+    <string name="widget_tap_calendar_day">Si apre il calendario su oggi</string>
+    <string name="widget_tap_clock">Si apre l’app Orologio</string>
+    <string name="widget_tap_clock_note">Sveglie, timer e cronometro, nell’app Orologio che il telefono ha già.</string>
+    <string name="widget_tap_calendar_event">Si apre l’impegno nel calendario</string>
+    <string name="widget_config_background">Sfondo</string>
+    <string name="widget_bg_light">Chiaro</string>
+    <string name="widget_bg_dark">Scuro</string>
+    <string name="widget_bg_system">Come il telefono</string>
+    <string name="widget_bg_color">Un colore</string>
+    <string name="widget_color_blue">Blu</string>
+    <string name="widget_color_azure">Azzurro</string>
+    <string name="widget_color_green">Verde</string>
+    <string name="widget_color_teal">Verde mare</string>
+    <string name="widget_color_plum">Viola</string>
+    <string name="widget_color_clay">Terracotta</string>
+    <string name="widget_config_opacity">Opacità dello sfondo</string>
+    <string name="widget_opacity_full">Pieno</string>
+    <string name="widget_opacity_transparent">Trasparente</string>
+    <string name="widget_opacity_percent">%1$d%%</string>
+    <string name="widget_config_content">Contenuto</string>
+    <string name="widget_config_all_day">Impegni di tutto il giorno</string>
+    <string name="widget_config_all_day_note">Feste, compleanni e gli altri impegni senza orario. Spenti qui, sono nascosti solo su questo widget.</string>
+    <string name="widget_config_all_day_note_words">Detti sotto una giornata in cui non resta altro.</string>
+    <string name="widget_config_days_ahead">I prossimi giorni</string>
+    <string name="widget_config_days_ahead_note">Quando il resto di oggi ci sta, i giorni seguenti riempiono lo spazio che lascia, ciascuno sotto la sua data.</string>
+    <string name="widget_config_days_ahead_note_words">Quando oggi non resta altro, al suo posto va il primo impegno dei prossimi giorni.</string>
+    <string name="widget_config_done">Fatto</string>
+    <string name="widget_config_cancel">Annulla</string>
+
+    <string name="agenda_form_clock">Una cella: l’ora, e la data sotto dove c’è spazio.</string>
+    <string name="agenda_form_line">Una riga: l’ora e la data, e accanto i prossimi impegni.</string>
+    <string name="agenda_form_agenda">Due righe e oltre: l’ora e la data in alto, poi tutti gli impegni che ci stanno, e quanti altri.</string>
+    <string name="agenda_form_side">Larga e alta due righe: l’ora e la data in una colonna, gli impegni accanto.</string>
+    <string name="agenda_form_list">Con l’ora e la data nascoste: solo gli impegni, tutti quelli che ci stanno.</string>
+
+    <string name="widget_preview_time">10:20</string>
+    <string name="widget_preview_date">mercoledì 7 ottobre</string>
+    <string name="widget_preview_row1_time">fino alle 11:00</string>
+    <string name="widget_preview_row1_title">Revisione del progetto</string>
+    <string name="widget_preview_row2_time">13:00 – 14:00</string>
+    <string name="widget_preview_row2_title">Pranzo con Giulia</string>
+    <string name="widget_preview_row3_time">15:00 – 15:45</string>
+    <string name="widget_preview_row3_title">Dentista</string>
+    <string name="widget_preview_more">Ancora uno oggi</string>
+    <string name="widget_preview_top">mercoledì 7 ottobre</string>
+    <string name="widget_preview_note">Poi altri 3 oggi.</string>
+    <string name="words_form_cell">Una cella: il quadrante, e sotto l’ora di quello che viene dopo dove c’è spazio.</string>
+    <string name="words_form_row">Una riga: il quadrante, quello che viene dopo e quando, e la data dove c’è spazio.</string>
+    <string name="words_form_tall">Due righe e più: il quadrante e la data in alto, sotto quello che viene dopo, quando, e la giornata in una riga.</string>
+    <string name="widget_dial_desc">Orologio</string>
+    <string name="widget_when_day">%1$s · %2$s</string>
+    <string name="widget_preview_when">Fino alle 11:00</string>
+</resources>

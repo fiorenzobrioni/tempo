@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The same line as widget_clock_regular.xml, frozen: plain text at a sample's moment, for the
+  previews and the pictures, which must show the sample's time and not the moment they were drawn.
+-->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_clock"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:ellipsize="end"
+    android:includeFontPadding="false"
+    android:maxLines="1"
+    android:textAppearance="@style/WidgetTextFace.Regular" />

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The «In words» dial's minute hand and the cap over the centre, for the system's AnalogClock
+  (WidgetDial.kt): DialGeometry's MINUTE_LENGTH (0.33), MINUTE_WIDTH (0.05) and CAP (0.045) on a
+  100-unit square, drawn at HAND_DRAWABLE_DP. White, tinted in the card's ink through RemoteViews.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M47.5,50 L47.5,19.5 A2.5,2.5 0 0 1 52.5,19.5 L52.5,50 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M45.5,50 A4.5,4.5 0 1 0 54.5,50 A4.5,4.5 0 1 0 45.5,50 Z" />
+</vector>

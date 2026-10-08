@@ -67,13 +67,13 @@ that does not match it.
 | Module | Kind | Holds |
 |---|---|---|
 | `:core:model` | pure Kotlin/JVM | data classes shared by everything: `EventInstance`, `CalendarInfo`, the provider's codes as enums, `Agenda` (`AgendaDay`, `AllDayEntry`, `TimedEntry`, `FreeGap`), `CalendarPermission`, the settings enums (`ClockFormat`, `DateStyle`, appearance) |
-| `:core:domain` | pure Kotlin/JVM | the calendar engine: `AgendaBuilder`, `AgendaFilter`, `allDayDates()` (UTC), `FreeTime`, `NextBoundary`, `AgendaWindow`, `calendarPermission()`; the reader's calendars (`CalendarChoices`, `CalendarGroups`) and their colour as a mark (`markColor`, 3:1); the clock helpers (`uses24Hour`, `untilNextMinute`, `nextHalfHour`); Today's views (`DaySentence`, `DaySummary`, `Timeline`, `AlarmDay`); later `AgendaFit` |
-| `:core:data` | Android library | DataStore: `SettingsRepository` (`UserSettings`, only what differs from a default stored), later the widget looks |
+| `:core:domain` | pure Kotlin/JVM | the calendar engine: `AgendaBuilder`, `AgendaFilter`, `allDayDates()` (UTC), `FreeTime`, `NextBoundary`, `AgendaWindow`, `calendarPermission()`; the reader's calendars (`CalendarChoices`, `CalendarGroups`) and their colour as a mark (`markColor`, 3:1); the clock helpers (`uses24Hour`, `untilNextMinute`, `nextHalfHour`); Today's views (`DaySentence`, `DaySummary`, `Timeline`, `AlarmDay`); the widgets' arithmetic (`CardAgenda`, `fitLines`, `AgendaFit`, `WordsDay`, `WordsFit`, `DialArcs`) |
+| `:core:data` | Android library | DataStore: `SettingsRepository` (`UserSettings`, only what differs from a default stored); `HomeScreenWidgets`, the widgets as the feature modules reach them (bound by `:widget`) |
 | `:core:calendar` | Android library | the Calendar Provider's Android half: `CalendarSource` (Instances, Calendars → `CalendarRead`), `CalendarChanges` (observer, debounced), `CalendarIntents` (view, insert, open a day, `canOpen`), `CalendarAccess` (the permission); `READ_CALENDAR` and the `<queries>` in its manifest. Tested against `FakeCalendarProvider` under Robolectric |
 | `:core:designsystem` | Android library | M3 theme (Chiaro's dresses through Passo), typography, shapes, motion, page gutter, the widget card colours, `TempoIcons`; Passo's settings rows (`SettingsRows.kt`) and `StatusCard`, `CalendarPermissionCard`, `DateTimeText` (times and dates from the locale's patterns), `AgendaText` (the agenda's words, for Today and the widgets), `CalendarDot`, `CalendarBar` |
 | `:core:testing` | Android library, test-only | `assertAccessible()` (labels, 48dp touch targets) and `walkPage()`, shared by the UI tests as `testImplementation` |
-| `:feature:*` | Android library | `today` (the clock, the sentence, the agenda, `TodayViewModel`'s ticker and observer), `settings` (formats, agenda, calendars, appearance, about), `onboarding` (welcome, the permission); `guide` joins in Phase 5 |
-| `:widget` | Android library | the two Glance cards («Agenda», «In words»), their settings screen, the refresh (content-URI work, boundary alarm, receivers) |
+| `:feature:*` | Android library | `today` (the clock, the sentence, the agenda, `TodayViewModel`'s ticker and observer), `settings` (formats, agenda, calendars, appearance, about), `onboarding` (welcome, the permission, the widgets); `guide` joins in Phase 5 |
+| `:widget` | Android library | the two Glance cards («Agenda», «In words»), their `TextClock` lines, «In words»'s dial (`WidgetDial`: a painted face under the system's `AnalogClock` hands), their looks (`WidgetLookStore`, its own file, not backed up), their settings screen, the doors their touches open (`WidgetIntents`, `ClockApp`), the refresh (`WidgetRefreshArming`: content-URI work, boundary alarm, receivers; `WidgetUpdater`) |
 | `:app` | application | `Application`, `MainActivity` (the reader's appearance, the shortcut's new event), the shell (`TempoRoot`: onboarding, then Navigation 3), `NewEventShortcut`, DI entry points; wires everything |
 
 Rules: `:core:model` and `:core:domain` stay pure Kotlin/JVM; if a class there needs a `Context`
@@ -142,10 +142,12 @@ foldable (`walkPage()`); text inks are pinned at 4.5:1 by `ContrastTest`. A page
 `pageGutter()` on each side (in a list's content padding, never by narrowing the list), so an
 open foldable shows a centred column and a phone upright is untouched. No tablet layout.
 
-**Widgets** (PLANNING.md §7): the family's pair, «Agenda» and «In words», on the family's card (Passo's ADR 0005, from Chiaro): its corner, insets,
+**Widgets** (PLANNING.md §7, `docs/adr/0003-widgets.md`): the family's pair, «Agenda» and «In words», on the family's card (Passo's ADR 0005, from Chiaro): its corner, insets,
 grounds, Chiaro's six colours (`WidgetPalette.kt`), opacity and ink rule. The forms' arithmetic
-is pure (`AgendaFit`) and pinned by tests at the family's reference grants; a gallery test draws
-every form to `widget/build/screenshots`: look at them after changing the card.
+is pure (`AgendaFit`, `WordsFit`) and pinned by tests at the family's reference grants; a gallery test draws
+every form to `widget/build/screenshots`: look at them after changing the card. `WidgetFitTest`
+draws every form 5% wider than measured and fails on anything cut but an event's title. A card
+says clock times, never minutes from now (it is redrawn at boundaries, not each minute).
 
 **README screenshots** (`docs/screenshots/`, shown in the root `README.md`): drawn by
 `ReadmeScreenshots` test classes from realistic sample days, in English, and only on request:

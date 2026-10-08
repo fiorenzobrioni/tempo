@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.callbackdev.tempo.core.data.widget.TempoWidget
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
 import com.callbackdev.tempo.core.domain.calendar.CalendarChoices
 import com.callbackdev.tempo.core.domain.calendar.CalendarGroups
@@ -44,10 +45,11 @@ class SettingsScreenTest {
         calendars: CalendarsState? = listed,
         permission: CalendarPermission = CalendarPermission.GRANTED,
         actions: SettingsActions = SettingsActions(),
+        widgets: WidgetsInfo = WidgetsInfo(),
     ) {
         compose.setContent {
             TempoTheme {
-                SettingsScreen(SettingsUiState(settings, calendars, "0.1.0"), permission, onBack = {
+                SettingsScreen(SettingsUiState(settings, calendars, "0.1.0", widgets), permission, onBack = {
                 }, actions = actions)
             }
         }
@@ -62,6 +64,23 @@ class SettingsScreenTest {
         draw(UserSettings(clockFormat = ClockFormat.H24))
         compose.onNodeWithText("24-hour", substring = true).assertIsDisplayed()
         compose.assertAccessible()
+    }
+
+    @Test
+    fun `the widgets are handed to the launcher where it takes them`() {
+        var pinned: TempoWidget? = null
+        draw(actions = SettingsActions(pinWidget = { pinned = it }), widgets = WidgetsInfo(canPin = true))
+        scrollTo(SettingsTags.PIN_WORDS)
+        compose.onNodeWithTag(SettingsTags.PIN_WORDS).performClick()
+        assertThat(pinned).isEqualTo(TempoWidget.WORDS)
+        compose.assertAccessible()
+    }
+
+    @Test
+    fun `a launcher that takes no request gets the way by hand`() {
+        draw(widgets = WidgetsInfo(canPin = false))
+        compose.onNodeWithTag(SettingsTags.LIST).performScrollToNode(hasText("choose Widgets", substring = true))
+        compose.onNodeWithTag(SettingsTags.PIN_AGENDA).assertDoesNotExist()
     }
 
     @Test

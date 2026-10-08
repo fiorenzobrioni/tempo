@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The «In words» dial's hour hand, for the system's AnalogClock (WidgetDial.kt): DialGeometry's
+  HOUR_LENGTH (0.24) and HOUR_WIDTH (0.07) on a 100-unit square, drawn at HAND_DRAWABLE_DP so the
+  clock only ever scales it down. White, tinted in the card's ink through RemoteViews.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M46.5,50 L46.5,29.5 A3.5,3.5 0 0 1 53.5,29.5 L53.5,50 Z" />
+</vector>

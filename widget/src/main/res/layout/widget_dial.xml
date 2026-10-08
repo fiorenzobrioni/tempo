@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The «In words» dial (WidgetDial.kt): the face painted by Tempo at each redraw (the ring, the day's
+  arcs), and over it the system's AnalogClock, whose hands the launcher draws and the system moves
+  every minute at no cost to Tempo. Placed in the card through Glance's AndroidRemoteViews at the
+  dial's exact side.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_dial"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/widget_dial_face"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter" />
+
+    <AnalogClock
+        android:id="@+id/widget_dial_hands"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:dial="@drawable/widget_dial_blank"
+        android:hand_hour="@drawable/widget_dial_hour"
+        android:hand_minute="@drawable/widget_dial_minute"
+        android:importantForAccessibility="no" />
+</FrameLayout>
