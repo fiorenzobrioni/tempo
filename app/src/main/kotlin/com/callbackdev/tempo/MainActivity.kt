@@ -21,6 +21,7 @@ import com.callbackdev.tempo.core.domain.clock.nextHalfHour
 import com.callbackdev.tempo.core.model.ThemeMode
 import com.callbackdev.tempo.shell.NewEventShortcut
 import com.callbackdev.tempo.shell.TempoRoot
+import com.callbackdev.tempo.widget.WidgetUpdater
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
 import java.time.ZoneId
@@ -29,11 +30,14 @@ import javax.inject.Inject
 /**
  * The one activity, edge to edge. It wears the reader's appearance (theme, palette, typeface,
  * wallpaper colours), hands the pages to [TempoRoot], and answers the launcher's "New event"
- * ([NewEventShortcut]) by handing a new event to the calendar app, over Today.
+ * ([NewEventShortcut]) by handing a new event to the calendar app, over Today. On the way out it
+ * has the widgets drawn again ([WidgetUpdater]).
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject lateinit var settingsRepository: SettingsRepository
+
+    @Inject lateinit var widgets: WidgetUpdater
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +75,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Leaving the app, the reader may have granted the calendar's permission, hidden a calendar or
+     * changed one in the calendar app it opened: the home screen they return to shows it.
+     */
+    override fun onStop() {
+        super.onStop()
+        widgets.refreshNow()
     }
 
     override fun onNewIntent(intent: Intent) {

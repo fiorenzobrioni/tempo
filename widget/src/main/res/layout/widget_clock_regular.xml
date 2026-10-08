@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A clock line of the cards (PLANNING.md §7): the system's TextClock, drawn by the launcher and
+  moved by the system every minute at no cost to Tempo. Its patterns, size, ink and lines are set
+  per card through RemoteViews (WidgetClock.kt). No font padding, so the line is as tall as its
+  face and the arithmetic (AgendaFit's CLOCK_BOX_EM) can count on it; the system face at this
+  weight, as Glance sets its own text.
+-->
+<TextClock xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_clock"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:ellipsize="end"
+    android:includeFontPadding="false"
+    android:maxLines="1"
+    android:textAppearance="@style/WidgetTextFace.Regular" />

@@ -57,6 +57,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callbackdev.tempo.core.calendar.CalendarAccess
+import com.callbackdev.tempo.core.data.widget.TempoWidget
 import com.callbackdev.tempo.core.designsystem.components.CalendarDot
 import com.callbackdev.tempo.core.designsystem.components.CalendarPermissionCard
 import com.callbackdev.tempo.core.designsystem.components.GroupDivider
@@ -122,6 +123,7 @@ fun SettingsRoute(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMod
                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, appUri(context)),
                 )
             },
+            pinWidget = viewModel::pinWidget,
         ),
     )
 }
@@ -132,6 +134,7 @@ class SettingsActions(
     val setCalendarShown: (CalendarInfo, Boolean) -> Unit = { _, _ -> },
     val askPermission: () -> Unit = {},
     val openAppSettings: () -> Unit = {},
+    val pinWidget: (TempoWidget) -> Unit = {},
 )
 
 /**
@@ -169,6 +172,39 @@ fun SettingsScreen(
         // Until the store's first answer the list is not drawn: a screen of defaults that may be
         // about to change is a lie with good intentions.
         if (state != null) SettingsList(state, permission, actions, Modifier.fillMaxSize().padding(padding))
+    }
+}
+
+/**
+ * The widgets (PLANNING.md §8): the pair, each handed to the launcher's own dialog where it takes a
+ * pin request, and otherwise the way to add one by hand; then where a card's own settings are
+ * (its long press), because nothing here changes a placed card's look.
+ */
+@Composable
+private fun WidgetsSection(widgets: WidgetsInfo, pin: (TempoWidget) -> Unit) {
+    SettingsGroup {
+        if (widgets.canPin) {
+            ValueRow(
+                label = stringResource(R.string.settings_widget_agenda),
+                value = stringResource(R.string.settings_widget_agenda_note),
+                onClick = { pin(TempoWidget.AGENDA) },
+                icon = TempoIcons.Widgets,
+                modifier = Modifier.testTag(SettingsTags.PIN_AGENDA),
+            )
+            GroupDivider()
+            ValueRow(
+                label = stringResource(R.string.settings_widget_words),
+                value = stringResource(R.string.settings_widget_words_note),
+                onClick = { pin(TempoWidget.WORDS) },
+                icon = TempoIcons.Widgets,
+                modifier = Modifier.testTag(SettingsTags.PIN_WORDS),
+            )
+            GroupDivider()
+        } else {
+            InfoRow(stringResource(R.string.settings_widget_add), stringResource(R.string.settings_widget_manual))
+            GroupDivider()
+        }
+        InfoRow(stringResource(R.string.settings_widget_change), stringResource(R.string.settings_widget_change_note))
     }
 }
 
@@ -252,6 +288,9 @@ private fun SettingsList(
 
         item { GroupHeader(stringResource(R.string.settings_group_calendars)) }
         item { CalendarsSection(state.calendars, settings, permission, actions) }
+
+        item { GroupHeader(stringResource(R.string.settings_group_widgets)) }
+        item { WidgetsSection(state.widgets, actions.pinWidget) }
 
         item { GroupHeader(stringResource(R.string.settings_group_appearance)) }
         item { AppearancePreview(settings, locale) }
@@ -652,6 +691,8 @@ object SettingsTags {
     const val DECLINED = "settings_declined"
     const val PERMISSION = "settings_permission"
     const val CALENDARS_SUMMARY = "settings_calendars_summary"
+    const val PIN_AGENDA = "settings_pin_agenda"
+    const val PIN_WORDS = "settings_pin_words"
 
     fun calendar(id: Long) = "settings_calendar_$id"
 }

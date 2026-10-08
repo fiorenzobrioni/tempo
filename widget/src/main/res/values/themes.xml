@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The settings screen draws its own Compose theme; this only gives the window a sane
+         background before the first frame (the app's Theme.Tempo, which this module cannot see). -->
+    <style name="Theme.Tempo.WidgetConfig" parent="android:Theme.DeviceDefault.DayNight">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+</resources>

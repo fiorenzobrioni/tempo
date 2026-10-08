@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The two cards, as the launcher's picker names them (the family's pair, PLANNING.md §7). -->
+    <string name="widget_agenda_label">Agenda</string>
+    <string name="widget_agenda_desc">The time and the date over the rest of your day, as many events as the card holds and how many more</string>
+    <string name="widget_words_label">In words</string>
+    <string name="widget_words_desc">What comes next, large, and the day in one line, with the time and the date on top</string>
+
+    <!-- The list -->
+    <string name="widget_tomorrow">Tomorrow</string>
+    <string name="widget_all_day">All day</string>
+    <string name="widget_day_of">Day %1$d of %2$d</string>
+    <plurals name="widget_more_today">
+        <item quantity="one">One more today</item>
+        <item quantity="other">%1$d more today</item>
+    </plurals>
+    <plurals name="widget_more_later">
+        <item quantity="one">One more in the days ahead</item>
+        <item quantity="other">%1$d more in the days ahead</item>
+    </plurals>
+
+    <plurals name="widget_more_short">
+        <item quantity="one">One more</item>
+        <item quantity="other">%1$d more</item>
+    </plurals>
+    <string name="widget_more_count">+%1$d</string>
+
+    <!-- «In words» -->
+    <string name="widget_free">Free</string>
+    <string name="widget_label_until">Until</string>
+    <string name="widget_label_next">Next</string>
+    <plurals name="widget_note_then_more">
+        <item quantity="one">Then one more today.</item>
+        <item quantity="other">Then %1$d more today.</item>
+    </plurals>
+    <string name="widget_note_last">The last one today.</string>
+    <plurals name="widget_note_free_until">
+        <item quantity="one">Free until then; one more after it.</item>
+        <item quantity="other">Free until then; %1$d more after it.</item>
+    </plurals>
+    <string name="widget_note_free_until_last">Free until then; the last one today.</string>
+    <string name="widget_note_free_until_bare">Free until then.</string>
+    <string name="widget_note_all_day">All day: %1$s.</string>
+    <plurals name="widget_note_all_day_more">
+        <item quantity="one">All day: %1$s and one more.</item>
+        <item quantity="other">All day: %1$s and %2$d more.</item>
+    </plurals>
+    <string name="widget_then">Then %1$s</string>
+
+    <!-- What stands in the agenda's place, and what a touch does about it -->
+    <string name="widget_permission_title">Tempo cannot read your calendar</string>
+    <string name="widget_permission_hint">Touch to allow it</string>
+    <string name="widget_permission_short">No permission</string>
+    <string name="widget_no_calendars_title">No calendar on this phone yet</string>
+    <string name="widget_no_calendars_hint">Add an account that has one in the phone’s settings</string>
+    <string name="widget_no_calendars_short">No calendar</string>
+    <string name="widget_all_hidden_title">Every calendar is hidden</string>
+    <string name="widget_all_hidden_hint">Touch to choose them in Tempo</string>
+    <string name="widget_all_hidden_short">All hidden</string>
+    <string name="widget_unavailable_title">The calendar can’t be read right now</string>
+    <string name="widget_unavailable_hint">Touch to open Tempo</string>
+    <string name="widget_unavailable_short">Can’t read</string>
+
+    <!-- For screen readers: a row is one sentence, as on Today -->
+    <string name="widget_a11y_range">%1$s to %2$s</string>
+    <string name="widget_a11y_in_calendar">in %1$s</string>
+
+    <!-- The settings screen of one widget -->
+    <string name="widget_config_title">This widget</string>
+    <string name="widget_config_preview_desc">Widget preview</string>
+    <string name="widget_config_size_placed">As placed</string>
+    <string name="widget_config_resize_hint">On the home screen, long-press the widget and drag its edges: it lays itself out again.</string>
+    <string name="widget_config_clock_group">Time and date</string>
+    <string name="widget_config_show_clock">The time</string>
+    <string name="widget_config_show_clock_note">Drawn by Android itself, right to the minute, at no cost to the battery.</string>
+    <string name="widget_config_clock_format">Time format</string>
+    <string name="widget_config_show_date">The date</string>
+    <string name="widget_config_date_format">Date format</string>
+    <string name="widget_config_date_format_note">Shortened on its own where the card is too narrow for it.</string>
+    <string name="widget_config_as_tempo">As in Tempo’s settings</string>
+    <string name="widget_config_as_phone">As the phone</string>
+    <string name="widget_config_24">24-hour</string>
+    <string name="widget_config_12">12-hour</string>
+    <string name="widget_config_touches">Touches</string>
+    <string name="widget_config_header_tap">Touching the time and the date</string>
+    <string name="widget_config_event_tap">Touching an event</string>
+    <string name="widget_tap_tempo">Opens Tempo</string>
+    <string name="widget_tap_calendar_day">Opens your calendar at today</string>
+    <string name="widget_tap_clock">Opens your clock app</string>
+    <string name="widget_tap_clock_note">Your alarms, timers and stopwatch, in the clock app already on the phone.</string>
+    <string name="widget_tap_calendar_event">Opens the event in your calendar</string>
+    <string name="widget_config_background">Background</string>
+    <string name="widget_bg_light">Light</string>
+    <string name="widget_bg_dark">Dark</string>
+    <string name="widget_bg_system">Same as the phone</string>
+    <string name="widget_bg_color">A colour</string>
+    <string name="widget_color_blue">Blue</string>
+    <string name="widget_color_azure">Light blue</string>
+    <string name="widget_color_green">Green</string>
+    <string name="widget_color_teal">Sea green</string>
+    <string name="widget_color_plum">Violet</string>
+    <string name="widget_color_clay">Terracotta</string>
+    <string name="widget_config_opacity">Background opacity</string>
+    <string name="widget_opacity_full">Solid</string>
+    <string name="widget_opacity_transparent">See-through</string>
+    <string name="widget_opacity_percent">%1$d%%</string>
+    <string name="widget_config_content">Content</string>
+    <string name="widget_config_all_day">All-day events</string>
+    <string name="widget_config_all_day_note">Holidays, birthdays and the other events with no time. Off here, they are hidden on this widget alone.</string>
+    <string name="widget_config_all_day_note_words">Said under a day with nothing else left in it.</string>
+    <string name="widget_config_days_ahead">The days ahead</string>
+    <string name="widget_config_days_ahead_note">Once the rest of today fits, the next days fill the room it leaves, each under its date.</string>
+    <string name="widget_config_days_ahead_note_words">When today has nothing left, the first event of the days ahead takes its place.</string>
+    <string name="widget_config_done">Done</string>
+    <string name="widget_config_cancel">Cancel</string>
+
+    <!-- What the card carries at the size shown in the preview -->
+    <string name="agenda_form_clock">One cell: the time, and the date under it where there is room.</string>
+    <string name="agenda_form_line">One row: the time and the date, and the next events beside them.</string>
+    <string name="agenda_form_agenda">Two rows and up: the time and the date on top, then as many events as fit, and how many more.</string>
+    <string name="agenda_form_side">Wide and two rows tall: the time and the date in a column, the events beside them.</string>
+    <string name="agenda_form_list">With the time and the date hidden: the events alone, as many as fit.</string>
+    <string name="words_form_next">One cell: the time of what comes next, and its title where there is room.</string>
+    <string name="words_form_line">One row: what comes next, its time and its title, with the time and the date over them where there is room.</string>
+    <string name="words_form_stack">Two rows and up: the time and the date on top, what comes next large, then the day in a line.</string>
+    <string name="words_form_panel">Wide and tall: the same, and the times of the rest of the day.</string>
+
+    <!-- The picker's static preview: sample values, never a reading -->
+    <string name="widget_preview_time">10:20</string>
+    <string name="widget_preview_date">Wednesday 7 October</string>
+    <string name="widget_preview_row1_time">until 11:00</string>
+    <string name="widget_preview_row1_title">Design review</string>
+    <string name="widget_preview_row2_time">13:00 – 14:00</string>
+    <string name="widget_preview_row2_title">Lunch with Giulia</string>
+    <string name="widget_preview_row3_time">15:00 – 15:45</string>
+    <string name="widget_preview_row3_title">Dentist</string>
+    <string name="widget_preview_more">One more today</string>
+    <string name="widget_preview_top">10:20 · Wednesday 7 October</string>
+    <string name="widget_preview_hero">Until 11:00</string>
+    <string name="widget_preview_note">Then 3 more today.</string>
+</resources>

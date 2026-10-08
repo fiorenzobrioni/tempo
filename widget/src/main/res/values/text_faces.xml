@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    The faces a card's text is measured in: Glance's own text appearances, copied because they are
+    private to it (glance-appwidget 1.2.0, values-v29: Glance.AppWidget.TextAppearance.Normal,
+    .Medium, .Bold). Glance sets a weighted Text with one of them, so the launcher draws it in the
+    theme's device-default family (SamsungOne on a Samsung, Google Sans on a Pixel), not in the
+    plain sans-serif this process would otherwise measure.
+    -->
+    <style name="WidgetTextFace" parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:elegantTextHeight">@null</item>
+        <item name="android:fontFeatureSettings">@null</item>
+        <item name="android:fontVariationSettings">@null</item>
+        <item name="android:letterSpacing">@null</item>
+        <item name="android:shadowColor">@null</item>
+        <item name="android:shadowDx">@null</item>
+        <item name="android:shadowDy">@null</item>
+        <item name="android:shadowRadius">@null</item>
+        <item name="android:textColor">@null</item>
+        <item name="android:textColorLink">@null</item>
+        <item name="android:textSize">@null</item>
+        <item name="android:typeface">@null</item>
+    </style>
+    <style name="WidgetTextFace.Regular">
+        <item name="android:textFontWeight">400</item>
+    </style>
+    <style name="WidgetTextFace.Medium">
+        <item name="android:textFontWeight">500</item>
+    </style>
+    <style name="WidgetTextFace.Bold">
+        <item name="android:textFontWeight">700</item>
+    </style>
+</resources>

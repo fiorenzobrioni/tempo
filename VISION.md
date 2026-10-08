@@ -125,7 +125,8 @@ The concept's widget, in the family's dress.
   sensible defaults, as the family's are, and changed later):
   - *Clock*: shown or hidden, and its format.
   - *Date*: shown or hidden, and its format.
-  - *Touching the header*: opens Tempo, or opens the calendar app.
+  - *Touching the header*: opens Tempo, the calendar app at today, or the phone's clock app,
+    where the alarms are (owner, 8 Oct 2026).
   - *Touching an event*: opens Tempo, or opens that event in the calendar app.
   - *The card*: light, dark, following the phone, or one of Chiaro's six colours, at any
     opacity, with a live preview: the family's widget settings.
@@ -198,7 +199,7 @@ day stands rather than read its list.
   needs the network.
 - **Event reminders and notifications**: the calendar app's job.
 - **Alarms, timers, a stopwatch, a world clock**: the system Clock app's job. Tempo shows the
-  next alarm, read-only, and nothing else of it.
+  next alarm, read-only, and nothing else of it; a widget's time can open the Clock app.
 - **Tasks and to-dos**: they are not in the Calendar Provider (Google Tasks is a separate service).
 - **Week and month grids**: the calendar app's job. Tempo is the day, and the few days after it.
 - **Weather on the agenda**: Chiaro's job, and each app of the family stands alone.

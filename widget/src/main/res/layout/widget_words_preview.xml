@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  «In words» as the launcher's picker draws it where it asks for a static layout: sample values in
+  the default dress, the tall form of the default 4×2 placement, with the card's ranks: the time
+  and the date at 13 sp on top; at the bottom what comes next at 40 sp Bold, its title at 18 sp
+  Medium, the day's note at 14 sp.
+  Sample data only: a preview is a drawing of the product, never a reading.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_preview_card"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:singleLine="true"
+        android:text="@string/widget_preview_top"
+        android:textColor="@color/widget_preview_ink_dim"
+        android:textSize="13sp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="@string/widget_preview_hero"
+        android:textColor="@color/widget_preview_ink"
+        android:textSize="40sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:singleLine="true"
+        android:text="@string/widget_preview_row1_title"
+        android:textColor="@color/widget_preview_ink"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:singleLine="true"
+        android:text="@string/widget_preview_note"
+        android:textColor="@color/widget_preview_ink_dim"
+        android:textSize="14sp" />
+</LinearLayout>

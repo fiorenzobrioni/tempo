@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The picker previews' default dress: Chiaro's blue card and its white inks (the only
+         place these are written outside `WidgetPalette.kt`, because a static layout cannot call
+         Kotlin; `WidgetProviderTest` checks the two agree). The marks are the sample's calendars. -->
+    <color name="widget_preview_card">#FF0F3B6B</color>
+    <color name="widget_preview_ink">#FFFFFFFF</color>
+    <color name="widget_preview_ink_dim">#BFFFFFFF</color>
+    <color name="widget_preview_mark_work">#FF039BE5</color>
+    <color name="widget_preview_mark_personal">#FF0B8043</color>
+</resources>

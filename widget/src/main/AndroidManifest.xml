@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The home-screen widgets (PLANNING.md §7): two receivers, the settings screen the launcher opens
+  on a long press, and what keeps the cards fresh. No permission of their own: the cards read the
+  calendar with the READ_CALENDAR :core:calendar declares. Glance brings WorkManager, which Tempo
+  also uses for the calendar's content-URI trigger, with its WAKE_LOCK (held by a job while it
+  runs), RECEIVE_BOOT_COMPLETED (to re-arm its jobs after a reboot), FOREGROUND_SERVICE and
+  ACCESS_NETWORK_STATE (which lets nothing leave the phone: there is no INTERNET permission).
+  All are left as WorkManager declares them, as in Chiaro and Passo (reviewed in Phase 4,
+  PLANNING.md §10). The boundary alarm is AlarmManager.set(RTC): inexact, non-wakeup, no permission.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <queries>
+        <!-- The phone's clock app, for a card whose time opens it (WidgetIntents.kt, ClockApp). -->
+        <intent>
+            <action android:name="android.intent.action.SHOW_ALARMS" />
+        </intent>
+    </queries>
+
+    <application android:supportsRtl="true">
+        <!-- Reached from the launcher's reconfigure flow. Exported, because the launcher starts
+             it; taskAffinity empty, so it never lands on top of the app's own task. -->
+        <activity
+            android:name=".config.WidgetConfigActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Tempo.WidgetConfig">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <!-- exported=false: the system delivers APPWIDGET_* to them regardless. -->
+        <receiver
+            android:name=".agenda.AgendaWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_agenda_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_agenda_info" />
+        </receiver>
+        <receiver
+            android:name=".words.WordsWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_words_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_words_info" />
+        </receiver>
+
+        <!-- The next boundary's inexact alarm: Tempo's own pending intent, nobody else's. -->
+        <receiver
+            android:name=".refresh.BoundaryReceiver"
+            android:exported="false" />
+
+        <!-- The broadcasts Android exempts from the implicit-broadcast limits, sent by the system
+             alone; exported=false still receives them. -->
+        <receiver
+            android:name=".refresh.WidgetSystemReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
