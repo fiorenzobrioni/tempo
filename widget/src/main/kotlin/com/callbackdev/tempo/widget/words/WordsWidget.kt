@@ -1,6 +1,9 @@
 package com.callbackdev.tempo.widget.words
 
 import android.content.Context
+import android.util.TypedValue
+import android.view.Gravity
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
@@ -19,6 +22,7 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
@@ -26,12 +30,17 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
+import androidx.glance.layout.width
 import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.callbackdev.tempo.core.domain.widget.AgendaFit
+import com.callbackdev.tempo.core.domain.widget.DialArc
+import com.callbackdev.tempo.core.domain.widget.DialArcs
 import com.callbackdev.tempo.core.domain.widget.WordsDay
 import com.callbackdev.tempo.core.domain.widget.WordsFit
 import com.callbackdev.tempo.core.domain.widget.WordsFocus
@@ -48,6 +57,8 @@ import com.callbackdev.tempo.widget.CardModels
 import com.callbackdev.tempo.widget.CardText
 import com.callbackdev.tempo.widget.ClockFace
 import com.callbackdev.tempo.widget.ClockPatterns
+import com.callbackdev.tempo.widget.MESSAGE_MAX_LINES
+import com.callbackdev.tempo.widget.MESSAGE_SP
 import com.callbackdev.tempo.widget.MessageContent
 import com.callbackdev.tempo.widget.R
 import com.callbackdev.tempo.widget.TempoWidgetReceiver
@@ -63,6 +74,7 @@ import com.callbackdev.tempo.widget.WidgetRefresh
 import com.callbackdev.tempo.widget.WidgetSamples
 import com.callbackdev.tempo.widget.cardMessage
 import com.callbackdev.tempo.widget.clockViews
+import com.callbackdev.tempo.widget.dialViews
 import com.callbackdev.tempo.widget.fontScale
 import com.callbackdev.tempo.widget.headerTap
 import com.callbackdev.tempo.widget.measureWidgetLines
@@ -73,10 +85,10 @@ import com.callbackdev.tempo.widget.widgetLocale
 import java.time.format.DateTimeFormatter
 
 /**
- * «In words» (Chiaro's «In parole», Passo's «In words»; PLANNING.md §7): the day in type alone.
- * What comes next is the hero, its time and its title; the note under it says where the day
- * stands; the time and the date ride on top as a small `TextClock` line. [WordsFit] holds the ranks,
- * the forms and every number's reason.
+ * «In words» (Chiaro's «In parole», Passo's «In words»; PLANNING.md §7): a dial and the day in a few
+ * words. The dial stands where Passo's ring stands, the system's hands over the focus's arc
+ * (`WidgetDial.kt`); beside or under it, what comes next and when, the date, the day's note.
+ * [WordsFit] holds the ranks, the forms and every number's reason.
  */
 class WordsWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
@@ -110,17 +122,16 @@ internal fun WordsWidgetContent(model: WidgetModel, appWidgetId: Int = 0) {
     val dress =
         remember(model.settings.palette, model.settings.dynamicColor) { widgetDressFor(context, model.settings) }
     val parts = WordsParts(context, model, size, appWidgetId)
-    val snug = parts.plan.snug
     WidgetCard(
         model,
         dress,
         paddingHorizontal = parts.plan.sidePadding.dp,
-        paddingVertical = if (snug) WidgetCardPaddingSnug else WidgetCardPadding,
+        paddingVertical = if (parts.plan.snug) WidgetCardPaddingSnug else WidgetCardPadding,
     ) { palette ->
         when (parts.plan.form) {
-            WordsForm.NEXT -> NextContent(parts, palette)
-            WordsForm.LINE -> LineContent(parts, palette)
-            WordsForm.STACK, WordsForm.PANEL -> TallContent(parts, palette)
+            WordsForm.CELL -> CellContent(parts, palette)
+            WordsForm.ROW -> RowContent(parts, palette)
+            WordsForm.TALL -> TallContent(parts, palette)
         }
     }
 }
@@ -130,26 +141,28 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
     val scale = fontScale(context)
     val look = model.look
     val message = cardMessage(context, model.content)
-    val day: WordsDay? = (model.content as? WidgetContent.Ready)?.let {
-        WordsDay.of(it.agenda, look.showAllDay, look.showDaysAhead)
-    }
+    private val agenda = (model.content as? WidgetContent.Ready)?.agenda
+    val day: WordsDay? = agenda?.let { WordsDay.of(it, look.showAllDay, look.showDaysAhead) }
     val form: WordsForm = WordsFit.form(size.width.value, size.height.value)
-    private val cell = form == WordsForm.NEXT
     private val locale = context.widgetLocale()
-    val innerWidth = (size.width.value - (if (cell) AgendaFit.CELL_PADDING else AgendaFit.CARD_PADDING) * 2).dp
+    val innerWidth =
+        (size.width.value - (if (form == WordsForm.CELL) AgendaFit.CELL_PADDING else AgendaFit.CARD_PADDING) * 2).dp
 
-    val hero: String = when {
-        day != null -> if (cell) text.cellHero(day.focus) else text.hero(day.focus)
-        message != null -> message.short
-        else -> ""
-    }
-    val label: String? = day?.let { text.label(it.focus, cell) }
-    val title: String? = day?.let { text.focusTitle(it.focus) }
+    /** What comes next, or "Free" when nothing does. */
+    val title: String = day?.let { text.focusTitle(it.focus) ?: context.getString(R.string.widget_free) } ?: ""
     private val fullNote: String? = day?.let { text.note(it.note) } ?: message?.hint
 
     /**
-     * The note where the panel's line of times follows it: the times say how many are left, so the
-     * count is not said twice ("Then 3 more today." over "Then 13:00 · 15:00 · 18:30").
+     * When, the fullest first. "Free" has no time: on a row and a cell, whose note has no line of
+     * its own, the note stands in its place ("Nothing left today.").
+     */
+    val whens: List<String> = day?.let { day ->
+        text.whenOptions(day.focus).ifEmpty { if (form == WordsForm.TALL) emptyList() else listOfNotNull(fullNote) }
+    } ?: emptyList()
+
+    /**
+     * The note where the line of times follows it: the times say how many are left, so the count
+     * is not said twice ("Then 3 more today." over "Then 13:00 · 15:00 · 18:30").
      */
     private val noteBeforeTimes: String? = when (day?.note) {
         is WordsNote.ThenMore -> null
@@ -157,32 +170,26 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
         else -> fullNote
     }
 
-    /**
-     * The small line on top, in the order it is tried: the time and the reader's date, the time and
-     * a shorter date, the time alone; the date alone where the reader hid the time.
-     */
-    private val dates = DateStyle.entries.drop(text.dateStyle.ordinal)
-
-    val topPatterns: List<ClockPatterns> = run {
-        val time = ClockPatterns.time(locale, look.clockFormat ?: model.settings.clockFormat)
-        val datePatterns = dates.map { ClockPatterns.date(locale, it).twentyFour }
-        when {
-            look.showClock && look.showDate -> datePatterns.map { time.withDate(it) } + time
-            look.showClock -> listOf(time)
-            look.showDate -> datePatterns.map { ClockPatterns(it, it) }
-            else -> emptyList()
-        }
+    /** The date in the reader's style, then the shorter ones: a date is shortened before it is lost. */
+    val datePatterns: List<ClockPatterns> = if (look.showDate) {
+        DateStyle.entries.drop(text.dateStyle.ordinal).map { ClockPatterns.date(locale, it) }
+    } else {
+        emptyList()
+    }
+    private val dateTexts = datePatterns.map {
+        DateTimeFormatter.ofPattern(it.current(context), locale).format(model.now)
     }
 
-    /** The patterns that carry the date: every one but the time alone. */
-    private val topDated = if (look.showDate) dates.size else 0
-    private val topEms = topPatterns.map { patterns ->
-        val pattern = patterns.current(context)
-        textEm(
-            context,
-            DateTimeFormatter.ofPattern(pattern, locale).format(model.now.withHour(22).withMinute(58)),
-            TextWeight.REGULAR,
-        )
+    /** A date over two lines: the wider of its two halves, at the break that makes them most even. */
+    private fun twoLineEm(date: String): Float {
+        val words = date.split(' ')
+        if (words.size < 2) return textEm(context, date, TextWeight.REGULAR)
+        return (1 until words.size).minOf { cut ->
+            maxOf(
+                textEm(context, words.take(cut).joinToString(" "), TextWeight.REGULAR),
+                textEm(context, words.drop(cut).joinToString(" "), TextWeight.REGULAR),
+            )
+        }
     }
 
     private fun planFor(note: String?, then: Boolean) = WordsFit.plan(
@@ -190,25 +197,25 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             width = size.width.value,
             height = size.height.value,
             fontScale = scale,
-            topEms = topEms,
-            topDated = topDated,
-            heroEm = textEm(context, hero, TextWeight.BOLD),
-            label = label != null,
-            title = title != null,
-            titleLines =
-            title?.let { measureWidgetLines(context, it, WordsFit.TITLE_SP, innerWidth, TextWeight.MEDIUM) } ?: 0,
+            dial = look.showClock,
+            dateEms = dateTexts.map { textEm(context, it, TextWeight.REGULAR) },
+            dateTwoLineEms = dateTexts.map { twoLineEm(it) },
+            titleEm = textEm(context, title, TextWeight.MEDIUM),
+            titleLines = measureWidgetLines(context, title, WordsFit.TALL_TITLE_SP, innerWidth, TextWeight.MEDIUM),
+            whenEms = whens.map { textEm(context, it, TextWeight.REGULAR) },
             noteLines =
             note?.let { measureWidgetLines(context, it, WordsFit.NOTE_SP, innerWidth, TextWeight.REGULAR) } ?: 0,
             then = then,
         ),
     )
 
-    private val hasTimes = form == WordsForm.PANEL && day?.then?.isNotEmpty() == true
+    private val hasTimes = form == WordsForm.TALL && day?.then?.isNotEmpty() == true
     private val withTimes = if (hasTimes) planFor(noteBeforeTimes, then = true).takeIf { it.then } else null
 
-    /** The panel with its line of times where it holds it; else the whole note, without them. */
+    /** The tall card with its line of times where it holds it; else the whole note, without them. */
     val plan: WordsPlan = withTimes ?: planFor(fullNote, then = false)
     val note: String? = if (withTimes != null) noteBeforeTimes else fullNote
+    val whenText: String? = whens.getOrNull(plan.whenChoice)
 
     /** "Then 16:30 · 18:00": as many times as the line holds whole. */
     val then: String? = day?.then?.takeIf { plan.then && it.isNotEmpty() }?.let { events ->
@@ -218,23 +225,19 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             }
     }
 
+    /** The day's arcs on the dial: the focus and what else is still to come in its twelve hours. */
+    val arcs: List<DialArc> = if (agenda != null && day != null) {
+        DialArcs.of(agenda, day.focus, model.now.zone, look.showDaysAhead)
+    } else {
+        emptyList()
+    }
+
     val headerIntent =
         headerTap(
             context,
             appWidgetId,
             WidgetIntents.header(context, look.headerTap, model.doors, model.now.toInstant()),
         )
-
-    /** The title's lift beside the time in an inline row, so the two share a baseline. */
-    val inlineBaseline: Dp
-        get() = ((plan.heroSp - plan.titleSp) * DESCENT_EM * scale).coerceAtLeast(0f).dp
-
-    /** What a message has of the card: its height, less the insets and the small line on top. */
-    val messageRoom: Dp
-        get() = (
-            size.height.value - (if (plan.snug) AgendaFit.CARD_PADDING_SNUG else AgendaFit.CARD_PADDING) * 2 -
-                (if (plan.topChoice >= 0) clockLineHeight(plan.topSp, scale) + WordsFit.TOP_GAP else 0f)
-            ).dp
 
     /** A touch on the focus opens it as the reader chose; on "Free" or a message, Tempo. */
     val focusIntent = when (val focus = day?.focus) {
@@ -243,75 +246,95 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
         else -> WidgetIntents.tempo(context)
     }
 
-    /** What TalkBack reads for the focus: its time, its title, and the label that dates it. */
-    val focusDescription: String = listOfNotNull(
-        label,
-        if (cell) text.hero(day?.focus ?: WordsFocus.Free) else hero,
-        title,
-    )
-        .joinToString(", ")
+    /** What TalkBack reads for the focus: its title and when, the fullest way. */
+    val focusDescription: String = listOfNotNull(title, whens.firstOrNull()).joinToString(", ")
+
+    /** What a message has of a tall card: its height, less the insets and the dial or the date over it. */
+    val messageRoom: Dp
+        get() = (
+            size.height.value - AgendaFit.CARD_PADDING * 2 - when {
+                plan.dial > 0f -> plan.dial + WordsFit.DIAL_BOTTOM_GAP
+                plan.dateChoice >= 0 -> clockLineHeight(plan.dateSp, scale) * plan.dateLines + WordsFit.TOP_GAP
+                else -> 0f
+            }
+            ).dp
 }
 
 // --- The ranks --------------------------------------------------------------------------------
 
 @Composable
-private fun TopLine(parts: WordsParts, palette: WidgetPalette) {
-    val choice = parts.plan.topChoice
-    if (choice < 0) return
+private fun Dial(parts: WordsParts, palette: WidgetPalette) {
+    val side = parts.plan.dial
+    if (side <= 0f) return
     AndroidRemoteViews(
-        remoteViews = clockViews(
+        remoteViews = dialViews(
             parts.context,
-            ClockFace.REGULAR,
-            parts.topPatterns[choice],
-            parts.plan.topSp,
-            palette.secondary,
-            1,
+            side,
+            parts.arcs,
+            palette,
             parts.headerIntent,
-            parts.model.now.takeIf { parts.model.frozenClock },
+            parts.context.getString(R.string.widget_dial_desc),
+            parts.model.now.toLocalTime().takeIf { parts.model.frozenClock },
         ),
-        modifier = GlanceModifier.height(clockLineHeight(parts.plan.topSp, parts.scale).dp),
+        modifier = GlanceModifier.size(side.dp),
     )
 }
 
-/** The label over the focus, a size smaller where the card is narrower than the word ("Tomorrow" on one cell). */
+/** The date, a `TextClock` so it turns at midnight; at the far edge of a row, aligned to it. */
 @Composable
-private fun Label(parts: WordsParts, palette: WidgetPalette) {
-    val label = parts.label ?: return
-    if (!parts.plan.label) return
-    val fits = spThatFits(parts.innerWidth.value, textEm(parts.context, label, TextWeight.MEDIUM), parts.scale)
+private fun DateLine(parts: WordsParts, palette: WidgetPalette, end: Boolean) {
+    val plan = parts.plan
+    if (plan.dateChoice < 0) return
+    val views = clockViews(
+        parts.context,
+        ClockFace.REGULAR,
+        parts.datePatterns[plan.dateChoice],
+        plan.dateSp,
+        palette.secondary,
+        plan.dateLines,
+        parts.headerIntent,
+        parts.model.now.takeIf { parts.model.frozenClock },
+    )
+    if (end) {
+        views.setViewLayoutWidth(R.id.widget_clock, MATCH_PARENT.toFloat(), TypedValue.COMPLEX_UNIT_PX)
+        views.setInt(R.id.widget_clock, "setGravity", Gravity.END or Gravity.TOP)
+    }
+    AndroidRemoteViews(
+        remoteViews = views,
+        modifier = GlanceModifier
+            .width(plan.dateWidth.dp)
+            .height((clockLineHeight(plan.dateSp, parts.scale) * plan.dateLines).dp),
+    )
+}
+
+@Composable
+private fun Title(parts: WordsParts, palette: WidgetPalette, center: Boolean = false) {
+    if (parts.plan.titleLines <= 0 || parts.title.isEmpty()) return
     Text(
-        text = label,
+        text = parts.title,
         style = TextStyle(
-            color = palette.secondaryInk,
-            fontSize = quarterPoint(minOf(WordsFit.LABEL_SP, fits)).sp,
+            color = palette.primaryInk,
+            fontSize = parts.plan.titleSp.sp,
             fontWeight = FontWeight.Medium,
+            textAlign = if (center) TextAlign.Center else TextAlign.Start,
         ),
-        maxLines = 1,
-    )
-}
-
-@Composable
-private fun Hero(parts: WordsParts, palette: WidgetPalette) {
-    Text(
-        text = parts.hero,
-        style = TextStyle(
-            color = if (parts.message != null) palette.attentionInk else palette.primaryInk,
-            fontSize = parts.plan.heroSp.sp,
-            fontWeight = FontWeight.Bold,
-        ),
-        maxLines = 1,
-    )
-}
-
-@Composable
-private fun Title(parts: WordsParts, palette: WidgetPalette, modifier: GlanceModifier = GlanceModifier) {
-    val title = parts.title ?: return
-    if (parts.plan.titleLines <= 0) return
-    Text(
-        text = title,
-        style = TextStyle(color = palette.primaryInk, fontSize = parts.plan.titleSp.sp, fontWeight = FontWeight.Medium),
         maxLines = parts.plan.titleLines,
-        modifier = modifier,
+    )
+}
+
+@Composable
+private fun When(parts: WordsParts, palette: WidgetPalette, center: Boolean = false) {
+    val time = parts.whenText ?: return
+    val bold = parts.plan.whenBold
+    Text(
+        text = time,
+        style = TextStyle(
+            color = if (bold) palette.primaryInk else palette.secondaryInk,
+            fontSize = parts.plan.whenSp.sp,
+            fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal,
+            textAlign = if (center) TextAlign.Center else TextAlign.Start,
+        ),
+        maxLines = 1,
     )
 }
 
@@ -327,93 +350,125 @@ private fun Note(parts: WordsParts, palette: WidgetPalette) {
     )
 }
 
-/** The focus as one door: the label, the time and the title, one sentence to a screen reader. */
+/** The focus as one door: the title and when, one sentence to a screen reader. */
 private fun focusModifier(parts: WordsParts): GlanceModifier = GlanceModifier
     .then(parts.focusIntent?.let { GlanceModifier.clickable(actionStartActivity(it)) } ?: GlanceModifier)
     .semantics { contentDescription = parts.focusDescription }
 
 // --- The forms ---------------------------------------------------------------------------------
 
-/** One cell: the label, the time, the title where it fits; a message's one word where there is no day. */
+/**
+ * One cell: the dial, and the focus's time under it where the cell is tall; without the dial, the
+ * time large in its place. A message's one word where there is no day.
+ */
 @Composable
-private fun NextContent(parts: WordsParts, palette: WidgetPalette) {
-    Column(
-        modifier = GlanceModifier.fillMaxSize().then(focusModifier(parts)),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Label(parts, palette)
-        Hero(parts, palette)
-        Title(parts, palette)
-    }
-}
-
-/** One row: the small line on top; the time and the title on one line, or the title under the time. */
-@Composable
-private fun LineContent(parts: WordsParts, palette: WidgetPalette) {
-    if (parts.message != null) {
+private fun CellContent(parts: WordsParts, palette: WidgetPalette) {
+    val message = parts.message
+    if (message != null) {
+        // Never broken inside a word: the size its longest word fits whole ("No / permission").
+        val widest = message.short.split(' ').maxOf { textEm(parts.context, it, TextWeight.BOLD) }
+        val size = quarterPoint(minOf(MESSAGE_SP, spThatFits(parts.innerWidth.value, widest, parts.scale)))
         Column(modifier = GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-            TopLine(parts, palette)
-            MessageContent(parts.message, palette, parts.innerWidth, parts.messageRoom)
+            Text(
+                text = message.short,
+                style = TextStyle(color = palette.attentionInk, fontSize = size.sp, fontWeight = FontWeight.Bold),
+                maxLines = MESSAGE_MAX_LINES,
+            )
         }
         return
     }
-    Column(modifier = GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-        TopLine(parts, palette)
-        Column(modifier = GlanceModifier.fillMaxWidth().then(focusModifier(parts))) {
-            Label(parts, palette)
-            if (parts.plan.titleInline) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Hero(parts, palette)
-                    Title(
-                        parts,
-                        palette,
-                        GlanceModifier.padding(
-                            start = WordsFit.INLINE_GAP.dp,
-                            bottom = parts.inlineBaseline,
-                        ).defaultWeight(),
-                    )
-                }
-            } else {
-                Hero(parts, palette)
-                Title(parts, palette)
+    val dial = parts.plan.dial > 0f
+    Column(
+        modifier = GlanceModifier.fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalAlignment = if (dial) Alignment.CenterHorizontally else Alignment.Start,
+    ) {
+        Dial(parts, palette)
+        if (parts.plan.whenChoice >= 0 || (!dial && parts.plan.titleLines > 0)) {
+            Column(
+                modifier = GlanceModifier.then(focusModifier(parts))
+                    .padding(top = if (dial) WordsFit.CELL_GAP.dp else 0.dp),
+                horizontalAlignment = if (dial) Alignment.CenterHorizontally else Alignment.Start,
+            ) {
+                When(parts, palette, center = dial)
+                Title(parts, palette, center = dial)
             }
         }
     }
 }
 
-/** Two rows and up: the small line on top, the air, then the focus and the note on the bottom edge. */
+/** One row, Passo's: the dial; the title over its time; the date at the far edge. */
 @Composable
-private fun TallContent(parts: WordsParts, palette: WidgetPalette) {
-    Column(modifier = GlanceModifier.fillMaxSize()) {
-        TopLine(parts, palette)
-        Spacer(modifier = GlanceModifier.defaultWeight())
-        if (parts.message != null) {
-            MessageContent(parts.message, palette, parts.innerWidth, parts.messageRoom)
-            return@Column
+private fun RowContent(parts: WordsParts, palette: WidgetPalette) {
+    val dial = parts.plan.dial > 0f
+    Row(modifier = GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+        Dial(parts, palette)
+        val words = parts.innerWidth - (if (dial) (parts.plan.dial + WordsFit.DIAL_GAP).dp else 0.dp)
+        Column(
+            modifier = GlanceModifier
+                .padding(start = if (dial) WordsFit.DIAL_GAP.dp else 0.dp)
+                .defaultWeight()
+                .then(if (parts.message == null) focusModifier(parts) else GlanceModifier),
+        ) {
+            val message = parts.message
+            if (message != null) {
+                MessageContent(
+                    message,
+                    palette,
+                    words,
+                    (
+                        LocalSize.current.height.value -
+                            AgendaFit.CARD_PADDING_SNUG * 2
+                        ).dp,
+                )
+            } else {
+                Title(parts, palette)
+                When(parts, palette)
+            }
         }
-        Column(modifier = GlanceModifier.fillMaxWidth().then(focusModifier(parts))) {
-            Label(parts, palette)
-            Hero(parts, palette)
-            Title(parts, palette)
-        }
-        Note(parts, palette)
-        parts.then?.let { then ->
-            Text(
-                text = then,
-                style = TextStyle(
-                    color = palette.secondaryInk,
-                    fontSize = WordsFit.NOTE_SP.sp,
-                    fontWeight = FontWeight.Normal,
-                ),
-                maxLines = 1,
-            )
+        if (parts.message == null && parts.plan.dateChoice >= 0) {
+            Column(
+                modifier = GlanceModifier.padding(start = WordsFit.DATE_GAP.dp),
+                horizontalAlignment = Alignment.End,
+            ) {
+                DateLine(parts, palette, end = true)
+            }
         }
     }
 }
 
 /**
- * Roboto's line box under the baseline (555 of 2048 units): a line keeps the face's descent under
- * its baseline in proportion to its size, so the large time stands higher than a smaller title
- * bottom-aligned with it (Chiaro's `textPanelBaselineLift`, Passo's `baselineLift`).
+ * Two rows and up, Passo's tall card: the dial in the top trailing corner and the date beside it;
+ * the title, when and the note hanging from the bottom leading corner.
  */
-private const val DESCENT_EM = 0.271f
+@Composable
+private fun TallContent(parts: WordsParts, palette: WidgetPalette) {
+    Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
+        Dial(parts, palette)
+        Column(modifier = GlanceModifier.fillMaxSize()) {
+            DateLine(parts, palette, end = false)
+            Spacer(modifier = GlanceModifier.defaultWeight())
+            val message = parts.message
+            if (message != null) {
+                MessageContent(message, palette, parts.innerWidth, parts.messageRoom)
+                return@Column
+            }
+            Column(modifier = GlanceModifier.fillMaxWidth().then(focusModifier(parts))) {
+                Title(parts, palette)
+                When(parts, palette)
+            }
+            Note(parts, palette)
+            parts.then?.let { then ->
+                Text(
+                    text = then,
+                    style = TextStyle(
+                        color = palette.secondaryInk,
+                        fontSize = WordsFit.NOTE_SP.sp,
+                        fontWeight = FontWeight.Normal,
+                    ),
+                    maxLines = 1,
+                )
+            }
+        }
+    }
+}

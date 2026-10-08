@@ -154,6 +154,30 @@ internal class CardText(private val context: Context, model: WidgetModel) {
         WordsFocus.Free -> null
     }
 
+    /**
+     * The focus's time in words, the fullest first, as a card tries them: "Until 11:00", "11:00";
+     * "15:00 – 16:00", "15:00"; "Tomorrow · 9:00 – 10:00", "Tomorrow · 9:00", "Tomorrow". None
+     * for "Free". Clock times, never minutes from now (the card is redrawn at boundaries).
+     */
+    fun whenOptions(focus: WordsFocus): List<String> = when (focus) {
+        is WordsFocus.UnderWay -> listOf(
+            agenda.until(focus.event.end).replaceFirstChar { it.titlecase(locale) },
+            agenda.time(focus.event.end),
+        )
+
+        is WordsFocus.Next -> {
+            val times = listOf(agenda.range(focus.event), agenda.time(focus.event.begin)).distinct()
+            if (focus.today) {
+                times
+            } else {
+                val day = heading(focus.date)
+                times.map { context.getString(R.string.widget_when_day, day, it) } + day
+            }
+        }
+
+        WordsFocus.Free -> emptyList()
+    }
+
     fun note(note: WordsNote): String = when (note) {
         is WordsNote.ThenMore -> if (note.count == 0) {
             context.getString(R.string.widget_note_last)

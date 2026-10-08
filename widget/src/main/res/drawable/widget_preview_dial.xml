@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The «In words» dial as the launcher's picker draws it where it asks for a static layout: the
+  sample's moment (10:20) with the design review (10:00 to 11:00) on the ring, in WidgetDial.kt's
+  proportions. Sample data only: a preview is a drawing of the product, never a reading.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="56dp"
+    android:height="56dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <path
+        android:pathData="M50,4.25 A45.75,45.75 0 1 1 49.99,4.25"
+        android:strokeWidth="8.5"
+        android:strokeColor="#33FFFFFF" />
+    <path
+        android:pathData="M12.67,23.55 A45.75,45.75 0 0 1 23.55,12.67"
+        android:strokeLineCap="round"
+        android:strokeWidth="8.5"
+        android:strokeColor="@color/widget_preview_ink" />
+    <path
+        android:fillColor="#73FFFFFF"
+        android:pathData="M50.00,12.00 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0 M88.00,50.00 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0 M50.00,88.00 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0 M12.00,50.00 m-1.6,0 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0" />
+    <path
+        android:pathData="M50,50 L34.30,36.82"
+        android:strokeLineCap="round"
+        android:strokeWidth="7"
+        android:strokeColor="@color/widget_preview_ink" />
+    <path
+        android:pathData="M50,50 L76.41,65.25"
+        android:strokeLineCap="round"
+        android:strokeWidth="5"
+        android:strokeColor="@color/widget_preview_ink" />
+    <path
+        android:fillColor="@color/widget_preview_ink"
+        android:pathData="M45.5,50 A4.5,4.5 0 1 0 54.5,50 A4.5,4.5 0 1 0 45.5,50 Z" />
+</vector>

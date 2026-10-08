@@ -69,6 +69,9 @@ fun widgetDressFor(context: Context, settings: UserSettings): WidgetDress = if (
  * @property markGround what a calendar's colour is stepped against to keep 3:1 (PLANNING.md §6):
  *   the card's own ground when it is solid, the darkest or lightest a wallpaper behind a
  *   see-through card can be for the ink chosen when it is not.
+ * @property accent the dial's focus, Passo's ring's progress: white on a colour, the scheme's
+ *   primary on the light and dark grounds.
+ * @property track the dial's ring under its arcs (Passo's `TRACK_ALPHA`).
  */
 data class WidgetPalette(
     val primary: Color,
@@ -76,6 +79,8 @@ data class WidgetPalette(
     val attention: Color,
     val darkGround: Boolean,
     val markGround: Color,
+    val accent: Color = primary,
+    val track: Color = primary.copy(alpha = TRACK_ALPHA),
 ) {
     val primaryInk: ColorProvider get() = ColorProvider(primary)
     val secondaryInk: ColorProvider get() = ColorProvider(secondary)
@@ -100,6 +105,8 @@ fun widgetPalette(context: Context, look: WidgetLook, dress: WidgetDress): Widge
             attention = Color.White.copy(alpha = ATTENTION_ALPHA),
             darkGround = true,
             markGround = if (solid) ground else Color.Black,
+            accent = Color.White,
+            track = Color.White.copy(alpha = TRACK_ALPHA),
         )
 
         WidgetInk.ON_LIGHT, WidgetInk.ON_DARK -> {
@@ -117,6 +124,8 @@ fun widgetPalette(context: Context, look: WidgetLook, dress: WidgetDress): Widge
                 } else {
                     Color.White
                 },
+                accent = scheme.primary,
+                track = scheme.onSurface.copy(alpha = TRACK_ALPHA),
             )
         }
     }
@@ -362,3 +371,4 @@ internal const val MESSAGE_MAX_LINES = 3
 
 private const val QUIET_ALPHA = 0.75f
 private const val ATTENTION_ALPHA = 0.85f
+private const val TRACK_ALPHA = 0.2f

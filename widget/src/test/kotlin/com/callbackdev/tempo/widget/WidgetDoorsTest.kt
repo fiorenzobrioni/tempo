@@ -9,7 +9,9 @@ import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.ResolveInfo
 import android.provider.AlarmClock
+import android.widget.AnalogClock
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextClock
 import android.widget.TextView
 import androidx.compose.ui.graphics.Color
@@ -118,6 +120,28 @@ class WidgetDoorsTest {
         val view = views.apply(context, FrameLayout(context))
         assertThat(view).isNotInstanceOf(TextClock::class.java)
         assertThat((view as TextView).text.toString()).isEqualTo("10:20")
+    }
+
+    @Test
+    fun `the live dial is the system's AnalogClock in the card's ink, over the painted face`() {
+        val palette = WidgetPalette(Color.White, Color.Gray, Color.Red, darkGround = true, markGround = Color.Black)
+        val arcs = listOf(com.callbackdev.tempo.core.domain.widget.DialArc(600f, 60f, focus = true))
+        val views = dialViews(context, 56f, arcs, palette, null, "Clock", frozenAt = null)
+        val frame = views.apply(context, FrameLayout(context)) as FrameLayout
+        assertThat(frame.contentDescription.toString()).isEqualTo("Clock")
+        val hands = (0 until frame.childCount).map { frame.getChildAt(it) }.filterIsInstance<AnalogClock>().single()
+        assertThat(hands.hourHandTintList?.defaultColor).isEqualTo(android.graphics.Color.WHITE)
+        assertThat(hands.minuteHandTintList?.defaultColor).isEqualTo(android.graphics.Color.WHITE)
+        val face = (0 until frame.childCount).map { frame.getChildAt(it) }.filterIsInstance<ImageView>().single()
+        assertThat(face.drawable).isNotNull()
+    }
+
+    @Test
+    fun `a frozen dial has no AnalogClock, the hands are painted at the sample's moment`() {
+        val palette = WidgetPalette(Color.White, Color.Gray, Color.Red, darkGround = true, markGround = Color.Black)
+        val views = dialViews(context, 56f, emptyList(), palette, null, "Clock", WidgetSamples.Now.toLocalTime())
+        val frame = views.apply(context, FrameLayout(context)) as FrameLayout
+        assertThat((0 until frame.childCount).map { frame.getChildAt(it) }.filterIsInstance<AnalogClock>()).isEmpty()
     }
 
     @Test

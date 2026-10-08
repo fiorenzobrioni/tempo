@@ -35,8 +35,9 @@ All notable changes to Tempo are documented here. The format follows
 - "New event" on the launcher icon's long press.
 - The widgets, the family's pair on the family's card. «Agenda»: the time and the date over the
   rest of your day, as many events as the card holds whole and how many more, the days ahead in
-  the room today leaves, laid out for every size from one cell up. «In words»: what comes next,
-  large, and the day in one line. Their clock and date are drawn by Android itself, right to the
+  the room today leaves, laid out for every size from one cell up. «In words»: a clock face with
+  what comes next drawn on its ring, the hour hand walking through it by itself, and the day in a
+  few words beside it. Their clock and date are drawn by Android itself, right to the
   minute, at no cost; their events change when your calendar does or an event starts or ends,
   never on a timer. Each card has its own settings: the time and the date (shown or not, in its
   own format), what a touch opens (the time: Tempo, your calendar at today, or your clock app; an

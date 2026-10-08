@@ -37,7 +37,7 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
    the rest of today, a date's all-day events on one line, then the days ahead in the room today
    leaves), `fitLines` (whole lines only, a heading never last, "N more today" or "N more in the
    days ahead"), `AgendaFit` (four forms and their budgets), `WordsDay` (the focus and its note)
-   and `WordsFit` (four forms and the order the hierarchy spends height). The widget measures,
+   and `WordsFit` (its forms and the order the hierarchy spends height). The widget measures,
    the domain decides, and the tests pin the decisions at the reference grants; `WidgetFitTest`
    draws every form 5% wider than measured, in both languages and three text sizes, and finds
    nothing cut but an event's title on its one line.
@@ -74,6 +74,21 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
    follows, at 16 sp under its clock in every form, and its row's clock at Passo's 34 sp. A line of
    Glance text is budgeted with its rounded pixel (+1 dp), and the fit test fails on a squeezed
    line, not only on a cut one.
+
+9. **«In words» around a dial** (owner, 8 Oct 2026, after the 4×1 on the phone: the time in words
+   at 34 sp left the title an ellipsis). The card's picture is a clock face where Passo's has its
+   ring: the system's `AnalogClock` hands (a `RemoteViews` view like `TextClock`, drawn by the
+   launcher, moved by the system) over a face Tempo paints into a bitmap at each redraw, with the
+   focus as an arc and the rest of the next twelve hours quieter (`DialArcs`, `WidgetDial.kt`).
+   The arcs change only at the agenda's boundaries, where the card is redrawn anyway, so the hour
+   hand walks through an event by itself: live progress at no cost. The window is eleven and a
+   half hours, so an arc never meets the hand from behind. The hands' drawables are drawn at
+   200 dp (lint's ceiling for a vector), above any dial, because an `AnalogClock` scales its drawables down and never up; the
+   painter and the drawables share `DialGeometry`, and the samples paint the hands in. The
+   words drop to Chiaro's sentence (20 sp) and Passo's facts (16 sp); no number is large. Three
+   forms (`WordsFit`): CELL, ROW, TALL. Considered and left: a progress ring (it would need a
+   repaint per minute), a day strip with a "now" marker (the same), the event's time kept large
+   beside a smaller title (the owner's complaint).
 
 ## Consequences
 

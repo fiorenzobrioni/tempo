@@ -104,10 +104,9 @@ internal fun formNote(kind: WidgetKind, size: DpSize, look: WidgetLook): Int = w
     }
 
     WidgetKind.WORDS -> when (WordsFit.form(size.width.value, size.height.value)) {
-        WordsForm.NEXT -> R.string.words_form_next
-        WordsForm.LINE -> R.string.words_form_line
-        WordsForm.STACK -> R.string.words_form_stack
-        WordsForm.PANEL -> R.string.words_form_panel
+        WordsForm.CELL -> R.string.words_form_cell
+        WordsForm.ROW -> R.string.words_form_row
+        WordsForm.TALL -> R.string.words_form_tall
     }
 }
 

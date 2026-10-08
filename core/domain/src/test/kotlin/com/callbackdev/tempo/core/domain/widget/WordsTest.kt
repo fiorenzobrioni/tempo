@@ -1,5 +1,6 @@
 package com.callbackdev.tempo.core.domain.widget
 
+import com.callbackdev.tempo.core.domain.agenda.Rome
 import com.callbackdev.tempo.core.domain.agenda.agenda
 import com.callbackdev.tempo.core.domain.agenda.allDay
 import com.callbackdev.tempo.core.domain.agenda.at
@@ -67,118 +68,228 @@ class WordsTest {
         assertThat(result.note).isEqualTo(WordsNote.DayDone(hadEvents = false, allDay = emptyList()))
     }
 
+    // --- The dial ---------------------------------------------------------------------------------
+
+    private fun arcs(
+        vararg events: com.callbackdev.tempo.core.model.EventInstance,
+        now: String,
+        ahead: Boolean = true,
+    ) = agenda(*events, now = at(now)).let { agenda ->
+        DialArcs.of(agenda, WordsDay.of(agenda, true, ahead).focus, Rome, ahead)
+    }
+
+    @Test
+    fun `the dial carries the event under way from its start, and what is still to come`() {
+        val result = arcs(standup, dentist, gym, now = "2026-10-07T10:05")
+        // 9:30 is 570 minutes past twelve on the face; the standup lasts an hour.
+        assertThat(result.last()).isEqualTo(DialArc(from = 570f, sweep = 60f, focus = true))
+        assertThat(result.filterNot { it.focus }).containsExactly(
+            DialArc(from = 180f, sweep = 60f, focus = false),
+            DialArc(from = 360f, sweep = 60f, focus = false),
+        )
+    }
+
+    @Test
+    fun `the focus is drawn last, over the others`() {
+        val result = arcs(standup, review, now = "2026-10-07T10:05")
+        assertThat(result.map { it.focus }).containsExactly(false, true).inOrder()
+    }
+
+    @Test
+    fun `nothing past and nothing beyond the face's hours`() {
+        // At 20:00 the dentist is over and the call is 37 hours away: an empty face.
+        assertThat(arcs(dentist, call, now = "2026-10-07T20:00")).isEmpty()
+        // At 23:00 tomorrow morning is on the face, at its own hour, ahead of the hand.
+        val early = timed(6, "2026-10-08T08:00", "2026-10-08T09:00", title = "Early")
+        assertThat(arcs(early, now = "2026-10-07T23:00"))
+            .containsExactly(DialArc(from = 480f, sweep = 60f, focus = true))
+        // Without the days ahead, tomorrow is not drawn.
+        assertThat(arcs(early, now = "2026-10-07T23:00", ahead = false)).isEmpty()
+    }
+
+    @Test
+    fun `an arc never closes the circle onto the hand`() {
+        val long = timed(7, "2026-10-07T08:00", "2026-10-08T08:00", title = "Conference")
+        val result = arcs(long, now = "2026-10-07T12:00")
+        val arc = result.single()
+        // Six hours back at most, and the window ends half an hour short of the face's twelve.
+        assertThat(arc.from).isEqualTo(480f)
+        assertThat(arc.sweep).isEqualTo(690f)
+        assertThat(arc.sweep).isLessThan(DialArcs.FACE_MINUTES)
+    }
+
+    @Test
+    fun `a moment still shows`() {
+        val reminder = timed(8, "2026-10-07T15:00", "2026-10-07T15:00", title = "Reminder")
+        assertThat(arcs(reminder, now = "2026-10-07T11:00").single().sweep).isEqualTo(DialArcs.MIN_SWEEP)
+    }
+
     // --- The forms ----------------------------------------------------------------------------
 
-    private fun spec(width: Float, height: Float, scale: Float = 1f, label: Boolean = false, title: Boolean = true) =
-        WordsSpec(
-            width = width,
-            height = height,
-            fontScale = scale,
-            topEms = listOf(14.5f, 9.8f, 2.4f),
-            topDated = 2,
-            heroEm = 2.65f,
-            label = label,
-            title = title,
-            titleLines = 1,
-            noteLines = 2,
-            then = true,
-        )
+    private fun spec(
+        width: Float,
+        height: Float,
+        scale: Float = 1f,
+        dial: Boolean = true,
+        date: Boolean = true,
+        noteLines: Int = 1,
+        titleLines: Int = 1,
+    ) = WordsSpec(
+        width = width,
+        height = height,
+        fontScale = scale,
+        dial = dial,
+        // "Wednesday 7 October", "Wed 7 Oct", "07/10/2026"; the first over two lines is "7 October".
+        dateEms = if (date) listOf(9.4f, 5.2f, 5.6f) else emptyList(),
+        dateTwoLineEms = if (date) listOf(5.0f, 3.0f, 5.6f) else emptyList(),
+        titleEm = 6.5f,
+        titleLines = titleLines,
+        // "Until 11:00", "11:00"
+        whenEms = listOf(5.3f, 2.7f),
+        noteLines = noteLines,
+        then = true,
+    )
 
     @Test
     fun `every reference grant has its form`() {
-        assertThat(WordsFit.form(85f, 85f)).isEqualTo(WordsForm.NEXT)
-        assertThat(WordsFit.form(159f, 85f)).isEqualTo(WordsForm.LINE)
-        assertThat(WordsFit.form(340f, 85f)).isEqualTo(WordsForm.LINE)
-        assertThat(WordsFit.form(159f, 189f)).isEqualTo(WordsForm.STACK)
-        assertThat(WordsFit.form(250f, 189f)).isEqualTo(WordsForm.STACK)
-        assertThat(WordsFit.form(340f, 189f)).isEqualTo(WordsForm.PANEL)
+        assertThat(WordsFit.form(85f, 85f)).isEqualTo(WordsForm.CELL)
+        assertThat(WordsFit.form(85f, 189f)).isEqualTo(WordsForm.CELL)
+        assertThat(WordsFit.form(159f, 85f)).isEqualTo(WordsForm.ROW)
+        assertThat(WordsFit.form(340f, 85f)).isEqualTo(WordsForm.ROW)
+        assertThat(WordsFit.form(159f, 189f)).isEqualTo(WordsForm.TALL)
+        assertThat(WordsFit.form(340f, 189f)).isEqualTo(WordsForm.TALL)
     }
 
     @Test
-    fun `a wide row sets the time and the title on one line, a narrow one stacks them`() {
-        assertThat(WordsFit.plan(spec(340f, 85f)).titleInline).isTrue()
-        val narrow = WordsFit.plan(spec(159f, 85f))
-        assertThat(narrow.titleInline).isFalse()
-        assertThat(narrow.titleLines).isEqualTo(1)
-    }
-
-    @Test
-    fun `the one-cell card keeps its title only while the time stays comfortable`() {
-        val cell = WordsFit.plan(spec(85f, 85f))
-        assertThat(cell.heroSp).isAtLeast(WordsFit.NEXT_HERO_COMFORT)
-        assertThat(cell.heroSp * 2.65f + FIT_SLACK).isAtMost(85f - AgendaFit.CELL_PADDING * 2)
-    }
-
-    @Test
-    fun `the tall card buys the top line, the note and the line of times before it grows the time`() {
-        val panel = WordsFit.plan(spec(340f, 189f))
-        assertThat(panel.topChoice).isEqualTo(0)
-        assertThat(panel.titleLines).isEqualTo(1)
-        assertThat(panel.noteLines).isEqualTo(2)
-        assertThat(panel.then).isTrue()
-        assertThat(panel.heroSp).isAtLeast(WordsFit.TALL_HERO_FLOOR)
-    }
-
-    @Test
-    fun `a one-row card has Passo's sizes, the time at its count's and the line on top at its facts'`() {
+    fun `a four by one is Passo's row, the dial, the title over its time, the date at the far edge`() {
         val row = WordsFit.plan(spec(340f, 85f))
-        assertThat(row.heroSp).isEqualTo(WordsFit.LINE_HERO_MAX)
-        assertThat(row.topChoice).isEqualTo(0)
-        assertThat(row.topSp).isEqualTo(WordsFit.TOP_SP)
-        val used = clockLineHeight(row.topSp, 1f) + lineHeight(row.heroSp, 1f)
-        assertThat(used).isAtMost(85f - AgendaFit.CARD_PADDING_SNUG * 2)
+        assertThat(row.dial).isEqualTo(WordsFit.ROW_DIAL_MAX)
+        assertThat(row.titleSp).isEqualTo(WordsFit.TITLE_SP)
+        assertThat(row.whenChoice).isEqualTo(0)
+        assertThat(row.whenSp).isEqualTo(WordsFit.WHEN_SP)
+        // The long date over two lines, as Passo's sentence: "Wednesday / 7 October".
+        assertThat(row.dateChoice).isEqualTo(0)
+        assertThat(row.dateLines).isEqualTo(2)
+        assertThat(row.dateSp).isEqualTo(WordsFit.DATE_SP)
     }
 
     @Test
-    fun `a one-row card keeps the time whole at any text size, the line on top giving way first`() {
-        listOf(1.15f, 1.3f, 2f).forEach { scale ->
+    fun `a narrow row keeps the dial and sets the words a size smaller, without the date`() {
+        val row = WordsFit.plan(spec(159f, 85f))
+        assertThat(row.dial).isAtLeast(WordsFit.ROW_DIAL_MIN)
+        assertThat(row.titleSp).isEqualTo(WordsFit.NARROW_TITLE_SP)
+        assertThat(row.dateChoice).isEqualTo(-1)
+        // "Design review" does not fit beside the dial: two lines over its time, not an ellipsis.
+        assertThat(row.titleLines).isEqualTo(2)
+    }
+
+    @Test
+    fun `a row's words fit its height at every text size`() {
+        listOf(1f, 1.15f, 1.3f, 2f).forEach { scale ->
             val row = WordsFit.plan(spec(340f, 85f, scale = scale))
-            val top = if (row.topChoice >= 0) clockLineHeight(row.topSp, scale) else 0f
-            assertThat(top + lineHeight(row.heroSp, scale)).isAtMost(85f - AgendaFit.CARD_PADDING_SNUG * 2 + 0.5f)
-        }
-    }
-
-    @Test
-    fun `a dated line steps a size down before it loses the date`() {
-        val plan = WordsFit.plan(spec(170f, 189f))
-        assertThat(plan.topChoice).isEqualTo(1)
-        assertThat(plan.topSp).isLessThan(WordsFit.TOP_SP)
-        assertThat(plan.topSp).isAtLeast(WordsFit.TOP_MIN_SP)
-    }
-
-    @Test
-    fun `the narrow tall card shortens its top line rather than dropping it`() {
-        assertThat(WordsFit.plan(spec(159f, 189f)).topChoice).isEqualTo(2)
-        assertThat(WordsFit.plan(spec(200f, 189f)).topChoice).isEqualTo(1)
-    }
-
-    @Test
-    fun `what the tall card holds never overflows it, at any text size`() {
-        listOf(159f to 189f, 250f to 189f, 340f to 189f, 340f to 293f).forEach { (w, h) ->
-            listOf(1f, 1.3f, 2f).forEach { scale ->
-                val plan = WordsFit.plan(spec(w, h, scale, label = true))
-                val used = lineHeight(plan.heroSp, scale) + lineHeight(WordsFit.LABEL_SP, scale) +
-                    lineHeight(WordsFit.TITLE_SP, scale) * plan.titleLines +
-                    (if (plan.topChoice >= 0) clockLineHeight(plan.topSp, scale) + WordsFit.TOP_GAP else 0f) +
-                    (if (plan.noteLines > 0) WordsFit.NOTE_GAP else 0f) +
-                    lineHeight(WordsFit.NOTE_SP, scale) * (plan.noteLines + if (plan.then) 1 else 0)
-                assertThat(used).isAtMost(h - AgendaFit.CARD_PADDING * 2 + 0.5f)
+            val used = lineHeight(row.titleSp, scale) * row.titleLines +
+                (if (row.whenChoice >= 0) lineHeight(row.whenSp, scale) else 0f)
+            assertThat(used).isAtMost(85f - AgendaFit.CARD_PADDING_SNUG * 2)
+            assertThat(row.dial).isAtMost(85f - AgendaFit.CARD_PADDING_SNUG * 2)
+            if (row.dateChoice >= 0) {
+                assertThat(clockLineHeight(row.dateSp, scale) * row.dateLines)
+                    .isAtMost(85f - AgendaFit.CARD_PADDING_SNUG * 2)
             }
         }
     }
 
     @Test
-    fun `the note is drawn whole or not at all`() {
-        val tight = WordsFit.plan(spec(159f, 160f, scale = 1.3f).copy(noteLines = 3))
+    fun `one cell is the dial alone, and a tall cell says the time under it`() {
+        val cell = WordsFit.plan(spec(85f, 85f))
+        assertThat(cell.dial).isEqualTo(85f - AgendaFit.CELL_PADDING * 2)
+        assertThat(cell.whenChoice).isEqualTo(-1)
+        val tall = WordsFit.plan(spec(85f, 189f))
+        assertThat(tall.dial).isAtLeast(WordsFit.CELL_DIAL_COMFORT)
+        assertThat(tall.whenChoice).isAtLeast(0)
+    }
+
+    @Test
+    fun `without the dial, one cell sets the time bold in its place`() {
+        val cell = WordsFit.plan(spec(85f, 85f, dial = false))
+        assertThat(cell.dial).isEqualTo(0f)
+        assertThat(cell.whenBold).isTrue()
+        assertThat(cell.whenSp).isAtLeast(WordsFit.CELL_WHEN_MIN)
+    }
+
+    @Test
+    fun `a tall card hangs the words from the bottom, the dial and the date over them`() {
+        val tall = WordsFit.plan(spec(340f, 189f))
+        assertThat(tall.dial).isAtLeast(WordsFit.TALL_DIAL_COMFORT)
+        assertThat(tall.noteLines).isEqualTo(1)
+        // Beside a dial on a four-wide card, the long date on one line.
+        assertThat(tall.dateChoice).isEqualTo(0)
+        assertThat(tall.dateLines).isEqualTo(1)
+        val small = WordsFit.plan(spec(159f, 189f))
+        assertThat(small.dial).isAtLeast(WordsFit.TALL_DIAL_MIN)
+        assertThat(small.dateChoice).isAtLeast(0)
+        assertThat(small.dateWidth + small.dial + WordsFit.DIAL_GAP).isAtMost(159f - AgendaFit.CARD_PADDING * 2)
+    }
+
+    @Test
+    fun `a tall card fits its height at every text size and grant`() {
+        listOf(1f, 1.15f, 1.3f).forEach { scale ->
+            listOf(159f to 189f, 250f to 189f, 340f to 189f, 340f to 293f, 159f to 160f).forEach { (w, h) ->
+                val plan = WordsFit.plan(spec(w, h, scale, noteLines = 2, titleLines = 2))
+                val words = lineHeight(plan.titleSp, scale) * plan.titleLines +
+                    (if (plan.whenChoice >= 0) lineHeight(plan.whenSp, scale) else 0f) +
+                    (
+                        if (plan.noteLines >
+                            0
+                        ) {
+                            lineHeight(WordsFit.NOTE_SP, scale) * plan.noteLines + WordsFit.NOTE_GAP
+                        } else {
+                            0f
+                        }
+                        ) +
+                    (if (plan.then) lineHeight(WordsFit.NOTE_SP, scale) else 0f)
+                val top = if (plan.dial > 0f) {
+                    plan.dial + WordsFit.DIAL_BOTTOM_GAP
+                } else if (plan.dateChoice >= 0) {
+                    clockLineHeight(plan.dateSp, scale) + WordsFit.TOP_GAP
+                } else {
+                    0f
+                }
+                assertThat(words + top).isAtMost(h - AgendaFit.CARD_PADDING * 2 + 0.01f)
+            }
+        }
+    }
+
+    @Test
+    fun `the note is whole or not there`() {
+        val tight = WordsFit.plan(spec(159f, 160f, scale = 1.3f, noteLines = 3))
         assertThat(tight.noteLines).isAnyOf(0, 3)
-        val long = WordsFit.plan(spec(340f, 293f).copy(noteLines = 4))
+        val long = WordsFit.plan(spec(340f, 293f, noteLines = 4))
         assertThat(long.noteLines).isEqualTo(0)
     }
 
     @Test
-    fun `free has no title, and the time takes the room`() {
-        val free = WordsFit.plan(spec(340f, 189f, title = false))
-        assertThat(free.titleLines).isEqualTo(0)
-        assertThat(free.heroSp).isAtLeast(WordsFit.plan(spec(340f, 189f)).heroSp)
+    fun `without the dial, the date rides on top of a tall card`() {
+        val plan = WordsFit.plan(spec(340f, 189f, dial = false))
+        assertThat(plan.dial).isEqualTo(0f)
+        assertThat(plan.dateChoice).isEqualTo(0)
+        assertThat(plan.dateLines).isEqualTo(1)
+    }
+
+    @Test
+    fun `the date steps down before it is lost, and is never cut`() {
+        // Too narrow for the long date beside the dial: a shorter one, or the long one on two lines.
+        val plan = WordsFit.plan(spec(159f, 189f))
+        val room = 159f - AgendaFit.CARD_PADDING * 2 - plan.dial - WordsFit.DIAL_GAP
+        assertThat(plan.dateWidth).isAtMost(room)
+        assertThat(WordsFit.plan(spec(340f, 189f, date = false)).dateChoice).isEqualTo(-1)
+    }
+
+    @Test
+    fun `a title a little too long for a tall card steps down to stay whole`() {
+        // "Design review" at 22 sp is wider than a two by two's 131 dp: 18 sp keeps it on one line.
+        val plan = WordsFit.plan(spec(159f, 189f))
+        assertThat(plan.titleSp).isLessThan(WordsFit.TALL_TITLE_SP)
+        assertThat(plan.titleSp).isAtLeast(WordsFit.TALL_TITLE_MIN_SP)
+        assertThat(WordsFit.plan(spec(340f, 189f)).titleSp).isEqualTo(WordsFit.TALL_TITLE_SP)
     }
 }
