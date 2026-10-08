@@ -146,16 +146,25 @@ internal fun cutTexts(
         View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY),
     )
     host.layout(0, 0, w, h)
-    fun bottomOf(view: View): Int {
-        var bottom = view.bottom
-        var parent = view.parent
-        var top = 0
-        while (parent is View && parent !== host) {
-            top += parent.top
-            parent = parent.parent
+    /**
+     * How many pixels of [view]'s own box an ancestor clips at the bottom: a `ViewGroup` clips its
+     * children to its padded area (`clipToPadding`), so a line that runs into a card's inset is cut
+     * there even though it is still inside the card. The text's box keeps its own font padding, so
+     * a line's ink is cut only past its descent: [view]'s bottom padding is the tolerance.
+     */
+    fun clippedBelow(view: View): Int {
+        var bottom = view.bottom - view.paddingBottom
+        var child: View = view
+        var worst = 0
+        while (true) {
+            val parent = child.parent as? android.view.ViewGroup ?: break
+            val limit = if (parent.clipToPadding) parent.height - parent.paddingBottom else parent.height
+            worst = maxOf(worst, bottom - limit)
+            if (parent === host) break
+            bottom += parent.top
+            child = parent
         }
-        bottom += top
-        return bottom
+        return worst
     }
     texts.filter { it.visibility == View.VISIBLE && it.text.isNotEmpty() }.mapNotNull { text ->
         val layout = text.layout ?: return@mapNotNull null
@@ -181,8 +190,12 @@ internal fun cutTexts(
 
             overflow && !mayEllipsize(text.text.toString()) -> "«${text.text}» clipped $how"
 
-            // Laid out below the card's own bottom edge: cut off by the launcher.
-            bottomOf(text) > h + 1 -> "«${text.text}» below the card (bottom ${bottomOf(text) / density} dp)"
+            // Its box squeezed shorter than its lines: the last one's descenders are cut.
+            text.layout.height + text.totalPaddingTop + text.totalPaddingBottom > text.height + density ->
+                "«${text.text}» squeezed (needs ${(text.layout.height + text.totalPaddingTop + text.totalPaddingBottom) / density} dp, has ${text.height / density})"
+
+            // Laid out below a container's padded area (the card's inset): cut off there.
+            clippedBelow(text) > density -> "«${text.text}» cut at the bottom by ${clippedBelow(text) / density} dp"
 
             else -> null
         }

@@ -2,7 +2,7 @@
 <!--
   «Agenda» as the launcher's picker draws it where it asks for a static layout: sample values in
   the default dress, the side form of the default 4×2 placement. The clock (40 sp Bold) and the
-  date (14 sp Medium) in a column, the rows beside them (a calendar's mark, the time at 13 sp, the
+  date (16 sp Medium) in a column, the rows beside them (a calendar's mark, the time at 13 sp, the
   title at 14 sp Medium), then the count of what did not fit.
   Sample data only: a preview is a drawing of the product, never a reading.
 -->
@@ -36,7 +36,7 @@
             android:maxLines="2"
             android:text="@string/widget_preview_date"
             android:textColor="@color/widget_preview_ink_dim"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
     </LinearLayout>
 
     <LinearLayout

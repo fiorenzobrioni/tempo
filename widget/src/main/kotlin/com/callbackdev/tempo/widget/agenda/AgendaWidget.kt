@@ -71,6 +71,7 @@ import com.callbackdev.tempo.widget.WidgetModel
 import com.callbackdev.tempo.widget.WidgetPalette
 import com.callbackdev.tempo.widget.WidgetRefresh
 import com.callbackdev.tempo.widget.WidgetSamples
+import com.callbackdev.tempo.widget.balancedWidth
 import com.callbackdev.tempo.widget.cardMessage
 import com.callbackdev.tempo.widget.clockEm
 import com.callbackdev.tempo.widget.clockViews
@@ -208,6 +209,13 @@ private class AgendaParts(val context: Context, val model: WidgetModel, size: Dp
     )
 
     val headerWidth: Dp get() = (plan.header?.width ?: 0f).dp
+
+    /** A two-line date's width: balanced, so the two lines are even and no word stands alone. */
+    fun dateWidth(header: HeaderPlan): Dp {
+        val style = dateStyles[header.dateChoice]
+        val date = DateTimeFormatter.ofPattern(ClockPatterns.date(locale, style).twentyFour, locale).format(model.now)
+        return balancedWidth(context, date, header.dateSp, header.width.dp, TextWeight.MEDIUM, header.dateLines)
+    }
     val listWidth: Dp get() = plan.listWidth.dp
 
     /** The note's lines at the list's width, two at most. */
@@ -294,8 +302,12 @@ private fun Header(parts: AgendaParts, palette: WidgetPalette) {
                     parts.headerIntent,
                     frozen,
                 ),
-                // Its own height, measured: a container Glance sizes alone may take its column's.
-                modifier = GlanceModifier.height(clockLineHeight(header.clockSp, parts.scale).dp),
+                // Its own height, measured: a container Glance sizes alone may take its column's. Its
+                // own width too beside a two-line date, whose balanced width would otherwise be the
+                // column's, and the clock's container takes the column's width.
+                modifier = GlanceModifier
+                    .height(clockLineHeight(header.clockSp, parts.scale).dp)
+                    .then(if (header.dateLines > 1) GlanceModifier.width(header.width.dp) else GlanceModifier),
             )
         }
         if (header.dateChoice >= 0) {
@@ -312,8 +324,8 @@ private fun Header(parts: AgendaParts, palette: WidgetPalette) {
                     frozen,
                 ),
                 modifier = GlanceModifier
-                    .height((lineHeight(header.dateSp, parts.scale) * header.dateLines).dp)
-                    .then(if (header.dateLines > 1) GlanceModifier.width(header.width.dp) else GlanceModifier),
+                    .height((clockLineHeight(header.dateSp, parts.scale) * header.dateLines).dp)
+                    .then(if (header.dateLines > 1) GlanceModifier.width(parts.dateWidth(header)) else GlanceModifier),
             )
         }
     }

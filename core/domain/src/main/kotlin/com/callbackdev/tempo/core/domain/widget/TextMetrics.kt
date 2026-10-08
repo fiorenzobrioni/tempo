@@ -12,9 +12,11 @@ import kotlin.math.floor
 
 /**
  * The height one line of a Glance `Text` occupies (font padding on): about 1.32 em in the system
- * face, times the reader's font scale. An estimate, named as one (Chiaro's, Passo's).
+ * face, times the reader's font scale, and the pixel the face's metrics are rounded up to. Without
+ * that pixel a list of four rows came out 2 dp taller than budgeted, and its last line's
+ * descenders were cut (8 Oct 2026). An estimate, named as one (Chiaro's, Passo's).
  */
-fun lineHeight(sizeSp: Float, fontScale: Float): Float = sizeSp * LINE_BOX_EM * fontScale
+fun lineHeight(sizeSp: Float, fontScale: Float): Float = sizeSp * LINE_BOX_EM * fontScale + LINE_ROUNDING
 
 /**
  * The height of one line of the system's `TextClock`, which the card's own layout sets without
@@ -23,8 +25,12 @@ fun lineHeight(sizeSp: Float, fontScale: Float): Float = sizeSp * LINE_BOX_EM * 
 fun clockLineHeight(sizeSp: Float, fontScale: Float): Float = sizeSp * CLOCK_BOX_EM * fontScale
 
 /** [lineHeight] read backwards: the largest size whose line fits [room]. Never negative. */
-fun sizeForLine(room: Float, fontScale: Float, boxEm: Float = LINE_BOX_EM): Float =
-    (room / (boxEm * fontScale.coerceAtLeast(MIN_SCALE))).coerceAtLeast(0f)
+fun sizeForLine(room: Float, fontScale: Float): Float =
+    ((room - LINE_ROUNDING) / (LINE_BOX_EM * fontScale.coerceAtLeast(MIN_SCALE))).coerceAtLeast(0f)
+
+/** [clockLineHeight] read backwards: the largest clock whose line fits [room]. Never negative. */
+fun clockSizeForLine(room: Float, fontScale: Float): Float =
+    (room / (CLOCK_BOX_EM * fontScale.coerceAtLeast(MIN_SCALE))).coerceAtLeast(0f)
 
 /**
  * The largest size at which a line [em] wide fits [width] whole, the slack a launcher's rounding
@@ -41,6 +47,9 @@ fun quarterPoint(sp: Float): Float = floor(sp * 4f) / 4f
 
 const val LINE_BOX_EM: Float = 1.32f
 const val CLOCK_BOX_EM: Float = 1.2f
+
+/** The pixel a line's font metrics are rounded up to, at any density: measured, 8 Oct 2026. */
+const val LINE_ROUNDING: Float = 1f
 
 /** The air a measured width is given before it is used as one (Passo's `RowFitSlack`). */
 const val FIT_SLACK: Float = 4f

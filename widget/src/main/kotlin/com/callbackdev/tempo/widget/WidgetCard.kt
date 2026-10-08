@@ -289,6 +289,32 @@ internal fun measureWidgetLines(context: Context, text: String, sizeSp: Float, w
 }
 
 /**
+ * The narrowest width at which [text] still takes the lines it takes at [width]: a date set at
+ * that width breaks into lines of even length rather than a full line and an orphan
+ * ("Wednesday, October / 7"). What `TextView`'s balanced break strategy would do, which a
+ * `RemoteViews` cannot ask for (Passo's `balancedWidth`). [width] itself when the text fits one
+ * line or more than [maxLines].
+ */
+internal fun balancedWidth(
+    context: Context,
+    text: String,
+    sizeSp: Float,
+    width: Dp,
+    weight: TextWeight,
+    maxLines: Int,
+): Dp {
+    val lines = measureWidgetLines(context, text, sizeSp, width, weight)
+    if (lines < 2 || lines > maxLines) return width
+    var low = width / 2
+    var high = width
+    while (high - low > 1.dp) {
+        val mid = (low + high) / 2
+        if (measureWidgetLines(context, text, sizeSp, mid, weight) == lines) high = mid else low = mid
+    }
+    return minOf(width, high + FIT_SLACK.dp)
+}
+
+/**
  * The three weights a card sets text in, each with the appearance Glance sets it in
  * (`text_faces.xml`): its weight, in the theme's device-default family.
  */

@@ -123,7 +123,7 @@ object AgendaFit {
         val width = spec.width - CARD_PADDING * 2
         val inner = spec.height - CARD_PADDING * 2
         val clock = if (spec.clock) {
-            val byHeight = sizeForLine(inner * TOP_CLOCK_SHARE, spec.fontScale, CLOCK_BOX_EM)
+            val byHeight = clockSizeForLine(inner * TOP_CLOCK_SHARE, spec.fontScale)
             quarterPoint(
                 minOf(byHeight.coerceIn(TOP_CLOCK_MIN, TOP_CLOCK_MAX), spThatFits(width, spec.clockEm, spec.fontScale)),
             )
@@ -138,7 +138,7 @@ object AgendaFit {
         val inner = spec.height - CARD_PADDING * 2
         val most = (spec.width - CARD_PADDING * 2) * SIDE_SHARE
         val clock = if (spec.clock) {
-            val byHeight = sizeForLine(inner * SIDE_CLOCK_SHARE, spec.fontScale, CLOCK_BOX_EM)
+            val byHeight = clockSizeForLine(inner * SIDE_CLOCK_SHARE, spec.fontScale)
             quarterPoint(
                 minOf(
                     byHeight.coerceIn(SIDE_CLOCK_MIN, SIDE_CLOCK_MAX),
@@ -165,9 +165,9 @@ object AgendaFit {
         val inner = spec.height - CARD_PADDING_SNUG * 2
         val most = (spec.width - CARD_PADDING * 2) * LINE_SHARE
         fun planFor(spec: AgendaSpec): HeaderPlan {
-            val dateRoom = if (spec.date) lineHeight(LINE_DATE_SP, spec.fontScale) else 0f
+            val dateRoom = if (spec.date) clockLineHeight(LINE_DATE_SP, spec.fontScale) else 0f
             val clock = if (spec.clock) {
-                val byHeight = sizeForLine(inner - dateRoom, spec.fontScale, CLOCK_BOX_EM)
+                val byHeight = clockSizeForLine(inner - dateRoom, spec.fontScale)
                 quarterPoint(
                     minOf(
                         byHeight.coerceIn(LINE_CLOCK_MIN, LINE_CLOCK_MAX),
@@ -199,7 +199,7 @@ object AgendaFit {
         val inner = spec.height - pad * 2
         fun clockFor(room: Float) = quarterPoint(
             minOf(
-                sizeForLine(room, spec.fontScale, CLOCK_BOX_EM),
+                clockSizeForLine(room, spec.fontScale),
                 spThatFits(width, spec.clockEm, spec.fontScale),
                 CELL_CLOCK_MAX,
             ),
@@ -255,7 +255,8 @@ object AgendaFit {
             dateSp = size,
             dateLines = lines,
             width = maxOf(clockWidth, dateWidth),
-            height = clockHeight + lineHeight(size, spec.fontScale) * lines,
+            // The date is a `TextClock` too, without font padding: its lines are the clock's.
+            height = clockHeight + clockLineHeight(size, spec.fontScale) * lines,
         )
     }
 
@@ -307,11 +308,11 @@ object AgendaFit {
     const val SIDE_BELOW_ROWS = 5
     const val LIST_MIN_WIDTH = 96f
     const val COLUMN_GAP = 16f
-    const val HEADER_GAP = 8f
+    const val HEADER_GAP = 6f
 
     // The header.
-    const val TOP_CLOCK_SHARE = 0.22f
-    const val TOP_CLOCK_MIN = 30f
+    const val TOP_CLOCK_SHARE = 0.2f
+    const val TOP_CLOCK_MIN = 28f
     const val TOP_CLOCK_MAX = 52f
     const val SIDE_SHARE = 0.45f
     const val SIDE_CLOCK_SHARE = 0.3f
@@ -321,7 +322,9 @@ object AgendaFit {
     const val LINE_SHARE = 0.5f
     const val LINE_CLOCK_MIN = 22f
     const val LINE_DATE_ROOM = 110f
-    const val LINE_CLOCK_MAX = 36f
+
+    /** Passo's count on its row ("86") and «In words»'s time on its: the family's row numbers match. */
+    const val LINE_CLOCK_MAX = 34f
 
     /**
      * The date under a one-row card's clock: Passo's facts' 16 sp ("of 8,000 steps") and «In words»'s
@@ -331,7 +334,9 @@ object AgendaFit {
     const val CELL_CLOCK_MIN = 20f
     const val CELL_CLOCK_MAX = 56f
     const val CELL_DATE_SP = 12f
-    const val DATE_SP = 14f
+
+    /** The date under a tall card's clock: the family's 16 sp, as on a row and «In words»'s line on top. */
+    const val DATE_SP = 16f
     const val DATE_ALONE_SP = 18f
     const val DATE_MIN_SP = 11f
 
