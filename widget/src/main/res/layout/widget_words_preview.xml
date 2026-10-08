@@ -2,7 +2,7 @@
 <!--
   «In words» as the launcher's picker draws it where it asks for a static layout: sample values in
   the default dress, the tall form of the default 4×2 placement, with the card's ranks: the time
-  and the date at 13 sp on top; at the bottom what comes next at 40 sp Bold, its title at 18 sp
+  and the date at 16 sp on top; at the bottom what comes next at 40 sp Bold, its title at 18 sp
   Medium, the day's note at 14 sp.
   Sample data only: a preview is a drawing of the product, never a reading.
 -->
@@ -20,7 +20,7 @@
         android:singleLine="true"
         android:text="@string/widget_preview_top"
         android:textColor="@color/widget_preview_ink_dim"
-        android:textSize="13sp" />
+        android:textSize="16sp" />
 
     <FrameLayout
         android:layout_width="match_parent"

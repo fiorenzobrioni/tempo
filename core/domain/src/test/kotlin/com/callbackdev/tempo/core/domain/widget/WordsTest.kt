@@ -75,6 +75,7 @@ class WordsTest {
             height = height,
             fontScale = scale,
             topEms = listOf(14.5f, 9.8f, 2.4f),
+            topDated = 2,
             heroEm = 2.65f,
             label = label,
             title = title,
@@ -119,6 +120,33 @@ class WordsTest {
     }
 
     @Test
+    fun `a one-row card has Passo's sizes, the time at its count's and the line on top at its facts'`() {
+        val row = WordsFit.plan(spec(340f, 85f))
+        assertThat(row.heroSp).isEqualTo(WordsFit.LINE_HERO_MAX)
+        assertThat(row.topChoice).isEqualTo(0)
+        assertThat(row.topSp).isEqualTo(WordsFit.TOP_SP)
+        val used = clockLineHeight(row.topSp, 1f) + lineHeight(row.heroSp, 1f)
+        assertThat(used).isAtMost(85f - AgendaFit.CARD_PADDING_SNUG * 2)
+    }
+
+    @Test
+    fun `a one-row card keeps the time whole at any text size, the line on top giving way first`() {
+        listOf(1.15f, 1.3f, 2f).forEach { scale ->
+            val row = WordsFit.plan(spec(340f, 85f, scale = scale))
+            val top = if (row.topChoice >= 0) clockLineHeight(row.topSp, scale) else 0f
+            assertThat(top + lineHeight(row.heroSp, scale)).isAtMost(85f - AgendaFit.CARD_PADDING_SNUG * 2 + 0.5f)
+        }
+    }
+
+    @Test
+    fun `a dated line steps a size down before it loses the date`() {
+        val plan = WordsFit.plan(spec(170f, 189f))
+        assertThat(plan.topChoice).isEqualTo(1)
+        assertThat(plan.topSp).isLessThan(WordsFit.TOP_SP)
+        assertThat(plan.topSp).isAtLeast(WordsFit.TOP_MIN_SP)
+    }
+
+    @Test
     fun `the narrow tall card shortens its top line rather than dropping it`() {
         assertThat(WordsFit.plan(spec(159f, 189f)).topChoice).isEqualTo(2)
         assertThat(WordsFit.plan(spec(200f, 189f)).topChoice).isEqualTo(1)
@@ -131,7 +159,7 @@ class WordsTest {
                 val plan = WordsFit.plan(spec(w, h, scale, label = true))
                 val used = lineHeight(plan.heroSp, scale) + lineHeight(WordsFit.LABEL_SP, scale) +
                     lineHeight(WordsFit.TITLE_SP, scale) * plan.titleLines +
-                    (if (plan.topChoice >= 0) lineHeight(WordsFit.TOP_SP, scale) + WordsFit.TOP_GAP else 0f) +
+                    (if (plan.topChoice >= 0) clockLineHeight(plan.topSp, scale) + WordsFit.TOP_GAP else 0f) +
                     (if (plan.noteLines > 0) WordsFit.NOTE_GAP else 0f) +
                     lineHeight(WordsFit.NOTE_SP, scale) * (plan.noteLines + if (plan.then) 1 else 0)
                 assertThat(used).isAtMost(h - AgendaFit.CARD_PADDING * 2 + 0.5f)

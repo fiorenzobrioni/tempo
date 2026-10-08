@@ -161,16 +161,21 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
      * The small line on top, in the order it is tried: the time and the reader's date, the time and
      * a shorter date, the time alone; the date alone where the reader hid the time.
      */
+    private val dates = DateStyle.entries.drop(text.dateStyle.ordinal)
+
     val topPatterns: List<ClockPatterns> = run {
         val time = ClockPatterns.time(locale, look.clockFormat ?: model.settings.clockFormat)
-        val dates = DateStyle.entries.drop(text.dateStyle.ordinal).map { ClockPatterns.date(locale, it).twentyFour }
+        val datePatterns = dates.map { ClockPatterns.date(locale, it).twentyFour }
         when {
-            look.showClock && look.showDate -> dates.map { time.withDate(it) } + time
+            look.showClock && look.showDate -> datePatterns.map { time.withDate(it) } + time
             look.showClock -> listOf(time)
-            look.showDate -> dates.map { ClockPatterns(it, it) }
+            look.showDate -> datePatterns.map { ClockPatterns(it, it) }
             else -> emptyList()
         }
     }
+
+    /** The patterns that carry the date: every one but the time alone. */
+    private val topDated = if (look.showDate) dates.size else 0
     private val topEms = topPatterns.map { patterns ->
         val pattern = patterns.current(context)
         textEm(
@@ -186,6 +191,7 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             height = size.height.value,
             fontScale = scale,
             topEms = topEms,
+            topDated = topDated,
             heroEm = textEm(context, hero, TextWeight.BOLD),
             label = label != null,
             title = title != null,
@@ -219,11 +225,15 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             WidgetIntents.header(context, look.headerTap, model.doors, model.now.toInstant()),
         )
 
+    /** The title's lift beside the time in an inline row, so the two share a baseline. */
+    val inlineBaseline: Dp
+        get() = ((plan.heroSp - plan.titleSp) * DESCENT_EM * scale).coerceAtLeast(0f).dp
+
     /** What a message has of the card: its height, less the insets and the small line on top. */
     val messageRoom: Dp
         get() = (
             size.height.value - (if (plan.snug) AgendaFit.CARD_PADDING_SNUG else AgendaFit.CARD_PADDING) * 2 -
-                (if (plan.topChoice >= 0) clockLineHeight(WordsFit.TOP_SP, scale) + WordsFit.TOP_GAP else 0f)
+                (if (plan.topChoice >= 0) clockLineHeight(plan.topSp, scale) + WordsFit.TOP_GAP else 0f)
             ).dp
 
     /** A touch on the focus opens it as the reader chose; on "Free" or a message, Tempo. */
@@ -253,13 +263,13 @@ private fun TopLine(parts: WordsParts, palette: WidgetPalette) {
             parts.context,
             ClockFace.REGULAR,
             parts.topPatterns[choice],
-            WordsFit.TOP_SP,
+            parts.plan.topSp,
             palette.secondary,
             1,
             parts.headerIntent,
             parts.model.now.takeIf { parts.model.frozenClock },
         ),
-        modifier = GlanceModifier.height(clockLineHeight(WordsFit.TOP_SP, parts.scale).dp),
+        modifier = GlanceModifier.height(clockLineHeight(parts.plan.topSp, parts.scale).dp),
     )
 }
 
@@ -359,7 +369,7 @@ private fun LineContent(parts: WordsParts, palette: WidgetPalette) {
                         palette,
                         GlanceModifier.padding(
                             start = WordsFit.INLINE_GAP.dp,
-                            bottom = INLINE_BASELINE.dp,
+                            bottom = parts.inlineBaseline,
                         ).defaultWeight(),
                     )
                 }
@@ -401,5 +411,9 @@ private fun TallContent(parts: WordsParts, palette: WidgetPalette) {
     }
 }
 
-/** The title's lift in an inline row, so it sits nearer the bold time's baseline than its box's bottom. */
-private const val INLINE_BASELINE = 3f
+/**
+ * Roboto's line box under the baseline (555 of 2048 units): a line keeps the face's descent under
+ * its baseline in proportion to its size, so the large time stands higher than a smaller title
+ * bottom-aligned with it (Chiaro's `textPanelBaselineLift`, Passo's `baselineLift`).
+ */
+private const val DESCENT_EM = 0.271f

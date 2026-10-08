@@ -275,7 +275,7 @@ With the clock and the date both hidden, the card is its list alone, on any gran
 | «In words» form | When | Content |
 |---|---|---|
 | NEXT | one cell | The focus's time ("Until" over "11:00", "Next" over "15:00", "Free"), its title where the cell has room |
-| LINE | one row | The time and the date as a small line; the focus's time and title on one line (under it on a narrow row) |
+| LINE | one row | The time and the date as a line on top (16 sp); the focus's time (up to 34 sp) and title (18 sp) on one line, on one baseline (the title under the time on a narrow row): Passo's row's sizes |
 | STACK | two rows and up | The time and date on top; the focus large (time, then title); the day's note at the bottom |
 | PANEL | two rows and up, four cells | The same, with the rest of the day as a line of times ("Then 16:30 · 18:00") in place of the note's count |
 
@@ -574,6 +574,8 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - **8 Oct 2026, Phase 4.** An event's touch opens its occurrence in the calendar app by default (Tempo's Today is the other choice): it is what a touch on an event does on Today. Two occurrences of one repeating event are two pending intents (`Intent.setIdentifier`), else the second's times would ride on the first.
 - **8 Oct 2026, Phase 4.** The widgets' refresh also runs when Tempo's settings change and when the reader leaves the app (where they may have granted the permission or hidden a calendar): both are the reader's own acts, never a timer. The Application listens to the settings, which costs nothing until one changes.
 - **8 Oct 2026, Phase 4.** The first run's last button is now «Next» on the calendar's page and «Done» on the widgets' page; "Not now" leads to the widgets, which are offered, never required. The feature modules reach the widgets through `HomeScreenWidgets` (`:core:data`), bound by `:widget`.
+
+- **8 Oct 2026, after Phase 4.** «In words» takes Passo's «At a glance» row sizes (owner, from the phone: beside Passo's card the one-row card showed wide empty bands above and below). The insets were already the family's (6 dp on a row); the content was small for the row (the line on top at 13 sp, the time at most 30 sp), so the air went into the bands. Now the line on top is at Passo's facts' 16 sp ("of 8,000 steps") and the focus's time grows to Passo's count's 34 sp ("86"), with the title at 18 sp on the time's baseline: a 4×1 card holds 19 dp + 45 dp of its 73, as Passo's does. On a narrow card a dated line steps down to 14, then 13 sp, before it loses the date; the tall forms take the same line on top. The line on top is budgeted as the `TextClock` it is (1.2 em, no font padding), not as a Glance text. `WidgetFitTest` still finds nothing cut, in both languages, at 1 to 1.3 the text size.
 
 ### Open
 

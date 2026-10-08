@@ -68,6 +68,10 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
    pin request where the launcher takes one, and the way by hand where it does not. The feature
    modules reach `:widget` through `HomeScreenWidgets` (`:core:data`), bound by Hilt.
 
+8. **«In words» on Passo's row's sizes** (owner, 8 Oct 2026, after the first cards on the phone):
+   the line on top at 16 sp, the focus's time up to 34 sp, so the two cards read as one set side
+   by side; `WordsFit` keeps the numbers, the tests their consequences.
+
 ## Consequences
 
 - Nothing of Tempo runs for the widgets while nothing changes; a calendar change reaches a card
