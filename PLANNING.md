@@ -266,7 +266,7 @@ Two cards in v1, the family's pair (owner, §15): «Agenda» (`AgendaWidget`, th
 | Form | When | Content |
 |---|---|---|
 | CLOCK | one cell, or a row too narrow for a list beside the clock (two cells) | The time, as large as the cell holds; the date under it where it still reads (else none) |
-| LINE | one row, three cells and up | The time and the date (shortened before it is shrunk) on the leading side; the next events beside them, and "N more" |
+| LINE | one row, three cells and up | The time and, under it at 16 sp (Passo's facts, «In words»'s line on top), the date (shortened before it is shrunk) on the leading side; the next events beside them, and "N more" |
 | AGENDA | two rows and up | The header (clock and date, each optional), then the events that fit, then "N more today" |
 | SIDE | two rows and up, four cells, where a header on top would leave fewer than five rows (the default 4×2) | The clock and the date (over two lines if need be) in a column on the leading side, the events beside them |
 
@@ -576,6 +576,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - **8 Oct 2026, Phase 4.** The first run's last button is now «Next» on the calendar's page and «Done» on the widgets' page; "Not now" leads to the widgets, which are offered, never required. The feature modules reach the widgets through `HomeScreenWidgets` (`:core:data`), bound by `:widget`.
 
 - **8 Oct 2026, after Phase 4.** «In words» takes Passo's «At a glance» row sizes (owner, from the phone: beside Passo's card the one-row card showed wide empty bands above and below). The insets were already the family's (6 dp on a row); the content was small for the row (the line on top at 13 sp, the time at most 30 sp), so the air went into the bands. Now the line on top is at Passo's facts' 16 sp ("of 8,000 steps") and the focus's time grows to Passo's count's 34 sp ("86"), with the title at 18 sp on the time's baseline: a 4×1 card holds 19 dp + 45 dp of its 73, as Passo's does. On a narrow card a dated line steps down to 14, then 13 sp, before it loses the date; the tall forms take the same line on top. The line on top is budgeted as the `TextClock` it is (1.2 em, no font padding), not as a Glance text. `WidgetFitTest` still finds nothing cut, in both languages, at 1 to 1.3 the text size.
+- **8 Oct 2026, after Phase 4.** «Agenda»'s one-row date follows (owner): 16 sp under the clock, where it was 13. The clock keeps its 36 sp; the long date gives way to the short one ("Wed, 7 Oct") a little more often, and at twice the text size the date goes, as before, before the clock shrinks.
 
 ### Open
 

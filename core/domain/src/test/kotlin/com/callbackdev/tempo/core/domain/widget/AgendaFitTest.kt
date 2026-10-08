@@ -98,6 +98,14 @@ class AgendaFitTest {
     }
 
     @Test
+    fun `a one-row card writes its date at the family's 16 sp, under a clock that keeps its size`() {
+        val header = checkNotNull(plan(340f, 85f).header)
+        assertThat(header.dateSp).isEqualTo(AgendaFit.LINE_DATE_SP)
+        assertThat(header.clockSp).isEqualTo(AgendaFit.LINE_CLOCK_MAX)
+        assertThat(header.height).isAtMost(85f - AgendaFit.CARD_PADDING_SNUG * 2)
+    }
+
+    @Test
     fun `a one-row card at twice the text drops the date and keeps the time`() {
         val header = checkNotNull(plan(340f, 85f, scale = 2f).header)
         assertThat(header.clockSp).isAtLeast(AgendaFit.LINE_CLOCK_MIN)

@@ -322,7 +322,12 @@ object AgendaFit {
     const val LINE_CLOCK_MIN = 22f
     const val LINE_DATE_ROOM = 110f
     const val LINE_CLOCK_MAX = 36f
-    const val LINE_DATE_SP = 13f
+
+    /**
+     * The date under a one-row card's clock: Passo's facts' 16 sp ("of 8,000 steps") and «In words»'s
+     * line on top, so the family's rows read as one set (owner, 8 Oct 2026).
+     */
+    const val LINE_DATE_SP = 16f
     const val CELL_CLOCK_MIN = 20f
     const val CELL_CLOCK_MAX = 56f
     const val CELL_DATE_SP = 12f
