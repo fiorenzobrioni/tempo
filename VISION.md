@@ -75,7 +75,12 @@ app the reader already uses.
 ### Today (the app's one main screen)
 
 - **The clock**: the time large (the family's hero type, tabular figures so the minutes do not
-  wobble), the date under it, both in the reader's format. Digital (Key decisions).
+  wobble, each figure rolling to its next value as the minute changes), the date above it in the
+  page's top row, both in the reader's format. Digital (Key decisions), beside the dial.
+- **The dial**: the «In words» card's clock face beside the time (the owner's review of 9 Oct
+  2026): the next twelve hours' events as arcs on its ring, what comes next in the accent, the
+  hands moving with the minute. When the page opens the hands wind forward to now and the arcs
+  draw themselves, in one short movement.
 - **The day's sentence**, before any list.
 - **The next alarm**: "Alarm tomorrow at 7:00", from the system's own next alarm clock, which
   needs no permission. On by default, one switch hides it.
@@ -88,15 +93,17 @@ app the reader already uses.
   a quiet row of its own only for a gap of an hour or more, so the timeline does not fill up with
   the ten minutes between two meetings. A touch on the row starts a new event there.
 - **The days ahead**: tomorrow and the rest of the week (a week by default, the reader's
-  horizon), each day with its own short sentence. Today stays on top, whole; tomorrow is drawn as
-  today is; the days after it are compact (a heading and one line per event), so a full week
-  stays a glance below the fold and never pushes today out of view. In the evening, when today
-  has nothing left, tomorrow moves up.
+  horizon), each day on its own card with its own short sentence beside its name. Today stays on
+  top, whole; tomorrow is drawn as today is; the days after it are compact (one line per event);
+  a run of empty days is said once ("Monday 12 October – Tuesday 13 October, nothing planned"),
+  so a full week stays a glance below the fold and an empty week never pushes the first real
+  event out of view. In the evening, when today has nothing left, tomorrow moves up.
 - **Touch an event**: the calendar app opens it, at that occurrence of it; editing is one tap
   away there.
 - **The new-event button** (Material's floating action button): the calendar app's new event
   page, with the start already set to the next half hour.
-- **Touch the date**: the calendar app opens on today.
+- **Touch the date, or the calendar button beside the gear**: the calendar app opens on today
+  (the button has a switch in Settings). Touch a day's name: it opens on that day.
 - **Live while visible**: the clock moves on each minute's start, and a change made in the
   calendar app is on screen the moment the reader comes back. Nothing runs once the page is gone.
 - **States that say what is true**: no permission (the clock works; one card explains why the

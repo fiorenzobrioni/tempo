@@ -6,11 +6,18 @@ import android.provider.Settings
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -30,6 +37,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -56,6 +64,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLocale
@@ -68,9 +77,14 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -81,34 +95,46 @@ import com.callbackdev.tempo.core.calendar.CalendarIntents
 import com.callbackdev.tempo.core.designsystem.components.CalendarBar
 import com.callbackdev.tempo.core.designsystem.components.CalendarDot
 import com.callbackdev.tempo.core.designsystem.components.CalendarPermissionCard
+import com.callbackdev.tempo.core.designsystem.components.DayDial
 import com.callbackdev.tempo.core.designsystem.components.StatusCard
 import com.callbackdev.tempo.core.designsystem.components.StatusTone
 import com.callbackdev.tempo.core.designsystem.format.AgendaText
 import com.callbackdev.tempo.core.designsystem.format.DateTimeText
 import com.callbackdev.tempo.core.designsystem.format.rememberAgendaText
 import com.callbackdev.tempo.core.designsystem.icons.TempoIcons
+import com.callbackdev.tempo.core.designsystem.theme.GroupShape
 import com.callbackdev.tempo.core.designsystem.theme.PageGutter
 import com.callbackdev.tempo.core.designsystem.theme.ScreenMargin
+import com.callbackdev.tempo.core.designsystem.theme.TempoMotion
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
 import com.callbackdev.tempo.core.designsystem.theme.padding
 import com.callbackdev.tempo.core.designsystem.theme.pageGutter
+import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
 import com.callbackdev.tempo.core.domain.clock.nextHalfHour
+import com.callbackdev.tempo.core.domain.today.AgendaSection
+import com.callbackdev.tempo.core.domain.today.AgendaSections
 import com.callbackdev.tempo.core.domain.today.AlarmDay
 import com.callbackdev.tempo.core.domain.today.DaySummary
 import com.callbackdev.tempo.core.domain.today.Timeline
 import com.callbackdev.tempo.core.domain.today.TimelineItem
+import com.callbackdev.tempo.core.domain.widget.DialArc
+import com.callbackdev.tempo.core.domain.widget.DialArcs
+import com.callbackdev.tempo.core.domain.widget.WordsDay
 import com.callbackdev.tempo.core.model.AgendaDay
 import com.callbackdev.tempo.core.model.AllDayEntry
 import com.callbackdev.tempo.core.model.AttendeeStatus
 import com.callbackdev.tempo.core.model.CalendarInfo
 import com.callbackdev.tempo.core.model.CalendarPermission
-import com.callbackdev.tempo.core.model.DateStyle
 import com.callbackdev.tempo.core.model.EntryState
 import com.callbackdev.tempo.core.model.EventInstance
 import com.callbackdev.tempo.core.model.FreeGap
 import com.callbackdev.tempo.core.model.TimedEntry
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.Locale
 
 @Composable
 fun TodayRoute(onOpenSettings: () -> Unit, viewModel: TodayViewModel = hiltViewModel()) {
@@ -166,10 +192,13 @@ class TodayActions(
 )
 
 /**
- * Today (VISION.md, Today; PLANNING.md §11 Phase 3): the time as the hero, the date, the next
- * alarm and the day in one sentence, on Chiaro's and Passo's glow; then the day's events, with the
- * past folded and "now" drawn as a line; then tomorrow, in full, and the rest of the week, brief.
- * The new-event button stays out of the way: a label at the top, its icon alone once scrolled.
+ * Today (VISION.md, Today; PLANNING.md §11 Phase 3, reviewed on 9 Oct 2026, §15): the date and
+ * the page's two doors on top, the time as the hero beside the day's clock face (the «In words»
+ * card's dial, with the next twelve hours' events on its ring), the next alarm and the day in one
+ * sentence, on Chiaro's and Passo's glow; then today's events, with the past folded and "now"
+ * drawn as a line; then the days ahead, each on its own card: tomorrow in full, the rest of the
+ * week a line an event, and a run of empty days said once. The new-event button stays out of the
+ * way: a label at the top, its icon alone once scrolled.
  *
  * Every state says what is true: no permission, no calendar, every calendar hidden, no calendar
  * app to hand an event to. The page is drawn from [state] alone.
@@ -214,7 +243,7 @@ private fun TodayPage(
             state = list,
             modifier = Modifier.fillMaxSize().testTag(TodayTags.LIST),
             // Room for the button over the last row, whatever the list ends with.
-            contentPadding = PaddingValues(bottom = navigationBar + 96.dp),
+            contentPadding = PaddingValues(bottom = navigationBar + 88.dp),
         ) {
             item(key = "hero") { Hero(state, text, gutter, actions) }
             when (val content = state.content) {
@@ -285,16 +314,23 @@ private fun TodayPage(
     }
 }
 
+/** A state's card, or a day's, on the page's column. */
 private fun LazyListScope.card(key: String, gutter: PageGutter, content: @Composable () -> Unit) {
     item(key = key) {
-        Box(Modifier.padding(gutter).padding(horizontal = ScreenMargin, vertical = 8.dp)) { content() }
+        Box(Modifier.padding(gutter).padding(horizontal = ScreenMargin, vertical = 6.dp)) { content() }
     }
 }
 
+/** One of today's rows, on the page's column. */
+private fun LazyListScope.row(key: String, gutter: PageGutter, content: @Composable () -> Unit) {
+    item(key = key) { Box(Modifier.padding(gutter)) { content() } }
+}
+
 /**
- * The time, large, on the family's glow (Passo's Today), the date the calendar app opens on, the
- * next alarm and the day's sentence. The hero grows with the reader's text size up to a cap: at
- * twice the size an unbounded clock would break "09:41" over two lines (PLANNING.md §15).
+ * The top of the page, on the family's glow (Passo's Today): the date (a touch opens the calendar
+ * app on it) with the calendar's and the settings' buttons; the time, large, beside the day's
+ * clock face; the next alarm; the day's sentence. The clock grows with the reader's text size up
+ * to a cap, and shrinks to fit beside the dial: "9:10 PM" stays on one line (PLANNING.md §15).
  */
 @Composable
 private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, actions: TodayActions) {
@@ -302,10 +338,8 @@ private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, acti
     val surface = MaterialTheme.colorScheme.surface
     val locale = LocalLocale.current.platformLocale
     val now = state.now
-    // Through the density, so Android 14's non-linear text scaling is the one applied: the clock
-    // grows with the reader's text size as the rest of the page does, up to its cap.
-    val density = LocalDensity.current
-    val clockSize = with(density) { minOf(CLOCK_SIZE.toDp(), CLOCK_CAP).toSp() }
+    val content = state.content
+    val openDay = actions.openDay.takeIf { state.doors.canOpenDay }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -320,66 +354,188 @@ private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, acti
             .padding(gutter)
             .padding(bottom = 8.dp),
     ) {
-        Row(Modifier.fillMaxWidth().padding(end = 4.dp)) {
-            Spacer(Modifier.weight(1f))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(start = ScreenMargin + 4.dp, end = 4.dp),
+        ) {
+            Text(
+                text = DateTimeText.date(now, locale, state.settings.dateStyle),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(
+                        enabled = openDay != null,
+                        onClickLabel = stringResource(R.string.today_open_day),
+                        role = Role.Button,
+                    ) { openDay?.invoke(now.toInstant()) }
+                    .heightIn(min = 48.dp)
+                    .wrapContentHeight(Alignment.CenterVertically)
+                    .padding(end = 8.dp)
+                    .testTag(TodayTags.DATE)
+                    .semantics { heading() },
+            )
+            if (openDay != null && state.settings.showCalendarButton) {
+                IconButton(onClick = { openDay(now.toInstant()) }, modifier = Modifier.testTag(TodayTags.CALENDAR)) {
+                    Icon(TempoIcons.Calendar, contentDescription = stringResource(R.string.today_open_calendar))
+                }
+            }
             IconButton(onClick = actions.openSettings, modifier = Modifier.testTag(TodayTags.SETTINGS)) {
                 Icon(TempoIcons.Settings, contentDescription = stringResource(R.string.today_settings))
             }
         }
-        Text(
-            text = DateTimeText.time(now, locale, text.uses24Hour),
-            style = TempoTheme.type.heroNumber.copy(fontSize = clockSize, lineHeight = clockSize * 1.05f),
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier
-                .padding(horizontal = ScreenMargin + 4.dp)
-                .testTag(TodayTags.TIME)
-                .semantics { heading() },
-        )
-        val dateText = DateTimeText.date(now, locale, state.settings.dateStyle)
-        Text(
-            text = dateText,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .clickable(
-                    enabled = state.doors.canOpenDay,
-                    onClickLabel = stringResource(R.string.today_open_day),
-                    role = Role.Button,
-                ) { actions.openDay(now.toInstant()) }
-                .heightIn(min = 48.dp)
-                .padding(horizontal = ScreenMargin + 4.dp, vertical = 12.dp)
-                .testTag(TodayTags.DATE),
-        )
-        val alarm = state.alarm
-        if (alarm != null) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(horizontal = ScreenMargin + 4.dp).testTag(TodayTags.ALARM),
-            ) {
-                Icon(
-                    TempoIcons.Bell,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp),
-                )
-                Text(
-                    text = text.alarm(alarm, AlarmDay.of(alarm, now.toInstant(), now.zone)),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(
+                start = ScreenMargin + 4.dp,
+                end = ScreenMargin + 4.dp,
+                top = 4.dp,
+            ),
+        ) {
+            Column(Modifier.weight(1f)) {
+                Clock(now, locale, text.uses24Hour, Modifier.testTag(TodayTags.TIME))
+                val alarm = state.alarm
+                if (alarm != null) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(top = 6.dp).testTag(TodayTags.ALARM),
+                    ) {
+                        Icon(
+                            TempoIcons.Bell,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Text(
+                            text = text.alarm(alarm, AlarmDay.of(alarm, now.toInstant(), now.zone)),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
+            Spacer(Modifier.width(16.dp))
+            // The face works without the calendar, as the clock does: its ring is just empty.
+            val arcs = if (content is TodayContent.Ready) {
+                remember(content.agenda, state.settings.showAllDay) {
+                    dialArcs(content, state.settings.showAllDay, now.zone)
+                }
+            } else {
+                emptyList()
+            }
+            DayDial(
+                faceMinutes = DialArcs.minuteOnFace(now.toInstant(), now.zone),
+                arcs = arcs,
+                description = stringResource(R.string.today_dial, DateTimeText.time(now, locale, text.uses24Hour)),
+                modifier = Modifier.size(DIAL_SIZE).testTag(TodayTags.DIAL),
+            )
         }
-        val content = state.content
         if (content is TodayContent.Ready) {
             Text(
                 text = text.sentence(content.sentence),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
-                    .padding(start = ScreenMargin + 4.dp, end = ScreenMargin + 4.dp, top = 20.dp, bottom = 4.dp)
+                    .padding(start = ScreenMargin + 4.dp, end = ScreenMargin + 4.dp, top = 16.dp, bottom = 4.dp)
                     .testTag(TodayTags.SENTENCE),
             )
+        }
+    }
+}
+
+/** The dial's arcs, as the «In words» card draws them: the focus in the accent, the rest quiet. */
+private fun dialArcs(content: TodayContent.Ready, showAllDay: Boolean, zone: ZoneId): List<DialArc> {
+    val focus = WordsDay.of(content.agenda, showAllDay = showAllDay, showDaysAhead = true).focus
+    return DialArcs.of(content.agenda, focus, zone, showDaysAhead = true)
+}
+
+/**
+ * The time in the hero type: its figures as large as the column allows, each one rolling to its
+ * next value as the minute changes (a fade under reduced motion), and the day marker set small
+ * beside them on the 12-hour clock. Read as one time by a screen reader.
+ */
+@Composable
+private fun Clock(now: ZonedDateTime, locale: Locale, uses24Hour: Boolean, modifier: Modifier = Modifier) {
+    val parts = DateTimeText.timeParts(now, locale, uses24Hour)
+    val spoken = DateTimeText.time(now, locale, uses24Hour)
+    // Through the density, so Android 14's non-linear text scaling is the one applied: the clock
+    // grows with the reader's text size as the rest of the page does, up to its cap.
+    val density = LocalDensity.current
+    val largest = with(density) { minOf(CLOCK_SIZE.toDp(), CLOCK_CAP).toSp() }
+    val figuresStyle = TempoTheme.type.heroNumber
+    val markerStyle = MaterialTheme.typography.titleLarge
+    val measurer = rememberTextMeasurer()
+    val ink = MaterialTheme.colorScheme.onSurface
+    BoxWithConstraints(modifier.semantics { text = AnnotatedString(spoken) }) {
+        val markerWidth = parts.marker?.let { marker ->
+            measurer.measure(AnnotatedString(marker), markerStyle, maxLines = 1, softWrap = false).size.width +
+                with(density) { MARKER_GAP.roundToPx() }
+        } ?: 0
+        val room = (constraints.maxWidth - markerWidth).coerceAtLeast(1)
+        // Each figure is laid out on its own and rounded up to a whole pixel, so the row is a
+        // little wider than the string measured whole: counted, or the marker lost its last pixels.
+        val wanted = measurer.measure(
+            text = AnnotatedString(parts.figures),
+            style = figuresStyle.copy(fontSize = largest),
+            maxLines = 1,
+            softWrap = false,
+        ).size.width + parts.figures.length + with(density) { CLOCK_SLACK.roundToPx() }
+        val shrunk = largest * (room.toFloat() / wanted)
+        val size: TextUnit = when {
+            wanted <= room -> largest
+            shrunk.value < CLOCK_SMALLEST.value -> CLOCK_SMALLEST
+            else -> shrunk
+        }
+        Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.clearAndSetSemantics { }) {
+            val marker: @Composable () -> Unit = {
+                parts.marker?.let {
+                    Text(
+                        text = it,
+                        style = markerStyle,
+                        color = ink,
+                        maxLines = 1,
+                        softWrap = false,
+                        modifier = Modifier.alignByBaseline().padding(horizontal = MARKER_GAP / 2),
+                    )
+                }
+            }
+            if (parts.markerFirst) marker()
+            RollingFigures(
+                figures = parts.figures,
+                style = figuresStyle.copy(fontSize = size, lineHeight = size * CLOCK_LINE),
+                color = ink,
+                modifier = Modifier.alignByBaseline(),
+            )
+            if (!parts.markerFirst) marker()
+        }
+    }
+}
+
+/** Each figure in its own place, so only the one that changed rolls up to its next value. */
+@Composable
+private fun RollingFigures(figures: String, style: TextStyle, color: Color, modifier: Modifier = Modifier) {
+    val reduced = reducedMotion()
+    Row(modifier) {
+        figures.forEachIndexed { index, figure ->
+            AnimatedContent(
+                targetState = figure,
+                transitionSpec = {
+                    if (reduced) {
+                        fadeIn(TempoMotion.fade()) togetherWith fadeOut(TempoMotion.fade())
+                    } else {
+                        (
+                            slideInVertically(TempoMotion.spatial()) {
+                                it / 2
+                            } + fadeIn(TempoMotion.effects())
+                            ) togetherWith
+                            (slideOutVertically(TempoMotion.spatial()) { -it / 2 } + fadeOut(TempoMotion.effects()))
+                    }
+                },
+                label = "figure-$index",
+            ) { shown ->
+                Text(text = shown.toString(), style = style, color = color, maxLines = 1, softWrap = false)
+            }
         }
     }
 }
@@ -388,6 +544,16 @@ private val CLOCK_SIZE = 80.sp
 
 /** The clock's largest size on screen: five characters still fit a phone's width on one line. */
 private val CLOCK_CAP = 104.dp
+
+/** Shrunk to fit beside the dial, never below this: still the largest thing on the page. */
+private val CLOCK_SMALLEST = 36.sp
+
+private const val CLOCK_LINE = 1.05f
+private val CLOCK_SLACK = 4.dp
+private val MARKER_GAP = 8.dp
+
+/** The dial's side: Passo's ring in its tall card, the «In words» card's dial on a 2×2. */
+private val DIAL_SIZE = 112.dp
 
 private fun LazyListScope.agenda(
     content: TodayContent.Ready,
@@ -399,62 +565,95 @@ private fun LazyListScope.agenda(
     onToggleEarlier: () -> Unit,
 ) {
     val now = state.now.toInstant()
+    val zone = state.now.zone
     val doors = state.doors
     val openEvent = actions.openEvent.takeIf { doors.canOpenEvent }
     val newEvent = actions.newEvent.takeIf { doors.canCreate }
-    content.agenda.days.forEachIndexed { index, day ->
-        when (index) {
-            0 -> {
-                allDayItem(day, content.calendars, text, gutter, openEvent)
-                Timeline.of(day, isToday = true, showEarlier = showEarlier).forEach { row ->
-                    timelineItem(row, day, content.calendars, text, now, gutter, openEvent, newEvent, onToggleEarlier)
+    val openDay: ((LocalDate) -> Unit)? = if (doors.canOpenDay) {
+        { date -> actions.openDay(date.atStartOfDay(zone).toInstant()) }
+    } else {
+        null
+    }
+    val style = state.settings.dateStyle
+    AgendaSections.of(content.agenda).forEach { section ->
+        when (section) {
+            is AgendaSection.Today -> {
+                val day = section.day
+                if (day.allDay.isNotEmpty()) {
+                    row("all-day-${day.date}", gutter) {
+                        AllDayRow(
+                            day.allDay,
+                            content.calendars,
+                            text,
+                            ScreenMargin,
+                            openEvent,
+                            Modifier.testTag(TodayTags.ALL_DAY),
+                        )
+                    }
+                }
+                Timeline.of(day, isToday = true, showEarlier = showEarlier).forEach { item ->
+                    timelineItem(item, day, content.calendars, text, now, gutter, openEvent, newEvent, onToggleEarlier)
                 }
             }
 
-            1 -> {
-                item(key = "head-${day.date}") {
-                    DayHeader(stringResource(R.string.today_tomorrow), text.summary(DaySummary.of(day)), gutter)
-                }
-                allDayItem(day, content.calendars, text, gutter, openEvent)
-                Timeline.of(day, isToday = false).forEach { row ->
-                    timelineItem(row, day, content.calendars, text, now, gutter, openEvent, newEvent, onToggleEarlier)
+            is AgendaSection.Tomorrow -> card("day-${section.day.date}", gutter) {
+                val day = section.day
+                DayCard(
+                    title = stringResource(R.string.today_tomorrow),
+                    summary = text.summary(DaySummary.of(day)),
+                    onOpen = openDay?.let { { it(day.date) } },
+                    modifier = Modifier.testTag(TodayTags.day(day.date)),
+                ) {
+                    if (day.allDay.isNotEmpty()) AllDayRow(day.allDay, content.calendars, text, CARD_EDGE, openEvent)
+                    Timeline.of(day, isToday = false).forEach { item ->
+                        if (item is TimelineItem.Event) {
+                            EventRow(
+                                item.entry,
+                                content.calendars[item.entry.event.calendarId],
+                                text,
+                                now,
+                                CARD_EDGE,
+                                openEvent,
+                            )
+                        }
+                    }
                 }
             }
 
-            else -> {
-                item(key = "head-${day.date}") {
-                    val locale = LocalLocale.current.platformLocale
-                    val title = DateTimeText.date(day.date, locale, DateStyle.LONG)
-                    DayHeader(title, text.summary(DaySummary.of(day)), gutter)
+            is AgendaSection.Later -> card("day-${section.day.date}", gutter) {
+                val day = section.day
+                DayCard(
+                    title = text.date(day.date, style),
+                    summary = text.summary(DaySummary.of(day)),
+                    onOpen = openDay?.let { { it(day.date) } },
+                    modifier = Modifier.testTag(TodayTags.day(day.date)),
+                ) {
+                    day.allDay.forEach { entry -> CompactRow(entry.event, null, content.calendars, text, openEvent) }
+                    day.timed.forEach { entry -> CompactRow(entry.event, entry, content.calendars, text, openEvent) }
                 }
-                day.allDay.forEach { entry ->
-                    item(key = "compact-all-${day.date}-${entry.event.eventId}-${entry.event.begin}") {
-                        CompactRow(entry.event, null, content.calendars, text, gutter, openEvent)
-                    }
+            }
+
+            is AgendaSection.Nothing -> card("nothing-${section.from}", gutter) {
+                val first = if (section.startsTomorrow) {
+                    stringResource(
+                        R.string.today_tomorrow,
+                    )
+                } else {
+                    text.date(section.from, style)
                 }
-                day.timed.forEach { entry ->
-                    item(key = "compact-${day.date}-${entry.event.eventId}-${entry.event.begin}") {
-                        CompactRow(entry.event, entry, content.calendars, text, gutter, openEvent)
-                    }
-                }
+                DayCard(
+                    title = if (section.isOneDay) first else text.range(first, text.date(section.to, style)),
+                    summary = text.nothingPlanned(),
+                    onOpen = openDay?.let { { it(section.from) } },
+                    modifier = Modifier.testTag(TodayTags.day(section.from)),
+                ) { }
             }
         }
     }
 }
 
-private fun LazyListScope.allDayItem(
-    day: AgendaDay,
-    calendars: Map<Long, CalendarInfo>,
-    text: AgendaText,
-    gutter: PageGutter,
-    openEvent: ((EventInstance) -> Unit)?,
-) {
-    if (day.allDay.isEmpty()) return
-    item(key = "all-day-${day.date}") { AllDayRow(day.allDay, calendars, text, gutter, openEvent) }
-}
-
 private fun LazyListScope.timelineItem(
-    row: TimelineItem,
+    item: TimelineItem,
     day: AgendaDay,
     calendars: Map<Long, CalendarInfo>,
     text: AgendaText,
@@ -464,36 +663,94 @@ private fun LazyListScope.timelineItem(
     newEvent: ((Instant) -> Unit)?,
     onToggleEarlier: () -> Unit,
 ) {
-    when (row) {
-        is TimelineItem.Event -> item(key = "event-${day.date}-${row.entry.event.eventId}-${row.entry.event.begin}") {
-            EventRow(row.entry, calendars[row.entry.event.calendarId], text, now, gutter, openEvent)
+    when (item) {
+        is TimelineItem.Event -> row(
+            "event-${day.date}-${item.entry.event.eventId}-${item.entry.event.begin}",
+            gutter,
+        ) {
+            EventRow(item.entry, calendars[item.entry.event.calendarId], text, now, ScreenMargin + 4.dp, openEvent)
         }
 
-        is TimelineItem.Free -> item(key = "free-${day.date}-${row.gap.start}") {
-            FreeRow(row.gap, text, gutter, newEvent)
+        is TimelineItem.Free -> row("free-${day.date}-${item.gap.start}", gutter) { FreeRow(item.gap, text, newEvent) }
+
+        is TimelineItem.Earlier -> row("earlier-${day.date}", gutter) {
+            EarlierRow(item.entries.size, showEarlier = item.open, onToggle = onToggleEarlier)
         }
 
-        is TimelineItem.Earlier -> item(key = "earlier-${day.date}") {
-            EarlierRow(row.entries.size, showEarlier = row.open, gutter = gutter, onToggle = onToggleEarlier)
-        }
-
-        TimelineItem.Now -> item(key = "now") { NowRow(gutter) }
+        TimelineItem.Now -> row("now", gutter) { NowRow() }
     }
 }
 
-/** A day's heading: "Tomorrow", or its date, with the day in a few words under it. */
+/**
+ * A day ahead on its own ground (Chiaro's group, Passo's cards): its name and the day in a few
+ * words on one line, a touch on them opening the calendar app on that day, and its rows under
+ * them. A run of empty days is a card of its heading alone.
+ */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun DayHeader(title: String, summary: String, gutter: PageGutter) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        modifier = Modifier
-            .padding(gutter)
-            .padding(start = ScreenMargin + 4.dp, end = ScreenMargin, top = 28.dp, bottom = 8.dp),
+private fun DayCard(
+    title: String,
+    summary: String,
+    onOpen: (() -> Unit)?,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val openLabel = stringResource(R.string.today_open_day)
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = GroupShape,
+        modifier = modifier.fillMaxWidth(),
     ) {
-        Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
-        Text(summary, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Column(Modifier.padding(bottom = 6.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (onOpen != null) {
+                            Modifier.clickable(onClickLabel = openLabel, role = Role.Button, onClick = onOpen)
+                        } else {
+                            Modifier
+                        },
+                    )
+                    .semantics(mergeDescendants = true) { }
+                    .heightIn(min = 48.dp)
+                    .padding(start = CARD_EDGE, end = 12.dp, top = 10.dp, bottom = 6.dp),
+            ) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    itemVerticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.semantics {
+                            heading()
+                        },
+                    )
+                    Text(
+                        summary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                if (onOpen != null) {
+                    Icon(
+                        TempoIcons.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 8.dp).size(20.dp),
+                    )
+                }
+            }
+            content()
+        }
     }
 }
+
+/** What a card's rows keep from its edge. */
+private val CARD_EDGE = 16.dp
 
 /** The all-day events, as chips over the timeline: a holiday is the day's frame, not one of its rows. */
 @OptIn(ExperimentalLayoutApi::class)
@@ -502,16 +759,14 @@ private fun AllDayRow(
     entries: List<AllDayEntry>,
     calendars: Map<Long, CalendarInfo>,
     text: AgendaText,
-    gutter: PageGutter,
+    edge: Dp,
     openEvent: ((EventInstance) -> Unit)?,
+    modifier: Modifier = Modifier,
 ) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier
-            .padding(gutter)
-            .padding(horizontal = ScreenMargin, vertical = 8.dp)
-            .testTag(TodayTags.ALL_DAY),
+        modifier = modifier.padding(horizontal = edge, vertical = 6.dp),
     ) {
         entries.forEach { entry -> AllDayChip(entry, calendars[entry.event.calendarId], text, openEvent) }
     }
@@ -583,7 +838,7 @@ private fun EventRow(
     calendar: CalendarInfo?,
     text: AgendaText,
     now: Instant,
-    gutter: PageGutter,
+    edge: Dp,
     openEvent: ((EventInstance) -> Unit)?,
 ) {
     val event = entry.event
@@ -610,13 +865,14 @@ private fun EventRow(
             },
         )
         .semantics { contentDescription = description }
+        .heightIn(min = 48.dp)
         .testTag(TodayTags.event(event.eventId))
     val row: @Composable () -> Unit = {
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
                 .height(IntrinsicSize.Min)
-                .padding(horizontal = if (underWay) 12.dp else ScreenMargin + 4.dp, vertical = 12.dp)
+                .padding(horizontal = if (underWay) 12.dp else edge, vertical = 8.dp)
                 .clearAndSetSemantics { },
         ) {
             Column(Modifier.width(timeColumn)) {
@@ -634,7 +890,7 @@ private fun EventRow(
                 }
             }
             CalendarBar(event.color ?: calendar?.color, ground)
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.weight(1f)) {
+            Column(verticalArrangement = Arrangement.spacedBy(1.dp), modifier = Modifier.weight(1f)) {
                 Text(
                     text = text.title(event),
                     style = if (underWay) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyLarge,
@@ -667,10 +923,10 @@ private fun EventRow(
         Surface(
             color = ground,
             shape = MaterialTheme.shapes.large,
-            modifier = Modifier.padding(gutter).padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
         ) { Box(target) { row() } }
     } else {
-        Box(Modifier.padding(gutter).then(target)) { row() }
+        Box(target) { row() }
     }
 }
 
@@ -734,7 +990,7 @@ private fun describe(entry: TimedEntry, calendar: CalendarInfo?, text: AgendaTex
  * event that starts when the gap does).
  */
 @Composable
-private fun FreeRow(gap: FreeGap, text: AgendaText, gutter: PageGutter, newEvent: ((Instant) -> Unit)?) {
+private fun FreeRow(gap: FreeGap, text: AgendaText, newEvent: ((Instant) -> Unit)?) {
     val length = text.duration(gap.duration)
     val description = stringResource(R.string.a11y_free, text.time(gap.start), length)
     val newLabel = stringResource(R.string.today_new_event)
@@ -742,7 +998,6 @@ private fun FreeRow(gap: FreeGap, text: AgendaText, gutter: PageGutter, newEvent
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
-            .padding(gutter)
             .fillMaxWidth()
             .then(
                 if (newEvent != null) {
@@ -782,13 +1037,12 @@ private fun FreeRow(gap: FreeGap, text: AgendaText, gutter: PageGutter, newEvent
 
 /** The line between the day so far and what is ahead: the accent, a dot, the word. */
 @Composable
-private fun NowRow(gutter: PageGutter) {
+private fun NowRow() {
     val primary = MaterialTheme.colorScheme.primary
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
-            .padding(gutter)
             .fillMaxWidth()
             .padding(horizontal = ScreenMargin + 4.dp, vertical = 6.dp)
             .testTag(TodayTags.NOW),
@@ -806,14 +1060,13 @@ private fun NowRow(gutter: PageGutter) {
 
 /** Today's events already over, folded into one row; a touch opens them, another folds them back. */
 @Composable
-private fun EarlierRow(count: Int, showEarlier: Boolean, gutter: PageGutter, onToggle: () -> Unit) {
+private fun EarlierRow(count: Int, showEarlier: Boolean, onToggle: () -> Unit) {
     val label = pluralStringResource(R.plurals.today_earlier, count, count)
     val action = stringResource(if (showEarlier) R.string.today_hide else R.string.today_show)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
-            .padding(gutter)
             .fillMaxWidth()
             .clickable(onClickLabel = action, onClick = onToggle)
             .semantics { stateDescription = action }
@@ -844,7 +1097,6 @@ private fun CompactRow(
     entry: TimedEntry?,
     calendars: Map<Long, CalendarInfo>,
     text: AgendaText,
-    gutter: PageGutter,
     openEvent: ((EventInstance) -> Unit)?,
 ) {
     val calendar = calendars[event.calendarId]
@@ -860,7 +1112,6 @@ private fun CompactRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
-            .padding(gutter)
             .fillMaxWidth()
             .then(
                 if (openEvent != null) {
@@ -871,7 +1122,7 @@ private fun CompactRow(
             )
             .semantics { contentDescription = description }
             .heightIn(min = 48.dp)
-            .padding(horizontal = ScreenMargin + 4.dp, vertical = 4.dp),
+            .padding(horizontal = CARD_EDGE, vertical = 4.dp),
     ) {
         Text(
             text = time,
@@ -880,7 +1131,7 @@ private fun CompactRow(
             maxLines = 2,
             modifier = Modifier.width(timeColumn).clearAndSetSemantics { },
         )
-        CalendarDot(event.color ?: calendar?.color, MaterialTheme.colorScheme.surface, size = 10.dp)
+        CalendarDot(event.color ?: calendar?.color, MaterialTheme.colorScheme.surfaceContainerLow, size = 10.dp)
         Text(
             text = text.title(event),
             style = MaterialTheme.typography.bodyLarge,
@@ -910,9 +1161,11 @@ object TodayTags {
     const val LIST = "today_list"
     const val TIME = "today_time"
     const val DATE = "today_date"
+    const val DIAL = "today_dial"
     const val ALARM = "today_alarm"
     const val SENTENCE = "today_sentence"
     const val SETTINGS = "today_settings"
+    const val CALENDAR = "today_calendar"
     const val NEW_EVENT = "today_new_event"
     const val ALL_DAY = "today_all_day"
     const val FREE = "today_free"
@@ -920,4 +1173,6 @@ object TodayTags {
     const val EARLIER = "today_earlier"
 
     fun event(id: Long) = "today_event_$id"
+
+    fun day(date: LocalDate) = "today_day_$date"
 }

@@ -8,6 +8,7 @@
 
     <string name="event_no_title">(Senza titolo)</string>
     <string name="time_range">%1$s – %2$s</string>
+    <string name="date_range">%1$s – %2$s</string>
     <string name="time_from">dalle %1$s</string>
     <string name="time_until">fino alle %1$s</string>
     <string name="duration_m">%1$d min</string>

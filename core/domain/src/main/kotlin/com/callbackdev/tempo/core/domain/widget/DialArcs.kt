@@ -81,3 +81,19 @@ object DialArcs {
     private const val MINUTES_PER_HOUR = 60f
     private const val SECONDS_PER_MINUTE = 60f
 }
+
+/**
+ * The dial's proportions, as shares of its side: one drawing for the card (`WidgetDial`, where
+ * the hands are the system's drawables cut to these numbers) and for Today's face (`DayDial`,
+ * drawn in Compose), so the two read as the same clock. Passo's ring is the track's stroke.
+ */
+object DialGeometry {
+    const val STROKE: Float = 0.085f
+    const val DOT_RADIUS: Float = 0.38f
+    const val DOT_SIZE: Float = 0.016f
+    const val HOUR_LENGTH: Float = 0.24f
+    const val HOUR_WIDTH: Float = 0.07f
+    const val MINUTE_LENGTH: Float = 0.33f
+    const val MINUTE_WIDTH: Float = 0.05f
+    const val CAP: Float = 0.045f
+}

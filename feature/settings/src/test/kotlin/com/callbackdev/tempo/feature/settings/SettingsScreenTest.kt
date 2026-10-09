@@ -102,6 +102,16 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun `Today's calendar button is on by default and one switch away`() {
+        var saved = UserSettings()
+        draw(actions = SettingsActions(update = { saved = it(saved) }))
+        scrollTo(SettingsTags.CALENDAR_BUTTON)
+        compose.onNodeWithTag(SettingsTags.CALENDAR_BUTTON).performClick()
+        // One touch from the default turns it off: so the default was on.
+        assertThat(saved.showCalendarButton).isFalse()
+    }
+
+    @Test
     fun `the calendars by account, each with its state, and how many are shown`() {
         draw()
         scrollTo(SettingsTags.CALENDARS_SUMMARY)

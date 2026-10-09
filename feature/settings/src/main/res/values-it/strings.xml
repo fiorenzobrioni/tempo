@@ -24,6 +24,8 @@
     <string name="settings_declined_note">Gli inviti a cui hai detto di no. Non occupano mai il tuo tempo libero.</string>
     <string name="settings_next_alarm">Prossima sveglia</string>
     <string name="settings_next_alarm_note">Accanto all’orologio su Oggi, quando sul telefono c’è una sveglia impostata.</string>
+    <string name="settings_calendar_button">Pulsante calendario</string>
+    <string name="settings_calendar_button_note">In cima a Oggi, accanto alle impostazioni: apre la tua app calendario su oggi. Un tocco sulla data fa lo stesso.</string>
 
     <string name="settings_group_calendars">Calendari</string>
     <plurals name="settings_calendars_summary">

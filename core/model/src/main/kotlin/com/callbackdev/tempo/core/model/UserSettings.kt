@@ -8,6 +8,8 @@ package com.callbackdev.tempo.core.model
  *   a week by default (owner, PLANNING.md §15).
  * @property calendarChoices the calendars the reader turned on or off in Tempo; a calendar with no
  *   choice follows the calendar app ([CalendarInfo.visibleInProvider]).
+ * @property showCalendarButton whether Today draws the button that opens the reader's calendar
+ *   app at today, beside the settings' gear (owner, PLANNING.md §15, 9 Oct 2026).
  * @property askedCalendarPermission whether Tempo ever asked for the calendar: what tells a
  *   refusal Android lets the app repeat from one it does not (`calendarPermission`).
  */
@@ -23,6 +25,7 @@ data class UserSettings(
     val showDeclined: Boolean = false,
     val showAllDay: Boolean = true,
     val showNextAlarm: Boolean = true,
+    val showCalendarButton: Boolean = true,
     val onboardingCompleted: Boolean = false,
     val askedCalendarPermission: Boolean = false,
 ) {

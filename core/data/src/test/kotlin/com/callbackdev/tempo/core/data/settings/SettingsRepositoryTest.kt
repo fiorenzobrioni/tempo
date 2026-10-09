@@ -60,6 +60,7 @@ class SettingsRepositoryTest {
             showDeclined = true,
             showAllDay = false,
             showNextAlarm = false,
+            showCalendarButton = false,
             onboardingCompleted = true,
             askedCalendarPermission = true,
         )

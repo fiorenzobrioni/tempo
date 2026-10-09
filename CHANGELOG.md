@@ -10,6 +10,15 @@ All notable changes to Tempo are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Today, after the owner's review: the date on top with a button that opens your calendar app
+  (one switch hides it); the «In words» clock face beside the time, with the next twelve hours'
+  events on its ring and the hands winding to now when the page opens; the clock's figures
+  rolling as the minute changes, and "AM" set small beside them; the days ahead on cards, each
+  one a touch from its day in your calendar, and a run of empty days said once instead of a
+  heading each, so the first event of the day is on screen when the app opens.
+
 ### Added
 
 - The foundations: the build (Passo's, carried over), the family's design system, the launcher

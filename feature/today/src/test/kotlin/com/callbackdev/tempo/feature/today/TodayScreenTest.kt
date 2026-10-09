@@ -3,8 +3,12 @@ package com.callbackdev.tempo.feature.today
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -113,7 +117,62 @@ class TodayScreenTest {
         assertThat(created).isEqualTo(TodaySample.at("2026-10-07T11:00").toInstant())
         compose.onNodeWithTag(TodayTags.LIST).performScrollToNode(hasTestTag(TodayTags.DATE))
         compose.onNodeWithTag(TodayTags.DATE).performClick()
-        assertThat(day).isNotNull()
+        assertThat(day).isEqualTo(TodaySample.at("2026-10-07T10:20").toInstant())
+        day = null
+        compose.onNodeWithTag(TodayTags.CALENDAR).performClick()
+        assertThat(day).isEqualTo(TodaySample.at("2026-10-07T10:20").toInstant())
+    }
+
+    @Test
+    fun `the calendar button goes when the reader hides it`() {
+        draw(TodaySample.state(settings = UserSettings(showCalendarButton = false)))
+        compose.onNodeWithTag(TodayTags.CALENDAR).assertDoesNotExist()
+        // The date stays a door to the calendar, as it always was.
+        compose.onNodeWithTag(TodayTags.DATE).assertHasClickAction()
+    }
+
+    @Test
+    fun `with no app to take it, neither the button nor the date is a door`() {
+        draw(TodaySample.state(doors = CalendarDoors.None))
+        compose.onNodeWithTag(TodayTags.CALENDAR).assertDoesNotExist()
+        compose.onNodeWithTag(TodayTags.DATE).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `a day ahead opens the calendar app on that day`() {
+        var day: Instant? = null
+        draw(actions = TodayActions(openDay = { day = it }))
+        val friday = TodayTags.day(java.time.LocalDate.parse("2026-10-09"))
+        scrollTo(friday)
+        compose.onNode(hasText("Friday 9 October") and hasClickAction()).performClick()
+        assertThat(day).isEqualTo(TodaySample.at("2026-10-09T00:00").toInstant())
+    }
+
+    @Test
+    fun `the empty days of the week are said once, not a heading each`() {
+        draw()
+        val run = TodayTags.day(java.time.LocalDate.parse("2026-10-12"))
+        scrollTo(run)
+        val inRun = hasAnyAncestor(hasTestTag(run))
+        compose.onNode(inRun and hasText("Monday 12 October – Tuesday 13 October")).assertIsDisplayed()
+        compose.onNode(inRun and hasText("Nothing planned.")).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.day(java.time.LocalDate.parse("2026-10-13"))).assertDoesNotExist()
+        compose.assertAccessible()
+    }
+
+    @Test
+    fun `an empty week ahead starts at tomorrow`() {
+        draw(TodaySample.state(instances = emptyList()))
+        val run = TodayTags.day(java.time.LocalDate.parse("2026-10-08"))
+        scrollTo(run)
+        compose.onNode(hasAnyAncestor(hasTestTag(run)) and hasText("Tomorrow – Tuesday 13 October")).assertIsDisplayed()
+    }
+
+    @Test
+    fun `the clock face says what it shows`() {
+        draw()
+        compose.onNodeWithTag(TodayTags.DIAL)
+            .assert(hasContentDescription("Clock face at 10:20, with the next twelve hours’ events on its ring"))
     }
 
     @Test
@@ -135,6 +194,8 @@ class TodayScreenTest {
             actions = TodayActions(askPermission = { asked = true }),
         )
         compose.onNodeWithTag(TodayTags.TIME).assertIsDisplayed()
+        // The face is there too, its ring empty: the clock works without the calendar.
+        compose.onNodeWithTag(TodayTags.DIAL).assertIsDisplayed()
         compose.onNodeWithTag(TodayTags.SENTENCE).assertDoesNotExist()
         compose.onNodeWithTag(TodayTags.LIST).performScrollToNode(hasText("Allow"))
         compose.onNodeWithText("Allow").performClick()

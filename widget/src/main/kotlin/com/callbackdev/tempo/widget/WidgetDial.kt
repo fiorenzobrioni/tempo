@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.createBitmap
 import com.callbackdev.tempo.core.domain.widget.DialArc
 import com.callbackdev.tempo.core.domain.widget.DialArcs
+import com.callbackdev.tempo.core.domain.widget.DialGeometry
 import java.time.LocalTime
 import kotlin.math.PI
 import kotlin.math.cos
@@ -35,21 +36,9 @@ import kotlin.math.sin
  *
  * The hands' drawables (`widget_dial_hour`, `widget_dial_minute`) are drawn on a 100-unit square
  * at [HAND_DRAWABLE_DP], larger than any dial: an `AnalogClock` scales its drawables down to its
- * size, never up. Their lengths and widths are [DialGeometry]'s, so a frozen dial and a live one
- * are the same drawing.
+ * size, never up. Their lengths and widths are [DialGeometry]'s (`:core:domain`, shared with
+ * Today's face), so a frozen dial, a live one and the app's are the same drawing.
  */
-
-/** The dial's proportions, as shares of its side: shared by the painter and the hands' drawables. */
-internal object DialGeometry {
-    const val STROKE: Float = 0.085f
-    const val DOT_RADIUS: Float = 0.38f
-    const val DOT_SIZE: Float = 0.016f
-    const val HOUR_LENGTH: Float = 0.24f
-    const val HOUR_WIDTH: Float = 0.07f
-    const val MINUTE_LENGTH: Float = 0.33f
-    const val MINUTE_WIDTH: Float = 0.05f
-    const val CAP: Float = 0.045f
-}
 
 /** The dial's inks, from the card's [WidgetPalette]. */
 internal data class DialInks(val track: Color, val focus: Color, val other: Color, val dots: Color, val hands: Color) {

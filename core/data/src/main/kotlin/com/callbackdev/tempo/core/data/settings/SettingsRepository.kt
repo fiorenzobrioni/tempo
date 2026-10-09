@@ -64,6 +64,7 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
             showDeclined = prefs[Keys.SHOW_DECLINED] ?: defaults.showDeclined,
             showAllDay = prefs[Keys.SHOW_ALL_DAY] ?: defaults.showAllDay,
             showNextAlarm = prefs[Keys.SHOW_NEXT_ALARM] ?: defaults.showNextAlarm,
+            showCalendarButton = prefs[Keys.SHOW_CALENDAR_BUTTON] ?: defaults.showCalendarButton,
             onboardingCompleted = prefs[Keys.ONBOARDING_COMPLETED] ?: defaults.onboardingCompleted,
             askedCalendarPermission = prefs[Keys.ASKED_CALENDAR_PERMISSION] ?: defaults.askedCalendarPermission,
         ).sanitized()
@@ -87,6 +88,7 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
         prefs.write(Keys.SHOW_DECLINED, old.showDeclined, new.showDeclined, d.showDeclined)
         prefs.write(Keys.SHOW_ALL_DAY, old.showAllDay, new.showAllDay, d.showAllDay)
         prefs.write(Keys.SHOW_NEXT_ALARM, old.showNextAlarm, new.showNextAlarm, d.showNextAlarm)
+        prefs.write(Keys.SHOW_CALENDAR_BUTTON, old.showCalendarButton, new.showCalendarButton, d.showCalendarButton)
         prefs.write(Keys.ONBOARDING_COMPLETED, old.onboardingCompleted, new.onboardingCompleted, d.onboardingCompleted)
         prefs.write(
             Keys.ASKED_CALENDAR_PERMISSION,
@@ -114,6 +116,7 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
         val SHOW_DECLINED = booleanPreferencesKey("show_declined")
         val SHOW_ALL_DAY = booleanPreferencesKey("show_all_day")
         val SHOW_NEXT_ALARM = booleanPreferencesKey("show_next_alarm")
+        val SHOW_CALENDAR_BUTTON = booleanPreferencesKey("show_calendar_button")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val ASKED_CALENDAR_PERMISSION = booleanPreferencesKey("asked_calendar_permission")
     }

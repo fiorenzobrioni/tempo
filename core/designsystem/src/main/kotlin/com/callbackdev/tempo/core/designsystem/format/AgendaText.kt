@@ -11,9 +11,11 @@ import com.callbackdev.tempo.core.domain.today.DaySummary
 import com.callbackdev.tempo.core.domain.today.TodaySentence
 import com.callbackdev.tempo.core.domain.today.Tomorrow
 import com.callbackdev.tempo.core.model.ClockFormat
+import com.callbackdev.tempo.core.model.DateStyle
 import com.callbackdev.tempo.core.model.EventInstance
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
@@ -144,6 +146,19 @@ class AgendaText(
             else -> resources.getString(R.string.summary_nothing)
         }
     }
+
+    /** A date in [style], capitalised as it starts a line. */
+    fun date(date: LocalDate, style: DateStyle): String = DateTimeText.date(date, locale, style)
+
+    /** Two days as a span: "Monday 12 October – Tuesday 13 October", "Tomorrow – Friday 9 October". */
+    fun range(first: String, second: String): String = resources.getString(R.string.date_range, first, second)
+
+    /** [range] of two dates, or one date alone when the two are the same. */
+    fun dateRange(from: LocalDate, to: LocalDate, style: DateStyle): String =
+        if (from == to) date(from, style) else range(date(from, style), date(to, style))
+
+    /** "Nothing planned.", a day's summary with nothing in it. */
+    fun nothingPlanned(): String = resources.getString(R.string.summary_nothing)
 
     /** "Alarm tomorrow at 7:00". */
     fun alarm(at: Instant, day: AlarmDay): String = when (day) {

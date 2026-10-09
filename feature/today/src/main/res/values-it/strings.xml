@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="today_settings">Impostazioni</string>
+    <string name="today_open_calendar">Apri il tuo calendario</string>
     <string name="today_open_day">Apri il giorno nel tuo calendario</string>
+    <string name="today_dial">Quadrante alle %1$s, con gli impegni delle prossime dodici ore sul suo anello</string>
     <string name="today_new_event">Nuovo evento</string>
     <string name="today_now">Adesso</string>
     <string name="today_tomorrow">Domani</string>

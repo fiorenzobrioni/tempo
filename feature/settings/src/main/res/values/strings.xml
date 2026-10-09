@@ -24,6 +24,8 @@
     <string name="settings_declined_note">Invitations you said no to. They never take your free time.</string>
     <string name="settings_next_alarm">Next alarm</string>
     <string name="settings_next_alarm_note">Beside the clock on Today, when an alarm is set on the phone.</string>
+    <string name="settings_calendar_button">Calendar button</string>
+    <string name="settings_calendar_button_note">At the top of Today, beside the settings: opens your calendar app at today. A touch on the date does the same.</string>
 
     <string name="settings_group_calendars">Calendars</string>
     <plurals name="settings_calendars_summary">
