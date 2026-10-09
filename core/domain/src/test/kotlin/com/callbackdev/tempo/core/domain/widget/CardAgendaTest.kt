@@ -144,4 +144,26 @@ class CardAgendaTest {
         val fit = fitLines(card(2, listOf(3)), oneEach, room = 35f, footerHeight = 10f)
         assertThat(fit).isEqualTo(CardFit(2, null))
     }
+
+    @Test
+    fun `lines past the most a card draws are counted, never dropped`() {
+        // Room for all six of today and the two ahead, but a card draws four lines at most.
+        assertThat(fitLines(card(6, listOf(2)), oneEach, room = 1000f, footerHeight = 10f, maxLines = 4))
+            .isEqualTo(CardFit(4, CardFooter.MoreToday(2)))
+        // Today whole within the cap: the days ahead are begun and their remainder counted.
+        assertThat(fitLines(card(2, listOf(3)), oneEach, room = 1000f, footerHeight = 10f, maxLines = 4))
+            .isEqualTo(CardFit(4, CardFooter.MoreLater(2)))
+    }
+
+    @Test
+    fun `on a row, today's timed events come before its all-day line`() {
+        val card = CardAgenda.of(agenda(holiday, review, dentist, now = at("2026-10-07T10:20")), true, false)
+        assertThat(titles(card.timedFirst().today)).containsExactly("Review", "Dentist", "Holiday").inOrder()
+    }
+
+    @Test
+    fun `a day of all-day events alone keeps them first`() {
+        val card = CardAgenda.of(agenda(holiday, call, now = at("2026-10-07T10:20")), true, true)
+        assertThat(card.timedFirst()).isEqualTo(card)
+    }
 }

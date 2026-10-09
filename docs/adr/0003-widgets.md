@@ -46,9 +46,11 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
    each minute, so "in 40 minutes" would be wrong a minute later: «In words» says "Until 11:00",
    "15:00", "Free until then; one more after it.", and Today keeps its minutes.
 
-5. **Pushed, never polled** (PLANNING.md §9): a one-shot WorkManager job with a content-URI
-   trigger on the Calendar Provider (quiet for 3 s, at most 20 s after a change), re-armed by
-   itself, appended so it never cancels the run that arms it; one `AlarmManager.set(RTC)` at the
+5. **Pushed, never polled** (PLANNING.md §9): the Calendar Provider's own `PROVIDER_CHANGED`
+   broadcast, received in the manifest (9 Oct 2026); a one-shot WorkManager job with a content-URI
+   trigger on the provider (quiet for 3 s, at most 20 s after a change) as the safety net, one
+   waiting at a time, armed again as each run starts; whatever asked stays until the cards are
+   drawn, so the process is not frozen with a card half drawn; one `AlarmManager.set(RTC)` at the
    next boundary (`NextBoundary`), inexact and non-wakeup, replaced by each render; the exempt
    broadcasts (time set, zone, language, package replaced) from the manifest; Tempo's settings
    changing, and the reader leaving the app. The last card removed disarms the job and the alarm.

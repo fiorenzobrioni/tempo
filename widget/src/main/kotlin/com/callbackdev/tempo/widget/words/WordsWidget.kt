@@ -70,11 +70,11 @@ import com.callbackdev.tempo.widget.WidgetContent
 import com.callbackdev.tempo.widget.WidgetIntents
 import com.callbackdev.tempo.widget.WidgetModel
 import com.callbackdev.tempo.widget.WidgetPalette
-import com.callbackdev.tempo.widget.WidgetRefresh
 import com.callbackdev.tempo.widget.WidgetSamples
 import com.callbackdev.tempo.widget.cardMessage
 import com.callbackdev.tempo.widget.clockViews
 import com.callbackdev.tempo.widget.dialViews
+import com.callbackdev.tempo.widget.firstModel
 import com.callbackdev.tempo.widget.fontScale
 import com.callbackdev.tempo.widget.headerTap
 import com.callbackdev.tempo.widget.measureWidgetLines
@@ -98,10 +98,9 @@ class WordsWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val appWidgetId = runCatching { GlanceAppWidgetManager(context).getAppWidgetId(id) }.getOrDefault(0)
         val models = CardModels(context, appWidgetId)
-        val loadedAt = WidgetRefresh.revision.value
-        val initial = models.load()
+        val first = firstModel(appWidgetId, models)
         provideContent {
-            WordsWidgetContent(rememberWidgetModel(initial, loadedAt) { models.load() }, appWidgetId)
+            WordsWidgetContent(rememberWidgetModel(appWidgetId, first) { models.load() }, appWidgetId)
         }
     }
 
@@ -180,16 +179,15 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
         DateTimeFormatter.ofPattern(it.current(context), locale).format(model.now)
     }
 
-    /** A date over two lines: the wider of its two halves, at the break that makes them most even. */
-    private fun twoLineEm(date: String): Float {
-        val words = date.split(' ')
-        if (words.size < 2) return textEm(context, date, TextWeight.REGULAR)
-        return (1 until words.size).minOf { cut ->
-            maxOf(
-                textEm(context, words.take(cut).joinToString(" "), TextWeight.REGULAR),
-                textEm(context, words.drop(cut).joinToString(" "), TextWeight.REGULAR),
-            )
-        }
+    /**
+     * A date over two lines: the wider of its two lines, broken after its first word as it is
+     * drawn ([ClockPatterns.brokenAfterFirstWord]); a date of one word, on its one line.
+     */
+    private fun twoLineEm(patterns: ClockPatterns, date: String): Float {
+        val broken = patterns.brokenAfterFirstWord() ?: return textEm(context, date, TextWeight.REGULAR)
+        return DateTimeFormatter.ofPattern(broken.current(context), locale).format(model.now)
+            .split('\n')
+            .maxOf { textEm(context, it, TextWeight.REGULAR) }
     }
 
     private fun planFor(note: String?, then: Boolean) = WordsFit.plan(
@@ -199,7 +197,7 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             fontScale = scale,
             dial = look.showClock,
             dateEms = dateTexts.map { textEm(context, it, TextWeight.REGULAR) },
-            dateTwoLineEms = dateTexts.map { twoLineEm(it) },
+            dateTwoLineEms = datePatterns.zip(dateTexts) { patterns, date -> twoLineEm(patterns, date) },
             titleEm = textEm(context, title, TextWeight.MEDIUM),
             titleLines = measureWidgetLines(context, title, WordsFit.TALL_TITLE_SP, innerWidth, TextWeight.MEDIUM),
             whenEms = whens.map { textEm(context, it, TextWeight.REGULAR) },
@@ -288,7 +286,7 @@ private fun DateLine(parts: WordsParts, palette: WidgetPalette, end: Boolean) {
     val views = clockViews(
         parts.context,
         ClockFace.REGULAR,
-        parts.datePatterns[plan.dateChoice],
+        parts.datePatterns[plan.dateChoice].let { if (plan.dateLines > 1) it.brokenAfterFirstWord() ?: it else it },
         plan.dateSp,
         palette.secondary,
         plan.dateLines,

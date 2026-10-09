@@ -1,6 +1,7 @@
 package com.callbackdev.tempo.widget
 
 import android.content.Context
+import android.os.SystemClock
 import android.util.Log
 import com.callbackdev.tempo.core.calendar.CalendarIntents
 import com.callbackdev.tempo.core.calendar.CalendarRead
@@ -128,8 +129,12 @@ constructor(
      * exception, because Glance shows its loading spinner until `provideContent` is reached and a
      * card stuck on it says nothing to anybody (Passo's device report, 25 Sep 2026).
      */
-    suspend fun loadForCard(appWidgetId: Int): WidgetModel =
-        guardedLoad(LOAD_TIMEOUT_MILLIS, "widget $appWidgetId") { load(appWidgetId) }
+    suspend fun loadForCard(appWidgetId: Int): WidgetModel {
+        val started = SystemClock.elapsedRealtime()
+        val model = guardedLoad(LOAD_TIMEOUT_MILLIS, "widget $appWidgetId") { load(appWidgetId) }
+        logWidget("Widget $appWidgetId read in ${SystemClock.elapsedRealtime() - started} ms")
+        return model
+    }
 
     private fun doors(now: Instant) = WidgetDoors(
         canOpenEvent = CalendarIntents.canOpen(context, CalendarIntents.view(ProbeEvent)),
@@ -178,4 +183,13 @@ internal suspend fun guardedLoad(timeoutMillis: Long, what: String, load: suspen
 /** The log line of a failed read; quiet on a JVM without Android's log, where the tests run. */
 internal fun logWidgetFailure(message: String, error: Throwable) {
     runCatching { Log.w(WidgetModelLoader.TAG, message, error) }
+}
+
+/**
+ * The refresh's timeline, one line a step (what asked, how long the read and the drawing took):
+ * `adb logcat -s TempoWidget` tells on a phone where a late card waited. A few lines per calendar
+ * change, nothing while nothing changes.
+ */
+internal fun logWidget(message: String) {
+    runCatching { Log.i(WidgetModelLoader.TAG, message) }
 }

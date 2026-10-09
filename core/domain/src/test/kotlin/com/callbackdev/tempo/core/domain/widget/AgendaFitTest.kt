@@ -141,4 +141,20 @@ class AgendaFitTest {
         val rows = side.listRoom / AgendaFit.rowHeight(side.rowStyle, 1f)
         assertThat(rows.toInt()).isAtLeast(5)
     }
+
+    @Test
+    fun `a long title is stacked under its time where stacking costs no line`() {
+        val inline = plan(340f, 189f)
+        assertThat(inline.rowStyle).isEqualTo(RowStyle.INLINE_START)
+        val two = AgendaFit.plan(spec(340f, 189f).copy(titleEm = 9f, lines = 2))
+        assertThat(two.rowStyle).isEqualTo(RowStyle.STACKED)
+    }
+
+    @Test
+    fun `rows stay inline where stacking would cost a line, or no title is cut`() {
+        val full = AgendaFit.plan(spec(340f, 189f).copy(titleEm = 9f, lines = 6))
+        assertThat(full.rowStyle).isEqualTo(RowStyle.INLINE_START)
+        val short = AgendaFit.plan(spec(340f, 189f).copy(titleEm = 3f, lines = 2))
+        assertThat(short.rowStyle).isEqualTo(RowStyle.INLINE_START)
+    }
 }

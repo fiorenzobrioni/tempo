@@ -27,6 +27,7 @@
 
     <!-- «In words» -->
     <string name="widget_free">Free</string>
+    <string name="widget_until_short">→ %1$s</string>
     <string name="widget_label_until">Until</string>
     <string name="widget_label_next">Next</string>
     <plurals name="widget_note_then_more">
@@ -124,7 +125,7 @@
     <!-- The picker's static preview: sample values, never a reading -->
     <string name="widget_preview_time">10:20</string>
     <string name="widget_preview_date">Wednesday 7 October</string>
-    <string name="widget_preview_row1_time">until 11:00</string>
+    <string name="widget_preview_row1_time">Until 11:00</string>
     <string name="widget_preview_row1_title">Design review</string>
     <string name="widget_preview_row2_time">13:00 – 14:00</string>
     <string name="widget_preview_row2_title">Lunch with Giulia</string>

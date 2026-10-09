@@ -15,6 +15,7 @@ import androidx.annotation.StyleRes
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -46,7 +47,10 @@ import com.callbackdev.tempo.core.designsystem.theme.widgetDress
 import com.callbackdev.tempo.core.domain.calendar.markColor
 import com.callbackdev.tempo.core.domain.widget.FIT_SLACK
 import com.callbackdev.tempo.core.domain.widget.lineHeight
+import com.callbackdev.tempo.core.domain.widget.widthOf
 import com.callbackdev.tempo.core.model.UserSettings
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /*
@@ -199,18 +203,42 @@ internal fun WidgetCard(
     }
 }
 
+/** A model and the [WidgetRefresh] revision it was read at ([STALE]: read again at once). */
+internal data class LoadedModel(val model: WidgetModel, val revision: Long) {
+    companion object {
+        const val STALE = -1L
+    }
+}
+
+/**
+ * What a new session draws first. The card's last model where this process still holds it, so
+ * the session reaches `provideContent` at once (a resize is drawn without waiting on the
+ * calendar) and reads after it; else a read now, before anything is drawn.
+ */
+internal suspend fun firstModel(appWidgetId: Int, models: CardModels): LoadedModel {
+    WidgetRefresh.lastModel(appWidgetId)?.let { return LoadedModel(it, LoadedModel.STALE) }
+    // Read before the load, so only a change after it reloads.
+    val revision = WidgetRefresh.revision.value
+    return LoadedModel(models.load(), revision)
+}
+
 /**
  * The model this widget draws, re-read inside the composition whenever [WidgetRefresh] ticks.
- * [initial] is what `provideGlance` loaded at revision [loadedAt], so the first frame costs
- * nothing more and only a real change reloads.
+ * [first] is what `provideGlance` started from, so the first frame costs nothing more and only a
+ * real change reloads. Each model drawn is reported, with its revision ([WidgetRefresh.drawn]).
  */
 @Composable
-internal fun rememberWidgetModel(initial: WidgetModel, loadedAt: Long, reload: suspend () -> WidgetModel): WidgetModel {
+internal fun rememberWidgetModel(
+    appWidgetId: Int,
+    first: LoadedModel,
+    reload: suspend () -> WidgetModel,
+): WidgetModel {
     val revision by WidgetRefresh.revision.collectAsState()
-    val model by produceState(initial, revision) {
-        if (revision != loadedAt) value = reload()
+    val loaded by produceState(first, revision) {
+        if (revision != value.revision) value = LoadedModel(reload(), revision)
     }
-    return model
+    SideEffect { WidgetRefresh.drawn(appWidgetId, loaded.revision, loaded.model) }
+    return loaded.model
 }
 
 /**
@@ -321,6 +349,16 @@ internal fun balancedWidth(
         if (measureWidgetLines(context, text, sizeSp, mid, weight) == lines) high = mid else low = mid
     }
     return minOf(width, high + FIT_SLACK.dp)
+}
+
+/**
+ * How wide a clock line set with [pattern] is at [at], over the lines the pattern breaks it into
+ * (a date broken after its first word, `ClockPatterns.brokenAfterFirstWord`): its widest line.
+ */
+internal fun linesWidth(context: Context, pattern: String, at: ZonedDateTime, sizeSp: Float, weight: TextWeight): Dp {
+    val text = DateTimeFormatter.ofPattern(pattern, context.widgetLocale()).format(at)
+    val em = text.split('\n').maxOf { textEm(context, it, weight) }
+    return widthOf(em, sizeSp, fontScale(context)).dp
 }
 
 /**

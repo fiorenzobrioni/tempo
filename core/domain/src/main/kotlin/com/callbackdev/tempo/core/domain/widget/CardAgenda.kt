@@ -55,6 +55,16 @@ enum class TodayNote {
 data class CardAgenda(val today: List<CardLine>, val later: List<CardLine>) {
     val lines: List<CardLine> get() = today + later
 
+    /**
+     * Today's timed events before its all-day line, for a card of a row or two: there, what
+     * happens next at a time is worth a place more than the day's context, which is counted in
+     * "N more today" when it does not fit (owner, 9 Oct 2026). Unchanged when nothing is timed.
+     */
+    fun timedFirst(): CardAgenda {
+        val (allDay, rest) = today.partition { it is CardLine.AllDay }
+        return if (allDay.isEmpty() || rest.none { it is CardLine.Timed }) this else copy(today = rest + allDay)
+    }
+
     companion object {
         fun of(agenda: Agenda, showAllDay: Boolean, showDaysAhead: Boolean): CardAgenda {
             val first = agenda.days.first()
@@ -94,33 +104,50 @@ data class CardFit(val shown: Int, val footer: CardFooter?)
 
 /**
  * Takes the card's lines in order while they fit [room] (each line's height in [heights], its gaps
- * included), keeping [footerHeight] for the count whenever something is left out. Nothing is ever
- * cut in half: a line fits whole or is counted (VISION.md, "Fits, never scrolls").
+ * included) and number no more than [maxLines], keeping [footerHeight] for the count whenever
+ * something is left out. Nothing is ever cut in half: a line fits whole or is counted (VISION.md,
+ * "Fits, never scrolls"), and so is a line past [maxLines] (the most a card can draw).
  *
  * - A heading is never the last line drawn: a date with none of its events under it says nothing.
  * - The days ahead start only once today is whole; once they have started, what does not fit of
  *   them is counted as "more in the days ahead". When not one of their events fits, they are not
  *   begun, and the card is the rest of today, whole, with nothing to count.
  */
-fun fitLines(agenda: CardAgenda, heights: (CardLine) -> Float, room: Float, footerHeight: Float): CardFit {
+fun fitLines(
+    agenda: CardAgenda,
+    heights: (CardLine) -> Float,
+    room: Float,
+    footerHeight: Float,
+    maxLines: Int = Int.MAX_VALUE,
+): CardFit {
     val lines = agenda.lines
-    if (total(lines, heights) <= room) return CardFit(lines.size, null)
+    if (lines.size <= maxLines && total(lines, heights) <= room) return CardFit(lines.size, null)
     val today = agenda.today
-    if (total(today, heights) > room) {
+    if (today.size > maxLines || total(today, heights) > room) {
         // Today is cut: the days ahead are not begun, and today's own remainder is counted.
-        val shown = greedy(today, 0, 0f, heights, room - footerHeight)
+        val shown = greedy(today, 0, 0f, heights, room - footerHeight, maxLines)
         return CardFit(shown, CardFooter.MoreToday(today.drop(shown).sumOf { it.events }))
     }
-    val shown = greedy(lines, today.size, total(today, heights), heights, room - footerHeight)
+    val shown = greedy(lines, today.size, total(today, heights), heights, room - footerHeight, maxLines)
     if (lines.subList(today.size, shown).none { it.isEvent }) return CardFit(today.size, null)
     return CardFit(shown, CardFooter.MoreLater(lines.drop(shown).sumOf { it.events }))
 }
 
-/** How many of [lines] fit [room], from [from] with [used] already spent, never ending on a heading. */
-private fun greedy(lines: List<CardLine>, from: Int, used: Float, heights: (CardLine) -> Float, room: Float): Int {
+/**
+ * How many of [lines] fit [room], and [maxLines], from [from] with [used] already spent, never
+ * ending on a heading.
+ */
+private fun greedy(
+    lines: List<CardLine>,
+    from: Int,
+    used: Float,
+    heights: (CardLine) -> Float,
+    room: Float,
+    maxLines: Int,
+): Int {
     var spent = used
     var shown = from
-    while (shown < lines.size && spent + heights(lines[shown]) <= room) {
+    while (shown < lines.size && shown < maxLines && spent + heights(lines[shown]) <= room) {
         spent += heights(lines[shown])
         shown++
     }

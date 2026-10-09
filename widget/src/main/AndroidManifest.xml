@@ -8,6 +8,7 @@
   ACCESS_NETWORK_STATE (which lets nothing leave the phone: there is no INTERNET permission).
   All are left as WorkManager declares them, as in Chiaro and Passo (reviewed in Phase 4,
   PLANNING.md §10). The boundary alarm is AlarmManager.set(RTC): inexact, non-wakeup, no permission.
+  The calendar's PROVIDER_CHANGED receiver adds no permission either.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -54,6 +55,21 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_words_info" />
+        </receiver>
+
+        <!-- The calendar provider's word that the calendar changed (WidgetRefreshArming.kt). Sent
+             by the provider's own process, so exported; the provider adds
+             FLAG_RECEIVER_INCLUDE_BACKGROUND, which is what lets a manifest receiver have it
+             since Android 8. A broadcast from anyone else can only ask for a repaint. -->
+        <receiver
+            android:name=".refresh.CalendarChangedReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PROVIDER_CHANGED" />
+                <data
+                    android:host="com.android.calendar"
+                    android:scheme="content" />
+            </intent-filter>
         </receiver>
 
         <!-- The next boundary's inexact alarm: Tempo's own pending intent, nobody else's. -->

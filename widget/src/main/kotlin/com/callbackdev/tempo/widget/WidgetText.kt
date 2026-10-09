@@ -35,7 +35,10 @@ internal class CardText(private val context: Context, model: WidgetModel) {
 
     fun title(event: EventInstance): String = agenda.title(event)
 
-    /** A row's time as a range: "10:00 – 11:00", "until 01:30", "from 23:00", "All day", "Day 2 of 5". */
+    /**
+     * A row's time as a range: "10:00 – 11:00", "Until 01:30", "From 23:00", "All day", "Day 2 of 5".
+     * Capitalised as the column's other words are: it begins its cell.
+     */
     fun range(line: CardLine): String = when (line) {
         is CardLine.AllDay -> line.entries.singleOrNull()?.takeIf { it.dayCount > 1 }
             ?.let { context.getString(R.string.widget_day_of, it.dayNumber, it.dayCount) }
@@ -46,7 +49,7 @@ internal class CardText(private val context: Context, model: WidgetModel) {
         is CardLine.Heading, is CardLine.Note -> ""
     }
 
-    /** The same, where only the start fits: "10:00", "until 11:00" for the one under way. */
+    /** The same, where only the start fits: "10:00", "Until 11:00" for the one under way. */
     fun start(line: CardLine): String = when (line) {
         is CardLine.Timed -> timed(line.entry, startOnly = true)
         else -> range(line)
@@ -60,7 +63,7 @@ internal class CardText(private val context: Context, model: WidgetModel) {
             !entry.endsOnDate -> agenda.from(event.begin)
             startOnly -> agenda.time(event.begin)
             else -> agenda.range(event)
-        }
+        }.replaceFirstChar { it.titlecase(locale) }
     }
 
     /** A day ahead's heading: "Tomorrow", else the weekday and the day ("Thursday 9"). */
@@ -155,14 +158,15 @@ internal class CardText(private val context: Context, model: WidgetModel) {
     }
 
     /**
-     * The focus's time in words, the fullest first, as a card tries them: "Until 11:00", "11:00";
-     * "15:00 – 16:00", "15:00"; "Tomorrow · 9:00 – 10:00", "Tomorrow · 9:00", "Tomorrow". None
-     * for "Free". Clock times, never minutes from now (the card is redrawn at boundaries).
+     * The focus's time in words, the fullest first, as a card tries them: "Until 11:00",
+     * "→ 11:00"; "15:00 – 16:00", "15:00"; "Tomorrow · 9:00 – 10:00", "Tomorrow · 9:00",
+     * "Tomorrow". None for "Free". Clock times, never minutes from now (the card is redrawn at
+     * boundaries). An end is never a bare time: under a title, "11:00" reads as when it starts.
      */
     fun whenOptions(focus: WordsFocus): List<String> = when (focus) {
         is WordsFocus.UnderWay -> listOf(
             agenda.until(focus.event.end).replaceFirstChar { it.titlecase(locale) },
-            agenda.time(focus.event.end),
+            context.getString(R.string.widget_until_short, agenda.time(focus.event.end)),
         )
 
         is WordsFocus.Next -> {

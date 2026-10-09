@@ -213,7 +213,7 @@ object WordsFit {
         }
         val words = width - (if (dial > 0f) dial + DIAL_GAP else 0f)
         val narrow = words < ROW_WORDS_COMFORT
-        val time = whenFor(spec, words, if (narrow) listOf(NARROW_WHEN_SP) else WHEN_SIZES)
+        val time = whenFor(spec, words, if (narrow) NARROW_WHEN_SIZES else WHEN_SIZES)
         val most = if (narrow) NARROW_TITLE_SP else TITLE_SP
         val timeHeight = time?.let { lineHeight(it.sp, scale) } ?: 0f
         val withTime = minOf(most, sizeForLine(inner - timeHeight, scale))
@@ -341,6 +341,12 @@ object WordsFit {
     const val WHEN_SP = 16f
     const val NARROW_WHEN_SP = 14f
     private val WHEN_SIZES = listOf(WHEN_SP, 14f)
+
+    /**
+     * A narrow row's time steps down to 12 sp before it is shortened: "Until 11:00" whole says
+     * more than "→ 11:00", which says more than nothing (owner, 9 Oct 2026).
+     */
+    private val NARROW_WHEN_SIZES = listOf(NARROW_WHEN_SP, 13f, 12f)
     const val DATE_SP = 16f
     private val DATE_SIZES = listOf(DATE_SP, 14f, 13f)
     const val NOTE_SP = 14f

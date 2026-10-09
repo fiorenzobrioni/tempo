@@ -32,6 +32,18 @@ internal data class ClockPatterns(val twelve: String, val twentyFour: String) {
     /** The pattern this phone draws now: the samples draw it as text. */
     fun current(context: Context): String = if (DateFormat.is24HourFormat(context)) twentyFour else twelve
 
+    /**
+     * The same line broken after its first word, for a date over two lines ("Wednesday" over
+     * "7 October", "Wed," over "7 Oct"), so a day's number stays with its month; null where the
+     * pattern has no space to break at. The break is the pattern's first space outside a quoted
+     * literal, which `TextClock` and `DateTimeFormatter` both print as it is.
+     */
+    fun brokenAfterFirstWord(): ClockPatterns? {
+        val twelve = twelve.breakAtFirstSpace() ?: return null
+        val twentyFour = twentyFour.breakAtFirstSpace() ?: return null
+        return ClockPatterns(twelve, twentyFour)
+    }
+
     /** The time, then [date]: the «In words» card's small line, one `TextClock` for both. */
     fun withDate(date: String): ClockPatterns = ClockPatterns("$twelve$SEPARATOR$date", "$twentyFour$SEPARATOR$date")
 
@@ -52,6 +64,17 @@ internal data class ClockPatterns(val twelve: String, val twentyFour: String) {
 
         private const val SEPARATOR = " · "
     }
+}
+
+private fun String.breakAtFirstSpace(): String? {
+    var quoted = false
+    forEachIndexed { i, c ->
+        when {
+            c == '\'' -> quoted = !quoted
+            c == ' ' && !quoted -> return substring(0, i) + "\n" + substring(i + 1)
+        }
+    }
+    return null
 }
 
 /** Whether a card's times are on the 24-hour clock: its own format, Tempo's, or the phone's. */

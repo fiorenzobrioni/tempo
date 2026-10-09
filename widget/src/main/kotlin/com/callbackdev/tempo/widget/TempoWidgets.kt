@@ -3,6 +3,8 @@ package com.callbackdev.tempo.widget
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
@@ -67,21 +69,48 @@ object TempoWidgets {
         }
 
     /** Every placed card, with a fresh model. */
-    suspend fun updateAll(context: Context) = update(context) { true }
+    suspend fun updateAll(context: Context) {
+        update(context) { true }
+    }
 
     /** One card, with a fresh model: its settings screen's «apply now». */
-    suspend fun updateOne(context: Context, appWidgetId: Int) = update(context) { it == appWidgetId }
+    suspend fun updateOne(context: Context, appWidgetId: Int) {
+        update(context) { it == appWidgetId }
+    }
 
-    private suspend fun update(context: Context, which: (Int) -> Boolean) {
-        WidgetRefresh.invalidate()
+    /**
+     * Every placed card, with a fresh model, and the caller kept until they are drawn (never
+     * longer than [timeoutMillis]): the calendar's job and the receivers hold the process awake
+     * for exactly the repaint they asked for ([WidgetRefresh]). [why] names it in the log.
+     */
+    suspend fun repaintAll(context: Context, why: String, timeoutMillis: Long) {
+        val started = SystemClock.elapsedRealtime()
+        val (revision, ids) = update(context) { true }
+        val drawn = WidgetRefresh.awaitDrawn(ids, revision, timeoutMillis)
+        val took = SystemClock.elapsedRealtime() - started
+        logWidget(
+            if (drawn) {
+                "$why: ${ids.size} card(s) drawn in $took ms"
+            } else {
+                "$why: not every card drawn within $timeoutMillis ms"
+            },
+        )
+    }
+
+    /** The revision the cards will reload at, and the cards asked to. */
+    private suspend fun update(context: Context, which: (Int) -> Boolean): Pair<Long, List<Int>> {
+        val revision = WidgetRefresh.invalidate()
         val manager = AppWidgetManager.getInstance(context)
         val glance = GlanceAppWidgetManager(context)
+        val updated = mutableListOf<Int>()
         household.forEach { (receiver, widget) ->
             manager.getAppWidgetIds(ComponentName(context, receiver)).filter(which).forEach { id ->
                 runCatching { widget().update(context, glance.getGlanceIdBy(id)) }
+                    .onSuccess { updated += id }
                     .onFailure { logWidgetFailure("Updating widget $id failed", it) }
             }
         }
+        return revision to updated
     }
 }
 
@@ -128,6 +157,7 @@ abstract class TempoWidgetReceiver : GlanceAppWidgetReceiver() {
         // pending result out once: here it is null, and finishing it crashed the process (a Galaxy
         // S24 Ultra, 8 Oct 2026). The look is forgotten in the time Glance's own work keeps the
         // broadcast open; if the process went first, a few bytes stay under an id never reused.
+        WidgetRefresh.forget(appWidgetIds)
         val pending: PendingResult? = goAsync()
         Cleanup.launch {
             try {
@@ -136,6 +166,16 @@ abstract class TempoWidgetReceiver : GlanceAppWidgetReceiver() {
                 pending?.finish()
             }
         }
+    }
+
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle,
+    ) {
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
+        logWidget("Widget $appWidgetId resized")
     }
 
     override fun onDisabled(context: Context) {

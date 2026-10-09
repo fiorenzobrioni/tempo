@@ -39,7 +39,10 @@ enum class RowStyle { INLINE_RANGE, INLINE_START, STACKED }
  *   reader's own first and shorter ones after it: a date that does not fit is shortened before it
  *   is shrunk, and never cut.
  * @property rangeEm the widest time range among the rows, in ems of the regular face.
- * @property startEm the widest start-only time among the rows ("until 11:00" included).
+ * @property startEm the widest start-only time among the rows ("Until 11:00" included).
+ * @property titleEm the widest title among the rows, in ems of the medium face; 0 when unknown.
+ * @property lines how many lines the list has to show (headings and notes included); 0 when
+ *   unknown, as for a message, which keeps the inline rows.
  */
 data class AgendaSpec(
     val width: Float,
@@ -51,6 +54,8 @@ data class AgendaSpec(
     val dateEms: List<Float>,
     val rangeEm: Float,
     val startEm: Float,
+    val titleEm: Float = 0f,
+    val lines: Int = 0,
 )
 
 /**
@@ -116,7 +121,34 @@ object AgendaFit {
         room: Float,
         spec: AgendaSpec,
         snug: Boolean,
-    ) = AgendaPlan(form, header, width, room, rowStyle(width, spec.rangeEm, spec.startEm, spec.fontScale), snug)
+    ): AgendaPlan {
+        val inline = rowStyle(width, spec.rangeEm, spec.startEm, spec.fontScale)
+        val style = if (inline == RowStyle.INLINE_START &&
+            stackingHelps(width, room, spec)
+        ) {
+            RowStyle.STACKED
+        } else {
+            inline
+        }
+        return AgendaPlan(form, header, width, room, style, snug)
+    }
+
+    /**
+     * Whether a list set inline would cut a title while stacked it would show as many lines: then
+     * the time goes over the title, which has the whole column, rather than an ellipsis beside a
+     * time over an empty bottom of the card (owner, 9 Oct 2026). Stacking never costs a line.
+     */
+    private fun stackingHelps(width: Float, room: Float, spec: AgendaSpec): Boolean {
+        if (spec.lines <= 0 || spec.titleEm <= 0f) return false
+        val inlineTitle = width - MARK_WIDTH - MARK_GAP - widthOf(spec.startEm, TIME_SP, spec.fontScale) - TIME_GAP
+        if (widthOf(spec.titleEm, TITLE_SP, spec.fontScale) <= inlineTitle) return false
+        fun shown(style: RowStyle): Int {
+            val row = rowHeight(style, spec.fontScale)
+            if (row * spec.lines <= room) return spec.lines
+            return ((room - footerHeight(spec.fontScale)) / row).toInt().coerceAtLeast(0)
+        }
+        return shown(RowStyle.STACKED) >= shown(RowStyle.INLINE_START)
+    }
 
     /** The clock on top of a tall card: about a quarter of the card's height, never wider than it. */
     private fun topHeader(spec: AgendaSpec): HeaderPlan {
