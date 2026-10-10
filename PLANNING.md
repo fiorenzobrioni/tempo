@@ -492,7 +492,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - [x] The README's download link and the release key's fingerprint
   - The fingerprint and the steps since 10 Oct 2026; the download link and the release badge, as Passo's, with the 1.0.0 section.
 - [x] The sister apps' READMEs name Tempo in "The family" (Chiaro, Passo, Saldo)
-  - All three on 10 Oct 2026: Passo's in fiorenzobrioni/passo#37 (its README, CLAUDE.md and VISION.md), Chiaro's in fiorenzobrioni/chiaro#60 (its README) and Saldo's in fiorenzobrioni/saldo#93 (its README, its user guide's widget page and its devlog).
+  - All three on 10 Oct 2026: Passo's in fiorenzobrioni/passo#37 (its README, CLAUDE.md and VISION.md), Chiaro's in fiorenzobrioni/chiaro#60 and Saldo's in fiorenzobrioni/saldo#93 (their READMEs; the same PRs take the sister apps out of their code and guides, as Passo's #38 and this repository do).
 
 ### Phase 7 — Google Play (optional, later)
 
