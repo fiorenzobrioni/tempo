@@ -36,14 +36,15 @@ shortest way to the same look, and keeps one drawing of each thing in the family
    on the warm white `#F7F4EE`), cut by an amber emblem as the sisters' are: Chiaro's sun at the
    upper right, Passo's shoe print at the upper left, Saldo's coin at the lower right, and
    Tempo's **clock face at the lower left**, so the four marks turn the emblem once round the
-   ring. The ring is slate, shading clockwise from just past the clock: a pale morning grey-blue
-   to a watch case's deep slate, a colour none of the sisters' rings has, calm enough that the
-   amber face is the mark's one warm note. Two rings came before it, both turned down by the
-   owner: violet, too close to the indigo end of Chiaro's ring, and a day of peach, rose and
-   berry. The face has its hands cut out,
+   ring. The ring is blue, shading clockwise from just past the clock: a bright morning azure to
+   a deep cobalt, the complement of the amber face, which stays the mark's one warm note, and
+   bright where Chiaro's night blue is deep. Three rings came before it, all turned down by the
+   owner: violet, too close to the indigo end of Chiaro's ring; a day of peach, rose and berry;
+   and slate, the family's one dull ring, whose deep end sank into a dark page (10 Oct 2026).
+   The face has its hands cut out,
    the minute hand at twelve and the hour hand towards four (ten past ten, tried first, read as a
    tick at launcher size). The monochrome layer restates the same shapes for themed icons, and
-   `ic_app_mark.xml` (`:core:designsystem`) is the whole icon cropped round, for the welcome page.
+   `ic_app_mark.xml` (`:core:designsystem`) is the ring and the clock face on no ground, for the welcome page (the whole icon cropped round until 10 Oct 2026, owner).
 7. **Tests carried over**: `TypographyTest` (every Material role follows the typeface setting)
    and `ContrastTest` (every text ink at 4.5:1 on every ground, in both dresses and themes), and
    the shared UI checks of `:core:testing` (`assertAccessible`, `walkPage`).

@@ -108,6 +108,7 @@ dependencies {
     implementation(project(":feature:today"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:onboarding"))
+    implementation(project(":feature:guide"))
     implementation(project(":widget"))
 
     implementation(libs.androidx.core.ktx)

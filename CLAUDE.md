@@ -72,7 +72,7 @@ that does not match it.
 | `:core:calendar` | Android library | the Calendar Provider's Android half: `CalendarSource` (Instances, Calendars → `CalendarRead`), `CalendarChanges` (observer, debounced), `CalendarIntents` (view, insert, open a day, `canOpen`), `CalendarAccess` (the permission); `READ_CALENDAR` and the `<queries>` in its manifest. Tested against `FakeCalendarProvider` under Robolectric |
 | `:core:designsystem` | Android library | M3 theme (Chiaro's dresses through Passo), typography, shapes, motion, page gutter, the widget card colours, `TempoIcons`; Passo's settings rows (`SettingsRows.kt`) and `StatusCard`, `CalendarPermissionCard`, `DateTimeText` (times and dates from the locale's patterns), `AgendaText` (the agenda's words, for Today and the widgets), `CalendarDot`, `CalendarBar`, `DayDial` (the «In words» dial drawn in Compose, for Today's hero) |
 | `:core:testing` | Android library, test-only | `assertAccessible()` (labels, 48dp touch targets) and `walkPage()`, shared by the UI tests as `testImplementation` |
-| `:feature:*` | Android library | `today` (the clock, the sentence, the agenda, `TodayViewModel`'s ticker and observer), `settings` (formats, agenda, calendars, appearance, about), `onboarding` (welcome, the permission, the widgets); `guide` joins in Phase 5 |
+| `:feature:*` | Android library | `today` (the clock, the sentence, the agenda, `TodayViewModel`'s ticker and observer), `settings` (formats, agenda, calendars, appearance, about), `onboarding` (welcome, the permission, the widgets), `guide` (the guide, in Chiaro's shape, from the top of Settings) |
 | `:widget` | Android library | the two Glance cards («Agenda», «In words»), their `TextClock` lines, «In words»'s dial (`WidgetDial`: a painted face under the system's `AnalogClock` hands), their looks (`WidgetLookStore`, its own file, not backed up), their settings screen, the doors their touches open (`WidgetIntents`, `ClockApp`), the refresh (`WidgetRefreshArming`: content-URI work, boundary alarm, receivers; `WidgetUpdater`) |
 | `:app` | application | `Application`, `MainActivity` (the reader's appearance, the shortcut's new event), the shell (`TempoRoot`: onboarding, then Navigation 3), `NewEventShortcut`, DI entry points; wires everything |
 
@@ -131,7 +131,7 @@ Chiaro's shapes and springs, and every animation collapses to a fade under reduc
 principles hold here too: one sentence before any number, every number with the line that says
 what it means, no dead tab and no switch for a feature that has not shipped, a section with
 nothing to say is not drawn. Icons are `TempoIcons` (Passo's drawings), drawn in code. The
-launcher icon (the family's ring in slate, with an amber clock face at the lower left) is written
+launcher icon (the family's ring in azure to cobalt, with an amber clock face at the lower left) is written
 by `tools/draw_launcher_icon.py`: change the script and re-run it, never the two XML layers or the
 welcome page's `ic_app_mark.xml`. The Compose UI tests write screenshots to each module's `build/screenshots`:
 look at them after changing a screen.

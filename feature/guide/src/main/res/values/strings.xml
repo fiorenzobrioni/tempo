@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="guide_title">The guide</string>
+    <string name="guide_back">Back</string>
+    <string name="guide_intro">Tempo shows the time, the date and your day in one view, read from the calendars your phone already has. This guide walks through Today and the widgets, says what each part answers, and points out the things worth knowing that a screen cannot say out loud.</string>
+
+    <!-- Where the events come from -->
+    <string name="guide_source_title">Where your events come from</string>
+    <string name="guide_source_p1">Tempo reads the phone’s own calendar: every account the phone already syncs, Google, Samsung, Exchange or the phone’s own calendar, is there. There is nothing to sign in to and nothing for Tempo to sync: what your calendar app has, Tempo shows.</string>
+    <string name="guide_source_choice_title">Your calendars, your choice</string>
+    <string name="guide_source_choice_body">In the settings every calendar has a switch, grouped by account and with its colour. One you never chose for is shown as your calendar app shows it; a choice you make stays with that calendar, even if it is renamed.</string>
+    <string name="guide_source_all_day_title">All-day events keep their date</string>
+    <string name="guide_source_all_day_body">A birthday or a holiday is stored as a date, not as a time, and Tempo reads it that way: it stays on its own day wherever you are, and a trip across time zones never moves it to the day before. An event that runs for days says which day of it this is.</string>
+    <string name="guide_source_declined_title">Declined and cancelled</string>
+    <string name="guide_source_declined_body">A cancelled event is never shown. An invitation you declined is left out too, unless you turn it on in the settings, where it is struck through.</string>
+    <string name="guide_source_work_title">Work calendars</string>
+    <string name="guide_source_work_body">Android keeps a work profile’s calendars apart from the personal ones, on purpose. To see them, install Tempo in the work profile as well: there it reads the work calendars.</string>
+
+    <!-- Today -->
+    <string name="guide_today_title">Today</string>
+    <string name="guide_today_p1">The time large, the date above it, and one sentence before any list: the event under way and when it ends, the next one and how soon, or how long you are free.</string>
+    <string name="guide_today_dial_description">An example clock face at twenty past ten, with a meeting under way until eleven and two more events later in the day</string>
+    <string name="guide_today_dial_caption">An example: twenty past ten, a meeting under way until eleven in the accent, two more events later in the day.</string>
+    <string name="guide_today_dial_title">The dial</string>
+    <string name="guide_today_dial_body">Beside the time, a clock face with the next twelve hours on its ring: what comes next in the accent, the rest quieter. The hour hand walks through a meeting as it goes. It is the face of the «In words» widget.</string>
+    <string name="guide_today_timeline_title">The day in order</string>
+    <string name="guide_today_timeline_body">Today’s events one under the other, each with its calendar’s colour as a mark. The one under way says how long is left; the ones that are over grow quieter, and two or more of them fold into one line that opens. A line marks now.</string>
+    <string name="guide_today_free_title">Free time</string>
+    <string name="guide_today_free_body">A gap of an hour or more between two of today’s events is a row of its own, and the sentence says how long you are free. Shorter gaps are left alone, so the day does not fill up with the ten minutes between two meetings.</string>
+    <string name="guide_today_ahead_title">The days ahead</string>
+    <string name="guide_today_ahead_body">Tomorrow and the rest of the week, each on a card with a short summary beside its name; a run of empty days is said once. In the settings: a week, today and tomorrow, or today alone.</string>
+    <string name="guide_today_alarm_title">The next alarm</string>
+    <string name="guide_today_alarm_body">The next alarm set on the phone, as the Clock app has it, under the time. Tempo only reads it; a switch in the settings hides it.</string>
+    <string name="guide_today_live_title">Live while you look</string>
+    <string name="guide_today_live_body">While Today is open the clock moves at each minute, and an event made or changed in your calendar app is there when you come back. Once you leave, nothing runs.</string>
+
+    <!-- Who does what -->
+    <string name="guide_handover_title">Your calendar app does the writing</string>
+    <string name="guide_handover_p1">Tempo reads your calendar and never writes it. Whatever changes an event happens in your calendar app, which Tempo opens at the right place.</string>
+    <string name="guide_handover_event_title">An event</string>
+    <string name="guide_handover_event_body">Your calendar app opens it, that very occurrence of it, and changing or deleting it is one step away there.</string>
+    <string name="guide_handover_new_title">A new event</string>
+    <string name="guide_handover_new_body">From the button at the bottom of Today, from a free row, or from “New event” on a long press on Tempo’s icon: your calendar app’s new event, its start already set, at the next half hour or where the free time begins.</string>
+    <string name="guide_handover_day_title">A day</string>
+    <string name="guide_handover_day_body">The date at the top, the calendar button beside it and a day’s name open your calendar app on that day: for the week or the month, which are your calendar app’s to draw.</string>
+    <string name="guide_handover_reminders_title">Alarms and reminders</string>
+    <string name="guide_handover_reminders_body">Alarms are the Clock app’s and reminders your calendar app’s. Tempo sends no notification of its own, so nothing reminds you twice.</string>
+
+    <!-- The widgets -->
+    <string name="guide_widgets_title">On the home screen</string>
+    <string name="guide_widgets_two_title">Two widgets</string>
+    <string name="guide_widgets_two_body">«Agenda» puts the time and the date over the rest of your day; «In words» is the dial, with what comes next and the day in a few words. Both fit any size, from a single cell up. Touch and hold one for its own settings: the time and the date, what a touch opens, its colour and opacity.</string>
+    <string name="guide_widgets_fit_title">Never a list to scroll</string>
+    <string name="guide_widgets_fit_body">A card shows as many events as fit whole, laid out for the size it really has, and says how many more there are: nothing is cut in half, nothing scrolls.</string>
+    <string name="guide_widgets_times_title">Clock times, not countdowns</string>
+    <string name="guide_widgets_times_body">A card says the time an event starts, never how many minutes away it is: it is redrawn when your calendar changes and when an event starts or ends, not every minute, so a countdown would soon be wrong. Its clock and date are drawn by Android itself, right to the minute, at no cost.</string>
+
+    <!-- Battery -->
+    <string name="guide_battery_title">Battery</string>
+    <string name="guide_battery_p1">Tempo has no service and nothing on a timer. With the screen off it does nothing, except when your calendar itself changes, or when an event on a card starts or ends: then it reads the calendar once and redraws, with an alarm that waits for the phone to wake rather than waking it.</string>
+
+    <!-- Your data -->
+    <string name="guide_data_title">Your data</string>
+    <string name="guide_data_p1">Tempo has no internet permission at all: it sends nothing, to anyone. It keeps no copy of your events: it reads them from the calendar each time, and they stay your calendar’s, travelling with its account or its own backup.</string>
+    <string name="guide_data_p2">What Tempo keeps is your choices: the formats, the calendars you hide, the appearance. If the phone’s backup is on, Android includes them in it, as it does for other apps: that copy is Android’s, not Tempo’s.</string>
+</resources>
