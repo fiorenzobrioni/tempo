@@ -150,12 +150,26 @@ class AgendaText(
     /** A date in [style], capitalised as it starts a line. */
     fun date(date: LocalDate, style: DateStyle): String = DateTimeText.date(date, locale, style)
 
-    /** Two days as a span: "Monday 12 October – Tuesday 13 October", "Tomorrow – Friday 9 October". */
-    fun range(first: String, second: String): String = resources.getString(R.string.date_range, first, second)
+    /**
+     * Two days as a span, in words: "From Monday 12 October to Tuesday 13 October", "From tomorrow
+     * to Friday 9 October". Not two names around a dash, which read as one day named twice
+     * ("Tomorrow – Friday 9 October" said tomorrow was Friday; owner, PLANNING.md §15, 10 Oct 2026).
+     */
+    fun span(from: LocalDate, to: LocalDate, style: DateStyle, fromTomorrow: Boolean): String {
+        val end = DateTimeText.date(to, locale, style, startsLine = false)
+        return if (fromTomorrow) {
+            resources.getString(R.string.date_span_tomorrow, end)
+        } else {
+            resources.getString(R.string.date_span, DateTimeText.date(from, locale, style, startsLine = false), end)
+        }
+    }
 
-    /** [range] of two dates, or one date alone when the two are the same. */
-    fun dateRange(from: LocalDate, to: LocalDate, style: DateStyle): String =
-        if (from == to) date(from, style) else range(date(from, style), date(to, style))
+    /** A run of empty days in a few words: "Nothing planned." for one, "4 days with nothing planned." */
+    fun nothingPlanned(days: Int): String = if (days > 1) {
+        resources.getQuantityString(R.plurals.summary_nothing_days, days, days)
+    } else {
+        nothingPlanned()
+    }
 
     /** "Nothing planned.", a day's summary with nothing in it. */
     fun nothingPlanned(): String = resources.getString(R.string.summary_nothing)

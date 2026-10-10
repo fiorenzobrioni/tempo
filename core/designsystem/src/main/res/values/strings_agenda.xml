@@ -9,7 +9,8 @@
 
     <string name="event_no_title">(No title)</string>
     <string name="time_range">%1$s – %2$s</string>
-    <string name="date_range">%1$s – %2$s</string>
+    <string name="date_span">From %1$s to %2$s</string>
+    <string name="date_span_tomorrow">From tomorrow to %1$s</string>
     <string name="time_from">from %1$s</string>
     <string name="time_until">until %1$s</string>
     <string name="duration_m">%1$d min</string>
@@ -54,6 +55,10 @@
         <item quantity="other">%1$d all-day events.</item>
     </plurals>
     <string name="summary_nothing">Nothing planned.</string>
+    <plurals name="summary_nothing_days">
+        <item quantity="one">%1$d day with nothing planned.</item>
+        <item quantity="other">%1$d days with nothing planned.</item>
+    </plurals>
 
     <string name="alarm_today">Alarm at %1$s</string>
     <string name="alarm_tomorrow">Alarm tomorrow at %1$s</string>

@@ -634,16 +634,14 @@ private fun LazyListScope.agenda(
             }
 
             is AgendaSection.Nothing -> card("nothing-${section.from}", gutter) {
-                val first = if (section.startsTomorrow) {
-                    stringResource(
-                        R.string.today_tomorrow,
-                    )
-                } else {
-                    text.date(section.from, style)
+                val title = when {
+                    !section.isOneDay -> text.span(section.from, section.to, style, section.startsTomorrow)
+                    section.startsTomorrow -> stringResource(R.string.today_tomorrow)
+                    else -> text.date(section.from, style)
                 }
                 DayCard(
-                    title = if (section.isOneDay) first else text.range(first, text.date(section.to, style)),
-                    summary = text.nothingPlanned(),
+                    title = title,
+                    summary = text.nothingPlanned(section.days),
                     onOpen = openDay?.let { { it(section.from) } },
                     modifier = Modifier.testTag(TodayTags.day(section.from)),
                 ) { }
