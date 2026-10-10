@@ -12,13 +12,12 @@ coreKtx = "1.19.1"
 activityCompose = "1.13.0"
 composeBom = "2026.09.00"
 lifecycle = "2.11.0"
-# Navigation 3, as Passo's shell (PLANNING §1).
+# Navigation 3, the shell (PLANNING §1).
 navigation3 = "1.2.0"
 glance = "1.2.0"
 # Glance runs its sessions on WorkManager and asks only for 2.7.1 (2021), which is what resolves
-# when nothing else pins it: on the owner's phone that left Passo's cards on Glance's spinner
-# (Passo docs/adr/0005-widgets.md). Pinned to Chiaro's and Passo's version, the one proven under
-# Glance widgets there. Not a new dependency: a newer version of one Glance already brings, and
+# when nothing else pins it: on the owner's phone that left cards on Glance's spinner. Pinned to
+# the version proven under Glance widgets there. Not a new dependency: a newer version of one Glance already brings, and
 # Tempo also uses it directly for the calendar's content-URI trigger (PLANNING.md §7).
 work = "2.10.5"
 datastore = "1.2.1"

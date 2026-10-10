@@ -24,7 +24,7 @@ internal val Context.widgetLookDataStore by preferencesDataStore(name = "widgets
 
 /**
  * What a card is painted on: a plain card in the app's light or dark surface, or whichever the
- * phone is in, or one of the six colours of [WidgetCardColor] (Chiaro's list, as Passo's).
+ * phone is in, or one of the six colours of [WidgetCardColor].
  */
 enum class WidgetBackground { LIGHT, DARK, SYSTEM, COLOR }
 
@@ -40,9 +40,8 @@ enum class EventTap { TEMPO, CALENDAR }
 
 /**
  * One card's look and content, chosen from the launcher's reconfigure flow and kept per widget,
- * so the same card can sit on a home screen twice, dressed twice. The dress defaults are Chiaro's
- * and Passo's (a solid blue card), so a Tempo card placed beside theirs matches before anybody
- * configures anything.
+ * so the same card can sit on a home screen twice, dressed twice. The dress default is a
+ * solid blue card (`docs/adr/0003-widgets.md`), worn before anybody configures anything.
  *
  * @property clockFormat the card's own clock format; null follows Tempo's setting.
  * @property dateStyle the card's own date style; null follows Tempo's setting.

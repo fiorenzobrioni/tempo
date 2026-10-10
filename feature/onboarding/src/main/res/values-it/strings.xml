@@ -22,7 +22,7 @@
 
     <string name="onboarding_next">Avanti</string>
     <string name="onboarding_widget_title">Nella schermata Home</string>
-    <string name="onboarding_widget_body">Due widget, la stessa scheda di Chiaro e di Passo. Il loro orologio lo disegna Android stesso, giusto al minuto, senza costo per la batteria.</string>
+    <string name="onboarding_widget_body">Due widget. Il loro orologio lo disegna Android stesso, giusto al minuto, senza costo per la batteria.</string>
     <string name="onboarding_widget_agenda">Agenda</string>
     <string name="onboarding_widget_agenda_body">L’ora e la data sopra il resto della giornata, mai una lista da scorrere.</string>
     <string name="onboarding_widget_words">In parole</string>

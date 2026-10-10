@@ -34,7 +34,7 @@ import com.callbackdev.tempo.core.designsystem.theme.SectionBottom
 import com.callbackdev.tempo.core.designsystem.theme.SectionTop
 
 /*
- * Chiaro's settings kit (its Settings and Alerts screens, design review of 23 set 2026): a
+ * The settings kit (`docs/adr/0002-design-language.md`): a
  * header in the accent, rows that belong together on one rounded ground, hairlines between
  * them starting where the text starts, and one dialog shape for every multiple choice.
  */

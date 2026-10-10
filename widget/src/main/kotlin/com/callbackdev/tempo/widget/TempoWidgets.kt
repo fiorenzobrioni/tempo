@@ -28,14 +28,14 @@ enum class WidgetKind {
     /** «Agenda»: the clock and the date over the rest of the day. */
     AGENDA,
 
-    /** «In words»: what comes next, large, and the day in a line (Chiaro's «In parole»). */
+    /** «In words»: what comes next, large, and the day in a line. */
     WORDS,
 }
 
 /**
  * The widgets as one household: who is placed, and how to repaint them. Repaints go by the
- * system's own mapping of ids to providers, never by Glance's class bookkeeping (Chiaro saw every
- * widget repainted with the last-placed one's content that way), and always through
+ * system's own mapping of ids to providers, never by Glance's class bookkeeping (that way, every
+ * widget was seen repainted with the last-placed one's content), and always through
  * [WidgetRefresh] first, because `update()` alone wakes a live session without reloading it.
  */
 object TempoWidgets {

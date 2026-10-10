@@ -15,10 +15,9 @@ import com.callbackdev.tempo.core.designsystem.R
 import com.callbackdev.tempo.core.model.AppFont
 
 /*
- * Chiaro's type (its DESIGN.md §5), the same faces and the same scale, so the apps read as one
- * family. Both bundled faces are variable fonts under the SIL Open Font License 1.1
- * (`licenses/`), copied from Passo, which copied them from Chiaro, where
- * tools/import_google_sans.py cut Google Sans down to the scripts the family prints. Bundled, not fetched from a font provider: that would be a
+ * The type (`docs/adr/0002-design-language.md`): two faces and one scale. Both bundled faces are
+ * variable fonts under the SIL Open Font License 1.1 (`licenses/`), Google Sans cut down to the
+ * scripts the app prints. Bundled, not fetched from a font provider: that would be a
  * runtime dependency on Play Services, and the app has no network anyway.
  */
 
@@ -64,7 +63,7 @@ internal fun familyFor(font: AppFont): FontFamily = when (font) {
 private const val TABULAR = "tnum"
 
 /**
- * Material's scale in [family], with Chiaro's four adjustments. Every role is named, so no
+ * Material's scale in [family], with four adjustments. Every role is named, so no
  * line of the app falls back to the platform face by accident (`TypographyTest` counts them).
  */
 internal fun typographyFor(family: FontFamily): Typography = Typography().run {
@@ -101,10 +100,8 @@ internal fun typographyFor(family: FontFamily): Typography = Typography().run {
  * The two roles Material does not have, in the reader's family.
  *
  * @property heroNumber the time, the thing the screen is for: bold, tracked in, tabular so the
- *   minutes do not wobble as they change (Chiaro's hero temperature, Passo's count: 64sp on a
- *   68sp line, −0.02em). Whether the clock wants a larger cut is Phase 3's to measure.
- * @property readingValue a value in a metric tile: light, tabular, 24sp on a 32sp line
- *   (Chiaro's tile reading).
+ *   minutes do not wobble as they change (64sp on a 68sp line, −0.02em). Whether the clock wants a larger cut is Phase 3's to measure.
+ * @property readingValue a value in a metric tile: light, tabular, 24sp on a 32sp line.
  */
 @Immutable
 data class TempoType(val heroNumber: TextStyle, val readingValue: TextStyle)

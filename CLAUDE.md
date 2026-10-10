@@ -156,6 +156,14 @@ standing rules: **regenerate them** whenever a change alters what an existing on
 at them before committing; **add one** when a phase brings something worth showing, with its
 caption in the README's table; keep the set small.
 
+## The family in the code
+
+The sister apps (Chiaro, Passo, Saldo) are named **only** in the root `README.md` («The family»)
+and in the project's documents (VISION, PLANNING, the ADRs, this file): never in a string the
+app shows, its guide and onboarding included, and never in the code, comments and tests included
+(owner, 10 Oct 2026). A comment says why a value is what it is, not which sister has it too;
+where a value's provenance matters (the generated schemes), it is written in its ADR.
+
 ## Signing and CI
 
 - **Debug signing**: `keystore/debug.keystore` is intentionally committed (alias `tempo-debug`,

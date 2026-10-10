@@ -74,7 +74,7 @@ import com.callbackdev.tempo.core.model.CalendarPermission
 import com.callbackdev.tempo.core.designsystem.R as DesignR
 
 /**
- * The first run's pages (PLANNING.md §11 Phases 3 and 4), in Passo's shape: what Tempo is, the one
+ * The first run's pages (PLANNING.md §11 Phases 3 and 4): what Tempo is, the one
  * permission it needs, and the widgets, with the launcher's own way to place one.
  */
 enum class OnboardingStep {

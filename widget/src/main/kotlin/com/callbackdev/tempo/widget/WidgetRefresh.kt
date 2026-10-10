@@ -16,8 +16,8 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * Glance runs `provideGlance` once per session and keeps the composition alive for about
  * forty-five seconds; inside that window `update()` only wakes the composition that is already
- * there, so a model read before `provideContent` would stay as it was. Chiaro learned it on a
- * device (its `WidgetRefresh`, 4 Sep 2026) and AndroidX says as much: observe the data inside the
+ * there, so a model read before `provideContent` would stay as it was. A device showed it
+ * (4 Sep 2026) and AndroidX says as much: observe the data inside the
  * composition. So every repaint bumps this first, and [rememberWidgetModel] reloads on it.
  *
  * Each composition reports the revision it has drawn ([drawn]), so whatever asked for a repaint

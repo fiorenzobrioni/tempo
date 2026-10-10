@@ -4,11 +4,8 @@ mark on no ground as the welcome page shows it (core/designsystem/src/main/res/d
 
     python3 tools/draw_launcher_icon.py
 
-The mark is Chiaro's ring, as Passo and Saldo carry it: the same ring (radius 21, stroke 10) on
-the same warm white, cut by an amber emblem the way Chiaro's sun (upper right), Passo's shoe
-print (upper left) and Saldo's coin (lower right) cut theirs. Tempo's emblem is a small clock
-face at the lower left, the one place none of its sisters has hers, so the four marks side by
-side turn the emblem once round the ring. The ring is blue, shading clockwise from just past the
+The mark is a ring (radius 21, stroke 10) on a warm white, cut by an amber emblem: a small clock
+face at the lower left. The ring is blue, shading clockwise from just past the
 clock round to it again, the way the hours go: a bright morning azure to a deep cobalt, the cool
 opposite of the amber face, which stays the one warm thing in the mark. The clock's hands are cut out
 of its face: the minute hand at twelve, the hour hand towards four, the drawing the usual clock
@@ -28,11 +25,11 @@ RES = ROOT / "app/src/main/res/drawable"
 MARK = ROOT / "core/designsystem/src/main/res/drawable/ic_app_mark.xml"
 
 CENTRE = 54.0
-RING_RADIUS = 21.0  # Chiaro's
-RING_WIDTH = 10.0  # Chiaro's
-FACE_ANGLE = 140.0  # degrees clockwise from three o'clock: Chiaro -40, Passo 220, Saldo 40
-FACE_RADIUS = 8.2  # Chiaro's sun, Saldo's coin
-GAP_RADIUS = 11.2  # Chiaro's: the clear band around the emblem, where it cuts the ring
+RING_RADIUS = 21.0
+RING_WIDTH = 10.0
+FACE_ANGLE = 140.0  # degrees clockwise from three o'clock: the lower left
+FACE_RADIUS = 8.2
+GAP_RADIUS = 11.2  # the clear band around the emblem, where it cuts the ring
 
 # The hands, cut out of the face: (direction in degrees clockwise from three o'clock, length).
 # The minute hand at twelve, the hour hand towards four.
@@ -41,15 +38,13 @@ HAND_WIDTH = 1.8
 HAND_TAIL = 0.9  # how far each hand reaches back past the centre, so the two meet in one hub
 
 # The ring, from just past the clock round to it again: (position along the sweep, colour). A
-# bright azure to a deep cobalt (owner, 10 Oct 2026: the sisters' rings are vivid, the slate was the
-# family's one dull ring and its deep end sank into a dark page). Blue is the complement of the
-# amber face, and this one is bright where Chiaro's night blue is deep, so the two do not meet;
-# cobalt to indigo was drawn too, and came too close to Chiaro's violet. Before it: violet (too
-# close to Chiaro, owner, 7 Oct 2026), a peach, rose and berry day (owner: did not please), then
-# slate (7 Oct to 10 Oct 2026). Copper melted into the amber face, a plain graphite read as a
-# disabled icon.
+# bright azure to a deep cobalt (owner, 10 Oct 2026: the slate before it was a dull ring, and its
+# deep end sank into a dark page). Blue is the complement of the amber face; cobalt to indigo was
+# drawn too, and set aside. Before it: violet (owner, 7 Oct 2026), a peach, rose and berry day
+# (owner: did not please), then slate (7 Oct to 10 Oct 2026). Copper melted into the amber face, a
+# plain graphite read as a disabled icon. The whole story is in PLANNING.md §15.
 RING_STOPS = [(0.0, "7FE0FF"), (0.45, "1E90FF"), (1.0, "2140C8")]
-AMBER = ("FFC658", "EF8618")  # the family's emblem amber (Chiaro's sun, Passo's print, Saldo's coin)
+AMBER = ("FFC658", "EF8618")  # the emblem's amber
 
 
 def f(v):
@@ -93,7 +88,7 @@ def hand(deg, length):
 
 def without(hole):
     """A clip that keeps the canvas less [hole]: the canvas is walked clockwise, the hole the
-    other way (Passo's and Saldo's clips, the same rule)."""
+    other way."""
     return f'<clip-path android:pathData="M 0,0 H 108 V 108 H 0 Z {hole}"/>'
 
 
@@ -202,7 +197,7 @@ def main():
     RES.mkdir(parents=True, exist_ok=True)
     (RES / "ic_launcher_foreground.xml").write_text(
         HEADER.format(
-            what="The mark: Chiaro's ring shading from azure to cobalt, cut by an amber clock\n"
+            what="The mark: a ring shading from azure to cobalt, cut by an amber clock\n"
             "     face at the lower left, its hands cut out. Everything sits inside the\n"
             "     33-unit safe circle of every launcher mask (ring edge 26, face edge 29.2)."
         )

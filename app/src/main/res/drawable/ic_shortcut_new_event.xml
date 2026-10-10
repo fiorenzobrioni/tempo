@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The "New event" shortcut's mark (PLANNING.md §8): TempoIcons.Plus inside the calendar page
      (TempoIcons.Calendar) in the launcher ring's cobalt (tools/draw_launcher_icon.py, its
-     deep end, 7.6:1 on the warm white), on its warm white (ic_launcher_background), as Passo's shortcut is drawn.
+     deep end, 7.6:1 on the warm white), on its warm white (ic_launcher_background).
      Launchers draw shortcut icons as they are. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="48dp"

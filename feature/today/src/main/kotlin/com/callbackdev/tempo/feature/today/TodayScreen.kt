@@ -195,7 +195,7 @@ class TodayActions(
  * Today (VISION.md, Today; PLANNING.md §11 Phase 3, reviewed on 9 Oct 2026, §15): the date and
  * the page's two doors on top, the time as the hero beside the day's clock face (the «In words»
  * card's dial, with the next twelve hours' events on its ring), the next alarm and the day in one
- * sentence, on Chiaro's and Passo's glow; then today's events, with the past folded and "now"
+ * sentence, on the glow; then today's events, with the past folded and "now"
  * drawn as a line; then the days ahead, each on its own card: tomorrow in full, the rest of the
  * week a line an event, and a run of empty days said once. The new-event button stays out of the
  * way: a label at the top, its icon alone once scrolled.
@@ -327,7 +327,7 @@ private fun LazyListScope.row(key: String, gutter: PageGutter, content: @Composa
 }
 
 /**
- * The top of the page, on the family's glow (Passo's Today): the date (a touch opens the calendar
+ * The top of the page, on the glow: the date (a touch opens the calendar
  * app on it) with the calendar's and the settings' buttons; the time, large, beside the day's
  * clock face; the next alarm; the day's sentence. The clock grows with the reader's text size up
  * to a cap, and shrinks to fit beside the dial: "9:10 PM" stays on one line (PLANNING.md §15).
@@ -552,7 +552,7 @@ private const val CLOCK_LINE = 1.05f
 private val CLOCK_SLACK = 4.dp
 private val MARKER_GAP = 8.dp
 
-/** The dial's side: Passo's ring in its tall card, the «In words» card's dial on a 2×2. */
+/** The dial's side: the «In words» card's dial on a 2×2. */
 private val DIAL_SIZE = 112.dp
 
 private fun LazyListScope.agenda(
@@ -682,7 +682,7 @@ private fun LazyListScope.timelineItem(
 }
 
 /**
- * A day ahead on its own ground (Chiaro's group, Passo's cards): its name and the day in a few
+ * A day ahead on its own ground: its name and the day in a few
  * words on one line, a touch on them opening the calendar app on that day, and its rows under
  * them. A run of empty days is a card of its heading alone.
  */

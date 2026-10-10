@@ -12,7 +12,7 @@ import com.callbackdev.tempo.R
  * It opens Tempo, which hands the new event to the calendar app at the next half hour: Back from
  * the calendar app lands on Today, where the new event then shows.
  *
- * Dynamic, as Passo's outings' shortcuts are, not declared in XML: a static shortcut names its
+ * Dynamic, not declared in XML: a static shortcut names its
  * package, and the debug build's is another (`.debug`). Published once; the launcher keeps it.
  */
 object NewEventShortcut {

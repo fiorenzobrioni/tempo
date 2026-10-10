@@ -3,7 +3,7 @@
   «Agenda» (PLANNING.md §7). The two cards share one size spec on purpose, so they sit
   side by side and trade places on a home screen: the same default placement (four cells by two,
   where «Agenda» has the clock beside a list), the same minimum (one cell: 40 dp by the platform's
-  70 × n − 30), and no maximum (Passo's ADR 0005: Launcher3 turns a dp maximum into the smallest
+  70 × n − 30), and no maximum (Launcher3 turns a dp maximum into the smallest
   cell count across its grids). Every form has a layout for any grant (AgendaFit, WordsFit).
 
   updatePeriodMillis is 0: the cards are pushed (the calendar's trigger, the boundary alarm, the

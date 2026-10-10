@@ -127,7 +127,7 @@ constructor(
     /**
      * [load] for a card waiting to be drawn: never longer than [LOAD_TIMEOUT_MILLIS] and never an
      * exception, because Glance shows its loading spinner until `provideContent` is reached and a
-     * card stuck on it says nothing to anybody (Passo's device report, 25 Sep 2026).
+     * card stuck on it says nothing to anybody (a device report, 25 Sep 2026).
      */
     suspend fun loadForCard(appWidgetId: Int): WidgetModel {
         val started = SystemClock.elapsedRealtime()

@@ -41,7 +41,7 @@ import javax.inject.Inject
  * Today (PLANNING.md §11 Phase 3), live while visible and silent otherwise (§9):
  *
  * - a minute ticker, on each minute's start, that runs only while the page collects (the flows
- *   stop five seconds after the page goes, which is the family's `WhileSubscribed` rule);
+ *   stop five seconds after the page goes: `WhileSubscribed`);
  * - the provider read again when the date or the zone changes (midnight, a trip), when the horizon
  *   changes, when the calendar changes (`CalendarChanges`, bound to the same collection) and when
  *   the reader comes back to the page ([reread]: the permission may have changed meanwhile);

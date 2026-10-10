@@ -140,10 +140,9 @@ class SettingsActions(
 )
 
 /**
- * Settings, laid out as Chiaro's and Passo's: every group on one rounded ground under a header in
- * the accent, a live preview of the appearance above the choices that change it, the privacy note
- * as a statement, the licence and the credits last. The guide's card comes first, as in the
- * sisters' lists.
+ * Settings: every group on one rounded ground under a header in the accent, a live preview of
+ * the appearance above the choices that change it, the privacy note as a statement, the licence
+ * and the credits last. The guide's card comes first.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -594,7 +593,7 @@ private val PREVIEW_TIME: LocalTime = LocalTime.of(9, 41)
 private const val PREVIEW_CALENDAR_COLOR = 0xFF0B8043.toInt()
 
 /**
- * The way to the guide, first in the list as in Chiaro's and Passo's Settings: the place a reader
+ * The way to the guide, first in the list: the place a reader
  * comes back to the day the question arrives, which a card shown once on Today could never be.
  */
 @Composable

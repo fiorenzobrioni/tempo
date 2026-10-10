@@ -21,7 +21,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /*
- * The «In words» dial (PLANNING.md §7, `docs/adr/0003-widgets.md`): Passo's ring, become a clock.
+ * The «In words» dial (PLANNING.md §7, `docs/adr/0003-widgets.md`): a ring, become a clock.
  * Two layers in one small layout placed through Glance's `AndroidRemoteViews`:
  *
  * - the face, a bitmap painted here at each redraw: the ring's track, the day's arcs on it
@@ -58,7 +58,7 @@ internal data class DialInks(val track: Color, val focus: Color, val other: Colo
 
 internal object DialPainter {
     /**
-     * The largest side painted (Passo's `RingPainter.MAX_SIDE_PX`): Android 17 caps the bitmap
+     * The largest side painted: Android 17 caps the bitmap
      * memory of a `RemoteViews` for apps that target it, and the largest dial is then 0.7 MB.
      */
     const val MAX_SIDE_PX: Int = 416

@@ -11,7 +11,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 
 /**
- * The typeface setting reaches every line of the app (Chiaro's TypographyFamilyTest): Material's
+ * The typeface setting reaches every line of the app: Material's
  * roles are found by reflection, so a role added by a new Material version and not copied would
  * fail here instead of setting one line of the app in the platform face.
  */

@@ -44,13 +44,13 @@ fun GuideRoute(onBack: () -> Unit) {
 }
 
 /**
- * The guide, in Chiaro's shape as Passo's (VISION.md, Settings): where the events come from, what
+ * The guide (VISION.md, Settings): where the events come from, what
  * Today and the widgets answer, who does the writing, and the things a screen cannot say out loud
  * (that an all-day event keeps its date in every zone, that a card says clock times because it is
  * redrawn at boundaries, that Tempo does nothing with the screen off). Re-openable from Settings:
  * a definition offered before the reader has met the thing does not stick.
  *
- * Chiaro's rules hold it in shape. It **never teaches a control**: it says what a part of the
+ * Two rules hold it in shape. It **never teaches a control**: it says what a part of the
  * screen is for, not which button to press. It says what Tempo does, and where the reader's
  * calendar app or Clock app does the rest (VISION.md asks for "what Tempo does not do and who does
  * it instead"), as a hand-over, never as an excuse. It teaches by showing the app's own dial, with
@@ -131,7 +131,7 @@ private fun GuideContent(modifier: Modifier) {
     }
 }
 
-// The prose kit: Chiaro's, value for value, as Passo's guide carries it.
+// The prose kit.
 
 @Composable
 private fun Chapter(icon: ImageVector, text: String) {
@@ -177,7 +177,7 @@ private fun Caption(text: String) {
  */
 @Composable
 private fun DialSample() {
-    // The dial grows with the reader's text size, as far as the page allows, as Passo's ring does.
+    // The dial grows with the reader's text size, as far as the page allows.
     val grow = LocalDensity.current.fontScale.coerceAtLeast(1f)
     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
         DayDial(

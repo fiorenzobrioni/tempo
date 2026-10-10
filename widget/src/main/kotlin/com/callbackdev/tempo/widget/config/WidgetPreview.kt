@@ -56,7 +56,7 @@ import com.callbackdev.tempo.widget.agenda.AgendaWidgetContent
 import com.callbackdev.tempo.widget.words.WordsWidgetContent
 
 /**
- * A launcher grant, named by its cells: the household's reference sizes (Chiaro's), the ones
+ * A launcher grant, named by its cells: the household's reference sizes, the ones
  * the layout tests measure against, so what a chip shows is what the tests hold. Both cards
  * resize over the same range, so they offer the same chips.
  */
@@ -181,7 +181,7 @@ internal fun WidgetPreviewSection(kind: WidgetKind, model: WidgetModel?, placed:
 }
 
 /**
- * The card itself, not a lookalike (Chiaro's lesson of 23 Sep 2026): Glance composes the same
+ * The card itself, not a lookalike: Glance composes the same
  * content function the receiver runs into `RemoteViews` for the chosen size, and
  * `RemoteViews.apply` inflates them as the launcher does. The host swallows every touch, so the
  * card's own "open the app" never fires from its settings screen, and it is one picture to a

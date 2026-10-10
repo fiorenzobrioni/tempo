@@ -13,7 +13,7 @@ import kotlin.math.roundToInt
 
 /**
  * The checks of Android's Accessibility Scanner that the semantics tree can answer, run on what
- * the screen shows right now (PLANNING.md §12; Passo's ADR 0012, carried over):
+ * the screen shows right now (PLANNING.md §12):
  *
  * - **Touch target**: every control a finger can reach has at least 48 by 48dp of its own. Compose
  *   already widens a smaller control's touch area to 48dp (and tells TalkBack and the Scanner
@@ -88,7 +88,7 @@ private fun controlOf(node: SemanticsNode, dense: Boolean, ancestors: List<Int>,
  * A control drawn over another (a floating action button over a list's row: their drawn bounds
  * overlap, not only their touch areas) takes the whole overlap, since it is on top, and the one
  * under it keeps the side that leaves a finger the most room; the one on top loses nothing to it.
- * Tempo's addition to Passo's checks (Phase 3): halving such an overlap read a 48dp row as 26dp.
+ * Added in Phase 3: halving such an overlap read a 48dp row as 26dp.
  */
 private fun shareOf(control: Control, controls: List<Control>): Rect {
     val area = control.area

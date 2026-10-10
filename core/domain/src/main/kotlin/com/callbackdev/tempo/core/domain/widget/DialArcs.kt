@@ -85,7 +85,7 @@ object DialArcs {
 /**
  * The dial's proportions, as shares of its side: one drawing for the card (`WidgetDial`, where
  * the hands are the system's drawables cut to these numbers) and for Today's face (`DayDial`,
- * drawn in Compose), so the two read as the same clock. Passo's ring is the track's stroke.
+ * drawn in Compose), so the two read as the same clock.
  */
 object DialGeometry {
     const val STROKE: Float = 0.085f

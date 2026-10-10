@@ -25,7 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
- * Chiaro's motion (its DESIGN.md §7): springs, not durations, and every one of them collapses
+ * The motion (`docs/adr/0002-design-language.md`): springs, not durations, and every one of them collapses
  * to a 100 ms fade when the reader asked the system for less motion. No animation ever gates
  * information: with motion off the same content is there at the same moment.
  */

@@ -3,7 +3,7 @@ package com.callbackdev.tempo.core.domain.widget
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
-/** «Agenda»'s forms and budgets at the family's reference grants. */
+/** «Agenda»'s forms and budgets at the reference grants. */
 class AgendaFitTest {
     /** Measured in Roboto, with the card's 6% margin: «10:20» Bold, the three date styles, a row's times. */
     private val clockEm = 2.65f
@@ -98,7 +98,7 @@ class AgendaFitTest {
     }
 
     @Test
-    fun `a one-row card writes its date at the family's 16 sp, under a clock that keeps its size`() {
+    fun `a one-row card writes its date at 16 sp, under a clock that keeps its size`() {
         val header = checkNotNull(plan(340f, 85f).header)
         assertThat(header.dateSp).isEqualTo(AgendaFit.LINE_DATE_SP)
         assertThat(header.clockSp).isEqualTo(AgendaFit.LINE_CLOCK_MAX)

@@ -33,7 +33,7 @@ import javax.inject.Inject
 /**
  * The launcher's door into one widget's settings (`android:configure`, reconfigurable and
  * optional: a card is placed at once with the defaults, and a long press opens this). It wears
- * the app's own appearance, as Chiaro's does: it is part of the app.
+ * the app's own appearance: it is part of the app.
  */
 @AndroidEntryPoint
 class WidgetConfigActivity : ComponentActivity() {

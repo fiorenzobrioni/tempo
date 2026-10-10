@@ -5,10 +5,8 @@ import androidx.compose.ui.graphics.Color
 import com.callbackdev.tempo.core.model.AppPalette
 
 /**
- * The card colours a home-screen widget can wear: **Chiaro's six, hex for hex**, as Passo's, so
- * a Tempo widget beside a Chiaro or a Passo one on the same home screen is the same piece of
- * furniture (PLANNING.md §7). Chiaro's DESIGN §2.6 carries the measurements, and they hold
- * here unchanged because the inks are the same: every one of the six is a dark ground under
+ * The card colours a home-screen widget can wear: **six, hex for hex** the table of
+ * `docs/adr/0003-widgets.md` (PLANNING.md §7), measured against the inks they carry: every one of the six is a dark ground under
  * white ink, white never under 7.8:1, the 75% quiet ink never under 5.2:1, the 85% one never
  * under 6.1:1.
  *
