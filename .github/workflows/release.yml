@@ -1,12 +1,17 @@
 name: Release
 
-# Fires only on version tags (v0.1.0, v1.0.0, v1.1.0-rc1, ...). Builds the minified APK signed
-# with the REAL release key (GitHub Secrets) and publishes it, with its SHA-256 checksum and
-# the R8 mapping, as a GitHub Release (PLANNING.md §11 Phase 6). Per-push testing builds stay
-# in android-ci.yml. keystore/README.md says what the four secrets hold.
+# Fires on version tags (v0.1.0, v1.0.0, v1.1.0-rc1, ...). Builds the minified APK signed with
+# the REAL release key (GitHub Secrets) and publishes it, with its SHA-256 checksum and the R8
+# mapping, as a GitHub Release (PLANNING.md §11 Phase 6). Per-push testing builds stay in
+# android-ci.yml. keystore/README.md says what the four secrets hold.
+#
+# Run by hand (Actions, Release, "Run workflow") it is a rehearsal: the same gates and the same
+# signed build, the signature checked against the key's published fingerprint, and nothing
+# published. A wrong or missing secret shows up there rather than on the day of a tag.
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: write # create the GitHub Release
@@ -31,6 +36,7 @@ jobs:
       # The tag must name the version the APK carries: bump tempo.versionName in
       # gradle.properties first, then tag v<that>.
       - name: Tag matches the app version
+        if: github.ref_type == 'tag'
         run: |
           version=$(sed -n 's/^tempo\.versionName=//p' gradle.properties)
           if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
@@ -68,9 +74,26 @@ jobs:
           ORG_GRADLE_PROJECT_TEMPO_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           ORG_GRADLE_PROJECT_TEMPO_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
+      # The APK must carry the release key and no other: a release signed with another key (a
+      # secret replaced by mistake) could never update the installs already out there. The
+      # fingerprint is the one published in keystore/README.md and the root README.
+      - name: Check the signature
+        run: |
+          apksigner=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)apksigner
+          "$apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk | tee signature.txt
+          if [ -z "$RELEASE_CERT_SHA256" ]; then
+            echo "::warning::No fingerprint to check against yet."
+          elif ! grep -qi "certificate SHA-256 digest: ${RELEASE_CERT_SHA256}\$" signature.txt; then
+            echo "::error::The APK is not signed with Tempo's release key (keystore/README.md)."
+            exit 1
+          fi
+        env:
+          RELEASE_CERT_SHA256: ''
+
       # Named after the tag: the mapping must stay paired with the exact APK it deobfuscates,
       # and the checksum lets a reader verify the download (README, "Install").
       - name: Rename artifacts after the tag, write the checksum
+        if: github.ref_type == 'tag'
         run: |
           cp app/build/outputs/apk/release/app-release.apk "tempo-${GITHUB_REF_NAME}.apk"
           cp app/build/outputs/mapping/release/mapping.txt "mapping-${GITHUB_REF_NAME}.txt"
@@ -81,6 +104,7 @@ jobs:
       # Saldo). Matched as a literal prefix, not a regex, or the dots in the version would
       # match anything. A missing section fails the release: it would publish an empty page.
       - name: Take the release body from CHANGELOG.md
+        if: github.ref_type == 'tag'
         run: |
           : > release-notes.md
           if [ -f CHANGELOG.md ]; then
@@ -97,6 +121,7 @@ jobs:
           fi
 
       - name: Create GitHub Release
+        if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
           body_path: release-notes.md
