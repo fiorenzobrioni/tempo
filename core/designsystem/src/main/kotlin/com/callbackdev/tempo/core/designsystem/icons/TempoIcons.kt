@@ -14,9 +14,8 @@ import kotlin.math.sin
 
 /**
  * The app's line icons, drawn here on a 24-unit grid: one 1.8 stroke, round caps and joins, the
- * weight of Material Symbols' outlined set, so they sit beside Material's own components. Passo's
- * drawings, copied as the family's one icon set (Passo's `PassoIcons`); a shape Tempo needs is
- * drawn here the same way. Drawn rather than taken from a library: a dozen shapes did not justify
+ * weight of Material Symbols' outlined set, so they sit beside Material's own components
+ * (`docs/adr/0002-design-language.md`); a shape Tempo needs is drawn here the same way. Drawn rather than taken from a library: a dozen shapes did not justify
  * a new dependency, and every one of them is geometry a reader can check.
  */
 object TempoIcons {
@@ -150,7 +149,7 @@ object TempoIcons {
         }
     }
 
-    /** A home screen's cards: two small ones over a wide one, the sizes the family's widgets take. */
+    /** A home screen's cards: two small ones over a wide one, the sizes the widgets take. */
     val Widgets: ImageVector by lazy {
         icon("widgets") {
             roundRect(4f, 4f, 11f, 11f, 1.8f)

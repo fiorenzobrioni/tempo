@@ -1,8 +1,8 @@
 package com.callbackdev.tempo.widget
 
 /**
- * Which set of inks a card writes with, named after the ground it is written on. Chiaro's rule
- * (`WidgetInk`, DESIGN §2.6), kept pure so a test pins it: [OVER_COLOR] is the white pair every
+ * Which set of inks a card writes with, named after the ground it is written on
+ * (`docs/adr/0003-widgets.md`), kept pure so a test pins it: [OVER_COLOR] is the white pair every
  * card colour is picked dark enough to carry; the other two are the schemes' own.
  */
 enum class WidgetInk {

@@ -12,43 +12,48 @@ All notable changes to Tempo are documented here. The format follows
 
 ### Changed
 
-- Today, after the owner's review: the date on top with a button that opens your calendar app
-  (one switch hides it); the «In words» clock face beside the time, with the next twelve hours'
-  events on its ring and the hands winding to now when the page opens; the clock's figures
-  rolling as the minute changes, and "AM" set small beside them; the days ahead on cards, each
-  one a touch from its day in your calendar, and a run of empty days said once instead of a
-  heading each, so the first event of the day is on screen when the app opens.
+- **A run of empty days says it is a run.** Its card read "Tomorrow – Wednesday 14 October",
+  as if tomorrow were Wednesday; it now says "From tomorrow to Wednesday 14 October", and
+  "4 days with nothing planned." under it.
 
-### Added
+## [1.0.0] - 2026-10-10
 
-- The foundations: the build (Passo's, carried over), the family's design system, the launcher
-  icon, continuous integration with the permission check, and a first screen with the time and
-  the date. Nothing to install yet.
-- The calendar engine: Tempo reads the phone's calendars (every account it syncs) for the week
-  ahead, places all-day events on their own day in every time zone, follows events across
-  midnight and daylight saving, leaves out cancelled events and, unless you want them, declined
-  invitations and the calendars you hide, and finds the free time between your events. Not on
-  screen yet: Today shows it from Phase 3.
-- Settings: the time (the phone's, 24-hour or 12-hour) and the date (long, short or numeric),
-  the days ahead (a week by default), all-day events, declined invitations, the next alarm, which
-  calendars to show (by account, with their colours), and the family's appearance (light or dark,
-  two palettes, three typefaces, wallpaper colours), with a live preview. Today's clock already
-  follows the formats and the appearance.
-- Today: the time large, the date, your next alarm, and the day in one sentence ("Dentist in 40
-  minutes, then 2 more today"); the all-day events; the day's events on a timeline, with the
-  morning folded away, a line for now, the event under way and how long is left, and the free
-  hours between them, each one a touch away from a new event; tomorrow in full and the rest of
-  the week in a line an event. Touch an event to open it in your calendar app, the date to open
-  the day, the button to create one. Live while you look; nothing runs once you leave.
-- The first run: what Tempo is, the one permission it asks for, with "Not now", and the widgets.
-- "New event" on the launcher icon's long press.
-- The widgets, the family's pair on the family's card. «Agenda»: the time and the date over the
-  rest of your day, as many events as the card holds whole and how many more, the days ahead in
-  the room today leaves, laid out for every size from one cell up. «In words»: a clock face with
-  what comes next drawn on its ring, the hour hand walking through it by itself, and the day in a
-  few words beside it. Their clock and date are drawn by Android itself, right to the
-  minute, at no cost; their events change when your calendar does or an event starts or ends,
-  never on a timer. Each card has its own settings: the time and the date (shown or not, in its
-  own format), what a touch opens (the time: Tempo, your calendar at today, or your clock app; an
-  event: your calendar app or Tempo), the background and its opacity, all-day events and the
-  days ahead. Add them from the first run or Settings.
+**The first release.** Tempo shows the time, the date and your day in one calm view, in the app
+and on two home-screen widgets that never scroll. It reads the calendars your phone already has
+and hands every change to your calendar app. No account, no ads, no tracking, and no permission
+to use the internet at all.
+
+Android 14 (API 34) or newer. Check the download with the `.sha256` file beside the APK, and the
+signing certificate against the fingerprint in the
+[README](https://github.com/fiorenzobrioni/tempo#install).
+
+### What is in it
+
+- **Today**: the time large beside a clock face with the next twelve hours' events on its ring,
+  the date, your next alarm, and one sentence on the day.
+- **The agenda**: all-day events, the day's events on a timeline with a line for now and the
+  free hours between them, then the rest of the week, a card a day.
+- **Your calendar app does the writing**: touch an event to open it there; the date, the
+  calendar button and a day's name open that day; the new-event button and a free hour open a
+  new event with its start already set.
+- **Two widgets**, «Agenda» and «In words», laid out for every size from one cell up, each with
+  its own settings. Their clock is drawn by Android itself, right to the minute.
+- **New event** from a long press on Tempo's icon.
+- **Your calendars, your choice**: every account's calendars with their colours, each shown or
+  hidden; declined invitations kept out.
+- **The guide**, light and dark themes, two palettes, three typefaces.
+- **For every reader**: TalkBack reads each event as one sentence, text up to twice its size,
+  foldables.
+- **English and Italian**, through the system per-app language picker.
+
+### Private and light
+
+- No `INTERNET` permission: Tempo cannot send anything. One permission, to read your calendar,
+  which Tempo never writes.
+- The phone's own calendar is the only source: no account, no sync of its own, no Google
+  services.
+- No service, no polling, nothing on a timer with the screen off: a widget changes when your
+  calendar does, or when an event starts or ends.
+
+The full development record is in
+[docs/CHANGELOG-1.0.0.md](https://github.com/fiorenzobrioni/tempo/blob/main/docs/CHANGELOG-1.0.0.md).

@@ -85,8 +85,7 @@ import com.callbackdev.tempo.widget.widgetLocale
 import java.time.format.DateTimeFormatter
 
 /**
- * «In words» (Chiaro's «In parole», Passo's «In words»; PLANNING.md §7): a dial and the day in a few
- * words. The dial stands where Passo's ring stands, the system's hands over the focus's arc
+ * «In words» (PLANNING.md §7): a dial and the day in a few words. The dial: the system's hands over the focus's arc
  * (`WidgetDial.kt`); beside or under it, what comes next and when, the date, the day's note.
  * [WordsFit] holds the ranks, the forms and every number's reason.
  */
@@ -395,7 +394,7 @@ private fun CellContent(parts: WordsParts, palette: WidgetPalette) {
     }
 }
 
-/** One row, Passo's: the dial; the title over its time; the date at the far edge. */
+/** One row: the dial; the title over its time; the date at the far edge. */
 @Composable
 private fun RowContent(parts: WordsParts, palette: WidgetPalette) {
     val dial = parts.plan.dial > 0f
@@ -436,7 +435,7 @@ private fun RowContent(parts: WordsParts, palette: WidgetPalette) {
 }
 
 /**
- * Two rows and up, Passo's tall card: the dial in the top trailing corner and the date beside it;
+ * Two rows and up: the dial in the top trailing corner and the date beside it;
  * the title, when and the note hanging from the bottom leading corner.
  */
 @Composable

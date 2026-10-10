@@ -91,7 +91,7 @@ import java.time.ZonedDateTime
 import java.util.Locale
 
 @Composable
-fun SettingsRoute(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsRoute(onBack: () -> Unit, onOpenGuide: () -> Unit = {}, viewModel: SettingsViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val activity = LocalActivity.current
     val asked = state?.settings?.askedCalendarPermission ?: false
@@ -124,6 +124,7 @@ fun SettingsRoute(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMod
                 )
             },
             pinWidget = viewModel::pinWidget,
+            openGuide = onOpenGuide,
         ),
     )
 }
@@ -135,14 +136,13 @@ class SettingsActions(
     val askPermission: () -> Unit = {},
     val openAppSettings: () -> Unit = {},
     val pinWidget: (TempoWidget) -> Unit = {},
+    val openGuide: () -> Unit = {},
 )
 
 /**
- * Settings, laid out as Chiaro's and Passo's: every group on one rounded ground under a header in
- * the accent, a live preview of the appearance above the choices that change it, the privacy note
- * as a statement, the licence and the credits last. The guide's card, first in the sisters' lists,
- * joins with the guide itself (Phase 5): a card to a page that does not exist would be the screen
- * lying about the app.
+ * Settings: every group on one rounded ground under a header in the accent, a live preview of
+ * the appearance above the choices that change it, the privacy note as a statement, the licence
+ * and the credits last. The guide's card comes first.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -233,6 +233,7 @@ private fun SettingsList(
         modifier = modifier.testTag(SettingsTags.LIST),
         contentPadding = pageGutter(sideInsets = false).contentPadding(bottom = 32.dp),
     ) {
+        item { GuideCard(actions.openGuide) }
         item { GroupHeader(stringResource(R.string.settings_group_clock)) }
         item {
             SettingsGroup {
@@ -591,6 +592,37 @@ private val PREVIEW_TIME: LocalTime = LocalTime.of(9, 41)
 /** Google Calendar's "Basil", the colour of a typical first calendar. */
 private const val PREVIEW_CALENDAR_COLOR = 0xFF0B8043.toInt()
 
+/**
+ * The way to the guide, first in the list: the place a reader
+ * comes back to the day the question arrives, which a card shown once on Today could never be.
+ */
+@Composable
+private fun GuideCard(onOpenGuide: () -> Unit) {
+    Surface(
+        onClick = onOpenGuide,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        shape = GroupShape,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = ScreenMargin, end = ScreenMargin, top = 8.dp)
+            .testTag(SettingsTags.GUIDE),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.padding(16.dp),
+        ) {
+            Icon(TempoIcons.Info, contentDescription = null, modifier = Modifier.size(24.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.settings_guide), style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.settings_guide_note), style = MaterialTheme.typography.bodyMedium)
+            }
+            Icon(TempoIcons.ChevronRight, contentDescription = null)
+        }
+    }
+}
+
 @Composable
 private fun PrivacyCard() {
     Surface(
@@ -702,6 +734,7 @@ object SettingsTags {
     const val CALENDARS_SUMMARY = "settings_calendars_summary"
     const val PIN_AGENDA = "settings_pin_agenda"
     const val PIN_WORDS = "settings_pin_words"
+    const val GUIDE = "settings_guide"
 
     fun calendar(id: Long) = "settings_calendar_$id"
 }

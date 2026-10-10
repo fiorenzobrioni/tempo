@@ -85,8 +85,7 @@ object WidgetConfigTags {
 private enum class ConfigDialog { CLOCK_FORMAT, DATE_STYLE, HEADER_TAP, EVENT_TAP }
 
 /**
- * One widget's settings, reached from the launcher's reconfigure flow (the family's screen,
- * Chiaro's and Passo's groups in their order): the card at the top, at the sizes it can be given;
+ * One widget's settings, reached from the launcher's reconfigure flow: the card at the top, at the sizes it can be given;
  * then what its time and date show, what its touches open, what it is painted on and what it
  * carries. Every choice is saved as it is made and repaints this one card; «Done» only closes the
  * door.
@@ -328,7 +327,7 @@ private fun eventTapLabel(tap: EventTap): String = stringResource(
     },
 )
 
-/** What the background question offers, in Chiaro's order less its sky. Every [WidgetBackground] has its row. */
+/** What the background question offers, in order. Every [WidgetBackground] has its row. */
 internal val WidgetBackgroundChoices: List<Pair<WidgetBackground, Int>> = listOf(
     WidgetBackground.LIGHT to R.string.widget_bg_light,
     WidgetBackground.DARK to R.string.widget_bg_dark,
@@ -336,7 +335,7 @@ internal val WidgetBackgroundChoices: List<Pair<WidgetBackground, Int>> = listOf
     WidgetBackground.COLOR to R.string.widget_bg_color,
 )
 
-/** Chiaro's six, in Chiaro's order. Every [WidgetCardColor] has its swatch. */
+/** The six, in their order. Every [WidgetCardColor] has its swatch. */
 internal val WidgetCardColorChoices: List<Pair<WidgetCardColor, Int>> = listOf(
     WidgetCardColor.BLUE to R.string.widget_color_blue,
     WidgetCardColor.AZURE to R.string.widget_color_azure,

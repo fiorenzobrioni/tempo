@@ -33,7 +33,7 @@ enum class StatusTone {
 
 /**
  * A state of the app stated as a card: a mark, what is going on, what to do, and the button that
- * does it. Never a toast: a toast is gone before it is read (Chiaro §8.2).
+ * does it. Never a toast: a toast is gone before it is read.
  */
 @Composable
 fun StatusCard(

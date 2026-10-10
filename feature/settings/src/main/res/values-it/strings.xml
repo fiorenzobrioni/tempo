@@ -46,7 +46,7 @@
     <string name="settings_palette">Palette</string>
     <string name="settings_palette_paper">Carta</string>
     <string name="settings_palette_vivid">Brillante</string>
-    <string name="settings_palette_note">Carta è bianco caldo e ambra. Brillante è bianco freddo e azzurro. Le stesse due di Chiaro e Passo.</string>
+    <string name="settings_palette_note">Carta è bianco caldo e ambra. Brillante è bianco freddo e azzurro.</string>
     <string name="settings_font">Carattere</string>
     <string name="settings_font_google_sans">Google Sans</string>
     <string name="settings_font_inter">Inter</string>
@@ -59,6 +59,9 @@
     <string name="settings_group_language">Lingua</string>
     <string name="settings_language">Lingua dell’app</string>
     <string name="settings_language_system">Come il telefono</string>
+
+    <string name="settings_guide">Come funziona Tempo</string>
+    <string name="settings_guide_note">Da dove vengono i tuoi impegni, Oggi, i widget, chi fa cosa</string>
 
     <string name="settings_privacy">Privacy</string>
     <string name="settings_privacy_headline">Niente account, niente pubblicità, niente tracciamento.</string>
@@ -83,7 +86,7 @@
     <string name="settings_widget_agenda">Aggiungi «Agenda» alla schermata Home</string>
     <string name="settings_widget_agenda_note">L’ora e la data sopra il resto della giornata</string>
     <string name="settings_widget_words">Aggiungi «In parole» alla schermata Home</string>
-    <string name="settings_widget_words_note">Quello che viene dopo, in grande, e la giornata in una riga</string>
+    <string name="settings_widget_words_note">Un quadrante con quello che viene dopo sull’anello, e la giornata in poche parole</string>
     <string name="settings_widget_add">Aggiungere un widget</string>
     <string name="settings_widget_manual">Tieni premuto un punto vuoto della schermata Home, scegli Widget, poi Tempo.</string>
     <string name="settings_widget_change">Cambiare un widget</string>

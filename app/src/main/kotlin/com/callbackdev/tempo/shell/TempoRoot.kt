@@ -20,16 +20,16 @@ import androidx.navigation3.ui.NavDisplay
 import com.callbackdev.tempo.core.designsystem.theme.TempoMotion
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
 import com.callbackdev.tempo.core.model.UserSettings
+import com.callbackdev.tempo.feature.guide.GuideRoute
 import com.callbackdev.tempo.feature.onboarding.OnboardingRoute
 import com.callbackdev.tempo.feature.settings.SettingsRoute
 import com.callbackdev.tempo.feature.today.TodayRoute
 import kotlinx.serialization.Serializable
 
 /*
- * The shell's destinations as Navigation 3 keys, as in Passo and Chiaro: on one back stack, so
+ * The shell's destinations as Navigation 3 keys: on one back stack, so
  * back is previewed under the finger (predictive back) and the stack survives a rotation and
- * process death. The onboarding stands before them (it is not a page to go back to); the guide
- * joins in Phase 5.
+ * process death. The onboarding stands before them (it is not a page to go back to).
  */
 
 @Serializable
@@ -39,9 +39,13 @@ data object TodayKey : NavKey
 @Serializable
 data object SettingsKey : NavKey
 
+/** The guide, from the card at the top of Settings (Phase 5). */
+@Serializable
+data object GuideKey : NavKey
+
 /**
  * The shell (PLANNING.md §11 Phases 2 and 3): the first run until it is done, then the pages.
- * The transitions are Passo's: a short slide with a fade, the 300 ms that predictive back seeks,
+ * The transitions: a short slide with a fade, the 300 ms that predictive back seeks,
  * and a plain fade under reduced motion.
  */
 @Composable
@@ -68,7 +72,8 @@ private fun MainPages() {
             predictivePopTransitionSpec = { backward(reduced) },
             entryProvider = entryProvider<NavKey> {
                 entry<TodayKey> { TodayRoute(onOpenSettings = { backStack.add(SettingsKey) }) }
-                entry<SettingsKey> { SettingsRoute(onBack = goBack) }
+                entry<SettingsKey> { SettingsRoute(onBack = goBack, onOpenGuide = { backStack.add(GuideKey) }) }
+                entry<GuideKey> { GuideRoute(onBack = goBack) }
             },
         )
     }

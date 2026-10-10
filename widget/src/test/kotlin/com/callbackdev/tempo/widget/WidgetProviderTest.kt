@@ -5,7 +5,7 @@ import org.junit.Test
 import java.io.File
 
 /**
- * What no other test reaches, because the launcher reads it (Chiaro's `WidgetPreviewTest`): the
+ * What no other test reaches, because the launcher reads it: the
  * two providers, which must be the same size spec so the cards can trade places, and their
  * static previews, which may only use views `RemoteViews` can inflate.
  */

@@ -87,7 +87,7 @@ import com.callbackdev.tempo.widget.widgetLocale
 import java.time.format.DateTimeFormatter
 
 /**
- * «Agenda» (PLANNING.md §7, VISION.md): the concept's widget in the family's dress. The clock and
+ * «Agenda» (PLANNING.md §7, VISION.md): the concept's widget on the card. The clock and
  * the date are the system's `TextClock`; under them, or beside them, the rest of the day, as many
  * events as the card holds whole, then how many more. Never a scrolling list: a Glance `Column`,
  * its rows in groups, because Glance drops a container's eleventh child without a word.

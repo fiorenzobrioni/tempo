@@ -60,6 +60,17 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun `the guide's card comes first, and opens the guide`() {
+        var opened = false
+        draw(actions = SettingsActions(openGuide = { opened = true }))
+        compose.onNodeWithTag(SettingsTags.GUIDE).assertIsDisplayed()
+        compose.onNodeWithText("How Tempo works").assertIsDisplayed()
+        compose.onNodeWithTag(SettingsTags.GUIDE).performClick()
+        assertThat(opened).isTrue()
+        compose.assertAccessible()
+    }
+
+    @Test
     fun `the clock rows say the formats in use`() {
         draw(UserSettings(clockFormat = ClockFormat.H24))
         compose.onNodeWithText("24-hour", substring = true).assertIsDisplayed()

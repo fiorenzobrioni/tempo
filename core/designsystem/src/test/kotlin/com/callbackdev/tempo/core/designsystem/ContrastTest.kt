@@ -12,8 +12,8 @@ import org.junit.Test
 
 /**
  * Every ink the app sets text in reads on every ground it stands on, in both dresses and both
- * themes: WCAG's 4.5:1 for text, the Accessibility Scanner's threshold (Passo's ContrastTest,
- * carried over). The generated schemes are Chiaro's and never hand-edited, so this pins the pairs
+ * themes: WCAG's 4.5:1 for text, the Accessibility Scanner's threshold. The generated schemes
+ * are never hand-edited, so this pins the pairs
  * the screens use, and the colors Tempo adds. A screen that sets text on a new pair adds it here.
  */
 class ContrastTest {

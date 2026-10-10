@@ -8,16 +8,16 @@ A private, battery-friendly Android clock and agenda: the time, the date and the
 one calm view, in the app and on a home-screen widget that never scrolls.
 Free, no account, no ads, no tracking, and no permission to use the internet at all.
 
-![Platform](https://img.shields.io/badge/platform-Android-4A5E7A?labelColor=FCFAF6)
-![Status](https://img.shields.io/badge/status-in%20development-4A5E7A?labelColor=FCFAF6)
-![CI](https://img.shields.io/github/actions/workflow/status/fiorenzobrioni/tempo/android-ci.yml?branch=main&label=CI&labelColor=FCFAF6&color=4A5E7A)
+![Platform](https://img.shields.io/badge/platform-Android-2140C8?labelColor=FCFAF6)
+![Release](https://img.shields.io/github/v/release/fiorenzobrioni/tempo?label=release&labelColor=FCFAF6&color=2140C8)
+![CI](https://img.shields.io/github/actions/workflow/status/fiorenzobrioni/tempo/android-ci.yml?branch=main&label=CI&labelColor=FCFAF6&color=2140C8)
 ![License](https://img.shields.io/badge/license-GPL--3.0-007DB6?labelColor=FCFAF6)
 ![minSdk](https://img.shields.io/badge/minSdk-34-70569C?labelColor=FCFAF6)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4-F1A000?labelColor=FCFAF6)
 ![Compose](https://img.shields.io/badge/UI-Compose%20Material%203-007DB6?labelColor=FCFAF6)
-![Internet](https://img.shields.io/badge/INTERNET%20permission-none-4A5E7A?labelColor=FCFAF6)
+![Internet](https://img.shields.io/badge/INTERNET%20permission-none-2140C8?labelColor=FCFAF6)
 
-**In development.** The first release comes with Phase 6 of the [plan](./PLANNING.md).
+[**⬇️ Download the latest release**](https://github.com/fiorenzobrioni/tempo/releases/latest)
 
 </div>
 
@@ -45,6 +45,9 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
     <td align="center"><img src="docs/screenshots/widget-settings.png" width="250" alt="One widget's settings: the card itself at the top, the sizes it can take, the time and the date with their formats"><br><sub><b>Each widget</b>, set on its own</sub></td>
     <td align="center"><img src="docs/screenshots/onboarding.png" width="250" alt="The first run: Tempo, the time and what comes next, with three promises: your calendars in one view, read-only and private, battery is a feature"><br><sub><b>First run</b>: one permission, to read</sub></td>
   </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/guide.png" width="250" alt="The guide: what Tempo does, then where your events come from: your calendars and your choice, all-day events keeping their date, declined and cancelled events, work calendars"><br><sub><b>The guide</b>, in the app</sub></td>
+  </tr>
 </table>
 
 Drawn by the app's own screens from a realistic sample week, in English (the app also speaks
@@ -65,6 +68,7 @@ For 1.0 ([VISION.md](./VISION.md) has the full scope):
 - ➕ **New event** from the launcher icon's long press, straight to your calendar app.
 - 🗂️ **Your calendars, your choice**: every account's calendars with their colours, each shown or hidden; declined invitations kept out.
 - 🎨 **Appearance**: light or dark, two palettes, three typefaces, the same as Chiaro's and Passo's.
+- 📖 **The guide**: what Today and the widgets answer, who does what, and what a screen cannot say out loud.
 - 🇮🇹 🇬🇧 **Italian and English**, through the system per-app language picker.
 
 ## Principles
@@ -80,9 +84,25 @@ For 1.0 ([VISION.md](./VISION.md) has the full scope):
 
 ## Install
 
-Not yet: there is no release. When there is, it will be the family's way: a signed APK on
-[GitHub Releases](https://github.com/fiorenzobrioni/tempo/releases), with its SHA-256 checksum
-and the release key's fingerprint here, for Android 14 (API 34) or newer.
+Android 14 (API 34) or newer.
+
+1. Download `tempo-vX.Y.Z.apk` from the [latest release](https://github.com/fiorenzobrioni/tempo/releases/latest).
+2. Open it on the phone and allow installs from that source when Android asks.
+3. On the first run, allow Tempo to read your calendar (or not yet: the clock works without it).
+
+**Verify the download.** Put the APK and its `.sha256` file in one folder and run
+`sha256sum -c tempo-vX.Y.Z.apk.sha256`. To check that the APK is genuine, compare its signing
+certificate (`apksigner verify --print-certs`, or AppVerifier on the phone) with this SHA-256
+fingerprint:
+
+```
+A9:43:D8:BA:63:0F:C9:2A:7C:A0:89:A0:7B:71:97:15:0E:C9:9F:51:0A:2A:6D:3E:6E:21:0B:E5:65:58:58:FE
+```
+
+**Updates.** Tempo has no network access, so it cannot check for updates. Use GitHub's
+"Watch, Custom, Releases" notifications, or [Obtainium](https://github.com/ImranR98/Obtainium).
+Every release installs over the previous one and keeps your settings. The notes of each version
+are in [CHANGELOG.md](./CHANGELOG.md).
 
 ## Roadmap
 
@@ -91,8 +111,9 @@ The phased plan, with every decision and its reason, is in [PLANNING.md](./PLANN
 - **Phase 0**, foundations: the build, the design system, CI. *Done.*
 - **Phase 1**, the calendar engine: reading the phone's calendars right, every edge case tested. *Done.*
 - **Phase 2**, settings; **Phase 3**, Today and the first run. *Done.*
-- **Phase 4**, the two widgets. *Done* (the owner's checks on the phone to come).
-- **Phase 5**, the guide and the accessibility pass; **Phase 6**, the 1.0 release on GitHub.
+- **Phase 4**, the two widgets. *Done*, checked on the phone.
+- **Phase 5**, the guide and the accessibility pass. *Done.*
+- **Phase 6**, the 1.0 release on GitHub. *Done.*
 
 ## Build
 
@@ -147,7 +168,7 @@ tempo/
 │   ├── calendar/           # the Calendar Provider, the change observer, the intents
 │   ├── designsystem/       # theme, components, icons
 │   └── testing/            # shared UI test helpers (accessibility, page walks)
-├── feature/                # today, settings, onboarding (and the guide, later)
+├── feature/                # today, settings, onboarding, guide
 ├── widget/                 # the two Glance widgets and their settings
 ├── build-logic/            # convention plugins, the forbidden-permission check
 ├── tools/                  # the launcher icon script

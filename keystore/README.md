@@ -15,8 +15,9 @@ same arrangement as Chiaro, Passo and Saldo. It is Tempo's own key (created on 7
 SHA-256 certificate fingerprints:
 
 - `debug.keystore`: `6A:3C:A0:4B:5E:DC:B6:63:9B:8C:21:5B:34:53:A4:95:DA:EB:5C:3B:AC:F5:4A:6A:7B:30:59:FE:AA:DF:22:EB`
-- release key: not created yet (PLANNING.md §11 Phase 0, the owner's step). Its fingerprint goes
-  here and in the root README once it exists.
+- release key: `A9:43:D8:BA:63:0F:C9:2A:7C:A0:89:A0:7B:71:97:15:0E:C9:9F:51:0A:2A:6D:3E:6E:21:0B:E5:65:58:58:FE` (the one published in the root README; `CN=callbackdev`, created by
+  the owner and put in the four secrets on 10 Oct 2026, read by the release workflow's first
+  rehearsal the same day)
 
 ## The release key
 

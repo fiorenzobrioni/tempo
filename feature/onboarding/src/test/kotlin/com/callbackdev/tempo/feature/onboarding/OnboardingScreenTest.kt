@@ -1,8 +1,11 @@
 package com.callbackdev.tempo.feature.onboarding
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -12,6 +15,7 @@ import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
 import com.callbackdev.tempo.core.model.CalendarPermission
 import com.callbackdev.tempo.core.testing.assertAccessible
 import com.callbackdev.tempo.core.testing.walkPage
+import com.callbackdev.tempo.core.testing.writeScreenshot
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -44,6 +48,37 @@ class OnboardingScreenTest {
         compose.assertAccessible()
         compose.onNodeWithTag(OnboardingTags.PRIMARY).performClick()
         assertThat(next).isTrue()
+    }
+
+    @Test
+    fun `the welcome says where the run stands, as the other pages do`() {
+        draw(OnboardingStep.WELCOME, CalendarPermission.ASKABLE)
+        compose.onNodeWithContentDescription("Step 1 of 3").assertIsDisplayed()
+    }
+
+    // A phone upright as a reader holds it: 384 x 832 dp (a Galaxy S24's), less its status bar and
+    // gesture line, which Robolectric does not draw. In Italian, the longer of the two languages.
+    @Test
+    @Config(qualifiers = "it-w384dp-h770dp-xxhdpi")
+    fun `the welcome fits a phone without scrolling`() {
+        draw(OnboardingStep.WELCOME, CalendarPermission.ASKABLE)
+        compose.waitForIdle()
+        compose.writeScreenshot("onboarding-welcome-it")
+        val page = compose.onNodeWithTag(OnboardingTags.PAGE).fetchSemanticsNode()
+        val range = page.config.getOrNull(SemanticsProperties.VerticalScrollAxisRange)
+        assertThat(range?.maxValue?.invoke() ?: 0f).isEqualTo(0f)
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w384dp-h770dp-night-xxhdpi")
+    fun `the welcome's mark stands on the dark page`() {
+        compose.setContent {
+            TempoTheme(darkTheme = true) {
+                OnboardingScreen(OnboardingStep.WELCOME, CalendarPermission.ASKABLE, OnboardingActions())
+            }
+        }
+        compose.waitForIdle()
+        compose.writeScreenshot("onboarding-welcome-dark")
     }
 
     @Test

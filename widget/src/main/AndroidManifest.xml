@@ -6,7 +6,7 @@
   also uses for the calendar's content-URI trigger, with its WAKE_LOCK (held by a job while it
   runs), RECEIVE_BOOT_COMPLETED (to re-arm its jobs after a reboot), FOREGROUND_SERVICE and
   ACCESS_NETWORK_STATE (which lets nothing leave the phone: there is no INTERNET permission).
-  All are left as WorkManager declares them, as in Chiaro and Passo (reviewed in Phase 4,
+  All are left as WorkManager declares them (reviewed in Phase 4,
   PLANNING.md §10). The boundary alarm is AlarmManager.set(RTC): inexact, non-wakeup, no permission.
   The calendar's PROVIDER_CHANGED receiver adds no permission either.
 -->

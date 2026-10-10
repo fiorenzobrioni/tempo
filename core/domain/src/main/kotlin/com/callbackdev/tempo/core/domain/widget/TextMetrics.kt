@@ -6,15 +6,15 @@ import kotlin.math.floor
  * The arithmetic of type on a home-screen card (PLANNING.md §6, `AgendaFit`), in dp and sp as plain
  * floats so it stays pure Kotlin. A launcher draws a card in its own system face, which only the
  * widget's process can measure: what is measured (how wide a time is, in ems) comes in as a
- * number, and everything decided from it is here, where a test pins it. Passo's `GlanceLayout`
- * carried over, without Compose's `Dp`.
+ * number, and everything decided from it is here, where a test pins it, without
+ * Compose's `Dp`.
  */
 
 /**
  * The height one line of a Glance `Text` occupies (font padding on): about 1.32 em in the system
  * face, times the reader's font scale, and the pixel the face's metrics are rounded up to. Without
  * that pixel a list of four rows came out 2 dp taller than budgeted, and its last line's
- * descenders were cut (8 Oct 2026). An estimate, named as one (Chiaro's, Passo's).
+ * descenders were cut (8 Oct 2026). An estimate, named as one.
  */
 fun lineHeight(sizeSp: Float, fontScale: Float): Float = sizeSp * LINE_BOX_EM * fontScale + LINE_ROUNDING
 
@@ -51,7 +51,7 @@ const val CLOCK_BOX_EM: Float = 1.2f
 /** The pixel a line's font metrics are rounded up to, at any density: measured, 8 Oct 2026. */
 const val LINE_ROUNDING: Float = 1f
 
-/** The air a measured width is given before it is used as one (Passo's `RowFitSlack`). */
+/** The air a measured width is given before it is used as one. */
 const val FIT_SLACK: Float = 4f
 
 private const val MIN_SCALE = 0.1f

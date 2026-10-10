@@ -10,10 +10,9 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 /**
  * The platform levels, in one place (VISION.md, Key decisions; PLANNING.md §1).
  *
- * minSdk 34 (Android 14), Passo's level (owner, 7 Oct 2026): the per-app language picker, themed
- * icons and the widget APIs of Android 12 are all native, and the two apps built from one
- * build-logic share their platform floor too. Tempo needs nothing from 34 itself; 33 was
- * proposed and set aside for the family's sameness (ADR 0001). 37 is Android 17, as Passo.
+ * minSdk 34 (Android 14, owner, 7 Oct 2026): the per-app language picker, themed icons and the
+ * widget APIs of Android 12 are all native. Tempo needs nothing from 34 itself; 33 was proposed
+ * and set aside (ADR 0001). 37 is Android 17.
  */
 object TempoSdk {
     const val MIN = 34

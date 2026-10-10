@@ -1,6 +1,7 @@
 package com.callbackdev.tempo.widget.config
 
 import android.appwidget.AppWidgetManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -32,7 +33,7 @@ import javax.inject.Inject
 /**
  * The launcher's door into one widget's settings (`android:configure`, reconfigurable and
  * optional: a card is placed at once with the defaults, and a long press opens this). It wears
- * the app's own appearance, as Chiaro's does: it is part of the app.
+ * the app's own appearance: it is part of the app.
  */
 @AndroidEntryPoint
 class WidgetConfigActivity : ComponentActivity() {
@@ -45,16 +46,14 @@ class WidgetConfigActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val appWidgetId =
-            intent?.extras?.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-                ?: AppWidgetManager.INVALID_APPWIDGET_ID
-        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+        val target = configTarget(applicationContext, intent)
+        if (target == null) {
             finish()
             return
         }
+        val (appWidgetId, kind) = target
         // The host expects this result whether or not anything changes.
         setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId))
-        val kind = TempoWidgets.kindOf(applicationContext, appWidgetId) ?: WidgetKind.AGENDA
         val placed = placedWidgetSize(applicationContext, appWidgetId)
 
         setContent {
@@ -102,4 +101,18 @@ class WidgetConfigActivity : ComponentActivity() {
             }
         }
     }
+}
+
+/**
+ * The card a configure request names, when it is one of Tempo's placed cards. The screen is
+ * exported, because the launcher opens it, so any app could open it with any id: one that is not
+ * a Tempo card on a home screen (Android names its provider only to the provider and the host)
+ * gets nothing, rather than a screen drawn from the reader's calendar that would write a look for
+ * a card that does not exist.
+ */
+internal fun configTarget(context: Context, intent: Intent?): Pair<Int, WidgetKind>? {
+    val appWidgetId = intent?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+        ?: AppWidgetManager.INVALID_APPWIDGET_ID
+    if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) return null
+    return TempoWidgets.kindOf(context, appWidgetId)?.let { appWidgetId to it }
 }

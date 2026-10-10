@@ -101,7 +101,7 @@ internal fun Bitmap.saveTo(dir: File, name: String) {
     File(dir, "$name.png").outputStream().use { compress(Bitmap.CompressFormat.PNG, 100, it) }
 }
 
-/** The household's reference grants (Chiaro's `PreviewSize`). */
+/** The household's reference grants. */
 internal object Grants {
     val OneByOne = DpSize(85.dp, 85.dp)
     val TwoByOne = DpSize(159.dp, 85.dp)

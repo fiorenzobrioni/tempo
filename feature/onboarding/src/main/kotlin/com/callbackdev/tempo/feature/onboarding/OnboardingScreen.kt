@@ -74,7 +74,7 @@ import com.callbackdev.tempo.core.model.CalendarPermission
 import com.callbackdev.tempo.core.designsystem.R as DesignR
 
 /**
- * The first run's pages (PLANNING.md §11 Phases 3 and 4), in Passo's shape: what Tempo is, the one
+ * The first run's pages (PLANNING.md §11 Phases 3 and 4): what Tempo is, the one
  * permission it needs, and the widgets, with the launcher's own way to place one.
  */
 enum class OnboardingStep {
@@ -155,9 +155,9 @@ fun OnboardingScreen(
     BackHandler(enabled = step != OnboardingStep.WELCOME, onBack = actions.back)
     Surface(modifier = modifier.fillMaxSize().testTag(OnboardingTags.ROOT)) {
         Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
-            if (step != OnboardingStep.WELCOME) {
-                Box(Modifier.padding(gutter)) { Progress(step.ordinal, OnboardingStep.entries.size) }
-            }
+            // On every page, the welcome included (owner, 10 Oct 2026): the run's length is said
+            // from its first page.
+            Box(Modifier.padding(gutter)) { Progress(step.ordinal, OnboardingStep.entries.size) }
             AnimatedContent(
                 targetState = step,
                 transitionSpec = {
@@ -270,15 +270,17 @@ private fun BottomBar(step: OnboardingStep, permission: CalendarPermission, acti
 @Composable
 private fun WelcomePage() {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Spacer(Modifier.height(40.dp))
-        // The launcher icon itself (owner, 7 Oct 2026), the mark the reader just touched to get
-        // here. Decorative: the app's name follows as the page's heading.
+        Spacer(Modifier.height(8.dp))
+        // The launcher icon's mark (owner, 7 Oct 2026), the one the reader just touched to get
+        // here, on the page's own ground (owner, 10 Oct 2026). Decorative: the app's name follows
+        // as the page's heading. The spaces are measured so the page fits a phone upright without
+        // scrolling (OnboardingScreenTest).
         Image(
             painter = painterResource(DesignR.drawable.ic_app_mark),
             contentDescription = null,
-            modifier = Modifier.size(112.dp).testTag(OnboardingTags.MARK),
+            modifier = Modifier.size(96.dp).testTag(OnboardingTags.MARK),
         )
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(20.dp))
         Text(
             text = stringResource(R.string.onboarding_app_name),
             style = MaterialTheme.typography.displaySmall,
@@ -291,7 +293,7 @@ private fun WelcomePage() {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(36.dp))
+        Spacer(Modifier.height(24.dp))
         Promise(TempoIcons.Calendar, R.string.onboarding_calendars_title, R.string.onboarding_calendars_body)
         Promise(TempoIcons.Shield, R.string.onboarding_private_title, R.string.onboarding_private_body)
         Promise(TempoIcons.Battery, R.string.onboarding_battery_title, R.string.onboarding_battery_body)
@@ -302,7 +304,7 @@ private fun WelcomePage() {
 private fun Promise(icon: ImageVector, title: Int, body: Int) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
     ) {
         Surface(
             color = MaterialTheme.colorScheme.secondaryContainer,

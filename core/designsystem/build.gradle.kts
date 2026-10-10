@@ -1,6 +1,5 @@
 // The Material 3 theme, typography and the shared components, for the app screens and the
-// widget's settings (PLANNING.md §2): Chiaro's design language, as in Passo
-// (docs/adr/0002-design-language.md).
+// widget's settings (PLANNING.md §2): the design language of docs/adr/0002-design-language.md.
 plugins {
     alias(libs.plugins.tempo.android.library)
     alias(libs.plugins.tempo.android.compose)

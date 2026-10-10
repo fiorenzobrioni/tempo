@@ -23,11 +23,11 @@
 
     <string name="onboarding_next">Next</string>
     <string name="onboarding_widget_title">On your home screen</string>
-    <string name="onboarding_widget_body">Two widgets, the same card as Chiaro’s and Passo’s. Their clock is drawn by Android itself, right to the minute, at no cost to the battery.</string>
+    <string name="onboarding_widget_body">Two widgets. Their clock is drawn by Android itself, right to the minute, at no cost to the battery.</string>
     <string name="onboarding_widget_agenda">Agenda</string>
     <string name="onboarding_widget_agenda_body">The time and the date over the rest of your day, never a list to scroll.</string>
     <string name="onboarding_widget_words">In words</string>
-    <string name="onboarding_widget_words_body">What comes next, large, and the day in one line.</string>
+    <string name="onboarding_widget_words_body">A clock face with what comes next on its ring, and the day in a few words.</string>
     <string name="onboarding_widget_add">Add</string>
     <string name="onboarding_widget_add_a11y">Add %1$s to the home screen</string>
     <string name="onboarding_widget_manual">To add one, touch and hold an empty spot on the home screen, choose Widgets, then Tempo.</string>

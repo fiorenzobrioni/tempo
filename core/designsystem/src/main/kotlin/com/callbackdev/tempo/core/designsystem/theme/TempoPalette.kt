@@ -20,7 +20,7 @@ internal data class TempoPalette(
 /** Warm paper and amber. */
 private val Paper = TempoPalette(PaperLightScheme, PaperDarkScheme, PaperLightColors, PaperDarkColors)
 
-/** Daylight white and azure: the default, as in Chiaro. */
+/** Daylight white and azure: the default. */
 private val Vivid = TempoPalette(VividLightScheme, VividDarkScheme, VividLightColors, VividDarkColors)
 
 internal fun paletteFor(choice: AppPalette): TempoPalette = when (choice) {

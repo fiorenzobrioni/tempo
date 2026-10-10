@@ -54,9 +54,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /*
- * The widgets' side of the design system: Chiaro's card, carried over through Passo, so a Tempo
- * card beside a Chiaro or a Passo one on a home screen is the same piece of furniture. The same
- * 24 dp corner, the same insets, the same grounds, the same inks; the system face, because a
+ * The widgets' side of the design system (`docs/adr/0003-widgets.md`): the 24 dp corner, the
+ * insets, the grounds, the inks; the system face, because a
  * launcher draws `RemoteViews` in it whatever the app's own setting is.
  */
 
@@ -73,9 +72,9 @@ fun widgetDressFor(context: Context, settings: UserSettings): WidgetDress = if (
  * @property markGround what a calendar's colour is stepped against to keep 3:1 (PLANNING.md §6):
  *   the card's own ground when it is solid, the darkest or lightest a wallpaper behind a
  *   see-through card can be for the ink chosen when it is not.
- * @property accent the dial's focus, Passo's ring's progress: white on a colour, the scheme's
+ * @property accent the dial's focus: white on a colour, the scheme's
  *   primary on the light and dark grounds.
- * @property track the dial's ring under its arcs (Passo's `TRACK_ALPHA`).
+ * @property track the dial's ring under its arcs.
  */
 data class WidgetPalette(
     val primary: Color,
@@ -150,7 +149,7 @@ fun widgetCardFill(look: WidgetLook, dress: WidgetDress, night: Boolean): Color 
 /**
  * The phone's night mode at render time. Glance's day/night providers are resolved by the
  * launcher, and a host that flips the card without the words leaves dark ink on a dark card
- * (Chiaro, device report of 3 Sep 2026): every colour here is resolved against one answer.
+ * (a device report of 3 Sep 2026): every colour here is resolved against one answer.
  */
 fun isNight(context: Context): Boolean =
     (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
@@ -295,7 +294,7 @@ internal fun fontScale(context: Context): Float = context.resources.configuratio
 
 /**
  * The width one line of text really takes, measured with the face, size and weight the launcher
- * will draw it in (Chiaro's `measureWidgetText`): Glance cannot measure, this process can.
+ * will draw it in: Glance cannot measure, this process can.
  */
 internal fun measureWidgetText(
     context: Context,
@@ -329,7 +328,7 @@ internal fun measureWidgetLines(context: Context, text: String, sizeSp: Float, w
  * The narrowest width at which [text] still takes the lines it takes at [width]: a date set at
  * that width breaks into lines of even length rather than a full line and an orphan
  * ("Wednesday, October / 7"). What `TextView`'s balanced break strategy would do, which a
- * `RemoteViews` cannot ask for (Passo's `balancedWidth`). [width] itself when the text fits one
+ * `RemoteViews` cannot ask for. [width] itself when the text fits one
  * line or more than [maxLines].
  */
 internal fun balancedWidth(
@@ -374,7 +373,7 @@ internal enum class TextWeight(@StyleRes val appearance: Int) {
 /**
  * A paint in the face the launcher will draw [weight] in, at [sizePx]: the very span Glance puts
  * on a weighted `Text`. Measured in plain sans-serif instead, a Samsung's SamsungOne came out a
- * tenth wider than budgeted (Passo, 5 Oct 2026).
+ * tenth wider than budgeted (5 Oct 2026).
  */
 internal fun widgetPaint(context: Context, weight: TextWeight, sizePx: Float): TextPaint =
     TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -398,7 +397,7 @@ internal const val FACE_MARGIN = 1.06f
 
 private const val EM_PROBE_PX = 100f
 
-/** Chiaro's card: the corner, the words' inset, and the snug inset of a one-row card. */
+/** The card: the corner, the words' inset, and the snug inset of a one-row card. */
 internal val WidgetCorner = 24.dp
 internal val WidgetCardPadding = 14.dp
 internal val WidgetCardPaddingSnug = 6.dp
