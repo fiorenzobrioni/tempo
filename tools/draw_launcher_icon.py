@@ -8,9 +8,9 @@ The mark is Chiaro's ring, as Passo and Saldo carry it: the same ring (radius 21
 the same warm white, cut by an amber emblem the way Chiaro's sun (upper right), Passo's shoe
 print (upper left) and Saldo's coin (lower right) cut theirs. Tempo's emblem is a small clock
 face at the lower left, the one place none of its sisters has hers, so the four marks side by
-side turn the emblem once round the ring. The ring is slate, shading clockwise from just past the
-clock round to it again, the way the hours go: a pale morning grey-blue to the deep slate of a
-watch's case, so the amber face is the one warm thing in the mark. The clock's hands are cut out
+side turn the emblem once round the ring. The ring is blue, shading clockwise from just past the
+clock round to it again, the way the hours go: a bright morning azure to a deep cobalt, the cool
+opposite of the amber face, which stays the one warm thing in the mark. The clock's hands are cut out
 of its face: the minute hand at twelve, the hour hand towards four, the drawing the usual clock
 symbol uses, so the face reads as a clock at a launcher's size (ten past ten, tried first, read
 as a tick).
@@ -40,14 +40,15 @@ HANDS = [(-90.0, 5.9), (32.0, 4.3)]
 HAND_WIDTH = 1.8
 HAND_TAIL = 0.9  # how far each hand reaches back past the centre, so the two meet in one hub
 
-# The ring, from just past the clock round to it again: (position along the sweep, colour). Slate,
-# from a pale morning grey-blue to a watch case's deep slate. A colour none of the sisters' rings
-# has (Chiaro's is a sky, amber through violet to night blue; Passo's green; Saldo's sea green and
-# brick), and calm enough that the amber face is the mark's one warm note. Two rings came before
-# it: violet sat too close to Chiaro's (owner, 7 Oct 2026), and the peach, rose and berry day that
-# replaced it did not please (owner, 7 Oct 2026). Brighter blues met Chiaro's night again, copper
-# melted into the amber face, and a plain graphite read as a disabled icon.
-RING_STOPS = [(0.0, "C9D3E0"), (0.45, "6A7F9C"), (1.0, "283548")]
+# The ring, from just past the clock round to it again: (position along the sweep, colour). A
+# bright azure to a deep cobalt (owner, 10 Oct 2026: the sisters' rings are vivid, the slate was the
+# family's one dull ring and its deep end sank into a dark page). Blue is the complement of the
+# amber face, and this one is bright where Chiaro's night blue is deep, so the two do not meet;
+# cobalt to indigo was drawn too, and came too close to Chiaro's violet. Before it: violet (too
+# close to Chiaro, owner, 7 Oct 2026), a peach, rose and berry day (owner: did not please), then
+# slate (7 Oct to 10 Oct 2026). Copper melted into the amber face, a plain graphite read as a
+# disabled icon.
+RING_STOPS = [(0.0, "7FE0FF"), (0.45, "1E90FF"), (1.0, "2140C8")]
 AMBER = ("FFC658", "EF8618")  # the family's emblem amber (Chiaro's sun, Passo's print, Saldo's coin)
 
 
@@ -201,7 +202,7 @@ def main():
     RES.mkdir(parents=True, exist_ok=True)
     (RES / "ic_launcher_foreground.xml").write_text(
         HEADER.format(
-            what="The mark: Chiaro's ring shading through slate, cut by an amber clock\n"
+            what="The mark: Chiaro's ring shading from azure to cobalt, cut by an amber clock\n"
             "     face at the lower left, its hands cut out. Everything sits inside the\n"
             "     33-unit safe circle of every launcher mask (ring edge 26, face edge 29.2)."
         )

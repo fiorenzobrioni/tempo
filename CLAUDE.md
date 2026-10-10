@@ -131,7 +131,7 @@ Chiaro's shapes and springs, and every animation collapses to a fade under reduc
 principles hold here too: one sentence before any number, every number with the line that says
 what it means, no dead tab and no switch for a feature that has not shipped, a section with
 nothing to say is not drawn. Icons are `TempoIcons` (Passo's drawings), drawn in code. The
-launcher icon (the family's ring in slate, with an amber clock face at the lower left) is written
+launcher icon (the family's ring in azure to cobalt, with an amber clock face at the lower left) is written
 by `tools/draw_launcher_icon.py`: change the script and re-run it, never the two XML layers or the
 welcome page's `ic_app_mark.xml`. The Compose UI tests write screenshots to each module's `build/screenshots`:
 look at them after changing a screen.

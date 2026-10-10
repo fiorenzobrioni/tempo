@@ -8,14 +8,14 @@ A private, battery-friendly Android clock and agenda: the time, the date and the
 one calm view, in the app and on a home-screen widget that never scrolls.
 Free, no account, no ads, no tracking, and no permission to use the internet at all.
 
-![Platform](https://img.shields.io/badge/platform-Android-4A5E7A?labelColor=FCFAF6)
-![Status](https://img.shields.io/badge/status-in%20development-4A5E7A?labelColor=FCFAF6)
-![CI](https://img.shields.io/github/actions/workflow/status/fiorenzobrioni/tempo/android-ci.yml?branch=main&label=CI&labelColor=FCFAF6&color=4A5E7A)
+![Platform](https://img.shields.io/badge/platform-Android-2140C8?labelColor=FCFAF6)
+![Status](https://img.shields.io/badge/status-in%20development-2140C8?labelColor=FCFAF6)
+![CI](https://img.shields.io/github/actions/workflow/status/fiorenzobrioni/tempo/android-ci.yml?branch=main&label=CI&labelColor=FCFAF6&color=2140C8)
 ![License](https://img.shields.io/badge/license-GPL--3.0-007DB6?labelColor=FCFAF6)
 ![minSdk](https://img.shields.io/badge/minSdk-34-70569C?labelColor=FCFAF6)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4-F1A000?labelColor=FCFAF6)
 ![Compose](https://img.shields.io/badge/UI-Compose%20Material%203-007DB6?labelColor=FCFAF6)
-![Internet](https://img.shields.io/badge/INTERNET%20permission-none-4A5E7A?labelColor=FCFAF6)
+![Internet](https://img.shields.io/badge/INTERNET%20permission-none-2140C8?labelColor=FCFAF6)
 
 **In development.** The first release comes with Phase 6 of the [plan](./PLANNING.md).
 
@@ -108,7 +108,7 @@ The phased plan, with every decision and its reason, is in [PLANNING.md](./PLANN
 - **Phase 0**, foundations: the build, the design system, CI. *Done.*
 - **Phase 1**, the calendar engine: reading the phone's calendars right, every edge case tested. *Done.*
 - **Phase 2**, settings; **Phase 3**, Today and the first run. *Done.*
-- **Phase 4**, the two widgets. *Done* (the owner's checks on the phone to come).
+- **Phase 4**, the two widgets. *Done*, checked on the phone.
 - **Phase 5**, the guide and the accessibility pass; **Phase 6**, the 1.0 release on GitHub.
 
 ## Build

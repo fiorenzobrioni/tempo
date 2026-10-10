@@ -387,7 +387,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - [x] `core:calendar`: a fake `ContentProvider` for the authority `com.android.calendar` under Robolectric (`FakeCalendarProvider`), so the queries themselves are tested (the URI and its window, the projection, the cursor read by column name, missing columns, a revocation mid-read), not only the domain
   - 16 Robolectric tests. The fake refuses every write: a test would fail if Tempo ever tried one.
 - [x] `CalendarIntents` (§4.7) with `<queries>` (VIEW of an event, INSERT, VIEW of a day), and `canOpen()` before a button is drawn
-- [ ] The intents measured on the owner's phone with the owner's calendar app(s): VIEW of an occurrence, INSERT with a start, VIEW of a day, and whether EDIT is honoured
+- [x] The intents measured on the owner's phone with the owner's calendar app(s): VIEW of an occurrence, INSERT with a start, VIEW of a day, and whether EDIT is honoured
   - *Deviation:* moved to Phase 3, where Today's buttons send them; for an earlier answer, `docs/device-checks/calendar-intents.md` has the four `adb` commands, with no Tempo build needed.
 - [x] `READ_CALENDAR` in `:core:calendar`'s manifest; a debug-only screen is **not** built: the engine is proven by tests and by Phase 3's screen
   - The merged manifest now holds `READ_CALENDAR` beside WorkManager's four and AndroidX's receiver permission; `checkForbiddenPermissions` passes.
@@ -395,7 +395,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 **Acceptance:**
 - [x] All engine tests pass, every §4.6 case included.
   - Every case of §4.6 has its test, except the two that are about a running app (the permission granted from the system's settings while Tempo is in the background; midnight while a page is open, beyond the agenda's own turnover): they need Phase 3's page and are in its UI tests.
-- [ ] On the owner's phone, Tempo's instances for a week match the calendar app's, all-day and recurring events included (a written check in §15).
+- [x] On the owner's phone, Tempo's instances for a week match the calendar app's, all-day and recurring events included (a written check in §15).
   - *Deviation:* with no screen yet, this check moves to Phase 3's acceptance, where Today shows the week.
 
 ### Phase 2 — Settings
@@ -422,7 +422,8 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
   - The words: `AgendaText` in `:core:designsystem` (resources, plurals, both languages), so the widgets of Phase 4 tell the day in the same words.
   - The page: the hero on the family's glow (the clock, the date the calendar app opens on, the alarm, the sentence), the all-day chips, the timeline (the event under way on its own ground with a progress bar and the time left; past events quieter; declined ones struck through; the calendar's colour as a bar, stepped to 3:1), tomorrow in full, the following days one line an event, and a "no calendar app" note when nothing can open an event.
 - [x] Touch an event (VIEW), the new-event button (INSERT), touch the date (VIEW of today); a free row's touch is a new event at its start
-- [ ] The device check of the intents, moved here from Phase 1 (`docs/device-checks/calendar-intents.md`): the owner's, on the phone
+- [x] The device check of the intents, moved here from Phase 1 (`docs/device-checks/calendar-intents.md`): the owner's, on the phone
+  - Done by the owner on the phone, 10 Oct 2026 (§15).
 - [x] Live while visible: the minute ticker and `CalendarChanges`, both lifecycle-bound
   - `TodayViewModel`: one ticker on each minute's start and the observer, shared `WhileSubscribed` (five seconds after the page goes, nothing runs); the provider read again on a new date or zone, a new horizon, a calendar change, and every return to the page (the permission, the calendars or the calendar app may have changed meanwhile); the agenda rebuilt at every tick, so "now" moves without a read. The next alarm is read at each tick (no permission).
 - [x] Onboarding: welcome, the permission (with "Not now"), the widget (pin request)
@@ -436,8 +437,9 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - [x] *Owner, 9 Oct 2026:* Today reviewed (§15): the date and the calendar button on top, the dial beside the clock with the day's arcs, rolling figures, the days ahead on cards, a run of empty days said once.
 
 **Acceptance:**
-- [ ] On the owner's phone, Tempo's week matches the calendar app's, all-day and recurring events included (moved from Phase 1; a written check in §15).
-- [ ] A change made in the calendar app is on Today on return, without a gesture.
+- [x] On the owner's phone, Tempo's week matches the calendar app's, all-day and recurring events included (moved from Phase 1; a written check in §15).
+- [x] A change made in the calendar app is on Today on return, without a gesture.
+  - Done by the owner on the phone, 10 Oct 2026 (§15).
   - Built for (`CalendarChanges` while the page collects, a read at every return) and tested in its parts (`CalendarChangesTest`); the gesture-free return is the owner's to see on the phone, with the check above.
 - [x] TalkBack reads each event as one sentence ("10:00 to 11:00, Dentist, Via Roma 3, in Personal").
   - `TodayScreenTest` reads that very sentence off the Dentist's row: "15:00 to 15:45, Dentist, Via Roma 3, in Personal".
@@ -450,7 +452,8 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
   - The clock and the date are the system's `TextClock` (six small layouts, a frozen `TextView` of each for the samples); the rows in groups of five, so no container passes Glance's ten children; the states (no permission, no calendar, every calendar hidden, unreadable) measured to fit, in words that say what a touch does.
 - [x] The refresh: the content-URI work, the boundary alarm, the exempt broadcasts; the battery check of §9.6
   - `WidgetRefreshArming`: the content-triggered job (re-armed by itself, appended), one `RTC` alarm at `NextBoundary`, `WidgetSystemReceiver` (time, zone, language, package replaced), Tempo's settings and the reader leaving the app (`WidgetUpdater`); the last card removed disarms both. Pinned by `WidgetDoorsTest` (one non-wakeup alarm, replaced, cancelled).
-  - [ ] The battery check of §9.6 on the owner's phone: `docs/device-checks/widget-refresh.md`.
+  - [x] The battery check of §9.6 on the owner's phone: `docs/device-checks/widget-refresh.md`.
+    - Done by the owner on the phone, 10 Oct 2026 (§15).
 - [x] The per-widget settings screen, with the live preview (Passo's, from Chiaro)
   - The time and the date (each shown or not, each in the card's own format or Tempo's), the touches (the time: Tempo, the calendar at today, the clock app; an event: the calendar app or Tempo), the ground and its opacity, all-day events and the days ahead. The real card at the reference grants, "as placed" first.
 - [x] Previews (static and generated)
@@ -462,9 +465,11 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - [x] *Owner, 8 Oct 2026:* a touch on the time can open the phone's clock app (§7, Taps; §15)
 
 **Acceptance:**
-- [ ] On the owner's phone, beside Chiaro's and Passo's cards: the same card, the same colours.
+- [x] On the owner's phone, beside Chiaro's and Passo's cards: the same card, the same colours.
+  - Seen by the owner on the home screen, 10 Oct 2026: Chiaro's, Tempo's «In words» and Passo's cards side by side, one set (§15).
   - The card, its colours and inks are Passo's, unchanged (ADR 0003); the side-by-side is the owner's to see (`docs/device-checks/widget-refresh.md`, check 1).
-- [ ] A calendar change reaches the card within about a minute with the screen on; a finished event leaves it within minutes; with the screen off, `dumpsys alarm` shows no wake-up alarm of Tempo's.
+- [x] A calendar change reaches the card within about a minute with the screen on; a finished event leaves it within minutes; with the screen off, `dumpsys alarm` shows no wake-up alarm of Tempo's.
+  - Done by the owner on the phone, 10 Oct 2026 (§15).
   - Built for (a content trigger quiet for 3 s and at most 20 s late; an `RTC` alarm at the next boundary) and pinned by tests where a JVM can (one non-wakeup alarm at the right moment); the timing on a real phone is checks 2 to 5 of the same page.
 
 ### Phase 5 — The guide, accessibility and polish
@@ -605,9 +610,10 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - **10 Oct 2026, before 1.0.** **The release key, checked before a tag** (owner: the key created and put in the four secrets). The release workflow can now be run by hand as a rehearsal: the same gates, the same build signed with the release key, and nothing published (the tag's checks, the checksum, the notes and the GitHub Release run on a tag only). Its first run read the four secrets and signed the APK; `apksigner` named the signer, `CN=callbackdev`, SHA-256 `A9:43:D8:BA:63:0F:C9:2A:7C:A0:89:A0:7B:71:97:15:0E:C9:9F:51:0A:2A:6D:3E:6E:21:0B:E5:65:58:58:FE`, Tempo's own (neither the debug key nor Passo's). The workflow now fails any APK, rehearsal or release, not signed with that certificate: a secret replaced by mistake would make a release no install could update to.
 - **10 Oct 2026, before 1.0.** **The welcome page, from the phone** (owner: no bar saying where the run stands, a little scrolling, the icon on a ground of its own). The progress bar is on every page, the welcome's included ("Step 1 of 3"). The mark stands on the page's own ground: the warm white disc it was cropped on read as a sticker; without it the drawing is cut close (60 units, the face's edge at 29.2), so the ring is as large at 96 dp as it was at 112 dp. The spaces are tighter (the mark's top 40 to 8 dp, under the tagline 36 to 24 dp, between the promises 20 to 16 dp): in Italian, at 384 × 770 dp (a Galaxy S24 upright, less its bars), the page needed 25 dp more than the screen, and has 23 dp to spare now, with the bar; `OnboardingScreenTest` pins it. A smaller phone still scrolls, as before: the words are not cut to fit. On the dark page the ring's deep end is quieter than on the light one (the screenshot), a point for the ring's colour.
 - **10 Oct 2026, before 1.0.** The first run's and Settings' line for «In words» still said what the card was before its dial ("What comes next, large, and the day in one line"); they now say what the widget picker says: a clock face with what comes next on its ring, and the day in a few words.
+- **10 Oct 2026, before 1.0.** **The launcher ring, azure to cobalt** (owner: the sisters' rings are livelier; "perhaps an electric blue, shaded"). Drawn side by side with Passo's ring, on the launcher's warm white, the light page and the dark one: the slate, an electric blue (`8DB8FF` → `2F6BFF` → `1838B8`), azure to cobalt (`7FE0FF` → `1E90FF` → `2140C8`) and cobalt to indigo. Azure to cobalt, proposed and chosen: blue is the complement of the amber face, this one is the most vivid against it, it holds on the dark page where the slate's deep end sank, and it is bright where Chiaro's night blue is deep; cobalt to indigo came too close to Chiaro's violet. The new-event shortcut's line and the README's badges take the ring's deep end, `#2140C8` (7.6:1 on the warm white). (ADR 0002)
+- **10 Oct 2026, before 1.0.** **The checks on the phone, done** (owner: "I did all the tests on the device"): the intents with the owner's calendar app (`docs/device-checks/calendar-intents.md`), Tempo's week against the calendar app's, all-day and recurring events included, a change made in the calendar app on Today at return without a gesture, and the widgets' refresh and battery (`docs/device-checks/widget-refresh.md`). The owner's home screen shows Chiaro's, Tempo's «In words» (2×2, the dial and a two-line date beside it, the next event, "Oggi niente in calendario.") and Passo's cards side by side, one set; Saldo's to join. `ACTION_EDIT` stays unbuilt, as decided in Phase 1: VIEW opens the event, and the calendar app offers its own edit there.
+- **10 Oct 2026, before 1.0.** The widgets' settings screen opens only for one of Tempo's own cards (`configTarget`, `WidgetConfigTargetTest`): it is exported, because the launcher opens it, so another app could open it with any id, and it drew a preview from the reader's calendar and wrote a look for a card that did not exist, as an «Agenda». Android names a card's provider only to its provider and its host, so an id that is not a Tempo card on a home screen now closes the screen at once. Found in the review before 1.0; no data left the phone either way.
 
 ### Open
 
-- **10 Oct 2026, the launcher ring's colour** (owner: the sisters' rings are livelier; perhaps an electric blue, shaded). Options drawn side by side with Passo's ring, on the launcher's warm white, the light page and the dark one: the slate of today; an electric blue (`8DB8FF` → `2F6BFF` → `1838B8`); a bright azure to cobalt (`7FE0FF` → `1E90FF` → `2140C8`, proposed: the most vivid against the amber face, the one that holds on the dark page, and bright where Chiaro's night blue is deep); cobalt to indigo (closest to Chiaro's violet, not proposed). Slate stays until the owner picks; the change is `RING_STOPS` in `tools/draw_launcher_icon.py` and one run.
-
-A question that comes up during a phase is written here, with its options, before it is built.
+None. A question that comes up during a phase is written here, with its options, before it is built.
