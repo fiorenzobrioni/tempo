@@ -113,7 +113,7 @@ The phased plan, with every decision and its reason, is in [PLANNING.md](./PLANN
 - **Phase 1**, the calendar engine: reading the phone's calendars right, every edge case tested. *Done.*
 - **Phase 2**, settings; **Phase 3**, Today and the first run. *Done.*
 - **Phase 4**, the two widgets. *Done*, checked on the phone.
-- **Phase 5**, the guide and the accessibility pass. *The guide is done.*
+- **Phase 5**, the guide and the accessibility pass. *Done.*
 - **Phase 6**, the 1.0 release on GitHub.
 
 ## Build
