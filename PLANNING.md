@@ -487,8 +487,9 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - [x] The release key in the secrets (Phase 0's open box)
   - 10 Oct 2026, and the workflow's rehearsal (Actions, Release, "Run workflow") builds and checks a signed APK without publishing it.
 - [ ] `CHANGELOG.md`'s 1.0.0 section; `tempo.versionName=1.0.0`; tag `v1.0.0`
-- [ ] The README's download link and the release key's fingerprint
-  - The fingerprint and the steps are in the README's Install section since 10 Oct 2026; its line "on its way" goes with the tag.
+  - The section and the version on 10 Oct 2026; the development record, entry by entry, moves to `docs/CHANGELOG-1.0.0.md`, as Passo's. The tag is the owner's, on `main`, after the release workflow's rehearsal there.
+- [x] The README's download link and the release key's fingerprint
+  - The fingerprint and the steps since 10 Oct 2026; the download link and the release badge, as Passo's, with the 1.0.0 section.
 - [ ] The sister apps' READMEs name Tempo in "The family" (Chiaro, Passo, Saldo)
 
 ### Phase 7 — Google Play (optional, later)
@@ -617,6 +618,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - **10 Oct 2026, before 1.0.** The widgets' settings screen opens only for one of Tempo's own cards (`configTarget`, `WidgetConfigTargetTest`): it is exported, because the launcher opens it, so another app could open it with any id, and it drew a preview from the reader's calendar and wrote a look for a card that did not exist, as an «Agenda». Android names a card's provider only to its provider and its host, so an id that is not a Tempo card on a home screen now closes the screen at once. Found in the review before 1.0; no data left the phone either way.
 - **10 Oct 2026, Phase 5.** **The guide** (owner: "go on with the guide"), in Chiaro's shape as Passo's: re-openable from a card first in Settings, never shown on its own. Six chapters: where the events come from (every synced account, the reader's choice of calendars, all-day events keeping their date, declined and cancelled events, the work profile, §14's risk "said in the guide"), Today (the sentence, the dial, the timeline, free time, the days ahead, the alarm, live while visible), "your calendar app does the writing" (VISION asks for "what Tempo does not do and who does it instead": written as a hand-over, never as an excuse, so Chiaro's rule against justifying an absence still holds), the home screen (the pair, never a list to scroll, clock times rather than countdowns), battery, and your data. One example, drawn by Today's own `DayDial`, with its caption: a guide that showed a timeline would need Today's rows, which live in `:feature:today`, and a feature never depends on another. Nothing in it depends on the reader's settings (no figure is formatted: the example's times are in words), so it has no view model. The dial grows with the text size as Passo's ring does.
 - **10 Oct 2026, Phase 5.** The accessibility pass is marked done by the owner after the final review of the whole: every screen, the guide included, is held by its tests (contrast, labels, targets, twice the text size, the open foldable). The Baseline Profile stays unbuilt: it was "if start-up measures slow", and nothing on the phones has said so.
+- **10 Oct 2026, Phase 6.** **1.0.0, ready to tag** (owner: "prepare Phase 6's PR"). `CHANGELOG.md` gets the release's notes in the reader's terms (what is in it, private and light), Passo's shape, and the development record entry by entry moves to `docs/CHANGELOG-1.0.0.md`; `tempo.versionName=1.0.0` (versionCode 10000); the README trades "In development" for the download link and the release badge. The order from here: merge, the release workflow's rehearsal on `main`, then the tag `v1.0.0` on `main`.
 
 ### Open
 
