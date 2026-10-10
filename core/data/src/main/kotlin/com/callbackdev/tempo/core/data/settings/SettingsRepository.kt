@@ -24,7 +24,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * The reader's settings in DataStore (PLANNING.md §5), as Passo keeps its own: only what differs
+ * The reader's settings in DataStore (PLANNING.md §5): only what differs
  * from the default is stored, so a default improved in a later version reaches everyone who has
  * not moved away from it; a value that cannot be read back (out of range, an enum from a newer
  * build) reads as its default.

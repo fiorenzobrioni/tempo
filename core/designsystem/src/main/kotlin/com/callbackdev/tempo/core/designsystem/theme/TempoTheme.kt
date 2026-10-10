@@ -12,10 +12,9 @@ import com.callbackdev.tempo.core.model.AppFont
 import com.callbackdev.tempo.core.model.AppPalette
 
 /**
- * Tempo's theme: Chiaro's design language, as Passo wears it (`docs/adr/0002-design-language.md`),
- * so the family reads as one app. The defaults are Chiaro's: the vivid dress, Google Sans, the
- * app's own colors. [dynamicColor] takes Material's roles from the wallpaper instead; the
- * semantic colors ([TempoColors]) keep following the dress, as in Chiaro, because a warning must
+ * Tempo's theme: the design language of `docs/adr/0002-design-language.md`. The defaults are the
+ * vivid dress, Google Sans, the app's own colors. [dynamicColor] takes Material's roles from the wallpaper instead; the
+ * semantic colors ([TempoColors]) keep following the dress, because a warning must
  * not change color with a photo.
  */
 @Composable

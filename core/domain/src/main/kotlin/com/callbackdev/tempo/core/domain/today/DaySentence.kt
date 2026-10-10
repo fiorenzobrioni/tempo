@@ -8,7 +8,7 @@ import java.time.Duration
 import java.time.Instant
 
 /**
- * Today in one sentence, before any list (the family's rule; PLANNING.md §6): where the day stands
+ * Today in one sentence, before any list (PLANNING.md §6): where the day stands
  * now, from the agenda alone. A structure, never a string: the words are resources, in both
  * languages, with plurals, so `:feature:today` and the widgets say it in the reader's language.
  *

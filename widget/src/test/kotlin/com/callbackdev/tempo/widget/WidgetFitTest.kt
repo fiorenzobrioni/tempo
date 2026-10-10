@@ -18,7 +18,7 @@ import org.robolectric.annotation.GraphicsMode
  * Nothing a card prints is cut (VISION.md, "Fits, never scrolls"), at every reference grant, in
  * English and Italian, at three text sizes, through the day, in the reader's choices and the
  * states, with every line drawn 5% wider than measured ([STRETCH]), as a launcher on another face
- * may draw it (Passo's Samsung, 5 Oct 2026). A line is whole, or in fewer words, or not there; and
+ * may draw it (a Samsung, 5 Oct 2026). A line is whole, or in fewer words, or not there; and
  * nothing is laid out below the card's edge. The one thing a card may cut is an event's title,
  * ellipsised on its one line (PLANNING.md §7): the time and the mark say which event it is.
  */

@@ -17,7 +17,7 @@ package com.callbackdev.tempo.core.domain.widget
  *
  * With the clock and the date both hidden the card is the list alone, on any grant.
  *
- * Everything is arithmetic on dp and sp, pinned by `AgendaFitTest` at the family's reference
+ * Everything is arithmetic on dp and sp, pinned by `AgendaFitTest` at the reference
  * grants (a row ~85 dp tall, two ~189; two cells ~159 dp wide, three ~250, four ~340). What only
  * the launcher's face can answer (how wide a time or a date is) is measured by the caller, in ems.
  */
@@ -330,7 +330,7 @@ object AgendaFit {
         is CardLine.AllDay, is CardLine.Timed -> rowHeight(style, fontScale)
     }
 
-    // The family's card (Chiaro's, Passo's): its insets, and the grants its forms change at.
+    // The card (`docs/adr/0003-widgets.md`): its insets, and the grants its forms change at.
     const val CARD_PADDING = 14f
     const val CARD_PADDING_SNUG = 6f
     const val CELL_PADDING = 8f
@@ -355,19 +355,19 @@ object AgendaFit {
     const val LINE_CLOCK_MIN = 22f
     const val LINE_DATE_ROOM = 110f
 
-    /** Passo's count on its row ("86") and «In words»'s time on its: the family's row numbers match. */
+    /** The clock on a row, as «In words»'s time on its: the cards' row numbers match. */
     const val LINE_CLOCK_MAX = 34f
 
     /**
-     * The date under a one-row card's clock: Passo's facts' 16 sp ("of 8,000 steps") and «In words»'s
-     * line on top, so the family's rows read as one set (owner, 8 Oct 2026).
+     * The date under a one-row card's clock: 16 sp, as «In words»'s line on top, so the rows read
+     * as one set (owner, 8 Oct 2026).
      */
     const val LINE_DATE_SP = 16f
     const val CELL_CLOCK_MIN = 20f
     const val CELL_CLOCK_MAX = 56f
     const val CELL_DATE_SP = 12f
 
-    /** The date under a tall card's clock: the family's 16 sp, as on a row and «In words»'s line on top. */
+    /** The date under a tall card's clock: 16 sp, as on a row and «In words»'s line on top. */
     const val DATE_SP = 16f
     const val DATE_ALONE_SP = 18f
     const val DATE_MIN_SP = 11f

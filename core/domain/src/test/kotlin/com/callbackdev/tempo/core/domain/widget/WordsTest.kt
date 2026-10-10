@@ -161,13 +161,13 @@ class WordsTest {
     }
 
     @Test
-    fun `a four by one is Passo's row, the dial, the title over its time, the date at the far edge`() {
+    fun `a four by one is a row, the dial, the title over its time, the date at the far edge`() {
         val row = WordsFit.plan(spec(340f, 85f))
         assertThat(row.dial).isEqualTo(WordsFit.ROW_DIAL_MAX)
         assertThat(row.titleSp).isEqualTo(WordsFit.TITLE_SP)
         assertThat(row.whenChoice).isEqualTo(0)
         assertThat(row.whenSp).isEqualTo(WordsFit.WHEN_SP)
-        // The long date over two lines, as Passo's sentence: "Wednesday / 7 October".
+        // The long date over two lines: "Wednesday / 7 October".
         assertThat(row.dateChoice).isEqualTo(0)
         assertThat(row.dateLines).isEqualTo(2)
         assertThat(row.dateSp).isEqualTo(WordsFit.DATE_SP)

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The two cards, as the launcher's picker names them (the family's pair, PLANNING.md §7). -->
+    <!-- The two cards, as the launcher's picker names them (PLANNING.md §7). -->
     <string name="widget_agenda_label">Agenda</string>
     <string name="widget_agenda_desc">The time and the date over the rest of your day, as many events as the card holds and how many more</string>
     <string name="widget_words_label">In words</string>

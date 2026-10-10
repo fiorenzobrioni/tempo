@@ -46,7 +46,7 @@
     <string name="settings_palette">Palette</string>
     <string name="settings_palette_paper">Carta</string>
     <string name="settings_palette_vivid">Brillante</string>
-    <string name="settings_palette_note">Carta è bianco caldo e ambra. Brillante è bianco freddo e azzurro. Le stesse due di Chiaro e Passo.</string>
+    <string name="settings_palette_note">Carta è bianco caldo e ambra. Brillante è bianco freddo e azzurro.</string>
     <string name="settings_font">Carattere</string>
     <string name="settings_font_google_sans">Google Sans</string>
     <string name="settings_font_inter">Inter</string>

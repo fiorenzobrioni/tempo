@@ -1,9 +1,8 @@
 package com.callbackdev.tempo.core.domain.widget
 
 /*
- * «In words» (Chiaro's «In parole», Passo's «In words»; PLANNING.md §7): a dial and the day in a
- * few words (owner, 8 Oct 2026, after the first cards on the phone). The dial stands where Passo's
- * ring stands on its card, the family's picture a card is read by across a room: the system's
+ * «In words» (PLANNING.md §7): a dial and the day in a few words (owner, 8 Oct 2026, after the
+ * first cards on the phone). The dial is the picture a card is read by across a room: the system's
  * own hands over the next twelve hours, the focus drawn on its ring ([DialArcs]). The words say
  * what the dial cannot: what it is, and when, in clock times.
  *
@@ -17,16 +16,15 @@ package com.callbackdev.tempo.core.domain.widget
  *
  * No number is large: a time printed at a count's size made a sentence shout ("Until 18:30" at
  * 34 sp left the title three words and an ellipsis), and the dial already says the hour. The
- * sizes are the family's: the title at Chiaro's sentence's 20 sp, the time and the date at
- * Passo's facts' 16 sp.
+ * sizes: the title at 20 sp, the time and the date at 16 sp.
  *
  * Three forms:
  *
  * - [WordsForm.CELL], one cell wide: the dial as large as the cell, the focus's time under it where
  *   the cell is taller than wide.
- * - [WordsForm.ROW], one row: Passo's row. The dial; the title over its time; the date at the far
- *   edge, over two lines like Passo's sentence, where the row has the room.
- * - [WordsForm.TALL], two rows and up: Passo's tall card. The dial in the top trailing corner with
+ * - [WordsForm.ROW], one row. The dial; the title over its time; the date at the far edge, over
+ *   two lines, where the row has the room.
+ * - [WordsForm.TALL], two rows and up. The dial in the top trailing corner with
  *   the date beside it; the title, its time and the note hanging from the bottom leading corner.
  */
 enum class WordsForm { CELL, ROW, TALL }
@@ -195,7 +193,7 @@ object WordsFit {
     }
 
     /**
-     * One row, Passo's: the dial, as tall as the row leaves up to [ROW_DIAL_MAX] and never so wide
+     * One row: the dial, as tall as the row leaves up to [ROW_DIAL_MAX] and never so wide
      * that the words beside it lose [ROW_WORDS_MIN]; the title over its time; the date at the far
      * edge where the words keep what they need ([TITLE_KEEP] of the title), over two lines when on
      * one it would be wider than [ROW_DATE_ONE_LINE]. Under a large text size the time goes before
@@ -258,7 +256,7 @@ object WordsFit {
     }
 
     /**
-     * Two rows and up, Passo's tall card, bottom up in the order the hierarchy spends the height:
+     * Two rows and up, bottom up in the order the hierarchy spends the height:
      * the title's first line and its time; the dial at [TALL_DIAL_MIN] (without it, the date on
      * top); the note, whole up to [NOTE_MAX_LINES] or not at all; the dial up to
      * [TALL_DIAL_COMFORT]; the title's second line, for a title too long for one even at
@@ -329,7 +327,7 @@ object WordsFit {
         )
     }
 
-    /** Chiaro's sentence beside its temperature: the title on a row. */
+    /** The title on a row. */
     const val TITLE_SP = 20f
     const val TALL_TITLE_SP = 22f
     const val TALL_TITLE_MIN_SP = 18f
@@ -337,7 +335,7 @@ object WordsFit {
     const val TITLE_MIN_SP = 14f
     const val CELL_TITLE_SP = 12f
 
-    /** Passo's facts ("of 8,000 steps"): the time in words, and the date. */
+    /** The facts' size: the time in words, and the date. */
     const val WHEN_SP = 16f
     const val NARROW_WHEN_SP = 14f
     private val WHEN_SIZES = listOf(WHEN_SP, 14f)
@@ -354,7 +352,7 @@ object WordsFit {
     const val NOTE_MAX_LINES = 3
     const val TOP_GAP = 4f
 
-    /** Passo's ring on its row, and the air beside it (`RowRingMax`, `RingTextGap`). */
+    /** The dial on its row, and the air beside it. */
     const val ROW_DIAL_MAX = 56f
     const val ROW_DIAL_MIN = 44f
     const val DIAL_GAP = 12f
@@ -369,7 +367,7 @@ object WordsFit {
     const val DATE_COLUMN_MIN = 56f
     const val ROW_DATE_ONE_LINE = 100f
 
-    /** Passo's tall ring (44 to 104 dp), with a comfortable middle the note does not take. */
+    /** The tall dial, with a comfortable middle the note does not take. */
     const val TALL_DIAL_MIN = 48f
     const val TALL_DIAL_COMFORT = 72f
     const val TALL_DIAL_MAX = 104f

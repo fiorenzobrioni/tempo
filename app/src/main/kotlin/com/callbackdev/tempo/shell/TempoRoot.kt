@@ -27,7 +27,7 @@ import com.callbackdev.tempo.feature.today.TodayRoute
 import kotlinx.serialization.Serializable
 
 /*
- * The shell's destinations as Navigation 3 keys, as in Passo and Chiaro: on one back stack, so
+ * The shell's destinations as Navigation 3 keys: on one back stack, so
  * back is previewed under the finger (predictive back) and the stack survives a rotation and
  * process death. The onboarding stands before them (it is not a page to go back to).
  */
@@ -45,7 +45,7 @@ data object GuideKey : NavKey
 
 /**
  * The shell (PLANNING.md §11 Phases 2 and 3): the first run until it is done, then the pages.
- * The transitions are Passo's: a short slide with a fade, the 300 ms that predictive back seeks,
+ * The transitions: a short slide with a fade, the 300 ms that predictive back seeks,
  * and a plain fade under reduced motion.
  */
 @Composable

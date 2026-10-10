@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Written by tools/draw_launcher_icon.py: change the script and run it, never this file.
-     The mark: Chiaro's ring shading from azure to cobalt, cut by an amber clock
+     The mark: a ring shading from azure to cobalt, cut by an amber clock
      face at the lower left, its hands cut out. Everything sits inside the
      33-unit safe circle of every launcher mask (ring edge 26, face edge 29.2). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"

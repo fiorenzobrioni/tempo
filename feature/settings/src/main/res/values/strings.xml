@@ -45,7 +45,7 @@
     <string name="settings_palette">Palette</string>
     <string name="settings_palette_paper">Paper</string>
     <string name="settings_palette_vivid">Vivid</string>
-    <string name="settings_palette_note">Paper is warm white and amber. Vivid is cool white and azure. The same two as Chiaro and Passo.</string>
+    <string name="settings_palette_note">Paper is warm white and amber. Vivid is cool white and azure.</string>
     <string name="settings_font">Typeface</string>
     <string name="settings_font_google_sans">Google Sans</string>
     <string name="settings_font_inter">Inter</string>

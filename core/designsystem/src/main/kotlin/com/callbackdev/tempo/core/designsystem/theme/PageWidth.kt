@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
  * phone's column and a little more. Below it (every phone held upright, a folded foldable) a
  * page is laid out exactly as before; above it (a foldable open, a phone on its side) the
  * column stays this wide, centered, so the clock, the agenda and a line of text keep a phone's
- * proportions instead of stretching across the inner screen (Passo's ADR 0012, here from the start).
+ * proportions instead of stretching across the inner screen.
  */
 val PageMaxWidth = 640.dp
 
