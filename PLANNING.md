@@ -491,8 +491,8 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
   - Tagged by the owner on 10 Oct 2026 at `77a7c17`; Release #4 green, and the published APK checked: its `.sha256` matches, signed by `CN=callbackdev` (`A9:43:D8:BA:…:58:58:FE`), 1.0.0 / 10000, no crash page, `READ_CALENDAR` and WorkManager's permissions only (§15).
 - [x] The README's download link and the release key's fingerprint
   - The fingerprint and the steps since 10 Oct 2026; the download link and the release badge, as Passo's, with the 1.0.0 section.
-- [ ] The sister apps' READMEs name Tempo in "The family" (Chiaro, Passo, Saldo)
-  - Passo's on 10 Oct 2026 (its README, CLAUDE.md and VISION.md); Chiaro's and Saldo's from a session with their repositories.
+- [x] The sister apps' READMEs name Tempo in "The family" (Chiaro, Passo, Saldo)
+  - All three on 10 Oct 2026: Passo's in fiorenzobrioni/passo#37 (its README, CLAUDE.md and VISION.md), Chiaro's in fiorenzobrioni/chiaro#60 (its README) and Saldo's in fiorenzobrioni/saldo#93 (its README, its user guide's widget page and its devlog).
 
 ### Phase 7 — Google Play (optional, later)
 
