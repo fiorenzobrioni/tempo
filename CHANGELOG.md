@@ -10,6 +10,12 @@ All notable changes to Tempo are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-10
+
+A small fix to Today's words. Installs over 1.0.0 and keeps your
+settings; signed with the same key (fingerprint in the
+[README](https://github.com/fiorenzobrioni/tempo#install)).
+
 ### Changed
 
 - **A run of empty days says it is a run.** Its card read "Tomorrow – Wednesday 14 October",
