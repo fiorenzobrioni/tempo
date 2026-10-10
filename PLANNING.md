@@ -486,11 +486,13 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 
 - [x] The release key in the secrets (Phase 0's open box)
   - 10 Oct 2026, and the workflow's rehearsal (Actions, Release, "Run workflow") builds and checks a signed APK without publishing it.
-- [ ] `CHANGELOG.md`'s 1.0.0 section; `tempo.versionName=1.0.0`; tag `v1.0.0`
+- [x] `CHANGELOG.md`'s 1.0.0 section; `tempo.versionName=1.0.0`; tag `v1.0.0`
   - The section and the version on 10 Oct 2026; the development record, entry by entry, moves to `docs/CHANGELOG-1.0.0.md`, as Passo's. The tag is the owner's, on `main`, after the release workflow's rehearsal there.
+  - Tagged by the owner on 10 Oct 2026 at `77a7c17`; Release #4 green, and the published APK checked: its `.sha256` matches, signed by `CN=callbackdev` (`A9:43:D8:BA:…:58:58:FE`), 1.0.0 / 10000, no crash page, `READ_CALENDAR` and WorkManager's permissions only (§15).
 - [x] The README's download link and the release key's fingerprint
   - The fingerprint and the steps since 10 Oct 2026; the download link and the release badge, as Passo's, with the 1.0.0 section.
 - [ ] The sister apps' READMEs name Tempo in "The family" (Chiaro, Passo, Saldo)
+  - Passo's on 10 Oct 2026 (its README, CLAUDE.md and VISION.md); Chiaro's and Saldo's from a session with their repositories.
 
 ### Phase 7 — Google Play (optional, later)
 
@@ -619,6 +621,7 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - **10 Oct 2026, Phase 5.** **The guide** (owner: "go on with the guide"), in Chiaro's shape as Passo's: re-openable from a card first in Settings, never shown on its own. Six chapters: where the events come from (every synced account, the reader's choice of calendars, all-day events keeping their date, declined and cancelled events, the work profile, §14's risk "said in the guide"), Today (the sentence, the dial, the timeline, free time, the days ahead, the alarm, live while visible), "your calendar app does the writing" (VISION asks for "what Tempo does not do and who does it instead": written as a hand-over, never as an excuse, so Chiaro's rule against justifying an absence still holds), the home screen (the pair, never a list to scroll, clock times rather than countdowns), battery, and your data. One example, drawn by Today's own `DayDial`, with its caption: a guide that showed a timeline would need Today's rows, which live in `:feature:today`, and a feature never depends on another. Nothing in it depends on the reader's settings (no figure is formatted: the example's times are in words), so it has no view model. The dial grows with the text size as Passo's ring does.
 - **10 Oct 2026, Phase 5.** The accessibility pass is marked done by the owner after the final review of the whole: every screen, the guide included, is held by its tests (contrast, labels, targets, twice the text size, the open foldable). The Baseline Profile stays unbuilt: it was "if start-up measures slow", and nothing on the phones has said so.
 - **10 Oct 2026, Phase 6.** **1.0.0, ready to tag** (owner: "prepare Phase 6's PR"). `CHANGELOG.md` gets the release's notes in the reader's terms (what is in it, private and light), Passo's shape, and the development record entry by entry moves to `docs/CHANGELOG-1.0.0.md`; `tempo.versionName=1.0.0` (versionCode 10000); the README trades "In development" for the download link and the release badge. The order from here: merge, the release workflow's rehearsal on `main`, then the tag `v1.0.0` on `main`.
+- **10 Oct 2026, Phase 6.** **Tempo 1.0.0 released** on GitHub (`v1.0.0`, tagged by the owner: this sandbox's git proxy refuses a tag push). Before the tag, the owner asked that nothing of the debugging be left in it: a release built and signed as the workflow does was inspected, and the crash page (`app/src/crashpage`) is in neither its manifest, its code nor its resources, where the debug-signed testing build has all three; the app is not debuggable; the only logs are the widgets' refresh timings and failures (`TempoWidget`: card ids, milliseconds, the exception), never an event, and kept, as the way to read a late card with `adb`. The published APK, downloaded, matches its checksum and the release key's fingerprint.
 
 ### Open
 
