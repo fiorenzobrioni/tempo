@@ -20,9 +20,12 @@ All notable changes to Tempo are documented here. The format follows
   heading each, so the first event of the day is on screen when the app opens.
 - The first run's welcome: the bar that says where you are is on it too, the icon stands on the
   page itself, and the page fits a phone without scrolling.
+- The launcher icon's ring, from azure to cobalt.
 
 ### Added
 
+- The guide, from the top of Settings: where your events come from, what Today and the widgets
+  answer, what your calendar app does, the battery and your data, in English and Italian.
 - The foundations: the build (Passo's, carried over), the family's design system, the launcher
   icon, continuous integration with the permission check, and a first screen with the time and
   the date. Nothing to install yet.

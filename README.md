@@ -45,6 +45,9 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
     <td align="center"><img src="docs/screenshots/widget-settings.png" width="250" alt="One widget's settings: the card itself at the top, the sizes it can take, the time and the date with their formats"><br><sub><b>Each widget</b>, set on its own</sub></td>
     <td align="center"><img src="docs/screenshots/onboarding.png" width="250" alt="The first run: Tempo, the time and what comes next, with three promises: your calendars in one view, read-only and private, battery is a feature"><br><sub><b>First run</b>: one permission, to read</sub></td>
   </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/guide.png" width="250" alt="The guide: what Tempo does, then where your events come from: your calendars and your choice, all-day events keeping their date, declined and cancelled events, work calendars"><br><sub><b>The guide</b>, in the app</sub></td>
+  </tr>
 </table>
 
 Drawn by the app's own screens from a realistic sample week, in English (the app also speaks
@@ -65,6 +68,7 @@ For 1.0 ([VISION.md](./VISION.md) has the full scope):
 - ➕ **New event** from the launcher icon's long press, straight to your calendar app.
 - 🗂️ **Your calendars, your choice**: every account's calendars with their colours, each shown or hidden; declined invitations kept out.
 - 🎨 **Appearance**: light or dark, two palettes, three typefaces, the same as Chiaro's and Passo's.
+- 📖 **The guide**: what Today and the widgets answer, who does what, and what a screen cannot say out loud.
 - 🇮🇹 🇬🇧 **Italian and English**, through the system per-app language picker.
 
 ## Principles
@@ -109,7 +113,8 @@ The phased plan, with every decision and its reason, is in [PLANNING.md](./PLANN
 - **Phase 1**, the calendar engine: reading the phone's calendars right, every edge case tested. *Done.*
 - **Phase 2**, settings; **Phase 3**, Today and the first run. *Done.*
 - **Phase 4**, the two widgets. *Done*, checked on the phone.
-- **Phase 5**, the guide and the accessibility pass; **Phase 6**, the 1.0 release on GitHub.
+- **Phase 5**, the guide and the accessibility pass. *The guide is done.*
+- **Phase 6**, the 1.0 release on GitHub.
 
 ## Build
 
@@ -164,7 +169,7 @@ tempo/
 │   ├── calendar/           # the Calendar Provider, the change observer, the intents
 │   ├── designsystem/       # theme, components, icons
 │   └── testing/            # shared UI test helpers (accessibility, page walks)
-├── feature/                # today, settings, onboarding (and the guide, later)
+├── feature/                # today, settings, onboarding, guide
 ├── widget/                 # the two Glance widgets and their settings
 ├── build-logic/            # convention plugins, the forbidden-permission check
 ├── tools/                  # the launcher icon script

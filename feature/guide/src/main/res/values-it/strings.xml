@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="guide_title">La guida</string>
+    <string name="guide_back">Indietro</string>
+    <string name="guide_intro">Tempo mostra l’ora, la data e la tua giornata in una sola vista, letti dai calendari che il telefono già ha. Questa guida fa il giro di Oggi e dei widget, dice a cosa risponde ogni parte e racconta le cose che vale la pena sapere e che una schermata non può dire da sola.</string>
+
+    <!-- Da dove vengono gli impegni -->
+    <string name="guide_source_title">Da dove vengono i tuoi impegni</string>
+    <string name="guide_source_p1">Tempo legge il calendario del telefono: ogni account che il telefono già sincronizza, Google, Samsung, Exchange o il calendario del telefono stesso, è lì. Non c’è niente da cui accedere e niente che Tempo debba sincronizzare: quello che ha la tua app calendario, Tempo lo mostra.</string>
+    <string name="guide_source_choice_title">I tuoi calendari, a tua scelta</string>
+    <string name="guide_source_choice_body">Nelle impostazioni ogni calendario ha un interruttore, raggruppato per account e con il suo colore. Uno per cui non hai mai scelto si vede come lo mostra la tua app calendario; una scelta che fai resta a quel calendario, anche se cambia nome.</string>
+    <string name="guide_source_all_day_title">Gli eventi di tutto il giorno tengono la loro data</string>
+    <string name="guide_source_all_day_body">Un compleanno o una festa sono salvati come una data, non come un’ora, e Tempo li legge così: restano nel loro giorno ovunque tu sia, e un viaggio tra fusi orari non li sposta mai al giorno prima. Un evento che dura più giorni dice quale giorno è.</string>
+    <string name="guide_source_declined_title">Rifiutati e annullati</string>
+    <string name="guide_source_declined_body">Un evento annullato non si vede mai. Anche un invito che hai rifiutato resta fuori, a meno che tu non lo attivi nelle impostazioni, dove appare barrato.</string>
+    <string name="guide_source_work_title">I calendari di lavoro</string>
+    <string name="guide_source_work_body">Android tiene i calendari del profilo di lavoro separati da quelli personali, di proposito. Per vederli, installa Tempo anche nel profilo di lavoro: lì legge i calendari di lavoro.</string>
+
+    <!-- Oggi -->
+    <string name="guide_today_title">Oggi</string>
+    <string name="guide_today_p1">L’ora in grande, la data sopra, e una frase prima di qualunque elenco: l’impegno in corso e quando finisce, il prossimo e fra quanto, o fino a quando sei libero.</string>
+    <string name="guide_today_dial_description">Un quadrante d’esempio alle dieci e venti, con una riunione in corso fino alle undici e altri due impegni più tardi</string>
+    <string name="guide_today_dial_caption">Un esempio: le dieci e venti, una riunione in corso fino alle undici nel colore d’accento, altri due impegni più tardi.</string>
+    <string name="guide_today_dial_title">Il quadrante</string>
+    <string name="guide_today_dial_body">Accanto all’ora, un quadrante con le prossime dodici ore sul suo anello: quello che viene dopo nel colore d’accento, il resto più tenue. La lancetta delle ore attraversa una riunione mentre passa. È il quadrante del widget «In parole».</string>
+    <string name="guide_today_timeline_title">La giornata in ordine</string>
+    <string name="guide_today_timeline_body">Gli impegni di oggi uno sotto l’altro, ognuno con il colore del suo calendario come segno. Quello in corso dice quanto manca; quelli finiti si fanno più tenui, e da due in su si raccolgono in una riga che si apre. Una linea segna l’adesso.</string>
+    <string name="guide_today_free_title">Il tempo libero</string>
+    <string name="guide_today_free_body">Un buco di un’ora o più tra due impegni di oggi è una riga a sé, e la frase dice fino a quando sei libero. I buchi più corti restano come sono, così la giornata non si riempie dei dieci minuti tra due riunioni.</string>
+    <string name="guide_today_ahead_title">I prossimi giorni</string>
+    <string name="guide_today_ahead_body">Domani e il resto della settimana, ognuno su una scheda con un breve riassunto accanto al nome; una serie di giorni vuoti si dice una volta sola. Nelle impostazioni: una settimana, oggi e domani, o solo oggi.</string>
+    <string name="guide_today_alarm_title">La prossima sveglia</string>
+    <string name="guide_today_alarm_body">La prossima sveglia impostata sul telefono, come la tiene l’app Orologio, sotto l’ora. Tempo la legge soltanto; un interruttore nelle impostazioni la nasconde.</string>
+    <string name="guide_today_live_title">Viva mentre guardi</string>
+    <string name="guide_today_live_body">Mentre Oggi è aperta l’orologio avanza a ogni minuto, e un impegno creato o cambiato nella tua app calendario è lì quando torni. Quando esci, non resta in funzione niente.</string>
+
+    <!-- Chi fa cosa -->
+    <string name="guide_handover_title">A scrivere è la tua app calendario</string>
+    <string name="guide_handover_p1">Tempo legge il tuo calendario e non lo scrive mai. Tutto quello che cambia un impegno succede nella tua app calendario, che Tempo apre nel punto giusto.</string>
+    <string name="guide_handover_event_title">Un impegno</string>
+    <string name="guide_handover_event_body">La tua app calendario lo apre, proprio quella ripetizione, e modificarlo o eliminarlo lì è a un passo.</string>
+    <string name="guide_handover_new_title">Un nuovo impegno</string>
+    <string name="guide_handover_new_body">Dal pulsante in fondo a Oggi, da una riga di tempo libero, o da «Nuovo evento» tenendo premuta l’icona di Tempo: il nuovo impegno della tua app calendario, con l’inizio già impostato, alla prossima mezz’ora o dove comincia il tempo libero.</string>
+    <string name="guide_handover_day_title">Un giorno</string>
+    <string name="guide_handover_day_body">La data in alto, il pulsante del calendario accanto e il nome di un giorno aprono la tua app calendario su quel giorno: per la settimana o il mese, che spetta a lei disegnare.</string>
+    <string name="guide_handover_reminders_title">Sveglie e promemoria</string>
+    <string name="guide_handover_reminders_body">Le sveglie sono dell’app Orologio e i promemoria della tua app calendario. Tempo non manda notifiche sue, così niente te lo ricorda due volte.</string>
+
+    <!-- I widget -->
+    <string name="guide_widgets_title">Nella schermata Home</string>
+    <string name="guide_widgets_two_title">Due widget</string>
+    <string name="guide_widgets_two_body">«Agenda» mette l’ora e la data sopra il resto della giornata; «In parole» è il quadrante, con quello che viene dopo e la giornata in poche parole. Tutti e due stanno in ogni misura, da una sola cella in su. Tienine premuto uno per le sue impostazioni: l’ora e la data, cosa apre un tocco, il colore e l’opacità.</string>
+    <string name="guide_widgets_fit_title">Mai una lista da scorrere</string>
+    <string name="guide_widgets_fit_body">Una scheda mostra tutti gli impegni che ci stanno interi, disposti per la misura che ha davvero, e dice quanti altri ce ne sono: niente è tagliato a metà, niente scorre.</string>
+    <string name="guide_widgets_times_title">Orari, non conti alla rovescia</string>
+    <string name="guide_widgets_times_body">Una scheda dice l’ora in cui un impegno comincia, mai fra quanti minuti: si ridisegna quando il calendario cambia e quando un impegno comincia o finisce, non a ogni minuto, e un conto alla rovescia sarebbe presto sbagliato. L’ora e la data le disegna Android stesso, giuste al minuto, senza costo.</string>
+
+    <!-- La batteria -->
+    <string name="guide_battery_title">La batteria</string>
+    <string name="guide_battery_p1">Tempo non ha servizi e niente a orario. A schermo spento non fa niente, tranne quando il calendario stesso cambia, o quando un impegno su una scheda comincia o finisce: allora legge il calendario una volta e ridisegna, con una sveglia che aspetta che il telefono si risvegli invece di svegliarlo.</string>
+
+    <!-- I tuoi dati -->
+    <string name="guide_data_title">I tuoi dati</string>
+    <string name="guide_data_p1">Tempo non ha nessun permesso per internet: non invia nulla, a nessuno. Non tiene una copia dei tuoi impegni: li legge ogni volta dal calendario, e restano del tuo calendario, che viaggia con il suo account o con il suo backup.</string>
+    <string name="guide_data_p2">Quello che Tempo tiene sono le tue scelte: i formati, i calendari che nascondi, l’aspetto. Se il backup del telefono è attivo, Android le mette nella sua copia, come fa con le altre app: quella copia è di Android, non di Tempo.</string>
+</resources>

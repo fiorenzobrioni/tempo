@@ -59,6 +59,9 @@
     <string name="settings_language">App language</string>
     <string name="settings_language_system">Same as the phone</string>
 
+    <string name="settings_guide">How Tempo works</string>
+    <string name="settings_guide_note">Where your events come from, Today, the widgets, who does what</string>
+
     <string name="settings_privacy">Privacy</string>
     <string name="settings_privacy_headline">No account, no ads, no tracking.</string>
     <string name="settings_privacy_body">Tempo has no internet permission at all, so it cannot send your events anywhere. It reads your calendar and never writes it: creating and changing an event happen in your calendar app. Android’s own backup, if you turned it on, keeps a copy of Tempo’s settings in your Google account, encrypted with your screen lock; your events are your calendar’s, and travel with it.</string>
