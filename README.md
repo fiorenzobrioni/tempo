@@ -9,7 +9,7 @@ one calm view, in the app and on a home-screen widget that never scrolls.
 Free, no account, no ads, no tracking, and no permission to use the internet at all.
 
 ![Platform](https://img.shields.io/badge/platform-Android-2140C8?labelColor=FCFAF6)
-![Status](https://img.shields.io/badge/status-in%20development-2140C8?labelColor=FCFAF6)
+![Release](https://img.shields.io/github/v/release/fiorenzobrioni/tempo?label=release&labelColor=FCFAF6&color=2140C8)
 ![CI](https://img.shields.io/github/actions/workflow/status/fiorenzobrioni/tempo/android-ci.yml?branch=main&label=CI&labelColor=FCFAF6&color=2140C8)
 ![License](https://img.shields.io/badge/license-GPL--3.0-007DB6?labelColor=FCFAF6)
 ![minSdk](https://img.shields.io/badge/minSdk-34-70569C?labelColor=FCFAF6)
@@ -17,7 +17,7 @@ Free, no account, no ads, no tracking, and no permission to use the internet at 
 ![Compose](https://img.shields.io/badge/UI-Compose%20Material%203-007DB6?labelColor=FCFAF6)
 ![Internet](https://img.shields.io/badge/INTERNET%20permission-none-2140C8?labelColor=FCFAF6)
 
-**In development.** The first release comes with Phase 6 of the [plan](./PLANNING.md).
+[**⬇️ Download the latest release**](https://github.com/fiorenzobrioni/tempo/releases/latest)
 
 </div>
 
@@ -84,8 +84,7 @@ For 1.0 ([VISION.md](./VISION.md) has the full scope):
 
 ## Install
 
-Android 14 (API 34) or newer. The first release, 1.0.0, is on its way; until then there is
-nothing to download.
+Android 14 (API 34) or newer.
 
 1. Download `tempo-vX.Y.Z.apk` from the [latest release](https://github.com/fiorenzobrioni/tempo/releases/latest).
 2. Open it on the phone and allow installs from that source when Android asks.
@@ -114,7 +113,7 @@ The phased plan, with every decision and its reason, is in [PLANNING.md](./PLANN
 - **Phase 2**, settings; **Phase 3**, Today and the first run. *Done.*
 - **Phase 4**, the two widgets. *Done*, checked on the phone.
 - **Phase 5**, the guide and the accessibility pass. *Done.*
-- **Phase 6**, the 1.0 release on GitHub.
+- **Phase 6**, the 1.0 release on GitHub. *Done.*
 
 ## Build
 
