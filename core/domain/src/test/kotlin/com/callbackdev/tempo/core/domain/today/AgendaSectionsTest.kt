@@ -39,6 +39,7 @@ class AgendaSectionsTest {
         val run = sections[1] as AgendaSection.Nothing
         assertThat(run.startsTomorrow).isTrue()
         assertThat(run.isOneDay).isFalse()
+        assertThat(run.days).isEqualTo(3)
         assertThat(run.from).isEqualTo(LocalDate.parse("2026-10-08"))
     }
 
@@ -65,6 +66,8 @@ class AgendaSectionsTest {
     fun `today and an empty tomorrow`() {
         val sections = AgendaSections.of(agenda(today, now = now, days = 2))
         assertThat(kinds(sections)).containsExactly("today", "nothing 8-8").inOrder()
-        assertThat((sections[1] as AgendaSection.Nothing).isOneDay).isTrue()
+        val run = sections[1] as AgendaSection.Nothing
+        assertThat(run.isOneDay).isTrue()
+        assertThat(run.days).isEqualTo(1)
     }
 }

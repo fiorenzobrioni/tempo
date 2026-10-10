@@ -8,7 +8,8 @@
 
     <string name="event_no_title">(Senza titolo)</string>
     <string name="time_range">%1$s – %2$s</string>
-    <string name="date_range">%1$s – %2$s</string>
+    <string name="date_span">Da %1$s a %2$s</string>
+    <string name="date_span_tomorrow">Da domani a %1$s</string>
     <string name="time_from">dalle %1$s</string>
     <string name="time_until">fino alle %1$s</string>
     <string name="duration_m">%1$d min</string>
@@ -57,6 +58,11 @@
         <item quantity="other">%1$d eventi di tutto il giorno.</item>
     </plurals>
     <string name="summary_nothing">Niente in programma.</string>
+    <plurals name="summary_nothing_days">
+        <item quantity="one">%1$d giorno senza impegni.</item>
+        <item quantity="many">%1$d giorni senza impegni.</item>
+        <item quantity="other">%1$d giorni senza impegni.</item>
+    </plurals>
 
     <string name="alarm_today">Sveglia alle %1$s</string>
     <string name="alarm_tomorrow">Sveglia domani alle %1$s</string>

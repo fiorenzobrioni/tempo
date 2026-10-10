@@ -59,10 +59,13 @@ object DateTimeText {
     private fun format(pattern: String, locale: Locale, moment: TemporalAccessor): String =
         DateTimeFormatter.ofPattern(pattern, locale).format(moment)
 
-    /** A date in [style]; a long or medium one capitalised, as it starts a line of its own. */
-    fun date(moment: TemporalAccessor, locale: Locale, style: DateStyle): String {
+    /**
+     * A date in [style]; a long or medium one capitalised when it [startsLine], left as the locale
+     * writes it inside a sentence ("Da domani a mercoledì 14 ottobre").
+     */
+    fun date(moment: TemporalAccessor, locale: Locale, style: DateStyle, startsLine: Boolean = true): String {
         val text = formatter(locale, skeleton(style)).format(moment)
-        return if (style == DateStyle.NUMERIC) text else text.replaceFirstChar { it.titlecase(locale) }
+        return if (style == DateStyle.NUMERIC || !startsLine) text else text.replaceFirstChar { it.titlecase(locale) }
     }
 
     /** The pattern a `TextClock` needs for [style] (Phase 4's widgets), the same as the app's. */

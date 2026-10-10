@@ -154,8 +154,8 @@ class TodayScreenTest {
         val run = TodayTags.day(java.time.LocalDate.parse("2026-10-12"))
         scrollTo(run)
         val inRun = hasAnyAncestor(hasTestTag(run))
-        compose.onNode(inRun and hasText("Monday 12 October – Tuesday 13 October")).assertIsDisplayed()
-        compose.onNode(inRun and hasText("Nothing planned.")).assertIsDisplayed()
+        compose.onNode(inRun and hasText("From Monday 12 October to Tuesday 13 October")).assertIsDisplayed()
+        compose.onNode(inRun and hasText("2 days with nothing planned.")).assertIsDisplayed()
         compose.onNodeWithTag(TodayTags.day(java.time.LocalDate.parse("2026-10-13"))).assertDoesNotExist()
         compose.assertAccessible()
     }
@@ -165,7 +165,9 @@ class TodayScreenTest {
         draw(TodaySample.state(instances = emptyList()))
         val run = TodayTags.day(java.time.LocalDate.parse("2026-10-08"))
         scrollTo(run)
-        compose.onNode(hasAnyAncestor(hasTestTag(run)) and hasText("Tomorrow – Tuesday 13 October")).assertIsDisplayed()
+        compose.onNode(
+            hasAnyAncestor(hasTestTag(run)) and hasText("From tomorrow to Tuesday 13 October"),
+        ).assertIsDisplayed()
     }
 
     @Test

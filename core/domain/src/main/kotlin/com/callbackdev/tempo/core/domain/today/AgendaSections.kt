@@ -3,6 +3,7 @@ package com.callbackdev.tempo.core.domain.today
 import com.callbackdev.tempo.core.model.Agenda
 import com.callbackdev.tempo.core.model.AgendaDay
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 /** One stretch of Today's page below the hero. */
 sealed interface AgendaSection {
@@ -24,6 +25,9 @@ sealed interface AgendaSection {
      */
     data class Nothing(val from: LocalDate, val to: LocalDate, val startsTomorrow: Boolean) : AgendaSection {
         val isOneDay: Boolean get() = from == to
+
+        /** How many days the run holds, both ends counted. */
+        val days: Int get() = ChronoUnit.DAYS.between(from, to).toInt() + 1
     }
 }
 

@@ -10,6 +10,12 @@ All notable changes to Tempo are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- **A run of empty days says it is a run.** Its card read "Tomorrow – Wednesday 14 October",
+  as if tomorrow were Wednesday; it now says "From tomorrow to Wednesday 14 October", and
+  "4 days with nothing planned." under it.
+
 ## [1.0.0] - 2026-10-10
 
 **The first release.** Tempo shows the time, the date and your day in one calm view, in the app

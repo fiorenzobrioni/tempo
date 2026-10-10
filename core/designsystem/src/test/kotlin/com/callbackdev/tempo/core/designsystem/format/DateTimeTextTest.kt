@@ -48,4 +48,13 @@ class DateTimeTextTest {
         assertThat(DateTimeText.date(date, Locale.UK, DateStyle.MEDIUM)).isEqualTo("Wed, 7 Oct")
         assertThat(DateTimeText.date(date, Locale.UK, DateStyle.NUMERIC)).isEqualTo("07/10/2026")
     }
+
+    @Test
+    fun `a date inside a sentence keeps the locale's own case`() {
+        val date = LocalDate.of(2026, 10, 14)
+        assertThat(DateTimeText.date(date, Locale.ITALY, DateStyle.LONG, startsLine = false))
+            .isEqualTo("mercoledì 14 ottobre")
+        assertThat(DateTimeText.date(date, Locale.UK, DateStyle.LONG, startsLine = false))
+            .isEqualTo("Wednesday 14 October")
+    }
 }
