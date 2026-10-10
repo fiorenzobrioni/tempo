@@ -18,6 +18,8 @@ All notable changes to Tempo are documented here. The format follows
   rolling as the minute changes, and "AM" set small beside them; the days ahead on cards, each
   one a touch from its day in your calendar, and a run of empty days said once instead of a
   heading each, so the first event of the day is on screen when the app opens.
+- The first run's welcome: the bar that says where you are is on it too, the icon stands on the
+  page itself, and the page fits a phone without scrolling.
 
 ### Added
 

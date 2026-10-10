@@ -43,7 +43,7 @@ shortest way to the same look, and keeps one drawing of each thing in the family
    berry. The face has its hands cut out,
    the minute hand at twelve and the hour hand towards four (ten past ten, tried first, read as a
    tick at launcher size). The monochrome layer restates the same shapes for themed icons, and
-   `ic_app_mark.xml` (`:core:designsystem`) is the whole icon cropped round, for the welcome page.
+   `ic_app_mark.xml` (`:core:designsystem`) is the ring and the clock face on no ground, for the welcome page (the whole icon cropped round until 10 Oct 2026, owner).
 7. **Tests carried over**: `TypographyTest` (every Material role follows the typeface setting)
    and `ContrastTest` (every text ink at 4.5:1 on every ground, in both dresses and themes), and
    the shared UI checks of `:core:testing` (`assertAccessible`, `walkPage`).

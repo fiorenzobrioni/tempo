@@ -81,14 +81,12 @@ jobs:
         run: |
           apksigner=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)apksigner
           "$apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk | tee signature.txt
-          if [ -z "$RELEASE_CERT_SHA256" ]; then
-            echo "::warning::No fingerprint to check against yet."
-          elif ! grep -qi "certificate SHA-256 digest: ${RELEASE_CERT_SHA256}\$" signature.txt; then
+          if ! grep -qi "certificate SHA-256 digest: ${RELEASE_CERT_SHA256}\$" signature.txt; then
             echo "::error::The APK is not signed with Tempo's release key (keystore/README.md)."
             exit 1
           fi
         env:
-          RELEASE_CERT_SHA256: ''
+          RELEASE_CERT_SHA256: a943d8ba630fc92a7ca089a07b7197150ec99f510a2a6d3e6e210be5655858fe
 
       # Named after the tag: the mapping must stay paired with the exact APK it deobfuscates,
       # and the checksum lets a reader verify the download (README, "Install").

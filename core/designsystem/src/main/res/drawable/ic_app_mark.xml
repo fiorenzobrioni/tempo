@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Written by tools/draw_launcher_icon.py: change the script and run it, never this file.
-     The whole launcher icon, cropped round as a launcher shows it, for the welcome
-     page: the warm white, the ring and the clock face. -->
+     The launcher icon's mark for the welcome page: the ring and the clock face, on
+     no ground of their own. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="72dp"
-    android:height="72dp"
-    android:viewportWidth="72"
-    android:viewportHeight="72">
-<path android:pathData="M 0.00,36.00 a 36.00,36.00 0 1,0 72.00,0 a 36.00,36.00 0 1,0 -72.00,0 z" android:fillColor="#FFF7F4EE"/>
-<group android:translateX="-18" android:translateY="-18">
+    android:width="60.00dp"
+    android:height="60.00dp"
+    android:viewportWidth="60.00"
+    android:viewportHeight="60.00">
+<group android:translateX="-24.00" android:translateY="-24.00">
 <group>
     <clip-path android:pathData="M 0,0 H 108 V 108 H 0 Z M 26.71,67.50 a 11.20,11.20 0 1,0 22.40,0 a 11.20,11.20 0 1,0 -22.40,0 z"/>
     <path android:pathData="M 33.00,54.00 a 21.00,21.00 0 1,0 42.00,0 a 21.00,21.00 0 1,0 -42.00,0 z" android:strokeWidth="10.00" android:fillColor="#00000000">

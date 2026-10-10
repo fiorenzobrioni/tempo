@@ -363,7 +363,8 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 - [x] Launcher icon drawn by `tools/draw_launcher_icon.py` (the family's ring, a clock face at the lower left)
 - [x] CI: formatting, forbidden permissions, unit tests, lint, then the APKs; the tag-triggered release workflow
 - [x] The shared debug keystore, committed on purpose (`keystore/README.md`)
-- [ ] Generate the **release keystore** (owner): outside the repo, with an offline backup, in the four GitHub secrets (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`). Its fingerprint goes into `keystore/README.md` and the README's Install section.
+- [x] Generate the **release keystore** (owner): outside the repo, with an offline backup, in the four GitHub secrets (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`). Its fingerprint goes into `keystore/README.md` and the README's Install section.
+  - In the secrets on 10 Oct 2026; read by the release workflow's rehearsal (run by hand, Release #1, green): the APK signed by `CN=callbackdev`, SHA-256 `A9:43:D8:BA:…:58:58:FE`, now in both files and checked by `release.yml` on every run (§15).
 - [x] `CLAUDE.md`
 - [x] `docs/adr/0001-foundations.md`, `docs/adr/0002-design-language.md`
 - [x] The owner's review of VISION.md and answers to its open questions (recorded in §15)
@@ -470,14 +471,17 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 
 - [ ] `feature:guide`, in Chiaro's shape: the screen, the widget, what Tempo does not do and who does
 - [ ] The accessibility pass: contrast (`ContrastTest`), labels, targets, twice the text size, foldables
-- [ ] The privacy statement and credits in Settings
+- [x] The privacy statement and credits in Settings
+  - There since Phase 2: Privacy (what Tempo reads, that it sends nothing, Android's backup), About (version, developer, copyright, licence, source code), Credits (the typefaces and their licence), in both languages.
 - [ ] Baseline Profile, if start-up measures slow
 
 ### Phase 6 — Release on GitHub (v1.0.0)
 
-- [ ] The release key in the secrets (Phase 0's open box)
+- [x] The release key in the secrets (Phase 0's open box)
+  - 10 Oct 2026, and the workflow's rehearsal (Actions, Release, "Run workflow") builds and checks a signed APK without publishing it.
 - [ ] `CHANGELOG.md`'s 1.0.0 section; `tempo.versionName=1.0.0`; tag `v1.0.0`
 - [ ] The README's download link and the release key's fingerprint
+  - The fingerprint and the steps are in the README's Install section since 10 Oct 2026; its line "on its way" goes with the tag.
 - [ ] The sister apps' READMEs name Tempo in "The family" (Chiaro, Passo, Saldo)
 
 ### Phase 7 — Google Play (optional, later)
@@ -598,6 +602,12 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 
 - **9 Oct 2026, review of Today.** **No second view of Today** (owner, asked whether "a completely new visualisation with a wow effect, animations on opening and on touch, as an optional choice in Settings" was a good idea). Weighed: two views are two things to keep right on every state, every language, twice the text size, for a second way of saying the same thing, against the vision's one calm view; the features most asked of this kind of app are either the calendar app's (a day grid, a week overview, writing) or already here (the countdown, the free time). The one worth building would have been the hero's dial expanding on touch (full width, the arcs in the calendars' colours, a title in the centre on a touch), a gesture rather than a page and no setting; the owner chose not to: "the page is already very beautiful and clear as it is". Today stays one page, with the dial as its glance.
 
+- **10 Oct 2026, before 1.0.** **The release key, checked before a tag** (owner: the key created and put in the four secrets). The release workflow can now be run by hand as a rehearsal: the same gates, the same build signed with the release key, and nothing published (the tag's checks, the checksum, the notes and the GitHub Release run on a tag only). Its first run read the four secrets and signed the APK; `apksigner` named the signer, `CN=callbackdev`, SHA-256 `A9:43:D8:BA:63:0F:C9:2A:7C:A0:89:A0:7B:71:97:15:0E:C9:9F:51:0A:2A:6D:3E:6E:21:0B:E5:65:58:58:FE`, Tempo's own (neither the debug key nor Passo's). The workflow now fails any APK, rehearsal or release, not signed with that certificate: a secret replaced by mistake would make a release no install could update to.
+- **10 Oct 2026, before 1.0.** **The welcome page, from the phone** (owner: no bar saying where the run stands, a little scrolling, the icon on a ground of its own). The progress bar is on every page, the welcome's included ("Step 1 of 3"). The mark stands on the page's own ground: the warm white disc it was cropped on read as a sticker; without it the drawing is cut close (60 units, the face's edge at 29.2), so the ring is as large at 96 dp as it was at 112 dp. The spaces are tighter (the mark's top 40 to 8 dp, under the tagline 36 to 24 dp, between the promises 20 to 16 dp): in Italian, at 384 × 770 dp (a Galaxy S24 upright, less its bars), the page needed 25 dp more than the screen, and has 23 dp to spare now, with the bar; `OnboardingScreenTest` pins it. A smaller phone still scrolls, as before: the words are not cut to fit. On the dark page the ring's deep end is quieter than on the light one (the screenshot), a point for the ring's colour.
+- **10 Oct 2026, before 1.0.** The first run's and Settings' line for «In words» still said what the card was before its dial ("What comes next, large, and the day in one line"); they now say what the widget picker says: a clock face with what comes next on its ring, and the day in a few words.
+
 ### Open
 
-None. A question that comes up during a phase is written here, with its options, before it is built.
+- **10 Oct 2026, the launcher ring's colour** (owner: the sisters' rings are livelier; perhaps an electric blue, shaded). Options drawn side by side with Passo's ring, on the launcher's warm white, the light page and the dark one: the slate of today; an electric blue (`8DB8FF` → `2F6BFF` → `1838B8`); a bright azure to cobalt (`7FE0FF` → `1E90FF` → `2140C8`, proposed: the most vivid against the amber face, the one that holds on the dark page, and bright where Chiaro's night blue is deep); cobalt to indigo (closest to Chiaro's violet, not proposed). Slate stays until the owner picks; the change is `RING_STOPS` in `tools/draw_launcher_icon.py` and one run.
+
+A question that comes up during a phase is written here, with its options, before it is built.

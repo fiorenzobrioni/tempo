@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Draws Tempo's launcher mark: the two adaptive-icon layers in app/src/main/res/drawable, and the
-whole icon as the welcome page shows it (core/designsystem/src/main/res/drawable/ic_app_mark.xml).
+mark on no ground as the welcome page shows it (core/designsystem/src/main/res/drawable/ic_app_mark.xml).
 
     python3 tools/draw_launcher_icon.py
 
@@ -48,7 +48,6 @@ HAND_TAIL = 0.9  # how far each hand reaches back past the centre, so the two me
 # replaced it did not please (owner, 7 Oct 2026). Brighter blues met Chiaro's night again, copper
 # melted into the amber face, and a plain graphite read as a disabled icon.
 RING_STOPS = [(0.0, "C9D3E0"), (0.45, "6A7F9C"), (1.0, "283548")]
-BACKGROUND = "F7F4EE"  # app/src/main/res/values/colors.xml, ic_launcher_background
 AMBER = ("FFC658", "EF8618")  # the family's emblem amber (Chiaro's sun, Passo's print, Saldo's coin)
 
 
@@ -174,19 +173,24 @@ def vector(body, aapt=True):
 """
 
 
+# The welcome page's mark is cut this close round the centre: the face's edge is 29.2 units out.
+MARK_HALF = 30.0
+
+
 def mark():
-    """The whole icon as a launcher's round mask shows it: the 72 units in the middle of the
-    108-unit layers, on the warm white, for the welcome page (an app's module cannot reach the
-    adaptive icon itself, and a round crop is what the reader recognises from the home screen)."""
+    """The foreground's ring and clock face on no ground, for the welcome page (an app's module
+    cannot reach the adaptive icon itself). The warm white disc it first stood on read as a
+    sticker on the page (owner, 10 Oct 2026); without it the mark is cut close, so the ring is as
+    large in fewer dp."""
     body = ring(sweep_stroke()) + "\n" + face(amber_fill())
+    side = f(2 * MARK_HALF)
     return f"""<vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="72dp"
-    android:height="72dp"
-    android:viewportWidth="72"
-    android:viewportHeight="72">
-<path android:pathData="{circle(36, 36, 36)}" android:fillColor="#FF{BACKGROUND}"/>
-<group android:translateX="-18" android:translateY="-18">
+    android:width="{side}dp"
+    android:height="{side}dp"
+    android:viewportWidth="{side}"
+    android:viewportHeight="{side}">
+<group android:translateX="{f(MARK_HALF - CENTRE)}" android:translateY="{f(MARK_HALF - CENTRE)}">
 {body}
 </group>
 </vector>
@@ -213,8 +217,8 @@ def main():
     MARK.parent.mkdir(parents=True, exist_ok=True)
     MARK.write_text(
         HEADER.format(
-            what="The whole launcher icon, cropped round as a launcher shows it, for the welcome\n"
-            "     page: the warm white, the ring and the clock face."
+            what="The launcher icon's mark for the welcome page: the ring and the clock face, on\n"
+            "     no ground of their own."
         )
         + mark()
     )

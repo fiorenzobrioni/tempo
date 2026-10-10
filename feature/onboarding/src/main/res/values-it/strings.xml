@@ -26,7 +26,7 @@
     <string name="onboarding_widget_agenda">Agenda</string>
     <string name="onboarding_widget_agenda_body">L’ora e la data sopra il resto della giornata, mai una lista da scorrere.</string>
     <string name="onboarding_widget_words">In parole</string>
-    <string name="onboarding_widget_words_body">Quello che viene dopo, in grande, e la giornata in una riga.</string>
+    <string name="onboarding_widget_words_body">Un quadrante con quello che viene dopo sull’anello, e la giornata in poche parole.</string>
     <string name="onboarding_widget_add">Aggiungi</string>
     <string name="onboarding_widget_add_a11y">Aggiungi %1$s alla schermata Home</string>
     <string name="onboarding_widget_manual">Per aggiungerne uno, tieni premuto un punto vuoto della schermata Home, scegli Widget, poi Tempo.</string>

@@ -84,7 +84,7 @@
     <string name="settings_widget_agenda">Add «Agenda» to the home screen</string>
     <string name="settings_widget_agenda_note">The time and the date over the rest of your day</string>
     <string name="settings_widget_words">Add «In words» to the home screen</string>
-    <string name="settings_widget_words_note">What comes next, large, and the day in one line</string>
+    <string name="settings_widget_words_note">A clock face with what comes next on its ring, and the day in a few words</string>
     <string name="settings_widget_add">Adding a widget</string>
     <string name="settings_widget_manual">Touch and hold an empty spot on the home screen, choose Widgets, then Tempo.</string>
     <string name="settings_widget_change">Changing a widget</string>

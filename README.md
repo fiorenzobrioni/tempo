@@ -80,9 +80,26 @@ For 1.0 ([VISION.md](./VISION.md) has the full scope):
 
 ## Install
 
-Not yet: there is no release. When there is, it will be the family's way: a signed APK on
-[GitHub Releases](https://github.com/fiorenzobrioni/tempo/releases), with its SHA-256 checksum
-and the release key's fingerprint here, for Android 14 (API 34) or newer.
+Android 14 (API 34) or newer. The first release, 1.0.0, is on its way; until then there is
+nothing to download.
+
+1. Download `tempo-vX.Y.Z.apk` from the [latest release](https://github.com/fiorenzobrioni/tempo/releases/latest).
+2. Open it on the phone and allow installs from that source when Android asks.
+3. On the first run, allow Tempo to read your calendar (or not yet: the clock works without it).
+
+**Verify the download.** Put the APK and its `.sha256` file in one folder and run
+`sha256sum -c tempo-vX.Y.Z.apk.sha256`. To check that the APK is genuine, compare its signing
+certificate (`apksigner verify --print-certs`, or AppVerifier on the phone) with this SHA-256
+fingerprint:
+
+```
+A9:43:D8:BA:63:0F:C9:2A:7C:A0:89:A0:7B:71:97:15:0E:C9:9F:51:0A:2A:6D:3E:6E:21:0B:E5:65:58:58:FE
+```
+
+**Updates.** Tempo has no network access, so it cannot check for updates. Use GitHub's
+"Watch, Custom, Releases" notifications, or [Obtainium](https://github.com/ImranR98/Obtainium).
+Every release installs over the previous one and keeps your settings. The notes of each version
+are in [CHANGELOG.md](./CHANGELOG.md).
 
 ## Roadmap
 
