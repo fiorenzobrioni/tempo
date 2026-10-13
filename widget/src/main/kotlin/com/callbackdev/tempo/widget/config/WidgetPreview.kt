@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -49,6 +50,7 @@ import com.callbackdev.tempo.core.domain.widget.AgendaSpec
 import com.callbackdev.tempo.core.domain.widget.WordsFit
 import com.callbackdev.tempo.core.domain.widget.WordsForm
 import com.callbackdev.tempo.widget.R
+import com.callbackdev.tempo.widget.WidgetCornerRes
 import com.callbackdev.tempo.widget.WidgetKind
 import com.callbackdev.tempo.widget.WidgetLook
 import com.callbackdev.tempo.widget.WidgetModel
@@ -214,7 +216,7 @@ private fun WidgetPreview(kind: WidgetKind, model: WidgetModel?, size: DpSize) {
                         scaleX = scale
                         scaleY = scale
                     }
-                    .clip(RoundedCornerShape(24.dp)),
+                    .clip(RoundedCornerShape(dimensionResource(WidgetCornerRes))),
             ) {
                 views?.let { remote ->
                     AndroidView(

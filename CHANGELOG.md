@@ -15,6 +15,7 @@ All notable changes to Tempo are documented here. The format follows
 - **Widgets: one size for a list.** On «Agenda» an event's title, its time, the headings and
   the "more today" line are one size, and the note on «In words» matches it, the same sizes
   the family's other cards use.
+- **Widgets wear your launcher's corner**, so they match the widgets beside them.
 
 ## [1.0.1] - 2026-10-10
 
