@@ -356,31 +356,33 @@ object AgendaFit {
     const val LINE_DATE_ROOM = 110f
 
     /** The clock on a row, as «In words»'s time on its: the cards' row numbers match. */
-    const val LINE_CLOCK_MAX = 34f
+    const val LINE_CLOCK_MAX = WidgetType.HERO
 
     /**
      * The date under a one-row card's clock: 16 sp, as «In words»'s line on top, so the rows read
      * as one set (owner, 8 Oct 2026).
      */
-    const val LINE_DATE_SP = 16f
+    const val LINE_DATE_SP = WidgetType.BODY
     const val CELL_CLOCK_MIN = 20f
     const val CELL_CLOCK_MAX = 56f
     const val CELL_DATE_SP = 12f
 
     /** The date under a tall card's clock: 16 sp, as on a row and «In words»'s line on top. */
-    const val DATE_SP = 16f
+    const val DATE_SP = WidgetType.BODY
     const val DATE_ALONE_SP = 18f
     const val DATE_MIN_SP = 11f
 
     /** How full a line of words breaks: two lines hold less than twice one. */
     const val WRAP_FILL = 0.8f
 
-    // The list.
-    const val TITLE_SP = 14f
-    const val TIME_SP = 13f
-    const val HEADING_SP = 12f
-    const val NOTE_SP = 14f
-    const val FOOTER_SP = 12f
+    // The list: every line of it at the widget scale's [WidgetType.LABEL] (13 Oct 2026, from a
+    // 14 sp title, 13 sp time, 12 sp heading, 14 sp note and 12 sp footer). A list's row is one
+    // size on every card of the family; the title over its time is sorted by weight and ink.
+    const val TITLE_SP = WidgetType.LABEL
+    const val TIME_SP = WidgetType.LABEL
+    const val HEADING_SP = WidgetType.LABEL
+    const val NOTE_SP = WidgetType.LABEL
+    const val FOOTER_SP = WidgetType.LABEL
     const val ROW_GAP = 4f
     const val HEADING_TOP = 6f
     const val FOOTER_TOP = 2f

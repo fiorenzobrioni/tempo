@@ -46,6 +46,7 @@ import com.callbackdev.tempo.core.designsystem.theme.widgetCardContainer
 import com.callbackdev.tempo.core.designsystem.theme.widgetDress
 import com.callbackdev.tempo.core.domain.calendar.markColor
 import com.callbackdev.tempo.core.domain.widget.FIT_SLACK
+import com.callbackdev.tempo.core.domain.widget.WidgetType
 import com.callbackdev.tempo.core.domain.widget.lineHeight
 import com.callbackdev.tempo.core.domain.widget.widthOf
 import com.callbackdev.tempo.core.model.UserSettings
@@ -402,8 +403,9 @@ internal val WidgetCorner = 24.dp
 internal val WidgetCardPadding = 14.dp
 internal val WidgetCardPaddingSnug = 6.dp
 
-internal const val MESSAGE_SP = 14f
-internal const val HINT_SP = 12f
+/** A card's message and its hint: the scale's body and label (13 Oct 2026, from 14 and 12). */
+internal const val MESSAGE_SP = WidgetType.BODY
+internal const val HINT_SP = WidgetType.LABEL
 internal const val MESSAGE_MAX_LINES = 3
 
 private const val QUIET_ALPHA = 0.75f
