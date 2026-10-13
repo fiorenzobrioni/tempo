@@ -91,6 +91,18 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
    forms (`WordsFit`): CELL, ROW, TALL. Considered and left: a progress ring (it would need a
    repaint per minute), a day strip with a "now" marker (the same), the event's time kept large
    beside a smaller title (the owner's complaint).
+10. **One type scale for the family's cards** (amendment of 13 Oct 2026, from the family's widget
+    review). Chiaro's widgets grew a scale of six steps, each a role (caption 11, label 13, body
+    16, title 22, display 30, hero 34), and the family's cards print in it, so a row or a note is
+    one size on every card: `WidgetType`, held by `WidgetTypeTest`. Here every line of
+    «Agenda»'s list moved to the label step (the title from 14, the heading and the footer from
+    12, the note from 14), «In words»'s note from 14 to 13, and a card's message and hint from 14
+    and 12 to 16 and 13. The clocks and «In words»'s title keep their ladders: they are sized to
+    the grant, and a ladder's first choice is a step wherever one exists.
+11. **The launcher's corner** (amendment of 13 Oct 2026, from the family's widget review). The card
+    takes the radius the launcher gives its widgets (`system_app_widget_background_radius`, in
+    `WidgetCard`, the settings preview and `widget_preview_card`) instead of a fixed 24 dp: the
+    same on stock Android 16, and the launcher's own wherever a phone sets another.
 
 ## Consequences
 

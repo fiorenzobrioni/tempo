@@ -329,14 +329,14 @@ object WordsFit {
 
     /** The title on a row. */
     const val TITLE_SP = 20f
-    const val TALL_TITLE_SP = 22f
+    const val TALL_TITLE_SP = WidgetType.TITLE
     const val TALL_TITLE_MIN_SP = 18f
     const val NARROW_TITLE_SP = 16f
     const val TITLE_MIN_SP = 14f
     const val CELL_TITLE_SP = 12f
 
     /** The facts' size: the time in words, and the date. */
-    const val WHEN_SP = 16f
+    const val WHEN_SP = WidgetType.BODY
     const val NARROW_WHEN_SP = 14f
     private val WHEN_SIZES = listOf(WHEN_SP, 14f)
 
@@ -345,9 +345,11 @@ object WordsFit {
      * more than "→ 11:00", which says more than nothing (owner, 9 Oct 2026).
      */
     private val NARROW_WHEN_SIZES = listOf(NARROW_WHEN_SP, 13f, 12f)
-    const val DATE_SP = 16f
+    const val DATE_SP = WidgetType.BODY
     private val DATE_SIZES = listOf(DATE_SP, 14f, 13f)
-    const val NOTE_SP = 14f
+
+    /** The note: the scale's [WidgetType.LABEL] (13 Oct 2026, from 14), a list's own size. */
+    const val NOTE_SP = WidgetType.LABEL
     const val NOTE_GAP = 4f
     const val NOTE_MAX_LINES = 3
     const val TOP_GAP = 4f
@@ -378,7 +380,7 @@ object WordsFit {
     const val CELL_DIAL_MAX = 104f
     const val CELL_DIAL_COMFORT = 56f
     const val CELL_GAP = 4f
-    const val CELL_WHEN_SP = 13f
+    const val CELL_WHEN_SP = WidgetType.LABEL
     const val CELL_WHEN_MIN = 18f
     const val CELL_WHEN_MAX = 28f
 }
