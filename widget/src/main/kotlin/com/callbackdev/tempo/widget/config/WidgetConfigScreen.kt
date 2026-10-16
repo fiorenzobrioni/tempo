@@ -18,9 +18,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -85,10 +87,12 @@ object WidgetConfigTags {
 private enum class ConfigDialog { CLOCK_FORMAT, DATE_STYLE, HEADER_TAP, EVENT_TAP }
 
 /**
- * One widget's settings, reached from the launcher's reconfigure flow: the card at the top, at the sizes it can be given;
- * then what its time and date show, what its touches open, what it is painted on and what it
- * carries. Every choice is saved as it is made and repaints this one card; «Done» only closes the
- * door.
+ * One widget's settings, reached from the launcher's reconfigure flow: the card at the top, at the
+ * sizes it can be given; then what it is painted on, what its time and date show, what else it
+ * carries, and what its touches open (16 Oct 2026: the background comes first after the preview,
+ * as on every widget's settings of the household, and the touches, which change nothing the
+ * preview can show, go last). Every choice is saved as it is made and repaints this one card;
+ * «Reset this widget» puts the card back as it was placed, «Done» only closes the door.
  *
  * A choice that cannot work on this phone is not offered: no clock app, no "opens your clock app"
  * (unless it was already chosen, so the screen says what the card does); no calendar app, no
@@ -128,6 +132,13 @@ fun WidgetConfigScreen(
         ) {
             WidgetPreviewSection(kind, model?.copy(look = look), placed)
 
+            GroupHeader(stringResource(R.string.widget_config_background))
+            SettingsGroup {
+                BackgroundChoices(look, settings, onLook)
+                GroupDivider()
+                OpacityRow(look.opacityPct, onOpacityDrag, onOpacityDone)
+            }
+
             GroupHeader(stringResource(R.string.widget_config_clock_group))
             SettingsGroup {
                 SwitchRow(
@@ -158,33 +169,6 @@ fun WidgetConfigScreen(
                         onClick = { dialog = ConfigDialog.DATE_STYLE },
                     )
                 }
-            }
-
-            GroupHeader(stringResource(R.string.widget_config_touches))
-            SettingsGroup {
-                if (look.showClock || look.showDate) {
-                    ValueRow(
-                        label = stringResource(R.string.widget_config_header_tap),
-                        value = headerTapLabel(look.headerTap),
-                        onClick = { dialog = ConfigDialog.HEADER_TAP },
-                        modifier = Modifier.testTag(WidgetConfigTags.HEADER_TAP),
-                    )
-                    GroupDivider()
-                }
-                ValueRow(
-                    label = stringResource(R.string.widget_config_event_tap),
-                    value = eventTapLabel(look.eventTap),
-                    onClick = { dialog = ConfigDialog.EVENT_TAP },
-                    modifier = Modifier.testTag(WidgetConfigTags.EVENT_TAP),
-                    enabled = doors.canOpenEvent || look.eventTap == EventTap.CALENDAR,
-                )
-            }
-
-            GroupHeader(stringResource(R.string.widget_config_background))
-            SettingsGroup {
-                BackgroundChoices(look, settings, onLook)
-                GroupDivider()
-                OpacityRow(look.opacityPct, onOpacityDrag, onOpacityDone)
             }
 
             GroupHeader(stringResource(R.string.widget_config_content))
@@ -221,9 +205,37 @@ fun WidgetConfigScreen(
                 }
             }
 
+            GroupHeader(stringResource(R.string.widget_config_touches))
+            SettingsGroup {
+                if (look.showClock || look.showDate) {
+                    ValueRow(
+                        label = stringResource(R.string.widget_config_header_tap),
+                        value = headerTapLabel(look.headerTap),
+                        onClick = { dialog = ConfigDialog.HEADER_TAP },
+                        modifier = Modifier.testTag(WidgetConfigTags.HEADER_TAP),
+                    )
+                    GroupDivider()
+                }
+                ValueRow(
+                    label = stringResource(R.string.widget_config_event_tap),
+                    value = eventTapLabel(look.eventTap),
+                    onClick = { dialog = ConfigDialog.EVENT_TAP },
+                    modifier = Modifier.testTag(WidgetConfigTags.EVENT_TAP),
+                    enabled = doors.canOpenEvent || look.eventTap == EventTap.CALENDAR,
+                )
+            }
+
+            // The one control that undoes the others: outlined, in the error colour, at the foot.
+            OutlinedButton(
+                onClick = { onLook(WidgetLook()) },
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 24.dp),
+            ) {
+                Text(stringResource(R.string.widget_config_reset))
+            }
             Button(
                 onClick = onDone,
-                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 24.dp),
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp),
             ) {
                 Text(stringResource(R.string.widget_config_done))
             }
