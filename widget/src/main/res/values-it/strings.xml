@@ -70,7 +70,7 @@
     <string name="widget_config_title">Questo widget</string>
     <string name="widget_config_preview_desc">Anteprima del widget</string>
     <string name="widget_config_size_placed">Com’è ora</string>
-    <string name="widget_config_resize_hint">Nella schermata Home, tieni premuto il widget e trascinane i bordi: si ridispone da solo.</string>
+    <string name="widget_config_resize_hint">Sulla schermata Home tieni premuto il widget e trascinane i bordi: si ridispone da solo.</string>
     <string name="widget_config_clock_group">Ora e data</string>
     <string name="widget_config_show_clock">L’ora</string>
     <string name="widget_config_show_clock_note">La disegna Android stesso, giusta al minuto, senza costo per la batteria.</string>
@@ -112,6 +112,7 @@
     <string name="widget_config_days_ahead">I prossimi giorni</string>
     <string name="widget_config_days_ahead_note">Quando il resto di oggi ci sta, i giorni seguenti riempiono lo spazio che lascia, ciascuno sotto la sua data.</string>
     <string name="widget_config_days_ahead_note_words">Quando oggi non resta altro, al suo posto va il primo impegno dei prossimi giorni.</string>
+    <string name="widget_config_reset">Ripristina questo widget</string>
     <string name="widget_config_done">Fatto</string>
     <string name="widget_config_cancel">Annulla</string>
 

@@ -16,6 +16,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
@@ -95,7 +96,7 @@ class WidgetConfigScreenTest {
     fun `a card's own clock format is kept, and Tempo's is the default`() {
         show(WidgetKind.WORDS)
         compose.onAllNodesWithText("As in Tempo’s settings").onFirst().assertExists()
-        compose.onNodeWithText("Time format").performClick()
+        compose.onNodeWithText("Time format").performScrollTo().performClick()
         compose.onNodeWithText("12-hour").performClick()
         assertThat(look.clockFormat).isEqualTo(ClockFormat.H12)
     }
