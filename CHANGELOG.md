@@ -17,6 +17,12 @@ All notable changes to Tempo are documented here. The format follows
   the family's other cards use.
 - **Widgets wear your launcher's corner**, so they match the widgets beside them.
 
+### Fixed
+
+- **The dial on the nights the clocks change.** An event early the next morning could sit
+  under the hand and look like now, and an event across the change drew an arc an hour too
+  long or too short. The dial now counts the hours the clock on the wall shows.
+
 ## [1.0.1] - 2026-10-10
 
 A small fix to Today's words. Installs over 1.0.0 and keeps your
