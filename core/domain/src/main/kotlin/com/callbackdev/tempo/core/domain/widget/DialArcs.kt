@@ -25,6 +25,13 @@ data class DialArc(val from: Float, val sweep: Float, val focus: Boolean)
  * the way round would meet the hand from behind and read as now. It opens at the moment drawn,
  * or at the start of the event under way (up to [LOOK_BACK] before): the hand stands inside its
  * arc. What starts beyond the window is left off, never wrapped round onto the hours before it.
+ *
+ * The face is the clock on the wall, so the window and the arcs are measured in its time, not in
+ * elapsed time: the night the clocks go forward, eleven real hours fill twelve on the face, and
+ * an event across the jump ends on the face where the hand will be when it ends (Europe/Rome,
+ * 28 March 2027). The night they go back, the hand walks an hour twice and an arc is an hour
+ * shorter than the event. Measured in elapsed time, the window reached past the hand on the
+ * first night, and an event at the same hour next morning read as now.
  */
 object DialArcs {
     fun of(agenda: Agenda, focus: WordsFocus, zone: ZoneId, showDaysAhead: Boolean): List<DialArc> {
@@ -38,7 +45,6 @@ object DialArcs {
         } else {
             agenda.now
         }
-        val closes = opens.plus(SPAN)
         val today = agenda.days.firstOrNull()
         val events = buildList {
             today?.timed?.filter { it.state != EntryState.PAST }?.forEach { add(it.event) }
@@ -46,17 +52,25 @@ object DialArcs {
             focused?.let { add(it) }
         }.distinctBy { it.eventId to it.begin }
         return events.mapNotNull { event ->
-            arc(event, opens, closes, zone, focus = event.sameAs(focused))
+            arc(event, opens, zone, focus = event.sameAs(focused))
         }.sortedBy { it.focus }
     }
 
-    private fun arc(event: EventInstance, opens: Instant, closes: Instant, zone: ZoneId, focus: Boolean): DialArc? {
+    private fun arc(event: EventInstance, opens: Instant, zone: ZoneId, focus: Boolean): DialArc? {
         val end = maxOf(event.end, event.begin)
-        if (event.begin >= closes || end < opens || (end == opens && event.begin < opens)) return null
+        if (end < opens || (end == opens && event.begin < opens)) return null
         val from = maxOf(event.begin, opens)
-        val minutes = Duration.between(from, minOf(end, closes)).toSeconds() / SECONDS_PER_MINUTE
+        // In the hour the clocks repeat, a later moment can be earlier on the face: never below 0.
+        val ahead = faceMinutesBetween(opens, from, zone).coerceAtLeast(0f)
+        if (ahead >= SPAN_MINUTES) return null
+        val minutes = minOf(faceMinutesBetween(from, end, zone), SPAN_MINUTES - ahead)
         return DialArc(minuteOnFace(from, zone), maxOf(minutes, MIN_SWEEP), focus)
     }
+
+    /** How far the hand moves from [from] to [to]: wall-clock minutes, not elapsed ones. */
+    private fun faceMinutesBetween(from: Instant, to: Instant, zone: ZoneId): Float =
+        Duration.between(from.atZone(zone).toLocalDateTime(), to.atZone(zone).toLocalDateTime())
+            .toSeconds() / SECONDS_PER_MINUTE
 
     private fun EventInstance.sameAs(other: EventInstance?) =
         other != null && eventId == other.eventId && begin == other.begin
@@ -69,6 +83,8 @@ object DialArcs {
 
     /** The face's twelve hours, less the gap that keeps an arc from closing on the hand. */
     val SPAN: Duration = Duration.ofHours(11).plusMinutes(30)
+
+    private val SPAN_MINUTES: Float = SPAN.toMinutes().toFloat()
 
     /** How far back the arc of the event under way may start: the rest of the face is the hours to come. */
     val LOOK_BACK: Duration = Duration.ofHours(6)

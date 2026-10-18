@@ -1,5 +1,6 @@
 package com.callbackdev.tempo.core.domain.widget
 
+import com.callbackdev.tempo.core.domain.agenda.NewYork
 import com.callbackdev.tempo.core.domain.agenda.Rome
 import com.callbackdev.tempo.core.domain.agenda.agenda
 import com.callbackdev.tempo.core.domain.agenda.allDay
@@ -116,6 +117,48 @@ class WordsTest {
         assertThat(arc.from).isEqualTo(480f)
         assertThat(arc.sweep).isEqualTo(690f)
         assertThat(arc.sweep).isLessThan(DialArcs.FACE_MINUTES)
+    }
+
+    @Test
+    fun `the night the clocks go forward, twelve hours on the face are eleven real ones`() {
+        // Europe/Rome, 28 March 2027: 02:00 becomes 03:00. From 20:00 the evening before, 08:00
+        // is eleven hours away, but on the face it sits under the hand, twelve hours round: it is
+        // not drawn, or it would read as now.
+        val early = timed(9, "2027-03-28T08:00", "2027-03-28T09:00", title = "Early")
+        assertThat(arcs(early, now = "2027-03-27T20:00")).isEmpty()
+        // 07:30 is eleven and a half hours of the face away: at the edge of the window, still out.
+        val earlier = timed(10, "2027-03-28T07:30", "2027-03-28T09:00", title = "Earlier")
+        assertThat(arcs(earlier, now = "2027-03-27T20:00")).isEmpty()
+    }
+
+    @Test
+    fun `the night the clocks go back, an arc ends where the hand will be when the event ends`() {
+        // Europe/Rome, 25 October 2026: 03:00 becomes 02:00. 01:00 to 04:00 is four real hours, and
+        // three on the face: the hand goes back an hour on the way.
+        val night = timed(11, "2026-10-25T01:00", "2026-10-25T04:00", title = "Night shift")
+        assertThat(arcs(night, now = "2026-10-25T00:30"))
+            .containsExactly(DialArc(from = 60f, sweep = 180f, focus = true))
+    }
+
+    @Test
+    fun `the night the clocks go back, twelve hours on the face are thirteen real ones`() {
+        // America/New_York, 1 November 2026: 02:00 becomes 01:00. From 20:00 the 07:00 of the next
+        // morning is twelve real hours away and eleven on the face, ahead of the hand: it is drawn,
+        // up to the window's end half an hour short of the hand.
+        val early = timed(12, "2026-11-01T07:00", "2026-11-01T08:00", zone = NewYork, title = "Early")
+        val agenda = agenda(early, now = at("2026-10-31T20:00", NewYork), zone = NewYork)
+        val result = DialArcs.of(agenda, WordsDay.of(agenda, true, true).focus, NewYork, true)
+        assertThat(result).containsExactly(DialArc(from = 420f, sweep = 30f, focus = true))
+    }
+
+    @Test
+    fun `a half-hour change moves the face by half an hour`() {
+        // Australia/Lord_Howe, 4 October 2026: 02:00 becomes 02:30. 01:45 to 02:45 is half an hour.
+        val zone = java.time.ZoneId.of("Australia/Lord_Howe")
+        val call = timed(13, "2026-10-04T01:45", "2026-10-04T02:45", zone = zone, title = "Call")
+        val agenda = agenda(call, now = at("2026-10-04T01:00", zone), zone = zone)
+        val result = DialArcs.of(agenda, WordsDay.of(agenda, true, true).focus, zone, true)
+        assertThat(result).containsExactly(DialArc(from = 105f, sweep = 60f, focus = true))
     }
 
     @Test
