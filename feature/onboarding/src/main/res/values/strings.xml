@@ -17,7 +17,6 @@
     <string name="onboarding_allow">Allow</string>
     <string name="onboarding_open_settings">Open the app’s settings</string>
     <string name="onboarding_not_now">Not now</string>
-    <string name="onboarding_back">Back</string>
     <string name="onboarding_done">Done</string>
     <string name="onboarding_progress">Step %1$d of %2$d</string>
 
