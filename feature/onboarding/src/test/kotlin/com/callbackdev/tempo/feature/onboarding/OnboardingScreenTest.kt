@@ -2,6 +2,7 @@ package com.callbackdev.tempo.feature.onboarding
 
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -44,16 +45,17 @@ class OnboardingScreenTest {
         var next = false
         draw(OnboardingStep.WELCOME, CalendarPermission.ASKABLE, OnboardingActions(next = { next = true }))
         compose.onNodeWithText("The time, and what comes next.").assertIsDisplayed()
-        compose.onNodeWithTag(OnboardingTags.MARK).assertIsDisplayed()
         compose.assertAccessible()
         compose.onNodeWithTag(OnboardingTags.PRIMARY).performClick()
         assertThat(next).isTrue()
     }
 
     @Test
-    fun `the welcome says where the run stands, as the other pages do`() {
+    fun `the welcome says where the run stands to a screen reader, and draws no bar`() {
         draw(OnboardingStep.WELCOME, CalendarPermission.ASKABLE)
-        compose.onNodeWithContentDescription("Step 1 of 3").assertIsDisplayed()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Step 1 of 3"))
+            .assertIsDisplayed()
+        compose.onNodeWithContentDescription("Step 1 of 3").assertDoesNotExist()
     }
 
     // A phone upright as a reader holds it: 384 x 832 dp (a Galaxy S24's), less its status bar and
@@ -71,7 +73,7 @@ class OnboardingScreenTest {
 
     @Test
     @Config(qualifiers = "en-rGB-w384dp-h770dp-night-xxhdpi")
-    fun `the welcome's mark stands on the dark page`() {
+    fun `the welcome stands on the dark page`() {
         compose.setContent {
             TempoTheme(darkTheme = true) {
                 OnboardingScreen(OnboardingStep.WELCOME, CalendarPermission.ASKABLE, OnboardingActions())
@@ -92,6 +94,7 @@ class OnboardingScreenTest {
         )
         compose.onNodeWithText("Allow").performClick()
         assertThat(asked).isTrue()
+        compose.onNodeWithText("Back").assertDoesNotExist()
         compose.onNodeWithTag(OnboardingTags.NOT_NOW).performClick()
         assertThat(next).isTrue()
         compose.assertAccessible()

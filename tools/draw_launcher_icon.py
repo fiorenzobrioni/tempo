@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Draws Tempo's launcher mark: the two adaptive-icon layers in app/src/main/res/drawable, and the
-mark on no ground as the welcome page shows it (core/designsystem/src/main/res/drawable/ic_app_mark.xml).
+"""Draws Tempo's launcher mark: the two adaptive-icon layers in app/src/main/res/drawable.
 
     python3 tools/draw_launcher_icon.py
 
@@ -14,8 +13,9 @@ as a tick). Since 18 Oct 2026 (owner, the family's icon review) each hand has
 round ends and both start at the centre, where their round ends make the hub: the square ends
 read as a cut, the round ones as a drawn clock.
 
-Re-running this script IS the drawing: ic_launcher_foreground.xml, ic_launcher_monochrome.xml and
-ic_app_mark.xml are its output and are not edited by hand. Only the standard library is used, so
+Re-running this script IS the drawing: ic_launcher_foreground.xml and ic_launcher_monochrome.xml
+are its output and are not edited by hand. The welcome page no longer shows the mark (owner, the
+family's onboarding review, 18 Oct 2026), so its copy on no ground, ic_app_mark.xml, is gone. Only the standard library is used, so
 any Python 3 runs it.
 """
 
@@ -24,7 +24,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 RES = ROOT / "app/src/main/res/drawable"
-MARK = ROOT / "core/designsystem/src/main/res/drawable/ic_app_mark.xml"
 
 CENTRE = 54.0
 RING_RADIUS = 21.0
@@ -172,30 +171,6 @@ def vector(body, aapt=True):
 """
 
 
-# The welcome page's mark is cut this close round the centre: the face's edge is 29.2 units out.
-MARK_HALF = 30.0
-
-
-def mark():
-    """The foreground's ring and clock face on no ground, for the welcome page (an app's module
-    cannot reach the adaptive icon itself). The warm white disc it first stood on read as a
-    sticker on the page (owner, 10 Oct 2026); without it the mark is cut close, so the ring is as
-    large in fewer dp."""
-    body = ring(sweep_stroke()) + "\n" + face(amber_fill())
-    side = f(2 * MARK_HALF)
-    return f"""<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="{side}dp"
-    android:height="{side}dp"
-    android:viewportWidth="{side}"
-    android:viewportHeight="{side}">
-<group android:translateX="{f(MARK_HALF - CENTRE)}" android:translateY="{f(MARK_HALF - CENTRE)}">
-{body}
-</group>
-</vector>
-"""
-
-
 def main():
     RES.mkdir(parents=True, exist_ok=True)
     (RES / "ic_launcher_foreground.xml").write_text(
@@ -213,15 +188,7 @@ def main():
         )
         + vector(ring(' android:strokeColor="#FF000000"/>') + "\n" + face(' android:fillColor="#FF000000"/>'), aapt=False)
     )
-    MARK.parent.mkdir(parents=True, exist_ok=True)
-    MARK.write_text(
-        HEADER.format(
-            what="The launcher icon's mark for the welcome page: the ring and the clock face, on\n"
-            "     no ground of their own."
-        )
-        + mark()
-    )
-    print("wrote", RES / "ic_launcher_foreground.xml", RES / "ic_launcher_monochrome.xml", "and", MARK)
+    print("wrote", RES / "ic_launcher_foreground.xml", "and", RES / "ic_launcher_monochrome.xml")
 
 
 if __name__ == "__main__":
