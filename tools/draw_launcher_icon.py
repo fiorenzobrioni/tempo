@@ -10,7 +10,9 @@ clock round to it again, the way the hours go: a bright morning azure to a deep 
 opposite of the amber face, which stays the one warm thing in the mark. The clock's hands are cut out
 of its face: the minute hand at twelve, the hour hand towards four, the drawing the usual clock
 symbol uses, so the face reads as a clock at a launcher's size (ten past ten, tried first, read
-as a tick).
+as a tick). Since 18 Oct 2026 (owner, the family's icon review) each hand has
+round ends and both start at the centre, where their round ends make the hub: the square ends
+read as a cut, the round ones as a drawn clock.
 
 Re-running this script IS the drawing: ic_launcher_foreground.xml, ic_launcher_monochrome.xml and
 ic_app_mark.xml are its output and are not edited by hand. Only the standard library is used, so
@@ -31,11 +33,10 @@ FACE_ANGLE = 140.0  # degrees clockwise from three o'clock: the lower left
 FACE_RADIUS = 8.2
 GAP_RADIUS = 11.2  # the clear band around the emblem, where it cuts the ring
 
-# The hands, cut out of the face: (direction in degrees clockwise from three o'clock, length).
-# The minute hand at twelve, the hour hand towards four.
-HANDS = [(-90.0, 5.9), (32.0, 4.3)]
-HAND_WIDTH = 1.8
-HAND_TAIL = 0.9  # how far each hand reaches back past the centre, so the two meet in one hub
+# The hands, cut out of the face: (direction in degrees clockwise from three o'clock, length to
+# the tip of the round end). The minute hand at twelve, the hour hand towards four.
+HANDS = [(-90.0, 5.6), (32.0, 4.0)]
+HAND_WIDTH = 2.0
 
 # The ring, from just past the clock round to it again: (position along the sweep, colour). A
 # bright azure to a deep cobalt (owner, 10 Oct 2026: the slate before it was a dull ring, and its
@@ -72,15 +73,17 @@ def signed_area(poly):
 
 
 def hand(deg, length):
-    """One hand as a rectangle from just behind the face's centre outwards, walked against the
+    """One hand as a capsule from the face's centre outwards, its ends round, walked against the
     canvas (negative area), so it is a hole in a clip under the nonzero rule."""
     cx, cy = point(FACE_ANGLE)
-    ux, uy = math.cos(math.radians(deg)), math.sin(math.radians(deg))
-    px, py = -uy, ux
-    corners = [
-        (cx + ux * r + px * s * HAND_WIDTH / 2, cy + uy * r + py * s * HAND_WIDTH / 2)
-        for r, s in ((-HAND_TAIL, -1), (length, -1), (length, 1), (-HAND_TAIL, 1))
-    ]
+    r = HAND_WIDTH / 2
+    a = math.radians(deg)
+    tip = (cx + math.cos(a) * (length - r), cy + math.sin(a) * (length - r))
+    corners = []
+    for (ex, ey), start in ((tip, a - math.pi / 2), ((cx, cy), a + math.pi / 2)):
+        for i in range(13):
+            t = start + math.pi * i / 12
+            corners.append((ex + r * math.cos(t), ey + r * math.sin(t)))
     if signed_area(corners) > 0:
         corners.reverse()
     return "M " + " L ".join(f"{f(x)},{f(y)}" for x, y in corners) + " Z"

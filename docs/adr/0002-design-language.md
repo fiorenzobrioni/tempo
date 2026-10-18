@@ -45,7 +45,8 @@ shortest way to the same look, and keeps one drawing of each thing in the family
    and slate, the family's one dull ring, whose deep end sank into a dark page (10 Oct 2026).
    The face has its hands cut out,
    the minute hand at twelve and the hour hand towards four (ten past ten, tried first, read as a
-   tick at launcher size). The monochrome layer restates the same shapes for themed icons, and
+   tick at launcher size); since 18 Oct 2026 (owner, the family's icon review) both start at the
+   centre and have round ends, which make the hub where they meet. The monochrome layer restates the same shapes for themed icons, and
    `ic_app_mark.xml` (`:core:designsystem`) is the ring and the clock face on no ground, for the welcome page (the whole icon cropped round until 10 Oct 2026, owner).
 7. **Tests carried over**: `TypographyTest` (every Material role follows the typeface setting)
    and `ContrastTest` (every text ink at 4.5:1 on every ground, in both dresses and themes), and
