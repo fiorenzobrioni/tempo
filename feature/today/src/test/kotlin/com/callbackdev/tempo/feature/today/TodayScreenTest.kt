@@ -1,5 +1,9 @@
 package com.callbackdev.tempo.feature.today
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -25,13 +29,14 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.callbackdev.tempo.core.designsystem.theme.LocalReducedMotion
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
+import com.callbackdev.tempo.core.domain.today.EventKey
 import com.callbackdev.tempo.core.model.AttendeeStatus
 import com.callbackdev.tempo.core.model.CalendarPermission
 import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.DateStyle
 import com.callbackdev.tempo.core.model.EventInstance
-import com.callbackdev.tempo.core.model.UserSettings
 import com.callbackdev.tempo.core.testing.assertAccessible
 import com.callbackdev.tempo.core.testing.walkPage
 import com.callbackdev.tempo.core.testing.writeScreenshot
@@ -75,7 +80,11 @@ class TodayScreenTest {
 
     @Test
     fun `the reader's formats reach the clock and the times`() {
-        draw(TodaySample.state(settings = UserSettings(clockFormat = ClockFormat.H12, dateStyle = DateStyle.MEDIUM)))
+        draw(
+            TodaySample.state(
+                settings = TodaySample.settings.copy(clockFormat = ClockFormat.H12, dateStyle = DateStyle.MEDIUM),
+            ),
+        )
         compose.onNodeWithTag(TodayTags.TIME).assertTextEquals("10:20 am")
         compose.onNodeWithTag(TodayTags.DATE).assertTextEquals("Wed, 7 Oct")
     }
@@ -122,7 +131,7 @@ class TodayScreenTest {
 
     @Test
     fun `a second clock under the alarm, in the reader's city`() {
-        draw(TodaySample.state(settings = UserSettings(onboardingCompleted = true, secondZone = "America/New_York")))
+        draw(TodaySample.state(settings = TodaySample.settings.copy(secondZone = "America/New_York")))
         compose.onNodeWithTag(TodayTags.SECOND_CLOCK).assertIsDisplayed().assertHasNoClickAction()
             .assert(hasText("New York 04:20"))
         compose.assertAccessible()
@@ -131,14 +140,14 @@ class TodayScreenTest {
 
     @Test
     fun `the second clock says its date where it is not the phone's`() {
-        val tokyo = UserSettings(onboardingCompleted = true, secondZone = "Asia/Tokyo")
+        val tokyo = TodaySample.settings.copy(secondZone = "Asia/Tokyo")
         draw(TodaySample.state(now = TodaySample.at("2026-10-07T21:10"), settings = tokyo))
         compose.onNodeWithTag(TodayTags.SECOND_CLOCK).assert(hasText("Tokyo 04:10 · tomorrow"))
     }
 
     @Test
     fun `the second clock says yesterday in the early morning`() {
-        val newYork = UserSettings(onboardingCompleted = true, secondZone = "America/New_York")
+        val newYork = TodaySample.settings.copy(secondZone = "America/New_York")
         draw(TodaySample.state(now = TodaySample.at("2026-10-07T01:30"), settings = newYork))
         compose.onNodeWithTag(TodayTags.SECOND_CLOCK).assert(hasText("New York 19:30 · yesterday"))
     }
@@ -146,7 +155,7 @@ class TodayScreenTest {
     @Test
     @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi")
     fun `the second clock in Italian`() {
-        val tokyo = UserSettings(onboardingCompleted = true, secondZone = "Asia/Tokyo")
+        val tokyo = TodaySample.settings.copy(secondZone = "Asia/Tokyo")
         draw(TodaySample.state(now = TodaySample.at("2026-10-07T21:10"), settings = tokyo))
         compose.onNodeWithTag(TodayTags.SECOND_CLOCK).assert(hasText("Tokyo 04:10 · domani"))
     }
@@ -159,7 +168,7 @@ class TodayScreenTest {
 
     @Test
     fun `no second clock in its own city`() {
-        draw(TodaySample.state(settings = UserSettings(onboardingCompleted = true, secondZone = "Europe/Rome")))
+        draw(TodaySample.state(settings = TodaySample.settings.copy(secondZone = "Europe/Rome")))
         compose.onNodeWithTag(TodayTags.SECOND_CLOCK).assertDoesNotExist()
     }
 
@@ -304,7 +313,7 @@ class TodayScreenTest {
 
     @Test
     fun `the calendar button goes when the reader hides it`() {
-        draw(TodaySample.state(settings = UserSettings(showCalendarButton = false)))
+        draw(TodaySample.state(settings = TodaySample.settings.copy(showCalendarButton = false)))
         compose.onNodeWithTag(TodayTags.CALENDAR).assertDoesNotExist()
         // The date stays a door to the calendar, as it always was.
         compose.onNodeWithTag(TodayTags.DATE).assertHasClickAction()
@@ -429,6 +438,160 @@ class TodayScreenTest {
         draw()
         compose.onNodeWithTag(TodayTags.DATE).assertTextEquals("Mercoledì 7 ottobre")
         compose.onNodeWithTag(TodayTags.SENTENCE).assertTextEquals("Design review fino alle 11:00, poi altri 3 oggi.")
+    }
+
+    // --- The first day's tip (step 8.6) --------------------------------------------------------
+
+    private val firstDay = TodaySample.settings.copy(todayTipSeen = false)
+
+    @Test
+    fun `the first day's tip stands under the hero, before the day's events`() {
+        draw(TodaySample.state(settings = firstDay))
+        compose.onNodeWithTag(TodayTags.TIP).assertIsDisplayed()
+        compose.onNodeWithText("How to read the dial").assertIsDisplayed()
+        val tip = compose.onNodeWithTag(TodayTags.TIP).fetchSemanticsNode().boundsInRoot
+        val sentence = compose.onNodeWithTag(TodayTags.SENTENCE).fetchSemanticsNode().boundsInRoot
+        val allDay = compose.onNodeWithTag(TodayTags.ALL_DAY).fetchSemanticsNode().boundsInRoot
+        assertThat(tip.top).isAtLeast(sentence.bottom)
+        assertThat(tip.bottom).isAtMost(allDay.top)
+        compose.assertAccessible()
+        compose.writeScreenshot("today-tip")
+    }
+
+    @Test
+    fun `the tip, dismissed, is gone`() {
+        var settings by mutableStateOf(firstDay)
+        compose.setContent {
+            TempoTheme {
+                TodayScreen(
+                    TodaySample.state(settings = settings),
+                    CalendarPermission.GRANTED,
+                    TodayActions(dismissTip = { settings = settings.copy(todayTipSeen = true) }),
+                )
+            }
+        }
+        compose.onNodeWithText("Got it").performClick()
+        compose.onNodeWithTag(TodayTags.TIP).assertDoesNotExist()
+        compose.onNodeWithTag(TodayTags.ALL_DAY).assertIsDisplayed()
+    }
+
+    @Test
+    fun `the tip opens the guide`() {
+        var guide = false
+        draw(TodaySample.state(settings = firstDay), actions = TodayActions(openGuide = { guide = true }))
+        compose.onNodeWithText("Open the guide").performClick()
+        assertThat(guide).isTrue()
+    }
+
+    @Test
+    fun `the tip is never beside a state's card`() {
+        draw(TodaySample.state(settings = firstDay).copy(content = TodayContent.NoPermission))
+        compose.onNodeWithTag(TodayTags.TIP).assertDoesNotExist()
+    }
+
+    @Test
+    fun `the tip waits for the agenda`() {
+        draw(TodaySample.state(settings = firstDay).copy(content = TodayContent.Loading))
+        compose.onNodeWithTag(TodayTags.TIP).assertDoesNotExist()
+    }
+
+    @Test
+    fun `once seen, the tip is not there again`() {
+        draw()
+        compose.onNodeWithTag(TodayTags.TIP).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi")
+    fun `the tip in Italian`() {
+        draw(TodaySample.state(settings = firstDay))
+        compose.onNodeWithText("Come leggere il quadrante").assertIsDisplayed()
+        compose.onNodeWithText("Apri la guida").assertIsDisplayed()
+        compose.onNodeWithText("Ho capito").assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w411dp-h891dp-xxhdpi", fontScale = 2f)
+    fun `the tip reads at twice the text size`() {
+        draw(TodaySample.state(settings = firstDay))
+        compose.walkPage(hasTestTag(TodayTags.LIST), "today-tip-large-text", maxScreens = 2)
+    }
+
+    // --- The new event brought into view (step 8.6) -----------------------------------------
+
+    /**
+     * Today as it was when the reader left for the calendar app; the function returned brings them
+     * back with the event they made on the page.
+     */
+    private fun leftForNewEvent(reduced: Boolean = false, onRevealed: () -> Unit = {}): (EventInstance) -> Unit {
+        var state by mutableStateOf(TodaySample.state())
+        compose.setContent {
+            TempoTheme {
+                CompositionLocalProvider(LocalReducedMotion provides reduced) {
+                    TodayScreen(state, CalendarPermission.GRANTED, TodayActions(revealed = onRevealed))
+                }
+            }
+        }
+        compose.waitForIdle()
+        return { made ->
+            state = TodaySample.state(instances = TodaySample.instances + made).copy(reveal = EventKey.of(made))
+        }
+    }
+
+    @Test
+    fun `back from the calendar app, the event made is brought into view and glows once`() {
+        var revealed = 0
+        val tea = event(30, "2026-10-11T16:00", "2026-10-11T17:00", "Tea with Anna")
+        val sunday = TodayTags.day(java.time.LocalDate.parse("2026-10-11"))
+        val back = leftForNewEvent(onRevealed = { revealed++ })
+        compose.onNodeWithTag(sunday).assertDoesNotExist()
+        compose.mainClock.autoAdvance = false
+        back(tea)
+        // A frame for the new state, then the scroll and the glow at its height.
+        compose.mainClock.advanceTimeBy(16)
+        compose.mainClock.advanceTimeBy(400)
+        compose.writeScreenshot("today-reveal")
+        compose.mainClock.autoAdvance = true
+        compose.waitForIdle()
+        compose.onNodeWithTag(sunday).assertIsDisplayed()
+        compose.onNode(hasContentDescription("Tea with Anna", substring = true)).assertIsDisplayed()
+        assertThat(revealed).isEqualTo(1)
+    }
+
+    @Test
+    fun `an event made in view is not scrolled to`() {
+        val coffee = event(31, "2026-10-07T11:00", "2026-10-07T11:30", "Coffee with Marta")
+        leftForNewEvent()(coffee)
+        compose.waitForIdle()
+        compose.onNodeWithTag(TodayTags.TIME).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.event(coffee.eventId)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `an event made this morning unfolds the morning`() {
+        val breakfast = event(32, "2026-10-07T08:30", "2026-10-07T09:00", "Breakfast meeting")
+        leftForNewEvent()(breakfast)
+        compose.waitForIdle()
+        compose.onNodeWithTag(TodayTags.event(breakfast.eventId)).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.event(TodaySample.run.eventId)).assertExists()
+    }
+
+    @Test
+    fun `under reduced motion the list jumps to the event made`() {
+        val tea = event(30, "2026-10-11T16:00", "2026-10-11T17:00", "Tea with Anna")
+        leftForNewEvent(reduced = true)(tea)
+        compose.waitForIdle()
+        compose.onNodeWithTag(TodayTags.day(java.time.LocalDate.parse("2026-10-11"))).assertIsDisplayed()
+    }
+
+    @Test
+    fun `an event synced from elsewhere moves nothing`() {
+        var state by mutableStateOf(TodaySample.state())
+        compose.setContent { TempoTheme { TodayScreen(state, CalendarPermission.GRANTED, TodayActions()) } }
+        val synced = event(33, "2026-10-11T16:00", "2026-10-11T17:00", "Synced")
+        state = TodaySample.state(instances = TodaySample.instances + synced)
+        compose.waitForIdle()
+        compose.onNodeWithTag(TodayTags.TIME).assertIsDisplayed()
     }
 
     @Test

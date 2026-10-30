@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -53,12 +54,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,6 +105,8 @@ import com.callbackdev.tempo.core.designsystem.components.CalendarBar
 import com.callbackdev.tempo.core.designsystem.components.CalendarDot
 import com.callbackdev.tempo.core.designsystem.components.CalendarPermissionCard
 import com.callbackdev.tempo.core.designsystem.components.DayDial
+import com.callbackdev.tempo.core.designsystem.components.REVEAL_MILLIS
+import com.callbackdev.tempo.core.designsystem.components.RevealItem
 import com.callbackdev.tempo.core.designsystem.components.StatusCard
 import com.callbackdev.tempo.core.designsystem.components.StatusTone
 import com.callbackdev.tempo.core.designsystem.format.AgendaText
@@ -121,20 +129,26 @@ import com.callbackdev.tempo.core.domain.today.AgendaSection
 import com.callbackdev.tempo.core.domain.today.AgendaSections
 import com.callbackdev.tempo.core.domain.today.AlarmDay
 import com.callbackdev.tempo.core.domain.today.DaySummary
+import com.callbackdev.tempo.core.domain.today.EventKey
 import com.callbackdev.tempo.core.domain.today.Timeline
 import com.callbackdev.tempo.core.domain.today.TimelineItem
 import com.callbackdev.tempo.core.domain.widget.DialArc
 import com.callbackdev.tempo.core.domain.widget.DialArcs
 import com.callbackdev.tempo.core.domain.widget.WordsDay
+import com.callbackdev.tempo.core.model.Agenda
 import com.callbackdev.tempo.core.model.AgendaDay
 import com.callbackdev.tempo.core.model.AllDayEntry
 import com.callbackdev.tempo.core.model.AttendeeStatus
 import com.callbackdev.tempo.core.model.CalendarInfo
 import com.callbackdev.tempo.core.model.CalendarPermission
+import com.callbackdev.tempo.core.model.DateStyle
 import com.callbackdev.tempo.core.model.EntryState
 import com.callbackdev.tempo.core.model.EventInstance
 import com.callbackdev.tempo.core.model.FreeGap
 import com.callbackdev.tempo.core.model.TimedEntry
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -143,7 +157,7 @@ import java.time.ZonedDateTime
 import java.util.Locale
 
 @Composable
-fun TodayRoute(onOpenSettings: () -> Unit, viewModel: TodayViewModel = hiltViewModel()) {
+fun TodayRoute(onOpenSettings: () -> Unit, onOpenGuide: () -> Unit, viewModel: TodayViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val activity = LocalActivity.current
     val context = LocalContext.current
@@ -181,9 +195,18 @@ fun TodayRoute(onOpenSettings: () -> Unit, viewModel: TodayViewModel = hiltViewM
                 launch(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, page))
             },
             openEvent = { launch(CalendarIntents.view(it)) },
-            newEvent = { begin, end -> launch(CalendarIntents.insert(begin, end)) },
+            newEvent = { begin, end ->
+                viewModel.onNewEventOpened()
+                launch(CalendarIntents.insert(begin, end))
+            },
             openDay = { launch(CalendarIntents.openDay(it)) },
             openClock = { current.doors.clockPackage?.let { ClockApp.open(context, it) }?.let(launch) },
+            openGuide = {
+                viewModel.onTipSeen()
+                onOpenGuide()
+            },
+            dismissTip = viewModel::onTipSeen,
+            revealed = viewModel::onRevealed,
         ),
     )
 }
@@ -199,6 +222,11 @@ class TodayActions(
     val openDay: (Instant) -> Unit = {},
     /** The phone's clock app, by its front door: where the alarm is set, moved or turned off. */
     val openClock: () -> Unit = {},
+    /** The guide, from the first day's tip: the tip is then seen. */
+    val openGuide: () -> Unit = {},
+    val dismissTip: () -> Unit = {},
+    /** The event the reader made is being brought into view: the state need not say it again. */
+    val revealed: () -> Unit = {},
 )
 
 /**
@@ -208,7 +236,8 @@ class TodayActions(
  * sentence, on the glow; then today's events, with the past folded and "now"
  * drawn as a line; then the days ahead, each on its own card: tomorrow in full, the rest of the
  * week a line an event, and a run of empty days said once. The new-event button stays out of the
- * way: a label at the top, its icon alone once scrolled.
+ * way: a label at the top, its icon alone once scrolled; back from it, the event made is brought
+ * into view and glows once. The first day, a tip under the hero says how to read the dial (step 8.6).
  *
  * Every state says what is true: no permission, no calendar, every calendar hidden, no calendar
  * app to hand an event to. The page is drawn from [state] alone.
@@ -225,9 +254,10 @@ fun TodayScreen(
     val list = rememberLazyListState()
     val atTop by remember { derivedStateOf { list.firstVisibleItemIndex == 0 } }
     var showEarlier by rememberSaveable { mutableStateOf(false) }
+    val glowing = revealNewEvent(state, actions, list, showEarlier, openEarlier = { showEarlier = true })
 
     Surface(modifier = modifier.fillMaxSize()) {
-        CompositionLocalProvider(LocalTimeColumn24 provides text.uses24Hour) {
+        CompositionLocalProvider(LocalTimeColumn24 provides text.uses24Hour, LocalGlowing provides glowing) {
             TodayPage(state, permission, actions, text, gutter, list, atTop, showEarlier, {
                 showEarlier = !showEarlier
             })
@@ -256,6 +286,7 @@ private fun TodayPage(
             contentPadding = PaddingValues(bottom = navigationBar + 88.dp),
         ) {
             item(key = "hero") { Hero(state, text, gutter, actions) }
+            if (state.showsTip) card("tip", gutter) { TipCard(actions) }
             when (val content = state.content) {
                 TodayContent.Loading -> Unit
 
@@ -338,6 +369,100 @@ private fun LazyListScope.card(key: String, gutter: PageGutter, content: @Compos
 private fun LazyListScope.row(key: String, gutter: PageGutter, content: @Composable () -> Unit) {
     item(key = key) { Box(Modifier.padding(gutter)) { content() } }
 }
+
+/**
+ * The first day's tip (step 8.6): what the dial says, and the way to the guide for the rest. Shown
+ * until it is dismissed or followed ([TodayUiState.showsTip]).
+ */
+@Composable
+private fun TipCard(actions: TodayActions) {
+    StatusCard(
+        icon = TempoIcons.Clock,
+        title = stringResource(R.string.today_tip_title),
+        body = stringResource(R.string.today_tip_body),
+        tone = StatusTone.NOTE,
+        action = stringResource(R.string.today_tip_open),
+        onAction = actions.openGuide,
+        dismiss = stringResource(R.string.today_tip_dismiss),
+        onDismiss = actions.dismissTip,
+        modifier = Modifier.testTag(TodayTags.TIP),
+    )
+}
+
+/**
+ * Back from the calendar app with the event the reader made ([TodayUiState.reveal], step 8.6): the
+ * list brought to it where it is not in view already (at once under reduced motion), today's past
+ * events unfolded if it is one of them, then its row glowing once. The reveal is taken from the
+ * state at once ([TodayActions.revealed]), so it is done once. Returns the event glowing now.
+ */
+@Composable
+private fun revealNewEvent(
+    state: TodayUiState,
+    actions: TodayActions,
+    list: LazyListState,
+    showEarlier: Boolean,
+    openEarlier: () -> Unit,
+): EventKey? {
+    var revealing by remember { mutableStateOf<EventKey?>(null) }
+    var glowing by remember { mutableStateOf<EventKey?>(null) }
+    val current by rememberUpdatedState(state)
+    val unfolded by rememberUpdatedState(showEarlier)
+    val reduced = reducedMotion()
+    val density = LocalDensity.current
+    // Under the status bar a row is drawn but not seen: it is brought below it, with a margin.
+    val top = WindowInsets.statusBars.getTop(density) + with(density) { REVEAL_MARGIN.roundToPx() }
+    LaunchedEffect(state.reveal) {
+        val reveal = state.reveal ?: return@LaunchedEffect
+        revealing = reveal
+        actions.revealed()
+    }
+    LaunchedEffect(revealing) {
+        val target = revealing ?: return@LaunchedEffect
+        try {
+            val content = current.content as? TodayContent.Ready ?: return@LaunchedEffect
+            val opens = !unfolded && agendaItems(content.agenda, showEarlier = false).any { it.folds(target) }
+            if (opens) openEarlier()
+            val at = agendaItems(content.agenda, showEarlier = unfolded || opens).indexOfFirst { it.holds(target) }
+            if (at < 0) return@LaunchedEffect
+            val index = leadingItems(current) + at
+            // The rows of the morning come in with the next layout.
+            withTimeoutOrNull(REVEAL_MILLIS) { snapshotFlow { list.layoutInfo.totalItemsCount }.first { it > index } }
+            if (!list.shows(index, top)) {
+                if (reduced) list.scrollToItem(index, -top) else list.animateScrollToItem(index, -top)
+            }
+            glowing = target
+            delay(REVEAL_MILLIS)
+        } finally {
+            if (glowing == target) glowing = null
+            if (revealing == target) revealing = null
+        }
+    }
+    return glowing
+}
+
+/** The list's items before the agenda's: the hero, and the tip while it is shown. */
+private fun leadingItems(state: TodayUiState): Int = if (state.showsTip) 2 else 1
+
+/**
+ * Whether the item at [index] is whole on screen, below [top] and above the room kept for the
+ * new-event button.
+ */
+private fun LazyListState.shows(index: Int, top: Int): Boolean {
+    val info = layoutInfo
+    val item = info.visibleItemsInfo.firstOrNull { it.index == index } ?: return false
+    return item.offset >= info.viewportStartOffset + top &&
+        item.offset + item.size <= info.viewportEndOffset - info.afterContentPadding
+}
+
+private val REVEAL_MARGIN = 24.dp
+
+/** The event the reader just made, glowing on its row (step 8.6); null nearly always. */
+private val LocalGlowing = compositionLocalOf<EventKey?> { null }
+
+/** Whether [event]'s row is the one glowing. */
+@Composable
+@ReadOnlyComposable
+private fun glows(event: EventInstance): Boolean = LocalGlowing.current == EventKey.of(event)
 
 /**
  * The top of the page, on the glow: the date (a touch opens the calendar
@@ -625,6 +750,75 @@ private val MARKER_GAP = 8.dp
 /** The dial's side: the «In words» card's dial on a 2×2. */
 private val DIAL_SIZE = 112.dp
 
+/**
+ * The agenda's part of the list, item by item and in order: what [agenda] draws, and where a
+ * reveal finds its event (step 8.6). Today is a row an item; a day ahead is one card.
+ */
+private sealed interface AgendaItem {
+    val key: String
+
+    /** Whether [event] is drawn in this item. */
+    fun holds(event: EventKey): Boolean
+
+    /** Whether [event] is among today's past events folded into this item. */
+    fun folds(event: EventKey): Boolean = false
+
+    data class AllDay(val day: AgendaDay) : AgendaItem {
+        override val key get() = "all-day-${day.date}"
+
+        override fun holds(event: EventKey) = day.allDay.any { EventKey.of(it.event) == event }
+    }
+
+    data class Line(val item: TimelineItem, val day: AgendaDay) : AgendaItem {
+        override val key
+            get() = when (item) {
+                is TimelineItem.Event -> "event-${day.date}-${item.entry.event.eventId}-${item.entry.event.begin}"
+
+                // Keyed by its end: the gap open now starts at now, which moves every minute.
+                is TimelineItem.Free -> "free-${day.date}-${item.gap.end}"
+
+                is TimelineItem.Earlier -> "earlier-${day.date}"
+
+                TimelineItem.Now -> "now"
+            }
+
+        override fun holds(event: EventKey) = item is TimelineItem.Event && EventKey.of(item.entry.event) == event
+
+        override fun folds(event: EventKey) =
+            item is TimelineItem.Earlier && !item.open && item.entries.any { EventKey.of(it.event) == event }
+    }
+
+    data class Day(val section: AgendaSection) : AgendaItem {
+        override val key
+            get() = when (section) {
+                is AgendaSection.Tomorrow -> "day-${section.day.date}"
+                is AgendaSection.Later -> "day-${section.day.date}"
+                is AgendaSection.Nothing -> "nothing-${section.from}"
+                is AgendaSection.Today -> "today-${section.day.date}"
+            }
+
+        override fun holds(event: EventKey): Boolean {
+            val day = when (section) {
+                is AgendaSection.Tomorrow -> section.day
+                is AgendaSection.Later -> section.day
+                is AgendaSection.Nothing, is AgendaSection.Today -> return false
+            }
+            return day.allDay.any { EventKey.of(it.event) == event } || day.timed.any { EventKey.of(it.event) == event }
+        }
+    }
+}
+
+private fun agendaItems(agenda: Agenda, showEarlier: Boolean): List<AgendaItem> =
+    AgendaSections.of(agenda).flatMap { section ->
+        if (section is AgendaSection.Today) {
+            val day = section.day
+            listOfNotNull(AgendaItem.AllDay(day).takeIf { day.allDay.isNotEmpty() }) +
+                Timeline.of(day, isToday = true, showEarlier = showEarlier).map { AgendaItem.Line(it, day) }
+        } else {
+            listOf(AgendaItem.Day(section))
+        }
+    }
+
 private fun LazyListScope.agenda(
     content: TodayContent.Ready,
     state: TodayUiState,
@@ -645,119 +839,126 @@ private fun LazyListScope.agenda(
         null
     }
     val style = state.settings.dateStyle
-    AgendaSections.of(content.agenda).forEach { section ->
-        when (section) {
-            is AgendaSection.Today -> {
-                val day = section.day
-                if (day.allDay.isNotEmpty()) {
-                    row("all-day-${day.date}", gutter) {
-                        AllDayRow(
-                            day.allDay,
-                            content.calendars,
-                            text,
-                            ScreenMargin,
-                            openEvent,
-                            Modifier.testTag(TodayTags.ALL_DAY),
-                        )
-                    }
-                }
-                Timeline.of(day, isToday = true, showEarlier = showEarlier).forEach { item ->
-                    timelineItem(item, day, content.calendars, text, now, gutter, openEvent, newEvent, onToggleEarlier)
-                }
+    agendaItems(content.agenda, showEarlier).forEach { item ->
+        when (item) {
+            is AgendaItem.AllDay -> row(item.key, gutter) {
+                AllDayRow(
+                    item.day.allDay,
+                    content.calendars,
+                    text,
+                    ScreenMargin,
+                    openEvent,
+                    Modifier.testTag(TodayTags.ALL_DAY),
+                )
             }
 
-            is AgendaSection.Tomorrow -> card("day-${section.day.date}", gutter) {
-                val day = section.day
-                DayCard(
-                    title = stringResource(R.string.today_tomorrow),
-                    summary = text.summary(DaySummary.of(day)),
-                    onOpen = openDay?.let { { it(day.date) } },
-                    modifier = Modifier.testTag(TodayTags.day(day.date)),
-                ) {
-                    if (day.allDay.isNotEmpty()) AllDayRow(day.allDay, content.calendars, text, CARD_EDGE, openEvent)
-                    Timeline.of(day, isToday = false).forEach { item ->
-                        if (item is TimelineItem.Event) {
-                            EventRow(
-                                item.entry,
-                                day.date,
-                                content.calendars[item.entry.event.calendarId],
-                                text,
-                                now,
-                                CARD_EDGE,
-                                openEvent,
-                            )
-                        }
-                    }
-                }
+            is AgendaItem.Line -> row(item.key, gutter) {
+                TimelineLine(item.item, item.day, content.calendars, text, now, openEvent, newEvent, onToggleEarlier)
             }
 
-            is AgendaSection.Later -> card("day-${section.day.date}", gutter) {
-                val day = section.day
-                DayCard(
-                    title = text.date(day.date, style),
-                    summary = text.summary(DaySummary.of(day)),
-                    onOpen = openDay?.let { { it(day.date) } },
-                    modifier = Modifier.testTag(TodayTags.day(day.date)),
-                ) {
-                    day.allDay.forEach { entry -> CompactRow(entry.event, null, content.calendars, text, openEvent) }
-                    day.timed.forEach { entry -> CompactRow(entry.event, entry, content.calendars, text, openEvent) }
-                }
-            }
-
-            is AgendaSection.Nothing -> card("nothing-${section.from}", gutter) {
-                val title = when {
-                    !section.isOneDay -> text.span(section.from, section.to, style, section.startsTomorrow)
-                    section.startsTomorrow -> stringResource(R.string.today_tomorrow)
-                    else -> text.date(section.from, style)
-                }
-                DayCard(
-                    title = title,
-                    summary = text.nothingPlanned(section.days),
-                    onOpen = openDay?.let { { it(section.from) } },
-                    modifier = Modifier.testTag(TodayTags.day(section.from)),
-                ) { }
+            is AgendaItem.Day -> card(item.key, gutter) {
+                DaySection(item.section, content.calendars, text, now, style, openEvent, openDay)
             }
         }
     }
 }
 
-private fun LazyListScope.timelineItem(
+@Composable
+private fun TimelineLine(
     item: TimelineItem,
     day: AgendaDay,
     calendars: Map<Long, CalendarInfo>,
     text: AgendaText,
     now: Instant,
-    gutter: PageGutter,
     openEvent: ((EventInstance) -> Unit)?,
     newEvent: ((Instant, Instant) -> Unit)?,
     onToggleEarlier: () -> Unit,
 ) {
     when (item) {
-        is TimelineItem.Event -> row(
-            "event-${day.date}-${item.entry.event.eventId}-${item.entry.event.begin}",
-            gutter,
-        ) {
-            EventRow(
-                item.entry,
-                day.date,
-                calendars[item.entry.event.calendarId],
-                text,
-                now,
-                ScreenMargin + 4.dp,
-                openEvent,
-            )
+        is TimelineItem.Event -> EventRow(
+            item.entry,
+            day.date,
+            calendars[item.entry.event.calendarId],
+            text,
+            now,
+            ScreenMargin + 4.dp,
+            openEvent,
+        )
+
+        is TimelineItem.Free -> FreeRow(item.gap, text, now, newEvent)
+
+        is TimelineItem.Earlier -> EarlierRow(item.entries.size, showEarlier = item.open, onToggle = onToggleEarlier)
+
+        TimelineItem.Now -> NowRow()
+    }
+}
+
+/** A day after today on its card: tomorrow in full, a later day a line an event, a run of empty days its heading. */
+@Composable
+private fun DaySection(
+    section: AgendaSection,
+    calendars: Map<Long, CalendarInfo>,
+    text: AgendaText,
+    now: Instant,
+    style: DateStyle,
+    openEvent: ((EventInstance) -> Unit)?,
+    openDay: ((LocalDate) -> Unit)?,
+) {
+    when (section) {
+        // Today is drawn row by row, never as a card.
+        is AgendaSection.Today -> Unit
+
+        is AgendaSection.Tomorrow -> {
+            val day = section.day
+            DayCard(
+                title = stringResource(R.string.today_tomorrow),
+                summary = text.summary(DaySummary.of(day)),
+                onOpen = openDay?.let { { it(day.date) } },
+                modifier = Modifier.testTag(TodayTags.day(day.date)),
+            ) {
+                if (day.allDay.isNotEmpty()) AllDayRow(day.allDay, calendars, text, CARD_EDGE, openEvent)
+                Timeline.of(day, isToday = false).forEach { item ->
+                    if (item is TimelineItem.Event) {
+                        EventRow(
+                            item.entry,
+                            day.date,
+                            calendars[item.entry.event.calendarId],
+                            text,
+                            now,
+                            CARD_EDGE,
+                            openEvent,
+                        )
+                    }
+                }
+            }
         }
 
-        // Keyed by its end: the gap open now starts at now, which moves every minute.
-        is TimelineItem.Free -> row("free-${day.date}-${item.gap.end}", gutter) {
-            FreeRow(item.gap, text, now, newEvent)
+        is AgendaSection.Later -> {
+            val day = section.day
+            DayCard(
+                title = text.date(day.date, style),
+                summary = text.summary(DaySummary.of(day)),
+                onOpen = openDay?.let { { it(day.date) } },
+                modifier = Modifier.testTag(TodayTags.day(day.date)),
+            ) {
+                day.allDay.forEach { entry -> CompactRow(entry.event, null, calendars, text, openEvent) }
+                day.timed.forEach { entry -> CompactRow(entry.event, entry, calendars, text, openEvent) }
+            }
         }
 
-        is TimelineItem.Earlier -> row("earlier-${day.date}", gutter) {
-            EarlierRow(item.entries.size, showEarlier = item.open, onToggle = onToggleEarlier)
+        is AgendaSection.Nothing -> {
+            val title = when {
+                !section.isOneDay -> text.span(section.from, section.to, style, section.startsTomorrow)
+                section.startsTomorrow -> stringResource(R.string.today_tomorrow)
+                else -> text.date(section.from, style)
+            }
+            DayCard(
+                title = title,
+                summary = text.nothingPlanned(section.days),
+                onOpen = openDay?.let { { it(section.from) } },
+                modifier = Modifier.testTag(TodayTags.day(section.from)),
+            ) { }
         }
-
-        TimelineItem.Now -> row("now", gutter) { NowRow() }
     }
 }
 
@@ -893,19 +1094,21 @@ private fun AllDayChip(
             }
         }
     }
-    if (openEvent != null) {
-        Surface(
-            onClick = { openEvent(event) },
-            color = ground,
-            shape = CircleShape,
-            modifier = Modifier.semantics { contentDescription = description },
-        ) { chip() }
-    } else {
-        Surface(
-            color = ground,
-            shape = CircleShape,
-            modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = description },
-        ) { chip() }
+    RevealItem(glows(event), shape = CircleShape) {
+        if (openEvent != null) {
+            Surface(
+                onClick = { openEvent(event) },
+                color = ground,
+                shape = CircleShape,
+                modifier = Modifier.semantics { contentDescription = description },
+            ) { chip() }
+        } else {
+            Surface(
+                color = ground,
+                shape = CircleShape,
+                modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = description },
+            ) { chip() }
+        }
     }
 }
 
@@ -1007,13 +1210,12 @@ private fun EventRow(
         }
     }
     if (underWay) {
-        Surface(
-            color = ground,
-            shape = MaterialTheme.shapes.large,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-        ) { Box(target) { row() } }
+        RevealItem(glows(event), Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+            Surface(color = ground, shape = MaterialTheme.shapes.large) { Box(target) { row() } }
+        }
     } else {
-        Box(target) { row() }
+        // Kept from the page's edges as the event under way's ground is.
+        RevealItem(glows(event), inset = 8.dp) { Box(target) { row() } }
     }
 }
 
@@ -1241,37 +1443,39 @@ private fun CompactRow(
     val inCalendar = calendar?.let { stringResource(R.string.a11y_in_calendar, it.name) }
     val description = listOfNotNull(time, text.title(event), inCalendar).joinToString(", ")
     val openLabel = stringResource(R.string.a11y_open_event)
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (openEvent != null) {
-                    Modifier.clickable(onClickLabel = openLabel) { openEvent(event) }
-                } else {
-                    Modifier.semantics(mergeDescendants = true) { }
-                },
+    RevealItem(glows(event), inset = 8.dp) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(
+                    if (openEvent != null) {
+                        Modifier.clickable(onClickLabel = openLabel) { openEvent(event) }
+                    } else {
+                        Modifier.semantics(mergeDescendants = true) { }
+                    },
+                )
+                .semantics { contentDescription = description }
+                .heightIn(min = 48.dp)
+                .padding(horizontal = CARD_EDGE, vertical = 4.dp),
+        ) {
+            Text(
+                text = time,
+                style = MaterialTheme.typography.labelLarge.tabular(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                modifier = Modifier.width(timeColumn).clearAndSetSemantics { },
             )
-            .semantics { contentDescription = description }
-            .heightIn(min = 48.dp)
-            .padding(horizontal = CARD_EDGE, vertical = 4.dp),
-    ) {
-        Text(
-            text = time,
-            style = MaterialTheme.typography.labelLarge.tabular(),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 2,
-            modifier = Modifier.width(timeColumn).clearAndSetSemantics { },
-        )
-        CalendarDot(event.color ?: calendar?.color, MaterialTheme.colorScheme.surfaceContainerLow, size = 10.dp)
-        Text(
-            text = text.title(event),
-            style = MaterialTheme.typography.bodyLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f).clearAndSetSemantics { },
-        )
+            CalendarDot(event.color ?: calendar?.color, MaterialTheme.colorScheme.surfaceContainerLow, size = 10.dp)
+            Text(
+                text = text.title(event),
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f).clearAndSetSemantics { },
+            )
+        }
     }
 }
 
@@ -1305,6 +1509,7 @@ object TodayTags {
     const val FREE = "today_free"
     const val NOW = "today_now"
     const val EARLIER = "today_earlier"
+    const val TIP = "today_tip"
 
     fun event(id: Long) = "today_event_$id"
 

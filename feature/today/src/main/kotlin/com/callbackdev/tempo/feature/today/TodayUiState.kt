@@ -1,5 +1,6 @@
 package com.callbackdev.tempo.feature.today
 
+import com.callbackdev.tempo.core.domain.today.EventKey
 import com.callbackdev.tempo.core.domain.today.TodaySentence
 import com.callbackdev.tempo.core.model.Agenda
 import com.callbackdev.tempo.core.model.CalendarInfo
@@ -13,6 +14,8 @@ import java.time.ZonedDateTime
  * provider; the screen is a plain function of it, so its tests draw it without either.
  *
  * @property alarm the phone's next alarm, or null when none is set or the reader hid the line.
+ * @property reveal the event the reader just made in the calendar app, to bring into view and glow
+ *   once (step 8.6); null otherwise, and once the page has done it.
  */
 data class TodayUiState(
     val now: ZonedDateTime,
@@ -20,7 +23,14 @@ data class TodayUiState(
     val alarm: Instant?,
     val content: TodayContent,
     val doors: CalendarDoors,
-)
+    val reveal: EventKey? = null,
+) {
+    /**
+     * The first day's tip, until it is seen: only over an agenda, never beside the permission's
+     * card or another state's, which have their own word to say first.
+     */
+    val showsTip: Boolean get() = !settings.todayTipSeen && content is TodayContent.Ready
+}
 
 /** What the agenda's place holds. */
 sealed interface TodayContent {

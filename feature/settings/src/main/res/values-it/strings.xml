@@ -24,7 +24,8 @@
     <string name="settings_horizon_1">Solo oggi</string>
     <string name="settings_horizon_2">Oggi e domani</string>
     <string name="settings_horizon_7">Una settimana</string>
-    <string name="settings_horizon_note">Oggi è sempre in cima. I giorni dopo domani sono elencati in breve, così una settimana resta facile da leggere.</string>
+    <string name="settings_horizon_14">Due settimane</string>
+    <string name="settings_horizon_note">Oggi è sempre in cima. I giorni dopo domani sono elencati in breve e una serie di giorni vuoti si dice una volta sola, così anche due settimane restano facili da leggere.</string>
     <string name="settings_all_day">Eventi di tutto il giorno</string>
     <string name="settings_all_day_note">Feste, compleanni e viaggi, in una riga sopra gli impegni del giorno.</string>
     <string name="settings_declined">Inviti rifiutati</string>

@@ -46,4 +46,9 @@
     <string name="today_all_hidden_action">Scegli i calendari</string>
     <string name="today_no_app_title">Sul telefono non c’è un’app calendario</string>
     <string name="today_no_app_body">Tempo mostra i tuoi impegni, ma aprirne o crearne uno avviene in un’app calendario, come Google Calendar o Etar.</string>
+
+    <string name="today_tip_title">Come leggere il quadrante</string>
+    <string name="today_tip_body">Il suo anello tiene le prossime dodici ore: quello che viene dopo nel colore d’accento, il resto nei colori dei loro calendari. La guida spiega il resto della pagina.</string>
+    <string name="today_tip_open">Apri la guida</string>
+    <string name="today_tip_dismiss">Ho capito</string>
 </resources>
