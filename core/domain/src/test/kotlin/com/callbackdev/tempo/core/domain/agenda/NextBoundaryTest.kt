@@ -33,6 +33,32 @@ class NextBoundaryTest {
     }
 
     @Test
+    fun `with the dial on a home screen, an event coming onto its face is a boundary`() {
+        // At 20:00 the face shows until 07:30: the 08:00 meeting comes onto it at 20:30, not at midnight.
+        val tomorrow = timed(1, "2026-10-08T08:00", "2026-10-08T09:00")
+        val result = agenda(tomorrow, now = at("2026-10-07T20:00"))
+        assertThat(NextBoundary.after(result, Rome)).isEqualTo(at("2026-10-08T00:00"))
+        assertThat(NextBoundary.after(result, Rome, dial = true)).isEqualTo(at("2026-10-07T20:31"))
+    }
+
+    @Test
+    fun `an event already on the face adds no boundary`() {
+        val running = timed(1, "2026-10-07T09:30", "2026-10-07T10:30")
+        val later = timed(2, "2026-10-07T13:00", "2026-10-07T14:00")
+        val result = agenda(running, later, now = at("2026-10-07T10:00"))
+        assertThat(NextBoundary.after(result, Rome, dial = true)).isEqualTo(at("2026-10-07T10:30"))
+    }
+
+    @Test
+    fun `the face is the wall clock, the night the clocks go back too`() {
+        // 08:00 on 25 October is 12 h 29 min of real time after 20:31 the evening before, and 11 h 29 min
+        // on the face: it comes onto the face at 20:31, as on any other evening.
+        val sunday = timed(1, "2026-10-25T08:00", "2026-10-25T09:00")
+        val result = agenda(sunday, now = at("2026-10-24T20:00"))
+        assertThat(NextBoundary.after(result, Rome, dial = true)).isEqualTo(at("2026-10-24T20:31"))
+    }
+
+    @Test
     fun `the midnight after a 23-hour date`() {
         val result = agenda(now = at("2026-03-29T12:00"))
         assertThat(NextBoundary.after(result, Rome)).isEqualTo(at("2026-03-30T00:00"))

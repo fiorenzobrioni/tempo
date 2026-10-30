@@ -18,7 +18,9 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.TextStyle
+import java.time.temporal.ChronoUnit
 import java.util.Locale
+import kotlin.math.abs
 
 /**
  * The agenda's words, for Today and for the widgets (Phase 4) alike: one place, so the two never
@@ -29,7 +31,7 @@ import java.util.Locale
 class AgendaText(
     private val resources: Resources,
     private val locale: Locale,
-    private val zone: ZoneId,
+    val zone: ZoneId,
     val uses24Hour: Boolean,
 ) {
     fun time(moment: Instant): String = DateTimeText.time(moment.atZone(zone), locale, uses24Hour)
@@ -49,6 +51,36 @@ class AgendaText(
 
     fun until(moment: Instant): String = resources.getString(R.string.time_until, time(moment))
 
+    /**
+     * "until 11:00"; an end on a later date says its day, so it never reads as today's: "until
+     * tomorrow at 6:00", "until Friday at 17:00" (review of 30 Oct 2026).
+     */
+    fun until(moment: Instant, today: LocalDate): String {
+        val date = endDate(moment)
+        return when {
+            date <= today -> until(moment)
+            date == today.plusDays(1) -> resources.getString(R.string.time_until_tomorrow, time(moment))
+            else -> resources.getString(R.string.time_until_day, time(moment), otherDay(date, today))
+        }
+    }
+
+    /** The date a moment falls on, in the phone's zone. */
+    fun dateOf(moment: Instant): LocalDate = LocalDate.ofInstant(moment, zone)
+
+    /** The date an end falls on: an end at midnight closes the date before it ("until 00:00"). */
+    fun endDate(moment: Instant): LocalDate = LocalDate.ofInstant(moment.minusNanos(1), zone)
+
+    /**
+     * Another date inside a sentence: its weekday within a week of [reference] ("Friday",
+     * "venerdì"), else in full ("Wednesday 14 October"), as the locale writes it mid-sentence.
+     */
+    fun otherDay(date: LocalDate, reference: LocalDate): String =
+        if (abs(ChronoUnit.DAYS.between(reference, date)) < DAYS_A_WEEKDAY_NAMES) {
+            date.dayOfWeek.getDisplayName(TextStyle.FULL, locale)
+        } else {
+            DateTimeText.date(date, locale, DateStyle.LONG, startsLine = false)
+        }
+
     /** "45 min", "2 h", "1 h 30 min", rounded to the minute. */
     fun duration(length: Duration): String {
         val minutes = length.toMinutes().coerceAtLeast(0)
@@ -61,11 +93,14 @@ class AgendaText(
         }
     }
 
-    /** The day in one sentence (PLANNING.md §6), ending with its full stop. */
-    fun sentence(sentence: TodaySentence): String = when (sentence) {
+    /** The day in one sentence (PLANNING.md §6), ending with its full stop; [today] is the phone's date. */
+    fun sentence(sentence: TodaySentence, today: LocalDate): String = when (sentence) {
         is TodaySentence.UnderWay ->
-            resources.getString(R.string.sentence_under_way, title(sentence.event), time(sentence.event.end)) +
-                more(sentence.laterToday)
+            resources.getString(
+                R.string.sentence_under_way,
+                title(sentence.event),
+                until(sentence.event.end, today),
+            ) + more(sentence.laterToday)
 
         is TodaySentence.Soon ->
             resources.getQuantityString(
@@ -187,6 +222,9 @@ class AgendaText(
         )
     }
 }
+
+/** A weekday's name alone says a date for six days either side; past that it needs its date. */
+private const val DAYS_A_WEEKDAY_NAMES = 7
 
 /** The agenda's words for the current composition: its resources, its locale, the reader's clock. */
 @Composable

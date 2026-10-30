@@ -270,6 +270,18 @@ class AgendaBuilderTest {
     }
 
     @Test
+    fun `a calendar the phone does not sync is not on the agenda, whatever was chosen for it`() {
+        val listedOnly = calendar(2, synced = false)
+        val result = agenda(
+            timed(1, "2026-10-07T10:00", "2026-10-07T11:00", calendarId = 2),
+            now = at("2026-10-07T09:00"),
+            calendars = listOf(calendar(1), listedOnly),
+            filter = AgendaFilter(shownCalendars = setOf(2)),
+        )
+        assertThat(result.day("2026-10-07").timed).isEmpty()
+    }
+
+    @Test
     fun `an event of a calendar not in the list is shown`() {
         val event = timed(1, "2026-10-07T10:00", "2026-10-07T11:00", calendarId = 9)
         assertThat(agenda(event, now = at("2026-10-07T09:00")).day("2026-10-07").timed).hasSize(1)

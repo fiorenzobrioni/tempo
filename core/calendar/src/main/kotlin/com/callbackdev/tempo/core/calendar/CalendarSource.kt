@@ -85,6 +85,8 @@ class CalendarSource @Inject constructor(@ApplicationContext private val context
             // A provider that does not say is taken to show it: hiding a calendar is the reader's call.
             visibleInProvider = cursor.int(Calendars.VISIBLE)?.let { it != 0 } ?: true,
             isPrimary = cursor.int(Calendars.IS_PRIMARY) == 1,
+            // A provider that does not say keeps the events: a calendar is never lost to a missing column.
+            syncsEvents = cursor.int(Calendars.SYNC_EVENTS)?.let { it != 0 } ?: true,
         )
     }
 
@@ -104,6 +106,7 @@ class CalendarSource @Inject constructor(@ApplicationContext private val context
             selfStatus = attendeeStatusOf(cursor.int(Instances.SELF_ATTENDEE_STATUS)),
             availability = availabilityOf(cursor.int(Instances.AVAILABILITY)),
             timeZone = cursor.string(Instances.EVENT_TIMEZONE),
+            isOrganizer = cursor.int(Instances.IS_ORGANIZER)?.let { it != 0 },
         )
     }
 
@@ -116,6 +119,7 @@ class CalendarSource @Inject constructor(@ApplicationContext private val context
             Calendars.CALENDAR_COLOR,
             Calendars.VISIBLE,
             Calendars.IS_PRIMARY,
+            Calendars.SYNC_EVENTS,
         )
 
         /** Only what is shown or decided on (§4.1). */
@@ -132,6 +136,7 @@ class CalendarSource @Inject constructor(@ApplicationContext private val context
             Instances.SELF_ATTENDEE_STATUS,
             Instances.AVAILABILITY,
             Instances.EVENT_TIMEZONE,
+            Instances.IS_ORGANIZER,
         )
     }
 }

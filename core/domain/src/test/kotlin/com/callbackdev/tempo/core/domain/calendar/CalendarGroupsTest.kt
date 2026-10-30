@@ -25,6 +25,13 @@ class CalendarGroupsTest {
     }
 
     @Test
+    fun `a calendar the phone does not sync has no switch`() {
+        val synced = calendar(1)
+        val listedOnly = calendar(2, synced = false).copy(name = "Holidays in Japan")
+        assertThat(CalendarGroups.of(listOf(synced, listedOnly)).flatMap { it.calendars }).containsExactly(synced)
+    }
+
+    @Test
     fun `no calendars, no groups`() {
         assertThat(CalendarGroups.of(emptyList())).isEmpty()
     }

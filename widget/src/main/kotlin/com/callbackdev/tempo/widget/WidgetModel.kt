@@ -10,6 +10,7 @@ import com.callbackdev.tempo.core.data.settings.SettingsRepository
 import com.callbackdev.tempo.core.domain.agenda.AgendaBuilder
 import com.callbackdev.tempo.core.domain.agenda.AgendaWindow
 import com.callbackdev.tempo.core.domain.calendar.CalendarChoices
+import com.callbackdev.tempo.core.domain.calendar.CalendarStanding
 import com.callbackdev.tempo.core.model.Agenda
 import com.callbackdev.tempo.core.model.CalendarInfo
 import com.callbackdev.tempo.core.model.EventInstance
@@ -102,12 +103,12 @@ constructor(
         val content = when (read) {
             CalendarRead.NoPermission -> WidgetContent.NoPermission
 
-            is CalendarRead.Read -> when {
-                read.calendars.isEmpty() -> WidgetContent.NoCalendars
+            is CalendarRead.Read -> when (CalendarChoices.standing(read.calendars, settings.calendarChoices)) {
+                CalendarStanding.NONE -> WidgetContent.NoCalendars
 
-                read.calendars.none { CalendarChoices.isShown(it, settings.calendarChoices) } -> WidgetContent.AllHidden
+                CalendarStanding.ALL_HIDDEN -> WidgetContent.AllHidden
 
-                else -> WidgetContent.Ready(
+                CalendarStanding.SOME_SHOWN -> WidgetContent.Ready(
                     agenda = AgendaBuilder.build(
                         instances = read.instances,
                         calendars = read.calendars,

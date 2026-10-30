@@ -59,9 +59,14 @@ internal class CardText(private val context: Context, model: WidgetModel) {
         val event = entry.event
         return when {
             !entry.startsOnDate -> agenda.until(event.end)
-            entry.state == EntryState.UNDER_WAY -> agenda.until(event.end)
+
+            // An end on a later date says its day ("Until tomorrow at 06:00"): a bare time reads as today's.
+            entry.state == EntryState.UNDER_WAY -> agenda.until(event.end, today)
+
             !entry.endsOnDate -> agenda.from(event.begin)
+
             startOnly -> agenda.time(event.begin)
+
             else -> agenda.range(event)
         }.replaceFirstChar { it.titlecase(locale) }
     }
@@ -123,34 +128,6 @@ internal class CardText(private val context: Context, model: WidgetModel) {
 
     // --- «In words» -------------------------------------------------------------------------------
 
-    /** The focus large: "15:00", "Until 11:00", "Free". */
-    fun hero(focus: WordsFocus): String = when (focus) {
-        is WordsFocus.UnderWay -> agenda.until(focus.event.end).replaceFirstChar { it.titlecase(locale) }
-        is WordsFocus.Next -> agenda.time(focus.event.begin)
-        WordsFocus.Free -> context.getString(R.string.widget_free)
-    }
-
-    /** The one-cell card's split of the same: the word over the time ("Until", "11:00"). */
-    fun cellHero(focus: WordsFocus): String = when (focus) {
-        is WordsFocus.UnderWay -> agenda.time(focus.event.end)
-        else -> hero(focus)
-    }
-
-    /** The label over the focus: a later day's name; on the one-cell card, also "Until" and "Next". */
-    fun label(focus: WordsFocus, cell: Boolean): String? = when (focus) {
-        is WordsFocus.UnderWay -> if (cell) context.getString(R.string.widget_label_until) else null
-
-        is WordsFocus.Next -> if (!focus.today) {
-            heading(focus.date)
-        } else if (cell) {
-            context.getString(R.string.widget_label_next)
-        } else {
-            null
-        }
-
-        WordsFocus.Free -> null
-    }
-
     fun focusTitle(focus: WordsFocus): String? = when (focus) {
         is WordsFocus.UnderWay -> title(focus.event)
         is WordsFocus.Next -> title(focus.event)
@@ -161,13 +138,29 @@ internal class CardText(private val context: Context, model: WidgetModel) {
      * The focus's time in words, the fullest first, as a card tries them: "Until 11:00",
      * "→ 11:00"; "15:00 – 16:00", "15:00"; "Tomorrow · 9:00 – 10:00", "Tomorrow · 9:00",
      * "Tomorrow". None for "Free". Clock times, never minutes from now (the card is redrawn at
-     * boundaries). An end is never a bare time: under a title, "11:00" reads as when it starts.
+     * boundaries). An end is never a bare time: under a title, "11:00" reads as when it starts;
+     * nor, on a later date, a time without its day ("Until tomorrow at 06:00", "→ Tomorrow · 06:00",
+     * "→ Tomorrow").
      */
     fun whenOptions(focus: WordsFocus): List<String> = when (focus) {
-        is WordsFocus.UnderWay -> listOf(
-            agenda.until(focus.event.end).replaceFirstChar { it.titlecase(locale) },
-            context.getString(R.string.widget_until_short, agenda.time(focus.event.end)),
-        )
+        is WordsFocus.UnderWay -> {
+            val end = focus.event.end
+            val ends = agenda.endDate(end)
+            val full = agenda.until(end, today).replaceFirstChar { it.titlecase(locale) }
+            if (ends <= today) {
+                listOf(full, context.getString(R.string.widget_until_short, agenda.time(end)))
+            } else {
+                val day = heading(ends)
+                listOf(
+                    full,
+                    context.getString(
+                        R.string.widget_until_short,
+                        context.getString(R.string.widget_when_day, day, agenda.time(end)),
+                    ),
+                    context.getString(R.string.widget_until_short, day),
+                )
+            }
+        }
 
         is WordsFocus.Next -> {
             val times = listOf(agenda.range(focus.event), agenda.time(focus.event.begin)).distinct()

@@ -75,6 +75,13 @@ object DialArcs {
     private fun EventInstance.sameAs(other: EventInstance?) =
         other != null && eventId == other.eventId && begin == other.begin
 
+    /**
+     * When an event starting at [moment] comes onto a face drawn then: [SPAN] before it on the
+     * wall clock, and a minute more, so a face drawn at that moment has it inside its window.
+     */
+    fun comesOnTheFace(moment: Instant, zone: ZoneId): Instant =
+        moment.atZone(zone).toLocalDateTime().minus(SPAN).plusMinutes(1).atZone(zone).toInstant()
+
     /** Where [moment] falls on a twelve-hour face, in minutes from twelve o'clock. */
     fun minuteOnFace(moment: Instant, zone: ZoneId): Float {
         val local = moment.atZone(zone)

@@ -12,6 +12,7 @@ import com.callbackdev.tempo.core.data.settings.SettingsRepository
 import com.callbackdev.tempo.core.domain.agenda.AgendaBuilder
 import com.callbackdev.tempo.core.domain.agenda.AgendaWindow
 import com.callbackdev.tempo.core.domain.calendar.CalendarChoices
+import com.callbackdev.tempo.core.domain.calendar.CalendarStanding
 import com.callbackdev.tempo.core.domain.clock.untilNextMinute
 import com.callbackdev.tempo.core.domain.today.DaySentence
 import com.callbackdev.tempo.core.model.EventInstance
@@ -77,7 +78,7 @@ class TodayViewModel @Inject constructor(
     private val snapshots: Flow<Snapshot> = combine(
         ticks.map { it.toLocalDate() to it.zone }.distinctUntilChanged(),
         settings.map { it.horizonDays }.distinctUntilChanged(),
-        merge(rereads.map { }, changes.flow()),
+        merge(rereads.map { }, changes.flow(restarts = rereads)),
     ) { day, days, _ -> day to days }
         .mapLatest { (day, days) ->
             val now = ZonedDateTime.now(day.second)
@@ -104,12 +105,12 @@ class TodayViewModel @Inject constructor(
         val content = when (val read = snapshot.read) {
             CalendarRead.NoPermission -> TodayContent.NoPermission
 
-            is CalendarRead.Read -> when {
-                read.calendars.isEmpty() -> TodayContent.NoCalendars
+            is CalendarRead.Read -> when (CalendarChoices.standing(read.calendars, settings.calendarChoices)) {
+                CalendarStanding.NONE -> TodayContent.NoCalendars
 
-                read.calendars.none { CalendarChoices.isShown(it, settings.calendarChoices) } -> TodayContent.AllHidden
+                CalendarStanding.ALL_HIDDEN -> TodayContent.AllHidden
 
-                else -> {
+                CalendarStanding.SOME_SHOWN -> {
                     val agenda = AgendaBuilder.build(
                         instances = read.instances,
                         calendars = read.calendars,

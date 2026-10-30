@@ -17,9 +17,32 @@ object CalendarChoices {
         choices.firstOrNull { it.calendarId == calendar.id && it.sameAccount(calendar) }
             ?: choices.firstOrNull { it.sameAccount(calendar) && it.name == calendar.name }
 
-    /** Shown by the reader's word, or by the calendar app's when the reader said nothing. */
+    /**
+     * The calendars the phone keeps events of (`SYNC_EVENTS`). An account lists all its calendars
+     * in the provider, the ones not synced here too (a colleague's, a country's holidays ticked
+     * off in the account's sync settings); the calendar apps list only these, and so does Tempo.
+     */
+    fun onPhone(calendars: List<CalendarInfo>): List<CalendarInfo> = calendars.filter { it.syncsEvents }
+
+    /**
+     * What the agenda's place says about the calendars before any event: none on the phone, all
+     * of them hidden, or some shown. One rule for Today and the widgets.
+     */
+    fun standing(calendars: List<CalendarInfo>, choices: List<CalendarChoice>): CalendarStanding {
+        val onPhone = onPhone(calendars)
+        return when {
+            onPhone.isEmpty() -> CalendarStanding.NONE
+            onPhone.none { isShown(it, choices) } -> CalendarStanding.ALL_HIDDEN
+            else -> CalendarStanding.SOME_SHOWN
+        }
+    }
+
+    /**
+     * Shown by the reader's word, or by the calendar app's when the reader said nothing; never
+     * when the phone does not sync it.
+     */
     fun isShown(calendar: CalendarInfo, choices: List<CalendarChoice>): Boolean =
-        choiceFor(calendar, choices)?.shown ?: calendar.visibleInProvider
+        calendar.syncsEvents && (choiceFor(calendar, choices)?.shown ?: calendar.visibleInProvider)
 
     /** [settings] with [calendar] shown or hidden: its old choice replaced, never doubled. */
     fun choose(settings: UserSettings, calendar: CalendarInfo, shown: Boolean): UserSettings {
@@ -43,4 +66,11 @@ object CalendarChoices {
 
     private fun CalendarChoice.sameAccount(calendar: CalendarInfo) =
         accountType == calendar.accountType && accountName == calendar.accountName
+}
+
+/** Whether the phone has calendars for the agenda, and whether the reader shows any of them. */
+enum class CalendarStanding {
+    NONE,
+    ALL_HIDDEN,
+    SOME_SHOWN,
 }

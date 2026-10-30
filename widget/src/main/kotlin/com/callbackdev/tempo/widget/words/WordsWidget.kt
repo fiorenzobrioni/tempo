@@ -236,6 +236,20 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             WidgetIntents.header(context, look.headerTap, model.doors, model.now.toInstant()),
         )
 
+    /**
+     * The dial's touch and its words: the reader's door for the time; where a message stands in for
+     * the day, Tempo, where the message's door is ("Touch to allow it"), and the message said too.
+     */
+    val dialIntent = if (message !=
+        null
+    ) {
+        headerTap(context, appWidgetId, WidgetIntents.tempo(context))
+    } else {
+        headerIntent
+    }
+    val dialDescription: String =
+        listOfNotNull(context.getString(R.string.widget_dial_desc), message?.title).joinToString(", ")
+
     /** A touch on the focus opens it as the reader chose; on "Free" or a message, Tempo. */
     val focusIntent = when (val focus = day?.focus) {
         is WordsFocus.UnderWay -> WidgetIntents.event(context, look.eventTap, model.doors, focus.event)
@@ -269,8 +283,8 @@ private fun Dial(parts: WordsParts, palette: WidgetPalette) {
             side,
             parts.arcs,
             palette,
-            parts.headerIntent,
-            parts.context.getString(R.string.widget_dial_desc),
+            parts.dialIntent,
+            parts.dialDescription,
             parts.model.now.toLocalTime().takeIf { parts.model.frozenClock },
         ),
         modifier = GlanceModifier.size(side.dp),
@@ -356,12 +370,14 @@ private fun focusModifier(parts: WordsParts): GlanceModifier = GlanceModifier
 
 /**
  * One cell: the dial, and the focus's time under it where the cell is tall; without the dial, the
- * time large in its place. A message's one word where there is no day.
+ * time large in its place. Where a message stands in for the day the dial stays, empty, as the
+ * clock stays on «Agenda»'s cell: the time works without the calendar (VISION.md); a message's one
+ * word only where the reader hid the dial.
  */
 @Composable
 private fun CellContent(parts: WordsParts, palette: WidgetPalette) {
     val message = parts.message
-    if (message != null) {
+    if (message != null && parts.plan.dial <= 0f) {
         // Never broken inside a word: the size its longest word fits whole ("No / permission").
         val widest = message.short.split(' ').maxOf { textEm(parts.context, it, TextWeight.BOLD) }
         val size = quarterPoint(minOf(MESSAGE_SP, spThatFits(parts.innerWidth.value, widest, parts.scale)))

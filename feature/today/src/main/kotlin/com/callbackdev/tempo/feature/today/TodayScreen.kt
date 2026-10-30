@@ -81,6 +81,7 @@ import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -110,6 +111,8 @@ import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
 import com.callbackdev.tempo.core.designsystem.theme.padding
 import com.callbackdev.tempo.core.designsystem.theme.pageGutter
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
+import com.callbackdev.tempo.core.designsystem.theme.tabular
+import com.callbackdev.tempo.core.domain.clock.newEventIn
 import com.callbackdev.tempo.core.domain.clock.nextHalfHour
 import com.callbackdev.tempo.core.domain.today.AgendaSection
 import com.callbackdev.tempo.core.domain.today.AgendaSections
@@ -175,7 +178,7 @@ fun TodayRoute(onOpenSettings: () -> Unit, viewModel: TodayViewModel = hiltViewM
                 launch(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, page))
             },
             openEvent = { launch(CalendarIntents.view(it)) },
-            newEvent = { launch(CalendarIntents.insert(it)) },
+            newEvent = { begin, end -> launch(CalendarIntents.insert(begin, end)) },
             openDay = { launch(CalendarIntents.openDay(it)) },
         ),
     )
@@ -187,7 +190,8 @@ class TodayActions(
     val askPermission: () -> Unit = {},
     val openAppSettings: () -> Unit = {},
     val openEvent: (EventInstance) -> Unit = {},
-    val newEvent: (Instant) -> Unit = {},
+    /** A new event from its start to its end, in the calendar app. */
+    val newEvent: (begin: Instant, end: Instant) -> Unit = { _, _ -> },
     val openDay: (Instant) -> Unit = {},
 )
 
@@ -300,7 +304,10 @@ private fun TodayPage(
                 text = { Text(stringResource(R.string.today_new_event)) },
                 icon = { Icon(TempoIcons.Plus, contentDescription = null) },
                 expanded = atTop,
-                onClick = { actions.newEvent(nextHalfHour(state.now.toInstant(), state.now.zone)) },
+                onClick = {
+                    val begin = nextHalfHour(state.now.toInstant(), state.now.zone)
+                    actions.newEvent(begin, begin.plus(CalendarIntents.NEW_EVENT_LENGTH))
+                },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .navigationBarsPadding()
@@ -433,8 +440,9 @@ private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, acti
         }
         if (content is TodayContent.Ready) {
             Text(
-                text = text.sentence(content.sentence),
-                style = MaterialTheme.typography.titleLarge,
+                text = text.sentence(content.sentence, now.toLocalDate()),
+                // Balanced lines: the sentence never leaves its last word alone on a line.
+                style = MaterialTheme.typography.titleLarge.copy(lineBreak = LineBreak.Heading),
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .padding(start = ScreenMargin + 4.dp, end = ScreenMargin + 4.dp, top = 16.dp, bottom = 4.dp)
@@ -609,6 +617,7 @@ private fun LazyListScope.agenda(
                         if (item is TimelineItem.Event) {
                             EventRow(
                                 item.entry,
+                                day.date,
                                 content.calendars[item.entry.event.calendarId],
                                 text,
                                 now,
@@ -658,7 +667,7 @@ private fun LazyListScope.timelineItem(
     now: Instant,
     gutter: PageGutter,
     openEvent: ((EventInstance) -> Unit)?,
-    newEvent: ((Instant) -> Unit)?,
+    newEvent: ((Instant, Instant) -> Unit)?,
     onToggleEarlier: () -> Unit,
 ) {
     when (item) {
@@ -666,10 +675,21 @@ private fun LazyListScope.timelineItem(
             "event-${day.date}-${item.entry.event.eventId}-${item.entry.event.begin}",
             gutter,
         ) {
-            EventRow(item.entry, calendars[item.entry.event.calendarId], text, now, ScreenMargin + 4.dp, openEvent)
+            EventRow(
+                item.entry,
+                day.date,
+                calendars[item.entry.event.calendarId],
+                text,
+                now,
+                ScreenMargin + 4.dp,
+                openEvent,
+            )
         }
 
-        is TimelineItem.Free -> row("free-${day.date}-${item.gap.start}", gutter) { FreeRow(item.gap, text, newEvent) }
+        // Keyed by its end: the gap open now starts at now, which moves every minute.
+        is TimelineItem.Free -> row("free-${day.date}-${item.gap.end}", gutter) {
+            FreeRow(item.gap, text, now, newEvent)
+        }
 
         is TimelineItem.Earlier -> row("earlier-${day.date}", gutter) {
             EarlierRow(item.entries.size, showEarlier = item.open, onToggle = onToggleEarlier)
@@ -833,6 +853,7 @@ private fun AllDayChip(
 @Composable
 private fun EventRow(
     entry: TimedEntry,
+    date: LocalDate,
     calendar: CalendarInfo?,
     text: AgendaText,
     now: Instant,
@@ -845,13 +866,14 @@ private fun EventRow(
     val ground = if (underWay) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surface
     val ink = if (quiet) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
     val strike = if (event.selfStatus == AttendeeStatus.DECLINED) TextDecoration.LineThrough else null
-    val description = describe(entry, calendar, text, now)
+    val description = describe(entry, date, calendar, text, now)
     val openLabel = stringResource(R.string.a11y_open_event)
     val notes = listOfNotNull(
-        stringResource(R.string.today_started_before).takeIf { !entry.startsOnDate },
-        stringResource(R.string.today_ends_after).takeIf { !entry.endsOnDate },
+        startedNote(entry, date, text),
+        endsNote(entry, date, text),
         stringResource(R.string.today_declined).takeIf { event.selfStatus == AttendeeStatus.DECLINED },
         stringResource(R.string.today_maybe).takeIf { event.selfStatus == AttendeeStatus.TENTATIVE },
+        stringResource(R.string.today_not_answered).takeIf { event.awaitsAnswer },
     )
     val target = Modifier
         .fillMaxWidth()
@@ -876,13 +898,13 @@ private fun EventRow(
             Column(Modifier.width(timeColumn)) {
                 Text(
                     text = text.time(event.begin),
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.labelLarge.tabular(),
                     color = ink,
                 )
                 if (event.end != event.begin) {
                     Text(
                         text = text.time(event.end),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall.tabular(),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -933,7 +955,11 @@ private fun EventRow(
 private fun UnderWayProgress(event: EventInstance, text: AgendaText, now: Instant) {
     val total = Duration.between(event.begin, event.end).toMillis().coerceAtLeast(1)
     val done = Duration.between(event.begin, now).toMillis().coerceIn(0, total)
-    val fraction by animateFloatAsState(done.toFloat() / total, label = "under-way")
+    val fraction by animateFloatAsState(
+        done.toFloat() / total,
+        animationSpec = TempoMotion.spatial(reducedMotion()),
+        label = "under-way",
+    )
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -948,7 +974,7 @@ private fun UnderWayProgress(event: EventInstance, text: AgendaText, now: Instan
         )
         Text(
             text = stringResource(R.string.today_left, text.duration(Duration.between(now, event.end))),
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelMedium.tabular(),
             color = MaterialTheme.colorScheme.primary,
         )
     }
@@ -956,7 +982,13 @@ private fun UnderWayProgress(event: EventInstance, text: AgendaText, now: Instan
 
 /** The row's sentence for TalkBack (PLANNING.md §11 Phase 3, acceptance). */
 @Composable
-private fun describe(entry: TimedEntry, calendar: CalendarInfo?, text: AgendaText, now: Instant): String {
+private fun describe(
+    entry: TimedEntry,
+    date: LocalDate,
+    calendar: CalendarInfo?,
+    text: AgendaText,
+    now: Instant,
+): String {
     val event = entry.event
     val range = if (event.begin == event.end) {
         text.time(event.begin)
@@ -968,8 +1000,8 @@ private fun describe(entry: TimedEntry, calendar: CalendarInfo?, text: AgendaTex
         text.title(event),
         event.location,
         calendar?.let { stringResource(R.string.a11y_in_calendar, it.name) },
-        stringResource(R.string.today_started_before).takeIf { !entry.startsOnDate },
-        stringResource(R.string.today_ends_after).takeIf { !entry.endsOnDate },
+        startedNote(entry, date, text),
+        endsNote(entry, date, text),
         when (entry.state) {
             EntryState.UNDER_WAY ->
                 stringResource(R.string.a11y_under_way, text.duration(Duration.between(now, event.end)))
@@ -980,17 +1012,52 @@ private fun describe(entry: TimedEntry, calendar: CalendarInfo?, text: AgendaTex
         },
         stringResource(R.string.a11y_declined).takeIf { event.selfStatus == AttendeeStatus.DECLINED },
         stringResource(R.string.a11y_maybe).takeIf { event.selfStatus == AttendeeStatus.TENTATIVE },
+        stringResource(R.string.a11y_not_answered).takeIf { event.awaitsAnswer },
     ).joinToString(", ")
 }
 
 /**
- * A gap of an hour or more: said, and, where a calendar app can take it, the way to fill it (a new
- * event that starts when the gap does).
+ * On a date the event did not start on: "Started the day before", or the day it did ("Started
+ * Monday"), never "the day before" for an event three days old (review of 30 Oct 2026).
  */
 @Composable
-private fun FreeRow(gap: FreeGap, text: AgendaText, newEvent: ((Instant) -> Unit)?) {
+private fun startedNote(entry: TimedEntry, date: LocalDate, text: AgendaText): String? {
+    if (entry.startsOnDate) return null
+    val started = text.dateOf(entry.event.begin)
+    return if (started == date.minusDays(1)) {
+        stringResource(R.string.today_started_before)
+    } else {
+        stringResource(R.string.today_started_on, text.otherDay(started, date))
+    }
+}
+
+/** On a date the event does not end on: "Ends the next day", or the day it does ("Ends Friday"). */
+@Composable
+private fun endsNote(entry: TimedEntry, date: LocalDate, text: AgendaText): String? {
+    if (entry.endsOnDate) return null
+    val ends = text.endDate(entry.event.end)
+    return if (ends == date.plusDays(1)) {
+        stringResource(R.string.today_ends_after)
+    } else {
+        stringResource(R.string.today_ends_on, text.otherDay(ends, date))
+    }
+}
+
+/**
+ * A gap of an hour or more: said, and, where a calendar app can take it, the way to fill it (a new
+ * event that starts when the gap does, or at the next half hour in the gap open now). The gap open
+ * now has no time of its own: it starts at the "now" line right above it.
+ */
+@Composable
+private fun FreeRow(gap: FreeGap, text: AgendaText, now: Instant, newEvent: ((Instant, Instant) -> Unit)?) {
     val length = text.duration(gap.duration)
-    val description = stringResource(R.string.a11y_free, text.time(gap.start), length)
+    val opensNow = gap.start <= now
+    val description = if (opensNow) {
+        stringResource(R.string.a11y_free_now, length)
+    } else {
+        stringResource(R.string.a11y_free, text.time(gap.start), length)
+    }
+    val slot = newEventIn(gap, now, text.zone, CalendarIntents.NEW_EVENT_LENGTH)
     val newLabel = stringResource(R.string.today_new_event)
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -999,7 +1066,7 @@ private fun FreeRow(gap: FreeGap, text: AgendaText, newEvent: ((Instant) -> Unit
             .fillMaxWidth()
             .then(
                 if (newEvent != null) {
-                    Modifier.clickable(onClickLabel = newLabel) { newEvent(gap.start) }
+                    Modifier.clickable(onClickLabel = newLabel) { newEvent(slot.start, slot.end) }
                 } else {
                     Modifier.semantics(mergeDescendants = true) { }
                 },
@@ -1010,8 +1077,8 @@ private fun FreeRow(gap: FreeGap, text: AgendaText, newEvent: ((Instant) -> Unit
             .testTag(TodayTags.FREE),
     ) {
         Text(
-            text = text.time(gap.start),
-            style = MaterialTheme.typography.labelLarge,
+            text = if (opensNow) "" else text.time(gap.start),
+            style = MaterialTheme.typography.labelLarge.tabular(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.width(timeColumn).clearAndSetSemantics { },
         )
@@ -1124,7 +1191,7 @@ private fun CompactRow(
     ) {
         Text(
             text = time,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelLarge.tabular(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 2,
             modifier = Modifier.width(timeColumn).clearAndSetSemantics { },

@@ -16,8 +16,13 @@ import java.util.Locale
  * words and the separators for a skeleton; Tempo only picks the skeleton.
  */
 object DateTimeText {
+    /**
+     * A time, kept whole: a line never breaks between its figures and its day marker ("11:00 /
+     * AM", seen in a balanced sentence). CLDR 42 already sets a no-break space there; older data,
+     * and the tests' runtime, a plain one, which becomes the same narrow no-break space.
+     */
     fun time(moment: TemporalAccessor, locale: Locale, uses24Hour: Boolean): String =
-        formatter(locale, if (uses24Hour) "Hm" else "hm").format(moment)
+        formatter(locale, if (uses24Hour) "Hm" else "hm").format(moment).replace(' ', NARROW_NO_BREAK_SPACE)
 
     /**
      * The time as the hero clock sets it: its figures apart from the day marker ("10:20" and
@@ -84,6 +89,8 @@ object DateTimeText {
     private const val MARKER_LETTERS = "abB"
 
     /** The no-break spaces CLDR sets before a day marker ("10:20 AM" with U+202F since CLDR 42). */
+    private const val NARROW_NO_BREAK_SPACE = '\u202F'
+
     private const val PATTERN_SPACES = "  "
 }
 

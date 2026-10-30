@@ -13,12 +13,16 @@
     <string name="date_span_tomorrow">From tomorrow to %1$s</string>
     <string name="time_from">from %1$s</string>
     <string name="time_until">until %1$s</string>
+    <!-- An end on a later date (%1$s the time, %2$s the weekday or the date, as written mid-sentence). -->
+    <string name="time_until_tomorrow">until tomorrow at %1$s</string>
+    <string name="time_until_day">until %2$s at %1$s</string>
     <string name="duration_m">%1$d min</string>
     <string name="duration_h">%1$d h</string>
     <string name="duration_hm">%1$d h %2$d min</string>
 
     <!-- The day's sentence (PLANNING.md §6). Each case is a whole clause; the endings follow. -->
-    <string name="sentence_under_way">%1$s until %2$s</string>
+    <!-- %1$s the event, %2$s its end: "until 11:00", "until tomorrow at 6:00" (time_until*). -->
+    <string name="sentence_under_way">%1$s %2$s</string>
     <plurals name="sentence_soon">
         <item quantity="one">%1$s in %2$d minute</item>
         <item quantity="other">%1$s in %2$d minutes</item>

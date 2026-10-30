@@ -54,6 +54,26 @@ class CalendarChoicesTest {
     }
 
     @Test
+    fun `a calendar the phone does not sync is never shown, even chosen before`() {
+        val listedOnly = calendar(2, synced = false)
+        val settings = CalendarChoices.choose(UserSettings(), listedOnly.copy(syncsEvents = true), shown = true)
+        assertThat(CalendarChoices.isShown(listedOnly, settings.calendarChoices)).isFalse()
+    }
+
+    @Test
+    fun `the calendars' standing counts only the ones the phone syncs`() {
+        assertThat(CalendarChoices.standing(emptyList(), emptyList())).isEqualTo(CalendarStanding.NONE)
+        assertThat(CalendarChoices.standing(listOf(calendar(1, synced = false)), emptyList()))
+            .isEqualTo(CalendarStanding.NONE)
+        val hidden = CalendarChoices.choose(UserSettings(), calendar(1), shown = false).calendarChoices
+        // A colleague's calendar, listed by the account and visible, does not make the agenda "shown".
+        assertThat(CalendarChoices.standing(listOf(calendar(1), calendar(2, synced = false)), hidden))
+            .isEqualTo(CalendarStanding.ALL_HIDDEN)
+        assertThat(CalendarChoices.standing(listOf(calendar(1), calendar(2)), hidden))
+            .isEqualTo(CalendarStanding.SOME_SHOWN)
+    }
+
+    @Test
     fun `the agenda's filter follows the choices of the calendars the phone has`() {
         val calendars = listOf(calendar(1), calendar(2, visible = false), calendar(3))
         var settings = UserSettings(showDeclined = true, showAllDay = false)

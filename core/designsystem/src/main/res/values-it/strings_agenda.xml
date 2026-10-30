@@ -12,11 +12,13 @@
     <string name="date_span_tomorrow">Da domani a %1$s</string>
     <string name="time_from">dalle %1$s</string>
     <string name="time_until">fino alle %1$s</string>
+    <string name="time_until_tomorrow">fino a domani alle %1$s</string>
+    <string name="time_until_day">fino a %2$s alle %1$s</string>
     <string name="duration_m">%1$d min</string>
     <string name="duration_h">%1$d h</string>
     <string name="duration_hm">%1$d h %2$d min</string>
 
-    <string name="sentence_under_way">%1$s fino alle %2$s</string>
+    <string name="sentence_under_way">%1$s %2$s</string>
     <plurals name="sentence_soon">
         <item quantity="one">%1$s tra %2$d minuto</item>
         <item quantity="many">%1$s tra %2$d minuti</item>

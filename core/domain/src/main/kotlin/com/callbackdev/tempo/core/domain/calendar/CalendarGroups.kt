@@ -9,13 +9,14 @@ data class AccountCalendars(val accountName: String, val accountType: String, va
  * The phone's calendars grouped by account, for Settings (PLANNING.md §11 Phase 2): the accounts in
  * alphabetical order with the phone's own calendars (`LOCAL`, no sync) last; in each, the primary
  * calendar first, then by name. The same order on every read, so a switch never moves under the
- * reader's finger when a sync lands.
+ * reader's finger when a sync lands. Only the calendars the phone syncs ([CalendarChoices.onPhone]):
+ * a switch for one with no events here would do nothing.
  */
 object CalendarGroups {
     /** The account type Android gives a calendar kept on the phone alone. */
     const val LOCAL_ACCOUNT_TYPE = "LOCAL"
 
-    fun of(calendars: List<CalendarInfo>): List<AccountCalendars> = calendars
+    fun of(calendars: List<CalendarInfo>): List<AccountCalendars> = CalendarChoices.onPhone(calendars)
         .groupBy { it.accountType to it.accountName }
         .map { (account, members) ->
             AccountCalendars(
