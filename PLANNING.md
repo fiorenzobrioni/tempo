@@ -510,7 +510,7 @@ The owner asked for a review of the whole app (30 Oct 2026): its UI/UX and graph
 
 **Coherence with the family** (owner, 30 Oct 2026): Tempo follows Passo, with which it shares almost all its code. Chiaro diverged slightly between 14 and 18 Oct (rows as separate segments, its `SegmentedGroup`; a larger hero; the sentence in `bodyLarge`); Tempo does not take that alone: if the family adopts it, Tempo and Passo move together, as one decision. Where the review found Tempo apart from Passo, the step that touches the place brings it back (8.1).
 
-- [x] **8.0 — The review's fixes** (branch `review-30-oct-fixes`; §15, 30 Oct 2026)
+- [x] **8.0 — The review's fixes** (PR #14, branch `review-30-oct-fixes`; §15, 30 Oct 2026)
   - The calendars the phone does not sync (`SYNC_EVENTS = 0`) are not on the phone: not in Settings, not counted, not on the agenda (`CalendarInfo.syncsEvents`, `CalendarChoices.onPhone` and `standing`, one rule for Today and the cards).
   - The pages watch the calendar again at every reread (`CalendarChanges.flow(restarts)`): granting the permission from Today's card or Settings keeps the page live without leaving it.
   - A free gap's new event: the gap open now starts its event at the next half hour, and every gap's event ends with the gap if that comes first (`newEventIn`); that row has no time of its own (it hangs from "now").
