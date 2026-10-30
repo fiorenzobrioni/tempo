@@ -1,6 +1,5 @@
 package com.callbackdev.tempo.feature.today
 
-import android.app.AlarmManager
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -137,13 +136,11 @@ class TodayViewModel @Inject constructor(
     }
 
     /**
-     * The phone's next alarm, as the system's clock app set it (no permission needed). Read at each
-     * tick: one call into a system service a minute, while the page is visible.
+     * The next alarm the reader set in a clock app ([ClockApp.nextAlarm]: a calendar app's reminder
+     * set as an alarm clock is not one). Read at each tick: two calls into system services a minute,
+     * while the page is visible.
      */
-    private fun nextAlarm(): Instant? = context.getSystemService(AlarmManager::class.java)
-        ?.nextAlarmClock
-        ?.triggerTime
-        ?.let(Instant::ofEpochMilli)
+    private fun nextAlarm(): Instant? = ClockApp.nextAlarm(context)
 
     private fun doors(now: Instant): CalendarDoors = CalendarDoors(
         canCreate = CalendarIntents.canOpen(context, CalendarIntents.insert(now)),

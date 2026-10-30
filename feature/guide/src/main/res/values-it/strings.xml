@@ -30,7 +30,7 @@
     <string name="guide_today_ahead_title">I prossimi giorni</string>
     <string name="guide_today_ahead_body">Domani e il resto della settimana, ognuno su una scheda con un breve riassunto accanto al nome; una serie di giorni vuoti si dice una volta sola. Nelle impostazioni: una settimana, oggi e domani, o solo oggi.</string>
     <string name="guide_today_alarm_title">La prossima sveglia</string>
-    <string name="guide_today_alarm_body">La prossima sveglia impostata sul telefono, come la tiene l’app Orologio, sotto l’ora; un tocco apre l’app Orologio. Tempo la legge soltanto; un interruttore nelle impostazioni la nasconde.</string>
+    <string name="guide_today_alarm_body">La prossima sveglia impostata nell’app Orologio, sotto l’ora; un tocco apre l’app Orologio. Tempo la legge soltanto; un interruttore nelle impostazioni la nasconde. Alcune app calendario tengono i loro promemoria come sveglie: quelli non compaiono, e una tua sveglia che viene dopo uno di loro compare quando il promemoria è suonato.</string>
     <string name="guide_today_live_title">Viva mentre guardi</string>
     <string name="guide_today_live_body">Mentre Oggi è aperta l’orologio avanza a ogni minuto, e un impegno creato o cambiato nella tua app calendario è lì quando torni. Quando esci, non resta in funzione niente.</string>
 

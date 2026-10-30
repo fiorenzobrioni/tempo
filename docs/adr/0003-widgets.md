@@ -114,7 +114,9 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
     end of the date's line where both fit whole, else not (the date is not shortened for it); not
     on a row or a cell. A per-widget switch, on by default, «Agenda»'s alone until «In words»
     shows it too. Its touch opens the clock app, else Tempo. Tempo reads the alarm
-    (`AlarmManager.getNextAlarmClock`, no permission) and never sets, rings or moves one. It stays
+    (`AlarmManager.getNextAlarmClock`, no permission) and never sets, rings or moves one; it is
+    shown only where a clock app set it (`ClockApp.nextAlarm`, the show intent's creator): a
+    calendar app may keep its reminders as alarm clocks, and the owner's phone showed one. It stays
     true without polling: the system's `NEXT_ALARM_CLOCK_CHANGED`, which AOSP's
     `AlarmManagerService` sends with `FLAG_RECEIVER_INCLUDE_BACKGROUND` (as the provider sends
     `PROVIDER_CHANGED`) and the exempt-broadcast list names beside `TIME_SET`, reaches the

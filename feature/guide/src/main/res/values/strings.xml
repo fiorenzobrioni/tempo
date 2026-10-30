@@ -30,7 +30,7 @@
     <string name="guide_today_ahead_title">The days ahead</string>
     <string name="guide_today_ahead_body">Tomorrow and the rest of the week, each on a card with a short summary beside its name; a run of empty days is said once. In the settings: a week, today and tomorrow, or today alone.</string>
     <string name="guide_today_alarm_title">The next alarm</string>
-    <string name="guide_today_alarm_body">The next alarm set on the phone, as the Clock app has it, under the time; a touch on it opens the Clock app. Tempo only reads it; a switch in the settings hides it.</string>
+    <string name="guide_today_alarm_body">The next alarm you set in the Clock app, under the time; a touch on it opens the Clock app. Tempo only reads it; a switch in the settings hides it. Some calendar apps keep their reminders as alarms: those are not shown, and an alarm of yours that comes after one appears once the reminder has rung.</string>
     <string name="guide_today_live_title">Live while you look</string>
     <string name="guide_today_live_body">While Today is open the clock moves at each minute, and an event made or changed in your calendar app is there when you come back. Once you leave, nothing runs.</string>
 

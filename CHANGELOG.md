@@ -60,6 +60,9 @@ All notable changes to Tempo are documented here. The format follows
 - **An end on another day says its day**: "Night train until tomorrow at 6:30", "Ends
   Saturday", on Today and on the widgets, where a bare time read as today's.
 - **The launcher's "New event"** follows the app's language when you change it.
+- **The next alarm is yours.** Some calendar apps keep their reminders as alarms, and Today
+  showed one as "Alarm tomorrow at 10:00" with no alarm set. Only an alarm set in a clock app
+  is shown now, on Today and on the widget.
 - **«In words» shows the next event on its dial** as soon as it comes within the dial's twelve
   hours, rather than at midnight; and on one cell its dial stays when the calendar cannot be
   read, as «Agenda»'s clock does.

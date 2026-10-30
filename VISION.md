@@ -84,8 +84,10 @@ app the reader already uses.
   draw themselves, in one short movement.
 - **The day's sentence**, before any list.
 - **The next alarm**: "Alarm tomorrow at 7:00", from the system's own next alarm clock, which
-  needs no permission. On by default, one switch hides it. A touch opens the Clock app, where the
-  alarm is set (review of 30 Oct 2026); Tempo only reads it.
+  needs no permission, when a clock app set it: a calendar app may keep its reminders as alarm
+  clocks, and a reminder is not the reader's alarm (30 Oct 2026). On by default, one switch hides
+  it. A touch opens the Clock app, where the alarm is set (review of 30 Oct 2026); Tempo only
+  reads it.
 - **All-day and multi-day events** in a row of their own above the timeline ("Holiday, day 2 of 5").
 - **The timeline of the day's timed events**: the time range, the title, the calendar's colour
   as a mark, the location as one line of text (no map). The event under way says how much is

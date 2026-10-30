@@ -1,6 +1,5 @@
 package com.callbackdev.tempo.widget
 
-import android.app.AlarmManager
 import android.content.Context
 import android.os.SystemClock
 import android.util.Log
@@ -35,8 +34,8 @@ import javax.inject.Singleton
  *
  * @property frozenClock the samples' drawing of the time as plain text at [now], so a preview and
  *   a picture show the sample's time; a placed card always draws the system's live `TextClock`.
- * @property alarm the phone's next alarm, as the system has it (`AlarmManager.getNextAlarmClock`,
- *   no permission), however far away; the card says it only within a day (`CardAlarm`).
+ * @property alarm the next alarm the reader set in a clock app (`ClockApp.nextAlarm`: not a calendar
+ *   app's reminder), however far away; the card says it only within a day (`CardAlarm`).
  */
 data class WidgetModel(
     val look: WidgetLook,
@@ -128,16 +127,10 @@ constructor(
                 )
             }
         }
-        val alarm = nextAlarm()
+        val alarm = ClockApp.nextAlarm(context)
         arming.afterRender((content as? WidgetContent.Ready)?.agenda, now.zone, alarm)
         return WidgetModel(look, settings, now, content, doors(now.toInstant()), alarm = alarm)
     }
-
-    /** The alarm the clock app set (an app's own timers are not alarm clocks); none where the system says none. */
-    private fun nextAlarm(): Instant? = context.getSystemService(AlarmManager::class.java)
-        ?.nextAlarmClock
-        ?.triggerTime
-        ?.let(Instant::ofEpochMilli)
 
     /**
      * [load] for a card waiting to be drawn: never longer than [LOAD_TIMEOUT_MILLIS] and never an
