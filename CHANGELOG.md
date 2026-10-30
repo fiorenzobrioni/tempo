@@ -30,6 +30,9 @@ All notable changes to Tempo are documented here. The format follows
   "Got it" puts it away for good.
 - **Your new event, found for you.** Back from your calendar app with a new event, Today scrolls
   to it and its row glows for a moment.
+- **Today on a tablet.** On a large screen (a tablet, or a foldable open wide) Today stands in two
+  panes: the time, a larger dial and the day's sentence on one side, the agenda beside them, each
+  scrolling on its own. Phones are unchanged.
 
 ### Changed
 

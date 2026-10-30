@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -59,6 +60,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -69,9 +71,12 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLocale
@@ -86,11 +91,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -111,6 +118,7 @@ import com.callbackdev.tempo.core.designsystem.components.StatusCard
 import com.callbackdev.tempo.core.designsystem.components.StatusTone
 import com.callbackdev.tempo.core.designsystem.format.AgendaText
 import com.callbackdev.tempo.core.designsystem.format.DateTimeText
+import com.callbackdev.tempo.core.designsystem.format.TimeParts
 import com.callbackdev.tempo.core.designsystem.format.rememberAgendaText
 import com.callbackdev.tempo.core.designsystem.icons.TempoIcons
 import com.callbackdev.tempo.core.designsystem.theme.GroupShape
@@ -118,10 +126,12 @@ import com.callbackdev.tempo.core.designsystem.theme.PageGutter
 import com.callbackdev.tempo.core.designsystem.theme.ScreenMargin
 import com.callbackdev.tempo.core.designsystem.theme.TempoMotion
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
+import com.callbackdev.tempo.core.designsystem.theme.TwoPanes
 import com.callbackdev.tempo.core.designsystem.theme.padding
 import com.callbackdev.tempo.core.designsystem.theme.pageGutter
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
 import com.callbackdev.tempo.core.designsystem.theme.tabular
+import com.callbackdev.tempo.core.designsystem.theme.twoPanes
 import com.callbackdev.tempo.core.domain.clock.SecondZone
 import com.callbackdev.tempo.core.domain.clock.newEventIn
 import com.callbackdev.tempo.core.domain.clock.nextHalfHour
@@ -152,6 +162,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Locale
@@ -239,6 +250,10 @@ class TodayActions(
  * way: a label at the top, its icon alone once scrolled; back from it, the event made is brought
  * into view and glows once. The first day, a tip under the hero says how to read the dial (step 8.6).
  *
+ * On a large screen (a tablet, a foldable open at 840 dp and up; step 8.7) the page stands in two
+ * panes, each scrolling on its own: the hero, with a larger dial, today's all-day events and the
+ * tip on the leading side; the agenda on the trailing one, the new-event button over it.
+ *
  * Every state says what is true: no permission, no calendar, every calendar hidden, no calendar
  * app to hand an event to. The page is drawn from [state] alone.
  */
@@ -250,20 +265,37 @@ fun TodayScreen(
     modifier: Modifier = Modifier,
 ) {
     val text = rememberAgendaText(state.now.zone, state.settings.clockFormat)
-    val gutter = pageGutter()
-    val list = rememberLazyListState()
-    val atTop by remember { derivedStateOf { list.firstVisibleItemIndex == 0 } }
+    val panes = twoPanes()
+    // Each layout keeps its own place, so a tablet turned between the two does not bring the
+    // list to another item: the column's first items are the hero's, the agenda pane's are not.
+    val column = rememberLazyListState()
+    val heroPane = rememberLazyListState()
+    val agendaPane = rememberLazyListState()
+    val lists = when (panes) {
+        null -> TodayLists(column, column, twoPanes = false)
+        else -> TodayLists(heroPane, agendaPane, twoPanes = true)
+    }
+    val atTop by remember(lists.agenda) { derivedStateOf { lists.agenda.firstVisibleItemIndex == 0 } }
     var showEarlier by rememberSaveable { mutableStateOf(false) }
-    val glowing = revealNewEvent(state, actions, list, showEarlier, openEarlier = { showEarlier = true })
+    val glowing = revealNewEvent(state, actions, lists, showEarlier, openEarlier = { showEarlier = true })
+    val onToggleEarlier = { showEarlier = !showEarlier }
 
     Surface(modifier = modifier.fillMaxSize()) {
         CompositionLocalProvider(LocalTimeColumn24 provides text.uses24Hour, LocalGlowing provides glowing) {
-            TodayPage(state, permission, actions, text, gutter, list, atTop, showEarlier, {
-                showEarlier = !showEarlier
-            })
+            if (panes == null) {
+                TodayPage(state, permission, actions, text, pageGutter(), column, atTop, showEarlier, onToggleEarlier)
+            } else {
+                TodayPanes(state, permission, actions, text, panes, lists, atTop, showEarlier, onToggleEarlier)
+            }
         }
     }
 }
+
+/**
+ * The page's lists: on a phone one, [hero] and [agenda] the same, the hero and the tip before the
+ * agenda; on a large screen the two panes', today's all-day chips in the hero's.
+ */
+private class TodayLists(val hero: LazyListState, val agenda: LazyListState, val twoPanes: Boolean)
 
 @Composable
 private fun TodayPage(
@@ -278,6 +310,7 @@ private fun TodayPage(
     onToggleEarlier: () -> Unit,
 ) {
     val navigationBar = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val scheme = MaterialTheme.colorScheme
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
             state = list,
@@ -285,78 +318,211 @@ private fun TodayPage(
             // Room for the button over the last row, whatever the list ends with.
             contentPadding = PaddingValues(bottom = navigationBar + 88.dp),
         ) {
-            item(key = "hero") { Hero(state, text, gutter, actions) }
-            if (state.showsTip) card("tip", gutter) { TipCard(actions) }
-            when (val content = state.content) {
-                TodayContent.Loading -> Unit
-
-                TodayContent.NoPermission -> card("permission", gutter) {
-                    CalendarPermissionCard(permission, actions.askPermission, actions.openAppSettings)
-                }
-
-                TodayContent.NoCalendars -> card("no-calendars", gutter) {
-                    StatusCard(
-                        icon = TempoIcons.Calendar,
-                        title = stringResource(R.string.today_no_calendars_title),
-                        body = stringResource(R.string.today_no_calendars_body),
-                        tone = StatusTone.NOTE,
-                    )
-                }
-
-                TodayContent.AllHidden -> card("all-hidden", gutter) {
-                    StatusCard(
-                        icon = TempoIcons.Calendar,
-                        title = stringResource(R.string.today_all_hidden_title),
-                        body = stringResource(R.string.today_all_hidden_body),
-                        tone = StatusTone.CHOICE,
-                        action = stringResource(R.string.today_all_hidden_action),
-                        onAction = actions.openSettings,
-                    )
-                }
-
-                is TodayContent.Ready -> agenda(
-                    content = content,
-                    state = state,
-                    text = text,
-                    gutter = gutter,
-                    actions = actions,
-                    showEarlier = showEarlier,
-                    onToggleEarlier = onToggleEarlier,
+            item(key = "hero") {
+                Hero(
+                    state,
+                    text,
+                    gutter,
+                    actions,
+                    modifier = Modifier.background(heroGlow(scheme.primaryContainer, scheme.surface)),
                 )
             }
-            if (state.content is TodayContent.Ready && !state.doors.canOpenEvent && !state.doors.canCreate) {
-                card("no-app", gutter) {
-                    StatusCard(
-                        icon = TempoIcons.Info,
-                        title = stringResource(R.string.today_no_app_title),
-                        body = stringResource(R.string.today_no_app_body),
-                        tone = StatusTone.NOTE,
+            if (state.showsTip) card("tip", gutter) { TipCard(actions) }
+            agendaContent(state, permission, text, gutter, actions, showEarlier, onToggleEarlier, todayAllDay = true)
+        }
+        NewEventButton(state, actions, atTop, gutter, Modifier.align(Alignment.BottomEnd))
+    }
+}
+
+/**
+ * Today on a large screen (step 8.7): the hero's pane, about two fifths of the page, and the
+ * agenda's beside it, each scrolling on its own. The hero's glow stands across the top of both,
+ * so the page reads as one, and stays where it is while either pane scrolls.
+ */
+@Composable
+private fun TodayPanes(
+    state: TodayUiState,
+    permission: CalendarPermission,
+    actions: TodayActions,
+    text: AgendaText,
+    panes: TwoPanes,
+    lists: TodayLists,
+    atTop: Boolean,
+    showEarlier: Boolean,
+    onToggleEarlier: () -> Unit,
+) {
+    val statusBar = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val navigationBar = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val scheme = MaterialTheme.colorScheme
+    val glow = scheme.primaryContainer
+    val surface = scheme.surface
+    var heroHeight by remember { mutableIntStateOf(0) }
+    val dial = heroDial(panes.leading, text.uses24Hour)
+    val leading = panes.leadingGutter
+    val trailing = panes.trailingGutter
+    Row(
+        Modifier.fillMaxSize().drawBehind {
+            val height = heroHeight.toFloat()
+            if (height > 0f) drawRect(heroGlow(glow, surface, height), size = Size(size.width, height))
+        },
+    ) {
+        LazyColumn(
+            state = lists.hero,
+            modifier = Modifier.width(leading.start + panes.leading).fillMaxHeight().testTag(TodayTags.HERO_PANE),
+            contentPadding = PaddingValues(bottom = navigationBar + 16.dp),
+        ) {
+            item(key = "hero") {
+                Hero(state, text, leading, actions, Modifier.onSizeChanged { heroHeight = it.height }, dial)
+            }
+            val content = state.content
+            val allDay = (content as? TodayContent.Ready)?.let { todayAllDayItem(it.agenda) }
+            if (content is TodayContent.Ready && allDay != null) {
+                row(allDay.key, leading) {
+                    AllDayRow(
+                        allDay.day.allDay,
+                        content.calendars,
+                        text,
+                        ScreenMargin,
+                        actions.openEvent.takeIf { state.doors.canOpenEvent },
+                        Modifier.testTag(TodayTags.ALL_DAY),
                     )
                 }
             }
+            if (state.showsTip) card("tip", leading) { TipCard(actions) }
         }
-        if (state.doors.canCreate) {
-            val newEventLabel = stringResource(R.string.today_new_event)
-            ExtendedFloatingActionButton(
-                text = { Text(stringResource(R.string.today_new_event)) },
-                icon = { Icon(TempoIcons.Plus, contentDescription = null) },
-                expanded = atTop,
-                onClick = {
-                    val begin = nextHalfHour(state.now.toInstant(), state.now.zone)
-                    actions.newEvent(begin, begin.plus(CalendarIntents.NEW_EVENT_LENGTH))
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .navigationBarsPadding()
-                    .padding(gutter)
-                    .padding(ScreenMargin)
-                    // Collapsed to its icon once the list scrolls: it still says what it does.
-                    .semantics { contentDescription = newEventLabel }
-                    .testTag(TodayTags.NEW_EVENT),
+        Box(Modifier.weight(1f).fillMaxHeight()) {
+            LazyColumn(
+                state = lists.agenda,
+                modifier = Modifier.fillMaxSize().testTag(TodayTags.LIST),
+                // Its first row level with the date's, and room for the button over the last.
+                contentPadding = PaddingValues(top = statusBar, bottom = navigationBar + 88.dp),
+            ) {
+                agendaContent(
+                    state,
+                    permission,
+                    text,
+                    trailing,
+                    actions,
+                    showEarlier,
+                    onToggleEarlier,
+                    todayAllDay = false,
+                )
+            }
+            NewEventButton(state, actions, atTop, trailing, Modifier.align(Alignment.BottomEnd))
+        }
+    }
+}
+
+/**
+ * The agenda's place on the page: what the calendar says, or the state's card that says why it
+ * cannot, and the word on a missing calendar app after it.
+ *
+ * @param todayAllDay whether today's all-day chips are drawn here; on a large screen they stand
+ *   in the hero's pane.
+ */
+private fun LazyListScope.agendaContent(
+    state: TodayUiState,
+    permission: CalendarPermission,
+    text: AgendaText,
+    gutter: PageGutter,
+    actions: TodayActions,
+    showEarlier: Boolean,
+    onToggleEarlier: () -> Unit,
+    todayAllDay: Boolean,
+) {
+    when (val content = state.content) {
+        TodayContent.Loading -> Unit
+
+        TodayContent.NoPermission -> card("permission", gutter) {
+            CalendarPermissionCard(permission, actions.askPermission, actions.openAppSettings)
+        }
+
+        TodayContent.NoCalendars -> card("no-calendars", gutter) {
+            StatusCard(
+                icon = TempoIcons.Calendar,
+                title = stringResource(R.string.today_no_calendars_title),
+                body = stringResource(R.string.today_no_calendars_body),
+                tone = StatusTone.NOTE,
+            )
+        }
+
+        TodayContent.AllHidden -> card("all-hidden", gutter) {
+            StatusCard(
+                icon = TempoIcons.Calendar,
+                title = stringResource(R.string.today_all_hidden_title),
+                body = stringResource(R.string.today_all_hidden_body),
+                tone = StatusTone.CHOICE,
+                action = stringResource(R.string.today_all_hidden_action),
+                onAction = actions.openSettings,
+            )
+        }
+
+        is TodayContent.Ready -> agenda(
+            content = content,
+            state = state,
+            text = text,
+            gutter = gutter,
+            actions = actions,
+            showEarlier = showEarlier,
+            onToggleEarlier = onToggleEarlier,
+            todayAllDay = todayAllDay,
+        )
+    }
+    if (state.content is TodayContent.Ready && !state.doors.canOpenEvent && !state.doors.canCreate) {
+        card("no-app", gutter) {
+            StatusCard(
+                icon = TempoIcons.Info,
+                title = stringResource(R.string.today_no_app_title),
+                body = stringResource(R.string.today_no_app_body),
+                tone = StatusTone.NOTE,
             )
         }
     }
 }
+
+/**
+ * The new-event button, at the page's bottom corner (over the agenda's pane on a large screen):
+ * a label while the agenda is at its top, its icon alone once scrolled.
+ */
+@Composable
+private fun NewEventButton(
+    state: TodayUiState,
+    actions: TodayActions,
+    atTop: Boolean,
+    gutter: PageGutter,
+    modifier: Modifier = Modifier,
+) {
+    if (!state.doors.canCreate) return
+    val newEventLabel = stringResource(R.string.today_new_event)
+    ExtendedFloatingActionButton(
+        text = { Text(newEventLabel) },
+        icon = { Icon(TempoIcons.Plus, contentDescription = null) },
+        expanded = atTop,
+        onClick = {
+            val begin = nextHalfHour(state.now.toInstant(), state.now.zone)
+            actions.newEvent(begin, begin.plus(CalendarIntents.NEW_EVENT_LENGTH))
+        },
+        modifier = modifier
+            .navigationBarsPadding()
+            .padding(gutter)
+            .padding(ScreenMargin)
+            // Collapsed to its icon once the list scrolls: it still says what it does.
+            .semantics { contentDescription = newEventLabel }
+            .testTag(TodayTags.NEW_EVENT),
+    )
+}
+
+/**
+ * The hero's ground: the accent's container at the top, fading into the page under the sentence,
+ * over [height] pixels (the hero's own, where it is the hero's background).
+ */
+private fun heroGlow(glow: Color, surface: Color, height: Float = Float.POSITIVE_INFINITY): Brush =
+    Brush.verticalGradient(
+        0f to glow.copy(alpha = 0.75f),
+        0.55f to glow.copy(alpha = 0.18f),
+        1f to surface,
+        endY = height,
+    )
 
 /** A state's card, or a day's, on the page's column. */
 private fun LazyListScope.card(key: String, gutter: PageGutter, content: @Composable () -> Unit) {
@@ -399,13 +565,14 @@ private fun TipCard(actions: TodayActions) {
 private fun revealNewEvent(
     state: TodayUiState,
     actions: TodayActions,
-    list: LazyListState,
+    lists: TodayLists,
     showEarlier: Boolean,
     openEarlier: () -> Unit,
 ): EventKey? {
     var revealing by remember { mutableStateOf<EventKey?>(null) }
     var glowing by remember { mutableStateOf<EventKey?>(null) }
     val current by rememberUpdatedState(state)
+    val layout by rememberUpdatedState(lists)
     val unfolded by rememberUpdatedState(showEarlier)
     val reduced = reducedMotion()
     val density = LocalDensity.current
@@ -422,13 +589,15 @@ private fun revealNewEvent(
             val content = current.content as? TodayContent.Ready ?: return@LaunchedEffect
             val opens = !unfolded && agendaItems(content.agenda, showEarlier = false).any { it.folds(target) }
             if (opens) openEarlier()
-            val at = agendaItems(content.agenda, showEarlier = unfolded || opens).indexOfFirst { it.holds(target) }
-            if (at < 0) return@LaunchedEffect
-            val index = leadingItems(current) + at
+            val (list, index) = placeOf(target, content.agenda, current, layout, showEarlier = unfolded || opens)
+                ?: return@LaunchedEffect
             // The rows of the morning come in with the next layout.
             withTimeoutOrNull(REVEAL_MILLIS) { snapshotFlow { list.layoutInfo.totalItemsCount }.first { it > index } }
             if (!list.shows(index, top)) {
-                if (reduced) list.scrollToItem(index, -top) else list.animateScrollToItem(index, -top)
+                // A list whose own padding keeps it under the status bar (the agenda's pane) is
+                // already that far down.
+                val offset = -(top - list.layoutInfo.beforeContentPadding)
+                if (reduced) list.scrollToItem(index, offset) else list.animateScrollToItem(index, offset)
             }
             glowing = target
             delay(REVEAL_MILLIS)
@@ -440,7 +609,26 @@ private fun revealNewEvent(
     return glowing
 }
 
-/** The list's items before the agenda's: the hero, and the tip while it is shown. */
+/**
+ * Where the page draws [target]: its list, and its item there; null where it is not drawn. On a
+ * large screen today's all-day chips stand in the hero's pane, after the hero.
+ */
+private fun placeOf(
+    target: EventKey,
+    agenda: Agenda,
+    state: TodayUiState,
+    lists: TodayLists,
+    showEarlier: Boolean,
+): Pair<LazyListState, Int>? {
+    val at = agendaItems(agenda, showEarlier, todayAllDay = !lists.twoPanes).indexOfFirst { it.holds(target) }
+    return when {
+        at >= 0 -> lists.agenda to (if (lists.twoPanes) 0 else leadingItems(state)) + at
+        lists.twoPanes && todayAllDayItem(agenda)?.holds(target) == true -> lists.hero to 1
+        else -> null
+    }
+}
+
+/** The page's items before the agenda's, in its one column: the hero, and the tip while it is shown. */
 private fun leadingItems(state: TodayUiState): Int = if (state.showsTip) 2 else 1
 
 /**
@@ -469,25 +657,26 @@ private fun glows(event: EventInstance): Boolean = LocalGlowing.current == Event
  * app on it) with the calendar's and the settings' buttons; the time, large, beside the day's
  * clock face; the next alarm; the day's sentence. The clock grows with the reader's text size up
  * to a cap, and shrinks to fit beside the dial: "9:10 PM" stays on one line (PLANNING.md §15).
+ *
+ * @param modifier the glow, where the hero carries it (in the page's one column).
+ * @param dial the face's side: a phone's, or larger in the hero's pane on a large screen.
  */
 @Composable
-private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, actions: TodayActions) {
-    val glow = MaterialTheme.colorScheme.primaryContainer
-    val surface = MaterialTheme.colorScheme.surface
+private fun Hero(
+    state: TodayUiState,
+    text: AgendaText,
+    gutter: PageGutter,
+    actions: TodayActions,
+    modifier: Modifier = Modifier,
+    dial: Dp = DIAL_SIZE,
+) {
     val locale = LocalLocale.current.platformLocale
     val now = state.now
     val content = state.content
     val openDay = actions.openDay.takeIf { state.doors.canOpenDay }
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .background(
-                Brush.verticalGradient(
-                    0f to glow.copy(alpha = 0.75f),
-                    0.55f to glow.copy(alpha = 0.18f),
-                    1f to surface,
-                ),
-            )
             .statusBarsPadding()
             .padding(gutter)
             .padding(bottom = 8.dp),
@@ -524,11 +713,7 @@ private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, acti
         }
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(
-                start = ScreenMargin + 4.dp,
-                end = ScreenMargin + 4.dp,
-                top = 4.dp,
-            ),
+            modifier = Modifier.fillMaxWidth().padding(start = HERO_EDGE, end = HERO_EDGE, top = 4.dp),
         ) {
             Column(Modifier.weight(1f)) {
                 Clock(now, locale, text.uses24Hour, Modifier.testTag(TodayTags.TIME))
@@ -573,7 +758,7 @@ private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, acti
                 }
                 SecondClock(state, text)
             }
-            Spacer(Modifier.width(16.dp))
+            Spacer(Modifier.width(DIAL_GAP))
             // The face works without the calendar, as the clock does: its ring is just empty.
             val arcs = if (content is TodayContent.Ready) {
                 remember(content.agenda, content.calendars, state.settings.showAllDay) {
@@ -586,7 +771,7 @@ private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, acti
                 faceMinutes = DialArcs.minuteOnFace(now.toInstant(), now.zone),
                 arcs = arcs,
                 description = stringResource(R.string.today_dial, DateTimeText.time(now, locale, text.uses24Hour)),
-                modifier = Modifier.size(DIAL_SIZE).testTag(TodayTags.DIAL),
+                modifier = Modifier.size(dial).testTag(TodayTags.DIAL),
             )
         }
         if (content is TodayContent.Ready) {
@@ -654,28 +839,15 @@ private fun dialArcs(content: TodayContent.Ready, showAllDay: Boolean, zone: Zon
 private fun Clock(now: ZonedDateTime, locale: Locale, uses24Hour: Boolean, modifier: Modifier = Modifier) {
     val parts = DateTimeText.timeParts(now, locale, uses24Hour)
     val spoken = DateTimeText.time(now, locale, uses24Hour)
-    // Through the density, so Android 14's non-linear text scaling is the one applied: the clock
-    // grows with the reader's text size as the rest of the page does, up to its cap.
     val density = LocalDensity.current
-    val largest = with(density) { minOf(CLOCK_SIZE.toDp(), CLOCK_CAP).toSp() }
-    val figuresStyle = TempoTheme.type.heroNumber
-    val markerStyle = MaterialTheme.typography.titleLarge
+    val styles = clockStyles()
+    val largest = styles.figures.fontSize
     val measurer = rememberTextMeasurer()
     val ink = MaterialTheme.colorScheme.onSurface
     BoxWithConstraints(modifier.semantics { text = AnnotatedString(spoken) }) {
-        val markerWidth = parts.marker?.let { marker ->
-            measurer.measure(AnnotatedString(marker), markerStyle, maxLines = 1, softWrap = false).size.width +
-                with(density) { MARKER_GAP.roundToPx() }
-        } ?: 0
-        val room = (constraints.maxWidth - markerWidth).coerceAtLeast(1)
-        // Each figure is laid out on its own and rounded up to a whole pixel, so the row is a
-        // little wider than the string measured whole: counted, or the marker lost its last pixels.
-        val wanted = measurer.measure(
-            text = AnnotatedString(parts.figures),
-            style = figuresStyle.copy(fontSize = largest),
-            maxLines = 1,
-            softWrap = false,
-        ).size.width + parts.figures.length + with(density) { CLOCK_SLACK.roundToPx() }
+        val widths = measurer.clockWidths(parts, styles, density)
+        val room = (constraints.maxWidth - widths.marker).coerceAtLeast(1)
+        val wanted = widths.figures
         val shrunk = largest * (room.toFloat() / wanted)
         val size: TextUnit = when {
             wanted <= room -> largest
@@ -687,7 +859,7 @@ private fun Clock(now: ZonedDateTime, locale: Locale, uses24Hour: Boolean, modif
                 parts.marker?.let {
                     Text(
                         text = it,
-                        style = markerStyle,
+                        style = styles.marker,
                         color = ink,
                         maxLines = 1,
                         softWrap = false,
@@ -698,7 +870,7 @@ private fun Clock(now: ZonedDateTime, locale: Locale, uses24Hour: Boolean, modif
             if (parts.markerFirst) marker()
             RollingFigures(
                 figures = parts.figures,
-                style = figuresStyle.copy(fontSize = size, lineHeight = size * CLOCK_LINE),
+                style = styles.figures.copy(fontSize = size, lineHeight = size * CLOCK_LINE),
                 color = ink,
                 modifier = Modifier.alignByBaseline(),
             )
@@ -706,6 +878,57 @@ private fun Clock(now: ZonedDateTime, locale: Locale, uses24Hour: Boolean, modif
         }
     }
 }
+
+/** The clock's two styles: its figures at the largest size they take, and its day marker. */
+private class ClockStyles(val figures: TextStyle, val marker: TextStyle)
+
+@Composable
+private fun clockStyles(): ClockStyles {
+    // Through the density, so Android 14's non-linear text scaling is the one applied: the clock
+    // grows with the reader's text size as the rest of the page does, up to its cap.
+    val largest = with(LocalDensity.current) { minOf(CLOCK_SIZE.toDp(), CLOCK_CAP).toSp() }
+    return ClockStyles(TempoTheme.type.heroNumber.copy(fontSize = largest), MaterialTheme.typography.titleLarge)
+}
+
+/** What the clock takes at its largest, in pixels: its figures, and its day marker with its gap (none on the 24-hour clock). */
+private class ClockWidths(val figures: Int, val marker: Int)
+
+private fun TextMeasurer.clockWidths(parts: TimeParts, styles: ClockStyles, density: Density): ClockWidths {
+    val marker = parts.marker?.let {
+        measure(AnnotatedString(it), styles.marker, maxLines = 1, softWrap = false).size.width +
+            with(density) { MARKER_GAP.roundToPx() }
+    } ?: 0
+    // Each figure is laid out on its own and rounded up to a whole pixel, so the row is a
+    // little wider than the string measured whole: counted, or the marker lost its last pixels.
+    val figures = measure(AnnotatedString(parts.figures), styles.figures, maxLines = 1, softWrap = false).size.width +
+        parts.figures.length + with(density) { CLOCK_SLACK.roundToPx() }
+    return ClockWidths(figures, marker)
+}
+
+/**
+ * The dial in the hero's pane on a large screen (step 8.7): the room the hero's row leaves beside
+ * the clock at its largest, from a phone's [DIAL_SIZE] up to [DIAL_LARGEST], so the time is never
+ * shrunk for the face. The clock is measured at the widest it reads in the reader's format (two
+ * figures of hours, either day marker), so the face keeps its size through the day.
+ *
+ * @param pane the hero's pane, its gutter aside.
+ */
+@Composable
+private fun heroDial(pane: Dp, uses24Hour: Boolean): Dp {
+    val locale = LocalLocale.current.platformLocale
+    val density = LocalDensity.current
+    val styles = clockStyles()
+    val measurer = rememberTextMeasurer()
+    val clock = WIDEST_TIMES.maxOf { time ->
+        val widths = measurer.clockWidths(DateTimeText.timeParts(time, locale, uses24Hour), styles, density)
+        widths.figures + widths.marker
+    }
+    val row = pane - HERO_EDGE * 2
+    return (row - DIAL_GAP - with(density) { clock.toDp() }).coerceIn(DIAL_SIZE, DIAL_LARGEST)
+}
+
+/** Two figures of hours, the widest minutes' place on a tabular face, and both day markers. */
+private val WIDEST_TIMES = listOf(LocalTime.of(10, 58), LocalTime.of(22, 58))
 
 /** Each figure in its own place, so only the one that changed rolls up to its next value. */
 @Composable
@@ -749,6 +972,15 @@ private val MARKER_GAP = 8.dp
 
 /** The dial's side: the «In words» card's dial on a 2×2. */
 private val DIAL_SIZE = 112.dp
+
+/** The dial's largest, in the hero's pane on a large screen (step 8.7). */
+private val DIAL_LARGEST = 200.dp
+
+/** Between the clock's column and the dial. */
+private val DIAL_GAP = 16.dp
+
+/** What the hero's rows keep from its sides. */
+private val HERO_EDGE = ScreenMargin + 4.dp
 
 /**
  * The agenda's part of the list, item by item and in order: what [agenda] draws, and where a
@@ -808,16 +1040,21 @@ private sealed interface AgendaItem {
     }
 }
 
-private fun agendaItems(agenda: Agenda, showEarlier: Boolean): List<AgendaItem> =
+/** @param todayAllDay whether today's all-day chips are among them: not where the hero's pane holds them. */
+private fun agendaItems(agenda: Agenda, showEarlier: Boolean, todayAllDay: Boolean = true): List<AgendaItem> =
     AgendaSections.of(agenda).flatMap { section ->
         if (section is AgendaSection.Today) {
             val day = section.day
-            listOfNotNull(AgendaItem.AllDay(day).takeIf { day.allDay.isNotEmpty() }) +
+            listOfNotNull(AgendaItem.AllDay(day).takeIf { todayAllDay && day.allDay.isNotEmpty() }) +
                 Timeline.of(day, isToday = true, showEarlier = showEarlier).map { AgendaItem.Line(it, day) }
         } else {
             listOf(AgendaItem.Day(section))
         }
     }
+
+/** Today's all-day chips as their item, where today has any: the hero's pane's on a large screen. */
+private fun todayAllDayItem(agenda: Agenda): AgendaItem.AllDay? =
+    agenda.days.firstOrNull()?.takeIf { it.allDay.isNotEmpty() }?.let { AgendaItem.AllDay(it) }
 
 private fun LazyListScope.agenda(
     content: TodayContent.Ready,
@@ -827,6 +1064,7 @@ private fun LazyListScope.agenda(
     actions: TodayActions,
     showEarlier: Boolean,
     onToggleEarlier: () -> Unit,
+    todayAllDay: Boolean,
 ) {
     val now = state.now.toInstant()
     val zone = state.now.zone
@@ -839,7 +1077,7 @@ private fun LazyListScope.agenda(
         null
     }
     val style = state.settings.dateStyle
-    agendaItems(content.agenda, showEarlier).forEach { item ->
+    agendaItems(content.agenda, showEarlier, todayAllDay).forEach { item ->
         when (item) {
             is AgendaItem.AllDay -> row(item.key, gutter) {
                 AllDayRow(
@@ -1495,7 +1733,11 @@ private val LocalTimeColumn24 = staticCompositionLocalOf { true }
 
 /** Hooks for the UI tests. */
 object TodayTags {
+    /** The list that holds the agenda: the page's one, or the agenda's pane on a large screen. */
     const val LIST = "today_list"
+
+    /** The hero's pane, on a large screen only. */
+    const val HERO_PANE = "today_hero_pane"
     const val TIME = "today_time"
     const val DATE = "today_date"
     const val DIAL = "today_dial"

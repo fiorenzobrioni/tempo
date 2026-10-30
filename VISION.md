@@ -125,6 +125,12 @@ app the reader already uses.
   calendar hidden, no calendar app to hand an event to.
 - **The first day's tip** (step 8.6): under the hero, "How to read the dial", with the way to
   the guide and "Got it"; once dismissed or followed, never again. Never beside a state's card.
+- **On a large screen, two panes** (step 8.7, moved here from the non-goals; owner, 30 Oct
+  2026): on a tablet, or a foldable open at 840 dp and up, the hero (with a larger dial, up to
+  200 dp), today's all-day events and the tip stand on the leading side, about two fifths of the
+  page; the agenda beside them, each pane scrolling on its own, the new-event button over the
+  agenda. A phone, upright or on its side, and a foldable open under 840 dp keep the one column.
+  Settings, the guide and the first run keep the centred column everywhere (ADR 0004).
 
 ### The widgets (Jetpack Glance)
 
@@ -243,8 +249,9 @@ its list. Redesigned around a dial after the first cards on the phone (owner, 8 
 - **Weather on the agenda**: Chiaro's job, and each app of the family stands alone.
 - **The work profile's calendars from the personal one**: Android keeps the two profiles apart on
   purpose. Tempo installed inside the work profile reads the work calendars there.
-- Wear OS, a tablet layout (an open foldable shows the phone's column, centred, as in the
-  family), ads, analytics, crash reporting over the network.
+- Wear OS, a tablet layout beyond Today's two panes (Settings, the guide and the first run show
+  the phone's column, centred, as in the family), ads, analytics, crash reporting over the
+  network.
 
 ### Possible post-1.0 ideas (not committed)
 
@@ -309,7 +316,7 @@ corrections and the additions, each with its reason.
 - **Privacy is enforced.** The merged release manifest holds no `INTERNET`, location,
   `WRITE_CALENDAR` or contacts permission, and CI fails if one appears.
 - **For every reader.** TalkBack reads each event as one sentence; text works at twice its size;
-  an open foldable shows a centred column.
+  an open foldable under 840 dp shows a centred column, and a large screen Today in two panes.
 
 ## The owner's answers
 

@@ -53,6 +53,14 @@ class ReadmeScreenshots {
         save("today-evening-dark")
     }
 
+    /** A tablet on its side (step 8.7): the hero in its pane, the agenda beside it. */
+    @Test
+    @Config(qualifiers = "en-rUS-w1280dp-h800dp-hdpi")
+    fun todayTablet() {
+        show(TodaySample.state())
+        save("today-tablet")
+    }
+
     private fun save(name: String) {
         val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
         val dir = File(checkNotNull(output)).apply { mkdirs() }

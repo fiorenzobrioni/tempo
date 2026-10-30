@@ -48,6 +48,9 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
   <tr>
     <td align="center"><img src="docs/screenshots/guide.png" width="250" alt="The guide: what Tempo does, then where your events come from: your calendars and your choice, all-day events keeping their date, declined and cancelled events, work calendars"><br><sub><b>The guide</b>, in the app</sub></td>
   </tr>
+  <tr>
+    <td align="center" colspan="3"><img src="docs/screenshots/today-tablet.png" width="760" alt="Today on a tablet held sideways, in two panes: on the left the date with the calendar and settings buttons, the time at 10:20 AM beside a large clock face with the day's events on its ring, tomorrow's alarm, the sentence Design review until 11:00 AM, then 3 more today, and the all-day events; on the right the morning folded, the line for now, the meeting under way with 40 minutes left, two free hours from 11:00 AM, the rest of the day's events, tomorrow's card in full and Friday's, and the New event button"><br><sub><b>On a tablet</b>: the time beside the day</sub></td>
+  </tr>
 </table>
 
 Drawn by the app's own screens from a realistic sample week, in English (the app also speaks
@@ -60,6 +63,7 @@ For 1.0 ([VISION.md](./VISION.md) has the full scope):
 
 - 🕓 **Today**: the time large beside a clock face with the next twelve hours' events on its ring, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
 - 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and your next free hour (a touch starts an event there), then the rest of the week a card a day, empty days said once.
+- 📱 **On a tablet**, or a foldable open wide: the clock and a larger dial on one side, the agenda beside them, each scrolling on its own.
 - ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow. A touch opens your clock app.
 - 🌍 **Another time zone**: a second clock for a city you choose, under the alarm and on the widgets you want it on ("New York 4:20 AM"); an event written in another time zone says when it starts there too ("9:00 AM in Lisbon").
 - ✏️ **Your calendar app does the writing**: touch an event to open it there; the calendar button, the date and a day's name open it on that day; the new-event button opens its new-event page, the start already set.
