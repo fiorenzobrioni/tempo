@@ -1,6 +1,7 @@
 package com.callbackdev.tempo.core.data.settings
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -55,7 +56,7 @@ class SettingsRepositoryTest {
             dynamicColor = true,
             clockFormat = ClockFormat.H12,
             dateStyle = DateStyle.NUMERIC,
-            horizonDays = 2,
+            horizonDays = 14,
             calendarChoices = listOf(choice),
             showDeclined = true,
             showAllDay = false,
@@ -63,6 +64,7 @@ class SettingsRepositoryTest {
             showCalendarButton = false,
             secondZone = "America/New_York",
             onboardingCompleted = true,
+            todayTipSeen = true,
             askedCalendarPermission = true,
         )
         withRepository { repository -> repository.update { chosen } }
@@ -125,6 +127,25 @@ class SettingsRepositoryTest {
         ).edit { it[stringPreferencesKey("second_zone")] = "Mars/Olympus_Mons" }
         job.cancelAndJoin()
         withRepository { repository -> assertThat(repository.settings.first().secondZone).isNull() }
+    }
+
+    @Test
+    fun `today's first tip is shown until it is seen, then kept seen`() = runTest {
+        withRepository { repository ->
+            assertThat(repository.settings.first().todayTipSeen).isFalse()
+            repository.update { it.copy(todayTipSeen = true) }
+        }
+        withRepository { repository -> assertThat(repository.settings.first().todayTipSeen).isTrue() }
+        val raw = PreferenceDataStoreFactory.create(scope = backgroundScope, produceFile = { file }).data.first()
+        assertThat(raw[booleanPreferencesKey("today_tip_seen")]).isTrue()
+    }
+
+    @Test
+    fun `two weeks ahead are kept`() = runTest {
+        withRepository { repository -> repository.update { it.copy(horizonDays = 14) } }
+        withRepository { repository -> assertThat(repository.settings.first().horizonDays).isEqualTo(14) }
+        val raw = PreferenceDataStoreFactory.create(scope = backgroundScope, produceFile = { file }).data.first()
+        assertThat(raw[intPreferencesKey("horizon_days")]).isEqualTo(14)
     }
 
     @Test

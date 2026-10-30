@@ -15,6 +15,8 @@ import com.callbackdev.tempo.core.domain.calendar.CalendarChoices
 import com.callbackdev.tempo.core.domain.calendar.CalendarStanding
 import com.callbackdev.tempo.core.domain.clock.untilNextMinute
 import com.callbackdev.tempo.core.domain.today.DaySentence
+import com.callbackdev.tempo.core.domain.today.EventKey
+import com.callbackdev.tempo.core.domain.today.NewEvents
 import com.callbackdev.tempo.core.model.EventInstance
 import com.callbackdev.tempo.core.model.UserSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,7 +35,9 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -46,7 +50,9 @@ import javax.inject.Inject
  * - the provider read again when the date or the zone changes (midnight, a trip), when the horizon
  *   changes, when the calendar changes (`CalendarChanges`, bound to the same collection) and when
  *   the reader comes back to the page ([reread]: the permission may have changed meanwhile);
- * - the agenda and its sentence built from the read at every tick, so "now" moves without a read.
+ * - the agenda and its sentence built from the read at every tick, so "now" moves without a read;
+ * - back from the calendar app's new-event page, the event the reader made, to bring into view
+ *   ([onNewEventOpened]: the page's events kept in memory until then, nothing stored).
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -57,6 +63,14 @@ class TodayViewModel @Inject constructor(
     changes: CalendarChanges,
 ) : ViewModel() {
     private val rereads = MutableStateFlow(0)
+
+    /**
+     * The page's events when the reader opened the calendar app's new-event page, and when they
+     * came back ([back], the first return since): what tells the event they made (step 8.6).
+     */
+    private data class Awaiting(val known: Set<EventKey>, val back: Instant? = null)
+
+    private val awaiting = MutableStateFlow<Awaiting?>(null)
 
     private val ticks: Flow<ZonedDateTime> = flow {
         while (true) {
@@ -88,12 +102,33 @@ class TodayViewModel @Inject constructor(
             Snapshot(source.read(AgendaWindow.of(now.toInstant(), now.zone, days)), doors(now.toInstant()))
         }
 
-    val state: StateFlow<TodayUiState?> = combine(ticks, settings, snapshots, ::build)
+    val state: StateFlow<TodayUiState?> = combine(ticks, settings, snapshots, awaiting, ::build)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), null)
 
-    /** Back on the page: the permission, the calendars and the calendar app may all have changed. */
+    /**
+     * Back on the page: the permission, the calendars and the calendar app may all have changed.
+     * The first return since a new event's page was opened starts the [REVEAL_WINDOW] in which the
+     * event made is looked for; a later return ends it (the reader left that page without saving).
+     */
     fun reread() {
+        awaiting.update { it?.takeIf { awaiting -> awaiting.back == null }?.copy(back = Instant.now()) }
         rereads.value++
+    }
+
+    /** The calendar app's new-event page is opening: the page's events, as they are, kept in memory. */
+    fun onNewEventOpened() {
+        val ready = state.value?.content as? TodayContent.Ready ?: return
+        awaiting.value = Awaiting(NewEvents.keys(ready.agenda))
+    }
+
+    /** The event made is in view: nothing more to look for. */
+    fun onRevealed() {
+        awaiting.value = null
+    }
+
+    /** The first day's tip, dismissed or followed to the guide: not shown again. */
+    fun onTipSeen() {
+        viewModelScope.launch { settingsRepository.update { it.copy(todayTipSeen = true) } }
     }
 
     /** The permission was asked: remembered, so a later refusal can be told apart (§15). */
@@ -104,7 +139,12 @@ class TodayViewModel @Inject constructor(
         }
     }
 
-    private fun build(now: ZonedDateTime, settings: UserSettings, snapshot: Snapshot): TodayUiState {
+    private fun build(
+        now: ZonedDateTime,
+        settings: UserSettings,
+        snapshot: Snapshot,
+        awaiting: Awaiting?,
+    ): TodayUiState {
         val content = when (val read = snapshot.read) {
             CalendarRead.NoPermission -> TodayContent.NoPermission
 
@@ -132,7 +172,20 @@ class TodayViewModel @Inject constructor(
             alarm = if (settings.showNextAlarm) nextAlarm() else null,
             content = content,
             doors = snapshot.doors,
+            reveal = reveal(content, awaiting),
         )
+    }
+
+    /**
+     * The event the reader made, once they are back and for [REVEAL_WINDOW]: long enough for a
+     * calendar app that writes the provider a moment after its page closes, short enough that an
+     * event synced later from elsewhere does not move the list.
+     */
+    private fun reveal(content: TodayContent, awaiting: Awaiting?): EventKey? {
+        val back = awaiting?.back ?: return null
+        if (Instant.now().isAfter(back.plus(REVEAL_WINDOW))) return null
+        val ready = content as? TodayContent.Ready ?: return null
+        return NewEvents.first(ready.agenda, awaiting.known)
     }
 
     /**
@@ -151,6 +204,8 @@ class TodayViewModel @Inject constructor(
 
     private companion object {
         const val STOP_TIMEOUT_MILLIS = 5_000L
+
+        val REVEAL_WINDOW: Duration = Duration.ofMinutes(1)
 
         /** Any event: only the kind of intent matters to whether an app takes it. */
         val ProbeEvent = EventInstance(

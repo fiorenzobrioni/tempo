@@ -25,7 +25,8 @@
     <string name="settings_horizon_1">Today only</string>
     <string name="settings_horizon_2">Today and tomorrow</string>
     <string name="settings_horizon_7">A week</string>
-    <string name="settings_horizon_note">Today is always on top. The days after tomorrow are listed briefly, so a week stays easy to read.</string>
+    <string name="settings_horizon_14">Two weeks</string>
+    <string name="settings_horizon_note">Today is always on top. The days after tomorrow are listed briefly and a run of empty days is said once, so even two weeks stay easy to read.</string>
     <string name="settings_all_day">All-day events</string>
     <string name="settings_all_day_note">Holidays, birthdays and trips, in a row above the day’s events.</string>
     <string name="settings_declined">Declined invitations</string>

@@ -39,7 +39,7 @@ data object TodayKey : NavKey
 @Serializable
 data object SettingsKey : NavKey
 
-/** The guide, from the card at the top of Settings (Phase 5). */
+/** The guide, from the card at the top of Settings (Phase 5) and from Today's first tip (step 8.6). */
 @Serializable
 data object GuideKey : NavKey
 
@@ -71,7 +71,12 @@ private fun MainPages() {
             popTransitionSpec = { backward(reduced) },
             predictivePopTransitionSpec = { backward(reduced) },
             entryProvider = entryProvider<NavKey> {
-                entry<TodayKey> { TodayRoute(onOpenSettings = { backStack.add(SettingsKey) }) }
+                entry<TodayKey> {
+                    TodayRoute(
+                        onOpenSettings = { backStack.add(SettingsKey) },
+                        onOpenGuide = { backStack.add(GuideKey) },
+                    )
+                }
                 entry<SettingsKey> { SettingsRoute(onBack = goBack, onOpenGuide = { backStack.add(GuideKey) }) }
                 entry<GuideKey> { GuideRoute(onBack = goBack) }
             },

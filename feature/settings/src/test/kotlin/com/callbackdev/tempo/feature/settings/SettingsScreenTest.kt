@@ -1,5 +1,6 @@
 package com.callbackdev.tempo.feature.settings
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
@@ -8,6 +9,7 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -108,6 +110,33 @@ class SettingsScreenTest {
         compose.onNodeWithTag(SettingsTags.HORIZON).performClick()
         compose.onNodeWithText("Today and tomorrow").performClick()
         assertThat(saved.horizonDays).isEqualTo(2)
+    }
+
+    @Test
+    fun `the days ahead reach two weeks`() {
+        var saved = UserSettings()
+        draw(actions = SettingsActions(update = { saved = it(saved) }))
+        compose.onNodeWithTag(SettingsTags.HORIZON).assertTextContains("A week", substring = true)
+        compose.onNodeWithTag(SettingsTags.HORIZON).performClick()
+        listOf("Today only", "Today and tomorrow").forEach { compose.onNodeWithText(it).assertIsDisplayed() }
+        // The row's value and the dialog's choice.
+        compose.onAllNodesWithText("A week").assertCountEquals(2)
+        compose.onNodeWithText("Two weeks").performClick()
+        assertThat(saved.horizonDays).isEqualTo(14)
+    }
+
+    @Test
+    fun `two weeks are said as such`() {
+        draw(UserSettings(horizonDays = 14))
+        compose.onNodeWithTag(SettingsTags.HORIZON).assertTextContains("Two weeks", substring = true)
+        compose.assertAccessible()
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi")
+    fun `in Italian, two weeks`() {
+        draw(UserSettings(horizonDays = 14))
+        compose.onNodeWithTag(SettingsTags.HORIZON).assertTextContains("Due settimane", substring = true)
     }
 
     @Test

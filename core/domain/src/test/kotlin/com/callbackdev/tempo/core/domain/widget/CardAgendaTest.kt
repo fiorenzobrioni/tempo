@@ -156,6 +156,33 @@ class CardAgendaTest {
     }
 
     @Test
+    fun `two weeks ahead, what does not fit is counted, the second week's events included`() {
+        val agenda = agenda(
+            dentist,
+            call,
+            timed(6, "2026-10-14T09:00", "2026-10-14T10:00", title = "Next Wednesday"),
+            timed(7, "2026-10-19T18:00", "2026-10-19T19:00", title = "Monday after"),
+            timed(8, "2026-10-20T08:00", "2026-10-20T09:00", title = "Last day"),
+            now = at("2026-10-07T10:20"),
+            days = 14,
+        )
+        val card = CardAgenda.of(agenda, showAllDay = true, showDaysAhead = true)
+        assertThat(titles(card.later)).containsExactly(
+            "# 2026-10-08",
+            "Call",
+            "# 2026-10-14",
+            "Next Wednesday",
+            "# 2026-10-19",
+            "Monday after",
+            "# 2026-10-20",
+            "Last day",
+        ).inOrder()
+        // Today's line, tomorrow's heading and its event fill the 40 dp less the footer's 10.
+        assertThat(fitLines(card, oneEach, room = 40f, footerHeight = 10f))
+            .isEqualTo(CardFit(3, CardFooter.MoreLater(3)))
+    }
+
+    @Test
     fun `on a row, today's timed events come before its all-day line`() {
         val card = CardAgenda.of(agenda(holiday, review, dentist, now = at("2026-10-07T10:20")), true, false)
         assertThat(titles(card.timedFirst().today)).containsExactly("Review", "Dentist", "Holiday").inOrder()

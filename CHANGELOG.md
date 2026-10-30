@@ -24,6 +24,12 @@ All notable changes to Tempo are documented here. The format follows
   Each widget can show it too, by its date, from the widget's own settings.
 - **An event's own time zone.** An event written where the clock reads another time says when
   it starts there too: "9:00 AM in Lisbon".
+- **Two weeks ahead.** Days ahead, in Settings, now reaches two weeks; the days with nothing
+  planned are still said once, so a quiet fortnight costs a card or two.
+- **A tip for the first day.** Under the clock, how to read the dial, with the way to the guide;
+  "Got it" puts it away for good.
+- **Your new event, found for you.** Back from your calendar app with a new event, Today scrolls
+  to it and its row glows for a moment.
 
 ### Changed
 

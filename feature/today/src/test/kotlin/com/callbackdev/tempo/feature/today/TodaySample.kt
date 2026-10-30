@@ -57,9 +57,12 @@ object TodaySample {
     val allDoors =
         CalendarDoors(canCreate = true, canOpenEvent = true, canOpenDay = true, clockPackage = "com.example.clock")
 
+    /** A reader past the first run and the first day's tip: the page as it is every day after. */
+    val settings = UserSettings(onboardingCompleted = true, todayTipSeen = true)
+
     fun state(
         now: ZonedDateTime = at("2026-10-07T10:20"),
-        settings: UserSettings = UserSettings(onboardingCompleted = true),
+        settings: UserSettings = this.settings,
         alarm: String? = "2026-10-08T07:00",
         instances: List<EventInstance> = this.instances,
         doors: CalendarDoors = allDoors,

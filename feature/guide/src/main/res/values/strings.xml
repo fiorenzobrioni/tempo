@@ -28,7 +28,7 @@
     <string name="guide_today_free_title">Free time</string>
     <string name="guide_today_free_body">Your next free hour or more today is a row of its own, where it falls: a touch on it starts a new event there, and the sentence says how long you are free. Shorter gaps, and the free time later on, are left out, so the day does not fill up with rows of free time.</string>
     <string name="guide_today_ahead_title">The days ahead</string>
-    <string name="guide_today_ahead_body">Tomorrow and the rest of the week, each on a card with a short summary beside its name; a run of empty days is said once. In the settings: a week, today and tomorrow, or today alone.</string>
+    <string name="guide_today_ahead_body">Tomorrow and the days after it, each on a card with a short summary beside its name; a run of empty days is said once. In the settings: two weeks, a week, today and tomorrow, or today alone.</string>
     <string name="guide_today_alarm_title">The next alarm</string>
     <string name="guide_today_alarm_body">The next alarm you set in the Clock app, under the time; a touch on it opens the Clock app. Tempo only reads it; a switch in the settings hides it. Some calendar apps keep their reminders as alarms: those are not shown, and an alarm of yours that comes after one appears once the reminder has rung.</string>
     <string name="guide_today_zones_title">Other time zones</string>
@@ -42,7 +42,7 @@
     <string name="guide_handover_event_title">An event</string>
     <string name="guide_handover_event_body">Your calendar app opens it, that very occurrence of it, and changing or deleting it is one step away there.</string>
     <string name="guide_handover_new_title">A new event</string>
-    <string name="guide_handover_new_body">From the button at the bottom of Today, from a free row, or from “New event” on a long press on Tempo’s icon: your calendar app’s new event, its start already set, at the next half hour or where the free time begins.</string>
+    <string name="guide_handover_new_body">From the button at the bottom of Today, from a free row, or from “New event” on a long press on Tempo’s icon: your calendar app’s new event, its start already set, at the next half hour or where the free time begins. Made from Today, it is brought into view when you are back, its row glowing for a moment.</string>
     <string name="guide_handover_day_title">A day</string>
     <string name="guide_handover_day_body">The date at the top, the calendar button beside it and a day’s name open your calendar app on that day: for the week or the month, which are your calendar app’s to draw.</string>
     <string name="guide_handover_reminders_title">Alarms and reminders</string>

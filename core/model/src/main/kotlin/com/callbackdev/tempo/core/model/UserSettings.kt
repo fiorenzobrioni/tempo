@@ -12,6 +12,8 @@ package com.callbackdev.tempo.core.model
  *   app at today, beside the settings' gear (owner, PLANNING.md §15, 9 Oct 2026).
  * @property secondZone the second clock's city, as a time-zone id ("America/New_York"); null when
  *   the reader has none, the default. An id this phone does not know reads as none (`SecondZone`).
+ * @property todayTipSeen whether the reader dismissed Today's first tip ("How to read the dial") or
+ *   opened the guide from it: shown under the hero until then (step 8.6).
  * @property askedCalendarPermission whether Tempo ever asked for the calendar: what tells a
  *   refusal Android lets the app repeat from one it does not (`calendarPermission`).
  */
@@ -30,11 +32,12 @@ data class UserSettings(
     val showCalendarButton: Boolean = true,
     val secondZone: String? = null,
     val onboardingCompleted: Boolean = false,
+    val todayTipSeen: Boolean = false,
     val askedCalendarPermission: Boolean = false,
 ) {
     companion object {
-        /** Today only, today and tomorrow, a week. */
-        val HORIZON_CHOICES = listOf(1, 2, 7)
+        /** Today only, today and tomorrow, a week, two weeks (step 8.6). */
+        val HORIZON_CHOICES = listOf(1, 2, 7, 14)
         const val DEFAULT_HORIZON_DAYS = 7
     }
 }

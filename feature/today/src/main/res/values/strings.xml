@@ -48,4 +48,10 @@
     <string name="today_all_hidden_action">Choose calendars</string>
     <string name="today_no_app_title">No calendar app on this phone</string>
     <string name="today_no_app_body">Tempo shows your events, but opening or creating one happens in a calendar app, such as Google Calendar or Etar.</string>
+
+    <!-- The first day's tip, under the clock until it is dismissed or the guide is opened from it. -->
+    <string name="today_tip_title">How to read the dial</string>
+    <string name="today_tip_body">Its ring holds the next twelve hours: what comes next in the accent, the rest in their calendars’ colours. The guide explains the rest of the page.</string>
+    <string name="today_tip_open">Open the guide</string>
+    <string name="today_tip_dismiss">Got it</string>
 </resources>

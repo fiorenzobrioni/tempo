@@ -104,7 +104,8 @@ app the reader already uses.
   and the ten minutes between two meetings were never a row. A touch on the row starts a new
   event there.
 - **The days ahead**: tomorrow and the rest of the week (a week by default, the reader's
-  horizon), each day on its own card with its own short sentence beside its name. Today stays on
+  horizon, which reaches two weeks; step 8.6), each day on its own card with its own short
+  sentence beside its name. Today stays on
   top, whole; tomorrow is drawn as today is; the days after it are compact (one line per event);
   a run of empty days is said once ("Monday 12 October – Tuesday 13 October, nothing planned"),
   so a full week stays a glance below the fold and an empty week never pushes the first real
@@ -112,7 +113,9 @@ app the reader already uses.
 - **Touch an event**: the calendar app opens it, at that occurrence of it; editing is one tap
   away there.
 - **The new-event button** (Material's floating action button): the calendar app's new event
-  page, with the start already set to the next half hour.
+  page, with the start already set to the next half hour. Back on Today, the event the reader
+  made is brought into view and its row glows once (step 8.6): Tempo tells it from the events
+  the page held when they left, in memory, and stores nothing.
 - **Touch the date, or the calendar button beside the gear**: the calendar app opens on today
   (the button has a switch in Settings). Touch a day's name: it opens on that day.
 - **Live while visible**: the clock moves on each minute's start, and a change made in the
@@ -120,6 +123,8 @@ app the reader already uses.
 - **States that say what is true**: no permission (the clock works; one card explains why the
   agenda needs the permission and asks), no calendar on the phone, nothing today, every
   calendar hidden, no calendar app to hand an event to.
+- **The first day's tip** (step 8.6): under the hero, "How to read the dial", with the way to
+  the guide and "Got it"; once dismissed or followed, never again. Never beside a state's card.
 
 ### The widgets (Jetpack Glance)
 
@@ -187,7 +192,7 @@ its list. Redesigned around a dial after the first cards on the phone (owner, 8 
   switch. A calendar added later is shown until the reader hides it.
 - **Declined invitations** hidden by default. Cancelled events never shown.
 - **All-day events** shown or not.
-- **Days ahead**: today only, today and tomorrow, or a week (the default).
+- **Days ahead**: today only, today and tomorrow, a week (the default), or two weeks (step 8.6).
 
 ### Settings and personalization
 

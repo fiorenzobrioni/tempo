@@ -28,7 +28,7 @@
     <string name="guide_today_free_title">Il tempo libero</string>
     <string name="guide_today_free_body">La tua prossima ora libera, o più, di oggi è una riga a sé, dove cade: un tocco crea lì un nuovo impegno, e la frase dice fino a quando sei libero. I buchi più corti, e il tempo libero più tardi, restano fuori, così la giornata non si riempie di righe libere.</string>
     <string name="guide_today_ahead_title">I prossimi giorni</string>
-    <string name="guide_today_ahead_body">Domani e il resto della settimana, ognuno su una scheda con un breve riassunto accanto al nome; una serie di giorni vuoti si dice una volta sola. Nelle impostazioni: una settimana, oggi e domani, o solo oggi.</string>
+    <string name="guide_today_ahead_body">Domani e i giorni dopo, ognuno su una scheda con un breve riassunto accanto al nome; una serie di giorni vuoti si dice una volta sola. Nelle impostazioni: due settimane, una settimana, oggi e domani, o solo oggi.</string>
     <string name="guide_today_alarm_title">La prossima sveglia</string>
     <string name="guide_today_alarm_body">La prossima sveglia impostata nell’app Orologio, sotto l’ora; un tocco apre l’app Orologio. Tempo la legge soltanto; un interruttore nelle impostazioni la nasconde. Alcune app calendario tengono i loro promemoria come sveglie: quelli non compaiono, e una tua sveglia che viene dopo uno di loro compare quando il promemoria è suonato.</string>
     <string name="guide_today_zones_title">Altri fusi orari</string>
@@ -42,7 +42,7 @@
     <string name="guide_handover_event_title">Un impegno</string>
     <string name="guide_handover_event_body">La tua app calendario lo apre, proprio quella ripetizione, e modificarlo o eliminarlo lì è a un passo.</string>
     <string name="guide_handover_new_title">Un nuovo impegno</string>
-    <string name="guide_handover_new_body">Dal pulsante in fondo a Oggi, da una riga di tempo libero, o da «Nuovo evento» tenendo premuta l’icona di Tempo: il nuovo impegno della tua app calendario, con l’inizio già impostato, alla prossima mezz’ora o dove comincia il tempo libero.</string>
+    <string name="guide_handover_new_body">Dal pulsante in fondo a Oggi, da una riga di tempo libero, o da «Nuovo evento» tenendo premuta l’icona di Tempo: il nuovo impegno della tua app calendario, con l’inizio già impostato, alla prossima mezz’ora o dove comincia il tempo libero. Se l’hai creato da Oggi, al ritorno la pagina te lo porta in vista, con la sua riga che si illumina per un attimo.</string>
     <string name="guide_handover_day_title">Un giorno</string>
     <string name="guide_handover_day_body">La data in alto, il pulsante del calendario accanto e il nome di un giorno aprono la tua app calendario su quel giorno: per la settimana o il mese, che spetta a lei disegnare.</string>
     <string name="guide_handover_reminders_title">Sveglie e promemoria</string>

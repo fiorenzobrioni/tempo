@@ -689,6 +689,7 @@ private fun horizonLabel(days: Int): String = stringResource(
     when (days) {
         1 -> R.string.settings_horizon_1
         2 -> R.string.settings_horizon_2
+        14 -> R.string.settings_horizon_14
         else -> R.string.settings_horizon_7
     },
 )
