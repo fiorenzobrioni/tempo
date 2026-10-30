@@ -20,10 +20,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import com.callbackdev.tempo.core.designsystem.theme.TempoMotion
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
+import com.callbackdev.tempo.core.domain.calendar.markAlpha
+import com.callbackdev.tempo.core.domain.calendar.markColor
 import com.callbackdev.tempo.core.domain.widget.DialArc
 import com.callbackdev.tempo.core.domain.widget.DialArcs
 import com.callbackdev.tempo.core.domain.widget.DialGeometry
@@ -36,6 +39,12 @@ import kotlin.math.sin
  * icon's ring, with the next twelve hours' events as arcs on it ([DialArcs]) and the hands at [faceMinutes]
  * (minutes from twelve o'clock, 0 until 720). The same geometry as the card's ([DialGeometry]), so
  * the home screen and the app show one clock.
+ *
+ * The focus is in the accent, drawn last; the other arcs are quiet, each in its calendar's colour
+ * as a mark (stepped to 3:1 on the page's surface, [markColor], and faded only as far as that
+ * ratio allows, [markAlpha]), so the ring says which calendar an event is, as the list's bars do
+ * under it; an arc with no colour known is the quiet ink (review of 30 Oct 2026). The cards keep
+ * their own inks.
  *
  * When the face appears the hands wind forward from twelve to now and the arcs draw themselves,
  * together, in one short movement; after that the hands move with the page's minute ticker, on
@@ -52,6 +61,15 @@ fun DayDial(faceMinutes: Float, arcs: List<DialArc>, description: String, modifi
     val hour = rememberHand(faceMinutes / DialArcs.FACE_MINUTES, reduced)
     val minute = rememberHand((faceMinutes % MINUTES_PER_HOUR) / MINUTES_PER_HOUR, reduced)
     val scheme = MaterialTheme.colorScheme
+    val surface = scheme.surface.toArgb()
+    val marks = remember(arcs, surface) {
+        arcs.map { arc ->
+            arc.color?.let { color ->
+                val mark = markColor(color, surface)
+                Color(mark).copy(alpha = markAlpha(mark, surface, OTHER_ALPHA))
+            }
+        }
+    }
     val inks = DialInks(
         track = scheme.onSurface.copy(alpha = TRACK_ALPHA),
         focus = scheme.primary,
@@ -60,7 +78,7 @@ fun DayDial(faceMinutes: Float, arcs: List<DialArc>, description: String, modifi
         hands = scheme.onSurface,
     )
     Canvas(modifier.aspectRatio(1f).clearAndSetSemantics { contentDescription = description }) {
-        drawFace(arcs, sweep.value, inks)
+        drawFace(arcs, marks, sweep.value, inks)
         drawHands(hour.value, minute.value, inks.hands)
     }
 }
@@ -90,7 +108,7 @@ private fun rememberHand(turns: Float, reduced: Boolean): Animatable<Float, *> {
 
 private class DialInks(val track: Color, val focus: Color, val other: Color, val dots: Color, val hands: Color)
 
-private fun DrawScope.drawFace(arcs: List<DialArc>, progress: Float, inks: DialInks) {
+private fun DrawScope.drawFace(arcs: List<DialArc>, marks: List<Color?>, progress: Float, inks: DialInks) {
     val side = size.minDimension
     val stroke = side * DialGeometry.STROKE
     val inset = stroke / 2f
@@ -102,10 +120,10 @@ private fun DrawScope.drawFace(arcs: List<DialArc>, progress: Float, inks: DialI
     // begins and ends where the event does, down to a dot for a moment.
     val capDegrees = (inset / (side / 2f - inset)) * DEGREES_PER_RADIAN
     val round = Stroke(stroke, cap = StrokeCap.Round)
-    arcs.forEach { arc ->
+    arcs.forEachIndexed { index, arc ->
         val start = arc.from / DialArcs.FACE_MINUTES * FULL_TURN - QUARTER_TURN + capDegrees
         val sweep = (arc.sweep * progress / DialArcs.FACE_MINUTES * FULL_TURN - capDegrees * 2).coerceAtLeast(MIN_SWEEP)
-        val color = if (arc.focus) inks.focus else inks.other
+        val color = if (arc.focus) inks.focus else marks[index] ?: inks.other
         drawArc(color, start, sweep, useCenter = false, topLeft = topLeft, size = oval, style = round)
     }
     repeat(QUARTERS) { quarter ->

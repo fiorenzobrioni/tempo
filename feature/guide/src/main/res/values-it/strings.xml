@@ -20,17 +20,17 @@
     <string name="guide_today_title">Oggi</string>
     <string name="guide_today_p1">L’ora in grande, la data sopra, e una frase prima di qualunque elenco: l’impegno in corso e quando finisce, il prossimo e fra quanto, o fino a quando sei libero.</string>
     <string name="guide_today_dial_description">Un quadrante d’esempio alle dieci e venti, con una riunione in corso fino alle undici e altri due impegni più tardi</string>
-    <string name="guide_today_dial_caption">Un esempio: le dieci e venti, una riunione in corso fino alle undici nel colore d’accento, altri due impegni più tardi.</string>
+    <string name="guide_today_dial_caption">Un esempio: le dieci e venti, una riunione in corso fino alle undici nel colore d’accento, altri due impegni più tardi, ognuno nel colore del suo calendario.</string>
     <string name="guide_today_dial_title">Il quadrante</string>
-    <string name="guide_today_dial_body">Accanto all’ora, un quadrante con le prossime dodici ore sul suo anello: quello che viene dopo nel colore d’accento, il resto più tenue. La lancetta delle ore attraversa una riunione mentre passa. È il quadrante del widget «In parole».</string>
+    <string name="guide_today_dial_body">Accanto all’ora, un quadrante con le prossime dodici ore sul suo anello: quello che viene dopo nel colore d’accento, il resto più tenue, ognuno nel colore del suo calendario. La lancetta delle ore attraversa una riunione mentre passa. È il quadrante del widget «In parole».</string>
     <string name="guide_today_timeline_title">La giornata in ordine</string>
     <string name="guide_today_timeline_body">Gli impegni di oggi uno sotto l’altro, ognuno con il colore del suo calendario come segno. Quello in corso dice quanto manca; quelli finiti si fanno più tenui, e da due in su si raccolgono in una riga che si apre. Una linea segna l’adesso.</string>
     <string name="guide_today_free_title">Il tempo libero</string>
-    <string name="guide_today_free_body">Un buco di un’ora o più tra due impegni di oggi è una riga a sé, e la frase dice fino a quando sei libero. I buchi più corti restano come sono, così la giornata non si riempie dei dieci minuti tra due riunioni.</string>
+    <string name="guide_today_free_body">La tua prossima ora libera, o più, di oggi è una riga a sé, dove cade: un tocco crea lì un nuovo impegno, e la frase dice fino a quando sei libero. I buchi più corti, e il tempo libero più tardi, restano fuori, così la giornata non si riempie di righe libere.</string>
     <string name="guide_today_ahead_title">I prossimi giorni</string>
     <string name="guide_today_ahead_body">Domani e il resto della settimana, ognuno su una scheda con un breve riassunto accanto al nome; una serie di giorni vuoti si dice una volta sola. Nelle impostazioni: una settimana, oggi e domani, o solo oggi.</string>
     <string name="guide_today_alarm_title">La prossima sveglia</string>
-    <string name="guide_today_alarm_body">La prossima sveglia impostata sul telefono, come la tiene l’app Orologio, sotto l’ora. Tempo la legge soltanto; un interruttore nelle impostazioni la nasconde.</string>
+    <string name="guide_today_alarm_body">La prossima sveglia impostata sul telefono, come la tiene l’app Orologio, sotto l’ora; un tocco apre l’app Orologio. Tempo la legge soltanto; un interruttore nelle impostazioni la nasconde.</string>
     <string name="guide_today_live_title">Viva mentre guardi</string>
     <string name="guide_today_live_body">Mentre Oggi è aperta l’orologio avanza a ogni minuto, e un impegno creato o cambiato nella tua app calendario è lì quando torni. Quando esci, non resta in funzione niente.</string>
 

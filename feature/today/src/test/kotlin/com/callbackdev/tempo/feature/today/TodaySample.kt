@@ -53,12 +53,16 @@ object TodaySample {
 
     fun at(local: String): ZonedDateTime = LocalDateTime.parse(local).atZone(zone)
 
+    /** Every door open: a calendar app that takes all three intents, and a clock app. */
+    val allDoors =
+        CalendarDoors(canCreate = true, canOpenEvent = true, canOpenDay = true, clockPackage = "com.example.clock")
+
     fun state(
         now: ZonedDateTime = at("2026-10-07T10:20"),
         settings: UserSettings = UserSettings(onboardingCompleted = true),
         alarm: String? = "2026-10-08T07:00",
         instances: List<EventInstance> = this.instances,
-        doors: CalendarDoors = CalendarDoors.All,
+        doors: CalendarDoors = allDoors,
     ): TodayUiState {
         val agenda = AgendaBuilder.build(
             instances = instances,

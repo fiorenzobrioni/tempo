@@ -8,16 +8,10 @@
   ACCESS_NETWORK_STATE (which lets nothing leave the phone: there is no INTERNET permission).
   All are left as WorkManager declares them (reviewed in Phase 4,
   PLANNING.md §10). The boundary alarm is AlarmManager.set(RTC): inexact, non-wakeup, no permission.
-  The calendar's PROVIDER_CHANGED receiver adds no permission either.
+  The calendar's PROVIDER_CHANGED receiver adds no permission either. The clock app a card's time
+  opens is seen through :core:calendar's <queries> (ClockApp).
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <queries>
-        <!-- The phone's clock app, for a card whose time opens it (WidgetIntents.kt, ClockApp). -->
-        <intent>
-            <action android:name="android.intent.action.SHOW_ALARMS" />
-        </intent>
-    </queries>
 
     <application android:supportsRtl="true">
         <!-- Reached from the launcher's reconfigure flow. Exported, because the launcher starts

@@ -1,9 +1,14 @@
 package com.callbackdev.tempo.feature.today
 
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
@@ -75,6 +80,40 @@ class TodayScreenTest {
     }
 
     @Test
+    fun `the alarm line opens the clock app`() {
+        var opened = false
+        draw(actions = TodayActions(openClock = { opened = true }))
+        compose.onNodeWithTag(TodayTags.ALARM)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assert(
+                SemanticsMatcher("opens the clock app") {
+                    it.config.getOrNull(SemanticsActions.OnClick)?.label == "Open the clock app"
+                },
+            )
+            .assert(hasText("Alarm tomorrow at 07:00"))
+            .performClick()
+        assertThat(opened).isTrue()
+        compose.assertAccessible()
+    }
+
+    @Test
+    fun `with no clock app, the alarm line is no button`() {
+        draw(TodaySample.state(doors = TodaySample.allDoors.copy(clockPackage = null)))
+        compose.onNodeWithTag(TodayTags.ALARM).assertIsDisplayed().assertHasNoClickAction()
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi")
+    fun `the alarm line's door in Italian`() {
+        draw()
+        compose.onNodeWithTag(TodayTags.ALARM).assert(
+            SemanticsMatcher("apre l'orologio") {
+                it.config.getOrNull(SemanticsActions.OnClick)?.label == "Apri l’orologio"
+            },
+        )
+    }
+
+    @Test
     fun `no alarm line when the reader hid it or none is set`() {
         draw(TodaySample.state(alarm = null))
         compose.onNodeWithTag(TodayTags.ALARM).assertDoesNotExist()
@@ -90,6 +129,17 @@ class TodayScreenTest {
             .assert(hasContentDescription("under way, 40 min left", substring = true))
         compose.onNodeWithTag(TodayTags.EARLIER).performClick()
         compose.onNodeWithTag(TodayTags.event(TodaySample.run.eventId)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `today has one free row, the next one`() {
+        // At 10:20 the day is free from 11:00 for 2 h, from 14:00 for 1 h and from 15:45 for
+        // 2 h 45 min: the first is the row, the others are not drawn.
+        draw()
+        scrollTo(TodayTags.event(TodaySample.swimming.eventId))
+        compose.onAllNodesWithTag(TodayTags.FREE).assertCountEquals(1)
+        compose.onNodeWithTag(TodayTags.FREE).assert(hasContentDescription("Free from 11:00, for 2 h"))
+        compose.onNode(hasContentDescription("Free from 14:00", substring = true)).assertDoesNotExist()
     }
 
     @Test

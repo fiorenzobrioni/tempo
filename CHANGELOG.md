@@ -13,9 +13,18 @@ All notable changes to Tempo are documented here. The format follows
 ### Added
 
 - **Invitations you have not answered** say so on Today ("Not answered"), as "Maybe" already did.
+- **The alarm opens your clock app.** A touch on the next alarm, under the time on Today,
+  opens the Clock app, where alarms are set. Tempo still only reads it.
+- **The dial in your calendars' colours.** The events on Today's clock face wear their
+  calendar's colour, as in the list under it; the next one stays in the accent.
 
 ### Changed
 
+- **One "Free" row on Today.** Only your next free hour or more is a row, so more of the day
+  and tomorrow's first events fit on the first screen; the sentence still says how long you
+  are free.
+- **Rounder chips.** Today's all-day events are fully round, and the first run's widget cards
+  match the day cards on Today.
 - **Widgets: one size for a list.** On «Agenda» an event's title, its time, the headings and
   the "more today" line are one size, and the note on «In words» matches it, the same sizes
   the family's other cards use.

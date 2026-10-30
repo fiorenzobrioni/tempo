@@ -6,6 +6,7 @@ import android.util.Log
 import com.callbackdev.tempo.core.calendar.CalendarIntents
 import com.callbackdev.tempo.core.calendar.CalendarRead
 import com.callbackdev.tempo.core.calendar.CalendarSource
+import com.callbackdev.tempo.core.calendar.ClockApp
 import com.callbackdev.tempo.core.data.settings.SettingsRepository
 import com.callbackdev.tempo.core.domain.agenda.AgendaBuilder
 import com.callbackdev.tempo.core.domain.agenda.AgendaWindow

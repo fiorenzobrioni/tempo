@@ -61,6 +61,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callbackdev.tempo.core.calendar.CalendarAccess
 import com.callbackdev.tempo.core.data.widget.TempoWidget
 import com.callbackdev.tempo.core.designsystem.icons.TempoIcons
+import com.callbackdev.tempo.core.designsystem.theme.GroupShape
 import com.callbackdev.tempo.core.designsystem.theme.TempoMotion
 import com.callbackdev.tempo.core.designsystem.theme.padding
 import com.callbackdev.tempo.core.designsystem.theme.pageGutter
@@ -389,9 +390,14 @@ private fun WidgetPage(offer: WidgetOffer, pin: (TempoWidget) -> Unit) {
     }
 }
 
+/** One card of the pair, on the family's card: the 24dp group ground, as the days on Today. */
 @Composable
 private fun WidgetChoice(widget: TempoWidget, title: Int, body: Int, offer: WidgetOffer, pin: (TempoWidget) -> Unit) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.large) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = GroupShape,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             modifier = Modifier.fillMaxWidth().padding(16.dp),

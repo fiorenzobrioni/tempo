@@ -10,7 +10,10 @@ import java.time.Instant
 sealed interface TimelineItem {
     data class Event(val entry: TimedEntry) : TimelineItem
 
-    /** A gap of an hour or more (owner, PLANNING.md §15): a row the reader can turn into an event. */
+    /**
+     * The first gap of an hour or more still ahead today (owner, PLANNING.md §15, 30 Oct 2026): a
+     * row the reader can turn into an event.
+     */
     data class Free(val gap: FreeGap) : TimelineItem
 
     /**
@@ -30,22 +33,26 @@ sealed interface TimelineItem {
  *   row unless [showEarlier] (then the row stays above them, to fold them back), so the morning
  *   never pushes what is ahead below the fold.
  * - Then "now", when anything is still ahead: the line the eye looks for.
- * - Then what is under way and ahead, with the free gaps of an hour or more between them, by
- *   start time. A gap on today starts at now, so it sits right under the line.
- * - Free gaps are rows on today only: free time is something to act on now (a touch on the row
- *   starts a new event there); on tomorrow's timeline five rows of "free" read as noise (Phase 3's
- *   screenshots). The sentence and the days' summaries still count every gap.
+ * - Then what is under way and ahead, by start time, with one free row among them: the first gap
+ *   of an hour or more, the one open now (it starts at now, so it sits right under the line), else
+ *   the next. Free time is something to act on now (a touch on the row starts a new event there);
+ *   a row for every gap took three rows of seven on the first screen, and on tomorrow's timeline
+ *   five rows of "free" read as noise (Phase 3's screenshots; the owner, 30 Oct 2026). The
+ *   sentence and the days' summaries still count every gap.
  */
 object Timeline {
     /** Past events kept as rows of their own up to this many; more fold into one. */
     const val EARLIER_FOLD = 2
+
+    /** Free gaps drawn as rows on today: the next one alone. */
+    const val FREE_ROWS = 1
 
     fun of(day: AgendaDay, isToday: Boolean, showEarlier: Boolean = false): List<TimelineItem> {
         val past = if (isToday) day.timed.filter { it.state == EntryState.PAST } else emptyList()
         val ahead = day.timed - past.toSet()
         val rest = (
             ahead.map { it.event.begin to TimelineItem.Event(it) } +
-                (if (isToday) day.freeRows else emptyList()).map { it.start to TimelineItem.Free(it) }
+                (if (isToday) day.freeRows.take(FREE_ROWS) else emptyList()).map { it.start to TimelineItem.Free(it) }
             )
             .sortedWith(compareBy<Pair<Instant, TimelineItem>> { it.first }.thenBy { it.second is TimelineItem.Free })
             .map { it.second }

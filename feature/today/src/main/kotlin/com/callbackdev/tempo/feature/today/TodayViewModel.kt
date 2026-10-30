@@ -8,6 +8,7 @@ import com.callbackdev.tempo.core.calendar.CalendarChanges
 import com.callbackdev.tempo.core.calendar.CalendarIntents
 import com.callbackdev.tempo.core.calendar.CalendarRead
 import com.callbackdev.tempo.core.calendar.CalendarSource
+import com.callbackdev.tempo.core.calendar.ClockApp
 import com.callbackdev.tempo.core.data.settings.SettingsRepository
 import com.callbackdev.tempo.core.domain.agenda.AgendaBuilder
 import com.callbackdev.tempo.core.domain.agenda.AgendaWindow
@@ -72,7 +73,10 @@ class TodayViewModel @Inject constructor(
             replay = 1,
         )
 
-    /** A read and the doors it found open, together: both change when the reader comes back. */
+    /**
+     * A read and the doors it found open, together: both change when the reader comes back (a
+     * calendar or a clock app installed meanwhile).
+     */
     private data class Snapshot(val read: CalendarRead, val doors: CalendarDoors)
 
     private val snapshots: Flow<Snapshot> = combine(
@@ -145,6 +149,7 @@ class TodayViewModel @Inject constructor(
         canCreate = CalendarIntents.canOpen(context, CalendarIntents.insert(now)),
         canOpenEvent = CalendarIntents.canOpen(context, CalendarIntents.view(ProbeEvent)),
         canOpenDay = CalendarIntents.canOpen(context, CalendarIntents.openDay(now)),
+        clockPackage = ClockApp.packageName(context),
     )
 
     private companion object {

@@ -64,6 +64,10 @@ private fun controlOf(node: SemanticsNode, dense: Boolean, ancestors: List<Int>,
     val config = node.config
     if (SemanticsActions.OnClick !in config || SemanticsProperties.Disabled in config) return null
     if (SemanticsProperties.HideFromAccessibility in config) return null
+    // A list keeps an item it scrolled past composed but not placed: its bounds are where it last
+    // stood, and nothing on screen is there (a row of tomorrow's card read as beside Friday's,
+    // 30 Oct 2026). TalkBack and the Scanner skip it too.
+    if (!node.layoutInfo.isPlaced) return null
     val bounds = node.boundsInRoot
     if (bounds.width <= 0f || bounds.height <= 0f) return null
     // Cut by a list's edge: measured once scrolled into view, not here, and only its visible

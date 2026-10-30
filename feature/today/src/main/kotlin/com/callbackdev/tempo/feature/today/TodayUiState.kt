@@ -40,12 +40,18 @@ sealed interface TodayContent {
 }
 
 /**
- * Which of the calendar app's doors are there (PLANNING.md §4.7): a button whose intent nothing
- * takes is not drawn (CLAUDE.md, Read-only).
+ * Which doors are there (PLANNING.md §4.7): the calendar app's, and the clock app's for the alarm
+ * line. A button whose intent nothing takes is not drawn (CLAUDE.md, Read-only).
+ *
+ * @property clockPackage the phone's clock app (`ClockApp`), or null when there is none.
  */
-data class CalendarDoors(val canCreate: Boolean, val canOpenEvent: Boolean, val canOpenDay: Boolean) {
+data class CalendarDoors(
+    val canCreate: Boolean,
+    val canOpenEvent: Boolean,
+    val canOpenDay: Boolean,
+    val clockPackage: String?,
+) {
     companion object {
-        val None = CalendarDoors(canCreate = false, canOpenEvent = false, canOpenDay = false)
-        val All = CalendarDoors(canCreate = true, canOpenEvent = true, canOpenDay = true)
+        val None = CalendarDoors(canCreate = false, canOpenEvent = false, canOpenDay = false, clockPackage = null)
     }
 }

@@ -28,7 +28,10 @@ shortest way to the same look, and keeps one drawing of each thing in the family
    its contrast test.
 3. **The reader's calendar colours are data, not roles.** They are chosen in the calendar app
    with no thought for Tempo's grounds, so they mark an event and never paint its text or
-   ground (PLANNING.md §6).
+   ground (PLANNING.md §6). The arcs on Today's dial are marks too (Phase 8.1, 30 Oct 2026):
+   every arc but the focus is drawn in its calendar's colour, stepped to 3:1 on the page
+   (`markColor`) and faded only as far as that ratio allows (`markAlpha`); the focus keeps the
+   accent. The cards' dial keeps its inks on the six grounds.
 4. **The hero is the time.** `heroNumber` is Chiaro's temperature and Passo's step count; in
    Tempo it is the clock, tabular so the minutes do not wobble as they change. Measured in
    Phase 3: the style's 64sp is set at 80sp on Today, grown with the reader's text size up to
