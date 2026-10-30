@@ -8,11 +8,11 @@ package com.callbackdev.tempo.core.domain.widget
  *
  * | rank | what | size | weight | ink |
  * |---|---|---|---|---|
- * | 1 | the dial: the hands, and the focus's arc on the ring | up to [ROW_DIAL_MAX], [TALL_DIAL_MAX] | – | strong, accent |
+ * | 1 | the dial: the hands, and the focus's arc on the ring | up to [ROW_DIAL_MAX]; [TALL_DIAL_SHARE] of a tall card | – | strong, accent |
  * | 2 | the focus's title ("Design review"; "Free" when nothing is left) | [TITLE_SP], [TALL_TITLE_SP] | Medium | strong |
  * | 3 | when ("Until 11:00", "15:00 – 16:00", "Tomorrow · 9:00 – 10:00") | [WHEN_SP] | Regular | quiet |
  * | 4 | the date (the system's `TextClock`, so it turns at midnight) | [DATE_SP] | Regular | quiet |
- * | 5 | the day's note, the line of times after it | [NOTE_SP] | Regular | quiet |
+ * | 5 | the day's note; the next events as rows, else the line of times | [NOTE_SP], [ROW_SP] | Regular; a row's title Medium | quiet; a row's title strong |
  *
  * No number is large: a time printed at a count's size made a sentence shout ("Until 18:30" at
  * 34 sp left the title three words and an ellipsis), and the dial already says the hour. The
@@ -25,7 +25,8 @@ package com.callbackdev.tempo.core.domain.widget
  * - [WordsForm.ROW], one row. The dial; the title over its time; the date at the far edge, over
  *   two lines, where the row has the room.
  * - [WordsForm.TALL], two rows and up. The dial in the top trailing corner with
- *   the date beside it; the title, its time and the note hanging from the bottom leading corner.
+ *   the date beside it; the title, its time and the note hanging from the bottom leading corner,
+ *   and under them, where the card has the room, the next events as rows ("13:00  Lunch").
  */
 enum class WordsForm { CELL, ROW, TALL }
 
@@ -42,6 +43,9 @@ enum class WordsForm { CELL, ROW, TALL }
  *   ("Until 18:30", then "18:30"); empty where there is none ("Free").
  * @property noteLines the lines the note takes across a tall card at [WordsFit.NOTE_SP].
  * @property then whether there are later starts today for the line of times.
+ * @property rows how many of the events after the focus a tall card would list as rows, at most
+ *   [WordsFit.ROWS_MAX]: all of them or none.
+ * @property rowTimeEm the widest of those rows' times ("13:00"), in ems of the regular face.
  */
 data class WordsSpec(
     val width: Float,
@@ -55,13 +59,16 @@ data class WordsSpec(
     val whenEms: List<Float>,
     val noteLines: Int,
     val then: Boolean,
+    val rows: Int = 0,
+    val rowTimeEm: Float = 0f,
 )
 
 /**
  * The card's plan: the dial's side (0: none); the date's style ([dateChoice] into
  * [WordsSpec.dateEms], -1: none), size, lines and column; the title's size and lines (0: none);
  * which time in words ([whenChoice] into [WordsSpec.whenEms], -1: none) at which size, bold where
- * it stands in the dial's place; the note's lines; whether the line of times is drawn.
+ * it stands in the dial's place; the note's lines; how many rows of the next events (0: none) and
+ * their time column's width; whether the line of times is drawn.
  */
 data class WordsPlan(
     val form: WordsForm,
@@ -79,6 +86,8 @@ data class WordsPlan(
     val then: Boolean,
     val snug: Boolean,
     val sidePadding: Float,
+    val rows: Int = 0,
+    val rowTimeWidth: Float = 0f,
 )
 
 /** A date as drawn: which style, at which size, on how many lines, how wide and tall. */
@@ -260,8 +269,9 @@ object WordsFit {
      * the title's first line and its time; the dial at [TALL_DIAL_MIN] (without it, the date on
      * top); the note, whole up to [NOTE_MAX_LINES] or not at all; the dial up to
      * [TALL_DIAL_COMFORT]; the title's second line, for a title too long for one even at
-     * [TALL_TITLE_MIN_SP]; the line of times on a wide card; what is left
-     * grows the dial to [TALL_DIAL_MAX]. The date takes the band beside the dial, on one line or two.
+     * [TALL_TITLE_MIN_SP]; the next events as rows in the band that is left, all of them or none,
+     * else the line of times on a wide card; what is left grows the dial to its ceiling
+     * ([tallDialCeiling]). The date takes the band beside the dial, on one line or two.
      */
     private fun tallPlan(spec: WordsSpec): WordsPlan {
         val scale = spec.fontScale
@@ -277,7 +287,8 @@ object WordsFit {
         val time = whenFor(spec, width, WHEN_SIZES)
         if (time != null) left -= lineHeight(time.sp, scale)
         val withDate = spec.dateEms.isNotEmpty()
-        val dialMost = minOf(TALL_DIAL_MAX, if (withDate) width - DIAL_GAP - DATE_BESIDE_MIN else width)
+        val dialMost =
+            minOf(tallDialCeiling(inner, width), if (withDate) width - DIAL_GAP - DATE_BESIDE_MIN else width)
         var dial = 0f
         var top: DatePick? = null
         if (spec.dial && dialMost >= TALL_DIAL_MIN && left - DIAL_BOTTOM_GAP >= TALL_DIAL_MIN) {
@@ -303,8 +314,20 @@ object WordsFit {
             left -= titleLine
             titleLines = 2
         }
+        // The rows stand where the line of times would, in the band the dial leaves at its comfort,
+        // each title keeping [ROW_TITLE_MIN] beside the time column, or an ellipsis says nothing.
+        val rowTime = if (spec.rows > 0) widthOf(spec.rowTimeEm, ROW_SP, scale) else 0f
+        val rowsHeight = lineHeight(ROW_SP, scale) * spec.rows + ROWS_GAP
+        val rows = if (spec.rows in 1..ROWS_MAX && width - rowTime - ROW_TIME_GAP >= ROW_TITLE_MIN &&
+            left >= rowsHeight
+        ) {
+            spec.rows
+        } else {
+            0
+        }
+        if (rows > 0) left -= rowsHeight
         val noteLine = lineHeight(NOTE_SP, scale)
-        val then = spec.then && width >= THEN_MIN_WIDTH && left >= noteLine
+        val then = rows == 0 && spec.then && width >= THEN_MIN_WIDTH && left >= noteLine
         if (then) left -= noteLine
         grow(dialMost)
         val date = if (dial > 0f && withDate) date(spec, width - dial - DIAL_GAP, dial, twoLines = true) else top
@@ -324,8 +347,18 @@ object WordsFit {
             then = then,
             snug = false,
             sidePadding = AgendaFit.CARD_PADDING,
+            rows = rows,
+            rowTimeWidth = if (rows > 0) rowTime else 0f,
         )
     }
+
+    /**
+     * The most a tall card's dial grows to: [TALL_DIAL_SHARE] of the card's inner height and of its
+     * inner width, so a large card's face grows with it and its words keep their room; never less
+     * than [TALL_DIAL_CEILING], where a card's own room already holds the dial under it.
+     */
+    fun tallDialCeiling(innerHeight: Float, innerWidth: Float): Float =
+        maxOf(TALL_DIAL_CEILING, TALL_DIAL_SHARE * minOf(innerHeight, innerWidth))
 
     /** The title on a row. */
     const val TITLE_SP = 20f
@@ -369,13 +402,29 @@ object WordsFit {
     const val DATE_COLUMN_MIN = 56f
     const val ROW_DATE_ONE_LINE = 100f
 
-    /** The tall dial, with a comfortable middle the note does not take. */
+    /**
+     * The tall dial, with a comfortable middle the note and the rows do not take, and its ceiling:
+     * a share of the card, or [TALL_DIAL_CEILING] where that share is smaller. On the share alone
+     * the two-row cards' dials would shrink (the four-by-two's to 72 dp) where the card's room,
+     * not the ceiling, holds them (review of 30 Oct 2026, step 8.3).
+     */
     const val TALL_DIAL_MIN = 48f
     const val TALL_DIAL_COMFORT = 72f
-    const val TALL_DIAL_MAX = 104f
+    const val TALL_DIAL_CEILING = 104f
+    const val TALL_DIAL_SHARE = 0.45f
     const val DIAL_BOTTOM_GAP = 8f
     const val DATE_BESIDE_MIN = 56f
     const val THEN_MIN_WIDTH = 280f
+
+    /**
+     * The next events as rows (step 8.3): one or two, each a line at the label step, the time in
+     * its column and the title beside it, as «Agenda» sets an inline row; a little air over them.
+     */
+    const val ROWS_MAX = 2
+    const val ROW_SP = WidgetType.LABEL
+    const val ROWS_GAP = NOTE_GAP
+    const val ROW_TIME_GAP = AgendaFit.TIME_GAP
+    const val ROW_TITLE_MIN = AgendaFit.TITLE_MIN
 
     const val CELL_DIAL_MAX = 104f
     const val CELL_DIAL_COMFORT = 56f

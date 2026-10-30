@@ -132,6 +132,21 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
     it. On the README's four-by-two at 10:20 the titles are whole in English ("Lunch with Gi…"
     and "Swimming les…" before) and Italian lists five events where it listed three.
 
+14. **«In words» uses its room** (amendment of 30 Oct 2026, step 8.3). A tall card's dial was
+    held at 104 dp, and a four-by-three kept a band of about a third of its height empty under
+    it. The dial now grows to 45% of the card's inner height and width (`WordsFit.tallDialCeiling`),
+    never held under 104 dp: on the share alone the two-row cards' dials would shrink (the
+    four-by-two's from 78.5 to 72 dp) where the card's room, not the ceiling, holds them. And
+    the next one or two events after the focus stand under the words as rows, as «Agenda» sets
+    an inline row ("13:00  Lunch with Giulia": the time in its column in the quiet ink, the
+    title in the strong one, both at the label step; each its own door and one sentence to
+    TalkBack), in the band the dial leaves at its comfort (72 dp), all of them or none, each
+    title keeping 72 dp beside its time. Where they do not fit, the line of times stays, and
+    the note's count where neither does. The note over the rows keeps its count only where
+    they leave events out ("Then 3 more today." over two of them). Two rows high the band is
+    already spent at the dial's comfort, so the two-row cards are unchanged; a row before the
+    comfort would have cut the four-by-two's dial to 56 dp.
+
 ## Consequences
 
 - Nothing of Tempo runs for the widgets while nothing changes; a calendar change reaches a card

@@ -121,23 +121,19 @@ internal class CardText(private val context: Context, model: WidgetModel) {
     }
 
     /** What TalkBack reads for a row: one sentence, as on Today. */
-    fun describe(line: CardLine, calendars: Map<Long, CalendarInfo>): String {
-        val (event, time) = when (line) {
-            is CardLine.AllDay -> return listOf(range(line), title(line)).joinToString(", ")
+    fun describe(line: CardLine, calendars: Map<Long, CalendarInfo>): String = when (line) {
+        is CardLine.AllDay -> listOf(range(line), title(line)).joinToString(", ")
+        is CardLine.Timed -> describe(line.entry.event, calendars)
+        is CardLine.Heading -> heading(line.date)
+        is CardLine.Note -> note(line.note)
+    }
 
-            is CardLine.Timed -> line.entry.event to if (line.entry.event.begin == line.entry.event.end) {
-                agenda.time(line.entry.event.begin)
-            } else {
-                context.getString(
-                    R.string.widget_a11y_range,
-                    agenda.time(line.entry.event.begin),
-                    agenda.time(line.entry.event.end),
-                )
-            }
-
-            is CardLine.Heading -> return heading(line.date)
-
-            is CardLine.Note -> return note(line.note)
+    /** A timed event as one sentence: its times, its title, where, and in which calendar. */
+    fun describe(event: EventInstance, calendars: Map<Long, CalendarInfo>): String {
+        val time = if (event.begin == event.end) {
+            agenda.time(event.begin)
+        } else {
+            context.getString(R.string.widget_a11y_range, agenda.time(event.begin), agenda.time(event.end))
         }
         return listOfNotNull(
             time,

@@ -1,6 +1,7 @@
 package com.callbackdev.tempo.widget.words
 
 import android.content.Context
+import android.content.Intent
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -189,7 +190,21 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             .maxOf { textEm(context, it, TextWeight.REGULAR) }
     }
 
-    private fun planFor(note: String?, then: Boolean) = WordsFit.plan(
+    /**
+     * The events after the focus a tall card may list as rows, the first [WordsFit.ROWS_MAX], with
+     * their starts: they are later today, so a time alone says when.
+     */
+    private val rowEvents = if (form == WordsForm.TALL) day?.then?.take(WordsFit.ROWS_MAX).orEmpty() else emptyList()
+    private val rowTimes = rowEvents.map { text.agenda.time(it.begin) }
+
+    /**
+     * The note over the rows: as over the line of times where they list every event left, the
+     * whole count where they leave some out ("Then 3 more today." over two of them).
+     */
+    private val noteBeforeRows: String? =
+        if (rowEvents.size < (day?.then?.size ?: 0)) fullNote else noteBeforeTimes
+
+    private fun planFor(note: String?, then: Boolean, rows: Int = 0) = WordsFit.plan(
         WordsSpec(
             width = size.width.value,
             height = size.height.value,
@@ -203,15 +218,27 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             noteLines =
             note?.let { measureWidgetLines(context, it, WordsFit.NOTE_SP, innerWidth, TextWeight.REGULAR) } ?: 0,
             then = then,
+            rows = rows,
+            rowTimeEm = rowTimes.maxOfOrNull { textEm(context, it, TextWeight.REGULAR) } ?: 0f,
         ),
     )
 
-    private val hasTimes = form == WordsForm.TALL && day?.then?.isNotEmpty() == true
+    /**
+     * The next events as rows where the card has the room for them all; else the line of times;
+     * else the whole note (PLANNING.md §11, step 8.3).
+     */
+    private val withRows = rowEvents.takeIf { it.isNotEmpty() }
+        ?.let { planFor(noteBeforeRows, then = false, rows = it.size) }
+        ?.takeIf { it.rows > 0 }
+    private val hasTimes = withRows == null && form == WordsForm.TALL && day?.then?.isNotEmpty() == true
     private val withTimes = if (hasTimes) planFor(noteBeforeTimes, then = true).takeIf { it.then } else null
 
-    /** The tall card with its line of times where it holds it; else the whole note, without them. */
-    val plan: WordsPlan = withTimes ?: planFor(fullNote, then = false)
-    val note: String? = if (withTimes != null) noteBeforeTimes else fullNote
+    val plan: WordsPlan = withRows ?: withTimes ?: planFor(fullNote, then = false)
+    val note: String? = when {
+        withRows != null -> noteBeforeRows
+        withTimes != null -> noteBeforeTimes
+        else -> fullNote
+    }
     val whenText: String? = whens.getOrNull(plan.whenChoice)
 
     /** "Then 16:30 · 18:00": as many times as the line holds whole. */
@@ -220,6 +247,16 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             .firstOrNull {
                 widthOf(textEm(context, it, TextWeight.REGULAR), WordsFit.NOTE_SP, scale) <= innerWidth.value
             }
+    }
+
+    /** The rows the plan holds: each its time, its title, its door and the sentence it reads as. */
+    val rows: List<NextRow> = rowEvents.take(plan.rows).mapIndexed { i, event ->
+        NextRow(
+            time = rowTimes[i],
+            title = text.title(event),
+            intent = WidgetIntents.event(context, look.eventTap, model.doors, event),
+            description = text.describe(event, (model.content as? WidgetContent.Ready)?.calendars.orEmpty()),
+        )
     }
 
     /** The day's arcs on the dial: the focus and what else is still to come in its twelve hours. */
@@ -270,6 +307,9 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             }
             ).dp
 }
+
+/** One of the next events as a row of a tall card. */
+private class NextRow(val time: String, val title: String, val intent: Intent?, val description: String)
 
 // --- The ranks --------------------------------------------------------------------------------
 
@@ -359,6 +399,43 @@ private fun Note(parts: WordsParts, palette: WidgetPalette) {
         maxLines = parts.plan.noteLines,
         modifier = GlanceModifier.padding(top = WordsFit.NOTE_GAP.dp),
     )
+}
+
+/**
+ * The next events, a row each, as «Agenda» sets an inline row: the time in its column in the quiet
+ * ink, the title beside it in the strong one, on one line; each opens its event as the focus does.
+ */
+@Composable
+private fun NextRows(parts: WordsParts, palette: WidgetPalette) {
+    if (parts.rows.isEmpty()) return
+    val timeStyle =
+        TextStyle(color = palette.secondaryInk, fontSize = WordsFit.ROW_SP.sp, fontWeight = FontWeight.Normal)
+    val titleStyle =
+        TextStyle(color = palette.primaryInk, fontSize = WordsFit.ROW_SP.sp, fontWeight = FontWeight.Medium)
+    Column(modifier = GlanceModifier.fillMaxWidth().padding(top = WordsFit.ROWS_GAP.dp)) {
+        parts.rows.forEach { row ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = GlanceModifier
+                    .fillMaxWidth()
+                    .then(row.intent?.let { GlanceModifier.clickable(actionStartActivity(it)) } ?: GlanceModifier)
+                    .semantics { contentDescription = row.description },
+            ) {
+                Text(
+                    text = row.time,
+                    style = timeStyle,
+                    maxLines = 1,
+                    modifier = GlanceModifier.width(parts.plan.rowTimeWidth.dp),
+                )
+                Text(
+                    text = row.title,
+                    style = titleStyle,
+                    maxLines = 1,
+                    modifier = GlanceModifier.padding(start = WordsFit.ROW_TIME_GAP.dp).defaultWeight(),
+                )
+            }
+        }
+    }
 }
 
 /** The focus as one door: the title and when, one sentence to a screen reader. */
@@ -452,8 +529,9 @@ private fun RowContent(parts: WordsParts, palette: WidgetPalette) {
 
 /**
  * Two rows and up: the dial in the top trailing corner and the date beside it;
- * the title, when and the note hanging from the bottom leading corner. A message stands centred
- * in the room under the dial ([WordsParts.messageRoom]).
+ * the title, when and the note hanging from the bottom leading corner, the next events under them
+ * as rows or as a line of times. A message stands centred in the room under the dial
+ * ([WordsParts.messageRoom]).
  */
 @Composable
 private fun TallContent(parts: WordsParts, palette: WidgetPalette) {
@@ -472,6 +550,7 @@ private fun TallContent(parts: WordsParts, palette: WidgetPalette) {
                 When(parts, palette)
             }
             Note(parts, palette)
+            NextRows(parts, palette)
             parts.then?.let { then ->
                 Text(
                     text = then,

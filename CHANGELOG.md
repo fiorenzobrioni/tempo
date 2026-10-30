@@ -35,6 +35,9 @@ All notable changes to Tempo are documented here. The format follows
   would squeeze every title beside it, and in Italian the all-day line spans the list: on the
   default size the rest of the day fits with its titles whole, five events where Italian
   showed three.
+- **«In words» uses its room.** On a widget three rows high the clock face grows with the
+  widget, and under what comes next the next one or two events are listed with their times
+  ("1:00 PM  Lunch with Giulia"), not only their times.
 - **Widget messages in the middle.** "Tempo cannot read your calendar" and the other messages
   stand centred in the widget, not at its top over an empty card.
 - **The widget's size in view.** In a widget's settings the size picked is scrolled into

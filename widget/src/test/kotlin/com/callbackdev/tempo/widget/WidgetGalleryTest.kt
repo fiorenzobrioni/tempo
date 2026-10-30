@@ -55,6 +55,27 @@ class WidgetGalleryTest {
         board.draw().saveTo(out, "widget-words-sizes")
     }
 
+    /**
+     * «In words» three rows high through the day: the dial past 104 dp, the next events as rows
+     * under the note where the card has the room for them (step 8.3).
+     */
+    @Test
+    fun `in words, tall, through the day`() {
+        val board = HomeBoard(context, widthDp = 380)
+        listOf("2026-10-07T07:00", "2026-10-07T10:20", "2026-10-07T14:20", "2026-10-07T21:10").forEach { time ->
+            val model = WidgetSamples.model(now = WidgetSamples.at(time))
+            board.row(Grants.FourByThree to renderCard(context, Grants.FourByThree) { WordsWidgetContent(model) })
+        }
+        val twelve = WidgetSamples.model(look = WidgetLook(clockFormat = ClockFormat.H12))
+        val afternoon = WidgetSamples.model(now = WidgetSamples.at("2026-10-07T14:20"))
+        board.row(
+            Grants.TwoByThree to renderCard(context, Grants.TwoByThree) { WordsWidgetContent(WidgetSamples.model()) },
+            Grants.TwoByThree to renderCard(context, Grants.TwoByThree) { WordsWidgetContent(afternoon) },
+        )
+        board.row(Grants.ThreeByThree to renderCard(context, Grants.ThreeByThree) { WordsWidgetContent(twelve) })
+        board.draw().saveTo(out, "widget-words-tall")
+    }
+
     @Test
     fun `the pair side by side, in every dress`() {
         val looks = listOf(
@@ -126,6 +147,8 @@ class WidgetGalleryTest {
             board.row(size to renderCard(context, size) { AgendaWidgetContent(WidgetSamples.model()) })
             board.row(size to renderCard(context, size) { WordsWidgetContent(WidgetSamples.model()) })
         }
+        val afternoon = WidgetSamples.model(now = WidgetSamples.at("2026-10-07T14:20"))
+        board.row(Grants.FourByThree to renderCard(context, Grants.FourByThree) { WordsWidgetContent(afternoon) })
         board.draw().saveTo(out, "widget-italian")
     }
 
