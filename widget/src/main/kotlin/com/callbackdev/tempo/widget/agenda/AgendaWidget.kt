@@ -49,6 +49,7 @@ import com.callbackdev.tempo.core.domain.widget.CardLine
 import com.callbackdev.tempo.core.domain.widget.CardSummary
 import com.callbackdev.tempo.core.domain.widget.HeaderPlan
 import com.callbackdev.tempo.core.domain.widget.RowStyle
+import com.callbackdev.tempo.core.domain.widget.SecondPlace
 import com.callbackdev.tempo.core.domain.widget.TimeCell
 import com.callbackdev.tempo.core.domain.widget.TimeColumn
 import com.callbackdev.tempo.core.domain.widget.clockLineHeight
@@ -64,6 +65,7 @@ import com.callbackdev.tempo.widget.ClockFace
 import com.callbackdev.tempo.widget.ClockPatterns
 import com.callbackdev.tempo.widget.MessageContent
 import com.callbackdev.tempo.widget.R
+import com.callbackdev.tempo.widget.SecondClock
 import com.callbackdev.tempo.widget.TempoWidgetReceiver
 import com.callbackdev.tempo.widget.TextWeight
 import com.callbackdev.tempo.widget.WidgetCard
@@ -84,6 +86,7 @@ import com.callbackdev.tempo.widget.headerTap
 import com.callbackdev.tempo.widget.linesWidth
 import com.callbackdev.tempo.widget.measureWidgetLines
 import com.callbackdev.tempo.widget.rememberWidgetModel
+import com.callbackdev.tempo.widget.secondClock
 import com.callbackdev.tempo.widget.textEm
 import com.callbackdev.tempo.widget.widgetDressFor
 import com.callbackdev.tempo.widget.widgetLocale
@@ -227,6 +230,10 @@ private class AgendaParts(
     private val summaryEms = summaryLines.map { textEm(context, it, TextWeight.MEDIUM) }
     private val clockEm = clockEm(context, timePatterns, ClockFace.BOLD, model.now)
 
+    /** The second clock, where this card shows one (step 8.5), and its widest line. */
+    val second: SecondClock? = secondClock(context, model, timePatterns)
+    private val secondEm = second?.let { clockEm(context, it.patterns, ClockFace.MEDIUM, model.now) } ?: 0f
+
     /** One layout of the card: its plan for [columns], its lines in order, and how many of them fit. */
     private inner class Pass(val columns: Columns, maxLines: Int) {
         val plan: AgendaPlan = AgendaFit.plan(
@@ -244,6 +251,7 @@ private class AgendaParts(
                 lines = lines.size,
                 spanning = columns.spanning,
                 summaryEms = summaryEms,
+                secondEm = secondEm,
             ),
         )
 
@@ -338,6 +346,12 @@ private class AgendaParts(
             balancedWidth(context, date, header.dateSp, header.width.dp, TextWeight.MEDIUM, header.dateLines)
     }
     val listWidth: Dp get() = plan.listWidth.dp
+
+    /** The date's width on its one line, as measured: what it leaves the second clock beside it. */
+    fun dateWidth(header: HeaderPlan): Dp = widthOf(dateEms[header.dateChoice], header.dateSp, scale).dp
+
+    /** The second clock's width, as measured. */
+    val secondWidth: Dp get() = widthOf(secondEm, AgendaFit.SECOND_SP, scale).dp
 
     /** The note's lines at the list's width, two at most. */
     fun noteLines(line: CardLine.Note, width: Dp = listWidth): Int = measureWidgetLines(
@@ -453,22 +467,37 @@ private fun Header(parts: AgendaParts, palette: WidgetPalette) {
         }
         if (header.dateChoice >= 0) {
             val (patterns, twoLineWidth) = parts.date(header)
-            AndroidRemoteViews(
-                remoteViews = clockViews(
-                    context,
-                    ClockFace.MEDIUM,
-                    patterns,
-                    header.dateSp,
-                    if (header.clockSp > 0f) palette.secondary else palette.primary,
-                    header.dateLines,
-                    parts.headerIntent,
-                    frozen,
-                ),
-                modifier = GlanceModifier
-                    .height((clockLineHeight(header.dateSp, parts.scale) * header.dateLines).dp)
-                    .then(twoLineWidth?.let { GlanceModifier.width(it) } ?: GlanceModifier),
-            )
+            // Beside the second clock the date's own width, measured: a container Glance sizes
+            // alone takes its row's, and pushed the clock past the card's edge.
+            val width = twoLineWidth ?: parts.dateWidth(header).takeIf { header.second == SecondPlace.BESIDE }
+            val date: @Composable () -> Unit = {
+                AndroidRemoteViews(
+                    remoteViews = clockViews(
+                        context,
+                        ClockFace.MEDIUM,
+                        patterns,
+                        header.dateSp,
+                        if (header.clockSp > 0f) palette.secondary else palette.primary,
+                        header.dateLines,
+                        parts.headerIntent,
+                        frozen,
+                    ),
+                    modifier = GlanceModifier
+                        .height((clockLineHeight(header.dateSp, parts.scale) * header.dateLines).dp)
+                        .then(width?.let { GlanceModifier.width(it) } ?: GlanceModifier),
+                )
+            }
+            if (header.second == SecondPlace.BESIDE) {
+                Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                    date()
+                    Spacer(modifier = GlanceModifier.defaultWeight())
+                    SecondLine(parts, palette, beside = true)
+                }
+            } else {
+                date()
+            }
         }
+        if (header.second == SecondPlace.UNDER) SecondLine(parts, palette, beside = false)
         parts.summaryLines.take(header.summaryLines).forEachIndexed { index, line ->
             // As wide as the column, as the clock's and the date's views are: a column whose lines
             // all fill it takes its widest line's width, and one line that only wraps its words
@@ -486,6 +515,35 @@ private fun Header(parts: AgendaParts, palette: WidgetPalette) {
             )
         }
     }
+}
+
+/**
+ * The second clock (step 8.5): the system's `TextClock` again, set to the city's zone, so it costs
+ * nothing as the first does; quiet, at the list's size. Its touch is the header's.
+ */
+@Composable
+private fun SecondLine(parts: AgendaParts, palette: WidgetPalette, beside: Boolean) {
+    val second = parts.second ?: return
+    // Under the clock or the date, with the air [AgendaFit] counted over it.
+    if (!beside) Spacer(modifier = GlanceModifier.height(AgendaFit.SECOND_TOP.dp))
+    AndroidRemoteViews(
+        remoteViews = clockViews(
+            parts.context,
+            ClockFace.MEDIUM,
+            second.patterns,
+            AgendaFit.SECOND_SP,
+            palette.secondary,
+            1,
+            parts.headerIntent,
+            parts.model.now.takeIf { parts.model.frozenClock },
+            second.zone,
+        ),
+        // Its own width beside the date, which its row would otherwise give the date; under it, the
+        // column's, as the clock's: a width of its own there would set the column's and cut the clock.
+        modifier = GlanceModifier
+            .then(if (beside) GlanceModifier.width(parts.secondWidth) else GlanceModifier)
+            .height(clockLineHeight(AgendaFit.SECOND_SP, parts.scale).dp),
+    )
 }
 
 // --- The list ----------------------------------------------------------------------------------

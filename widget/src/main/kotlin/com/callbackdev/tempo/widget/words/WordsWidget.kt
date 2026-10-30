@@ -62,6 +62,7 @@ import com.callbackdev.tempo.widget.MESSAGE_MAX_LINES
 import com.callbackdev.tempo.widget.MESSAGE_SP
 import com.callbackdev.tempo.widget.MessageContent
 import com.callbackdev.tempo.widget.R
+import com.callbackdev.tempo.widget.SecondClock
 import com.callbackdev.tempo.widget.TempoWidgetReceiver
 import com.callbackdev.tempo.widget.TextWeight
 import com.callbackdev.tempo.widget.WidgetCard
@@ -73,6 +74,7 @@ import com.callbackdev.tempo.widget.WidgetModel
 import com.callbackdev.tempo.widget.WidgetPalette
 import com.callbackdev.tempo.widget.WidgetSamples
 import com.callbackdev.tempo.widget.cardMessage
+import com.callbackdev.tempo.widget.clockEm
 import com.callbackdev.tempo.widget.clockViews
 import com.callbackdev.tempo.widget.dialViews
 import com.callbackdev.tempo.widget.firstModel
@@ -80,6 +82,7 @@ import com.callbackdev.tempo.widget.fontScale
 import com.callbackdev.tempo.widget.headerTap
 import com.callbackdev.tempo.widget.measureWidgetLines
 import com.callbackdev.tempo.widget.rememberWidgetModel
+import com.callbackdev.tempo.widget.secondClock
 import com.callbackdev.tempo.widget.textEm
 import com.callbackdev.tempo.widget.widgetDressFor
 import com.callbackdev.tempo.widget.widgetLocale
@@ -204,6 +207,12 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
     private val noteBeforeRows: String? =
         if (rowEvents.size < (day?.then?.size ?: 0)) fullNote else noteBeforeTimes
 
+    /** The second clock, where this card shows one (step 8.5), its widest line and its width. */
+    val second: SecondClock? =
+        secondClock(context, model, ClockPatterns.time(locale, look.clockFormat ?: model.settings.clockFormat))
+    private val secondEm = second?.let { clockEm(context, it.patterns, ClockFace.REGULAR, model.now) } ?: 0f
+    val secondWidth: Dp = widthOf(secondEm, WordsFit.SECOND_SP, scale).dp
+
     private fun planFor(note: String?, then: Boolean, rows: Int = 0) = WordsFit.plan(
         WordsSpec(
             width = size.width.value,
@@ -220,6 +229,7 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             then = then,
             rows = rows,
             rowTimeEm = rowTimes.maxOfOrNull { textEm(context, it, TextWeight.REGULAR) } ?: 0f,
+            secondEm = secondEm,
         ),
     )
 
@@ -297,15 +307,25 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
     /** What TalkBack reads for the focus: its title and when, the fullest way. */
     val focusDescription: String = listOfNotNull(title, whens.firstOrNull()).joinToString(", ")
 
-    /** What a message has of a tall card: its height, less the insets and the dial or the date over it. */
+    /**
+     * What a message has of a tall card: its height, less the insets and the dial, or the date and
+     * the second clock, over it.
+     */
     val messageRoom: Dp
-        get() = (
-            size.height.value - AgendaFit.CARD_PADDING * 2 - when {
+        get() {
+            val date = if (plan.dateChoice >= 0) clockLineHeight(plan.dateSp, scale) * plan.dateLines else 0f
+            val top = when {
                 plan.dial > 0f -> plan.dial + WordsFit.DIAL_BOTTOM_GAP
-                plan.dateChoice >= 0 -> clockLineHeight(plan.dateSp, scale) * plan.dateLines + WordsFit.TOP_GAP
+
+                plan.second -> date + clockLineHeight(WordsFit.SECOND_SP, scale) +
+                    (if (date > 0f) WordsFit.SECOND_TOP else 0f) + WordsFit.TOP_GAP
+
+                date > 0f -> date + WordsFit.TOP_GAP
+
                 else -> 0f
             }
-            ).dp
+            return (size.height.value - AgendaFit.CARD_PADDING * 2 - top).dp
+        }
 }
 
 /** One of the next events as a row of a tall card. */
@@ -355,6 +375,33 @@ private fun DateLine(parts: WordsParts, palette: WidgetPalette, end: Boolean) {
         modifier = GlanceModifier
             .width(plan.dateWidth.dp)
             .height((clockLineHeight(plan.dateSp, parts.scale) * plan.dateLines).dp),
+    )
+}
+
+/**
+ * The second clock under the date (step 8.5): the system's `TextClock` set to the city's zone,
+ * quiet, at the label step; its touch is the date's.
+ */
+@Composable
+private fun SecondLine(parts: WordsParts, palette: WidgetPalette) {
+    val second = parts.second ?: return
+    if (!parts.plan.second) return
+    if (parts.plan.dateChoice >= 0) Spacer(modifier = GlanceModifier.height(WordsFit.SECOND_TOP.dp))
+    AndroidRemoteViews(
+        remoteViews = clockViews(
+            parts.context,
+            ClockFace.REGULAR,
+            second.patterns,
+            WordsFit.SECOND_SP,
+            palette.secondary,
+            1,
+            parts.headerIntent,
+            parts.model.now.takeIf { parts.model.frozenClock },
+            second.zone,
+        ),
+        modifier = GlanceModifier
+            .width(parts.secondWidth)
+            .height(clockLineHeight(WordsFit.SECOND_SP, parts.scale).dp),
     )
 }
 
@@ -528,7 +575,8 @@ private fun RowContent(parts: WordsParts, palette: WidgetPalette) {
 }
 
 /**
- * Two rows and up: the dial in the top trailing corner and the date beside it;
+ * Two rows and up: the dial in the top trailing corner and the date beside it, the second clock
+ * under the date;
  * the title, when and the note hanging from the bottom leading corner, the next events under them
  * as rows or as a line of times. A message stands centred in the room under the dial
  * ([WordsParts.messageRoom]).
@@ -539,6 +587,7 @@ private fun TallContent(parts: WordsParts, palette: WidgetPalette) {
         Dial(parts, palette)
         Column(modifier = GlanceModifier.fillMaxSize()) {
             DateLine(parts, palette, end = false)
+            SecondLine(parts, palette)
             Spacer(modifier = GlanceModifier.defaultWeight())
             val message = parts.message
             if (message != null) {

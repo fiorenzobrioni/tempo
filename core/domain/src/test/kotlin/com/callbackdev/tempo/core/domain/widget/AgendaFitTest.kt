@@ -274,4 +274,76 @@ class AgendaFitTest {
             assertThat(header.height).isEqualTo(checkNotNull(plan(w, h).header).height)
         }
     }
+
+    /** "New York 23:58" in the medium face. */
+    private val secondEm = 7f
+
+    private fun withSecond(width: Float, height: Float, scale: Float = 1f, date: Boolean = true, em: Float = secondEm) =
+        AgendaFit.plan(spec(width, height, date = date, scale = scale).copy(secondEm = em, summaryEms = summaryEms))
+
+    @Test
+    fun `the four-by-two's side column holds the second clock under the date, and the day in a few words under it`() {
+        val without = checkNotNull(withSummary(340f, 189f).header)
+        val with = checkNotNull(withSecond(340f, 189f).header)
+        assertThat(with.second).isEqualTo(SecondPlace.UNDER)
+        assertThat(with.summaryLines).isEqualTo(2)
+        assertThat(with.height).isEqualTo(
+            without.height + AgendaFit.SECOND_TOP + clockLineHeight(AgendaFit.SECOND_SP, 1f),
+        )
+        assertThat(with.height).isAtMost(189f - AgendaFit.CARD_PADDING * 2)
+    }
+
+    @Test
+    fun `a second clock too wide for the side column is left out, the column kept`() {
+        val plan = withSecond(340f, 189f, em = 14f)
+        assertThat(checkNotNull(plan.header).second).isEqualTo(SecondPlace.NONE)
+        assertThat(plan.listWidth).isEqualTo(withSummary(340f, 189f).listWidth)
+    }
+
+    @Test
+    fun `on top, the second clock stands at the far edge of the date's line where both fit, for no height`() {
+        val wide = checkNotNull(withSecond(340f, 293f).header)
+        assertThat(wide.second).isEqualTo(SecondPlace.BESIDE)
+        assertThat(wide.height).isEqualTo(checkNotNull(plan(340f, 293f).header).height)
+        // A two-by-two's date leaves no room beside it, and is not shortened for the second clock.
+        val narrow = checkNotNull(withSecond(159f, 189f).header)
+        assertThat(narrow.second).isEqualTo(SecondPlace.NONE)
+        assertThat(narrow.dateChoice).isEqualTo(checkNotNull(plan(159f, 189f).header).dateChoice)
+    }
+
+    @Test
+    fun `on top with no date, the second clock takes the date's line`() {
+        val header = checkNotNull(withSecond(250f, 189f, date = false).header)
+        assertThat(header.second).isEqualTo(SecondPlace.UNDER)
+        assertThat(header.height).isEqualTo(
+            checkNotNull(plan(250f, 189f, date = false).header).height + AgendaFit.SECOND_TOP +
+                clockLineHeight(AgendaFit.SECOND_SP, 1f),
+        )
+    }
+
+    @Test
+    fun `a row and a cell have no second clock`() {
+        listOf(85f to 85f, 250f to 85f, 340f to 85f, 85f to 189f).forEach { (w, h) ->
+            assertThat(checkNotNull(withSecond(w, h).header).second).isEqualTo(SecondPlace.NONE)
+        }
+    }
+
+    @Test
+    fun `the second clock never takes the header past the card, at any text size`() {
+        listOf(159f to 189f, 250f to 189f, 340f to 189f, 340f to 293f).forEach { (w, h) ->
+            listOf(1f, 1.3f, 2f).forEach { scale ->
+                listOf(true, false).forEach { date ->
+                    val plan = withSecond(w, h, scale, date)
+                    val header = checkNotNull(plan.header)
+                    assertThat(header.height).isAtMost(h - AgendaFit.CARD_PADDING * 2)
+                    assertThat(header.width).isAtMost(w - AgendaFit.CARD_PADDING * 2)
+                    if (header.second == SecondPlace.UNDER) {
+                        assertThat(widthOf(secondEm, AgendaFit.SECOND_SP, scale)).isAtMost(
+                            if (plan.form == AgendaForm.SIDE) header.width else w - AgendaFit.CARD_PADDING * 2,
+                        )
+                    }
+                }
+            }
+        }
+    }
 }

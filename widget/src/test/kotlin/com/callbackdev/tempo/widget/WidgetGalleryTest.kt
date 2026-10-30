@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.designsystem.theme.WidgetCardColor
 import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.DateStyle
+import com.callbackdev.tempo.core.model.UserSettings
 import com.callbackdev.tempo.widget.agenda.AgendaWidgetContent
 import com.callbackdev.tempo.widget.words.WordsWidgetContent
 import org.junit.Test
@@ -186,5 +187,35 @@ class WidgetGalleryTest {
             board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { AgendaWidgetContent(model) })
         }
         board.draw().saveTo(out, "widget-summary")
+    }
+
+    /**
+     * The second clock (step 8.5): «Agenda» in its side column and on top, «In words» beside its
+     * dial and, without it, on top; a two-by-two whose date leaves it no room; the twelve-hour clock.
+     */
+    @Test
+    fun `the second clock`() {
+        val board = HomeBoard(context, widthDp = 380)
+        val settings = UserSettings(onboardingCompleted = true, secondZone = "America/New_York")
+        val on = WidgetSamples.model(look = WidgetLook(showSecondZone = true), settings = settings)
+        val twelve = WidgetSamples.model(
+            look = WidgetLook(showSecondZone = true, clockFormat = ClockFormat.H12),
+            settings = settings,
+        )
+        val noDial = WidgetSamples.model(
+            look = WidgetLook(showSecondZone = true, showClock = false),
+            settings = settings,
+        )
+        board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { AgendaWidgetContent(on) })
+        board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { AgendaWidgetContent(twelve) })
+        board.row(Grants.FourByThree to renderCard(context, Grants.FourByThree) { AgendaWidgetContent(on) })
+        board.row(
+            Grants.TwoByTwo to renderCard(context, Grants.TwoByTwo) { AgendaWidgetContent(on) },
+            Grants.TwoByTwo to renderCard(context, Grants.TwoByTwo) { WordsWidgetContent(on) },
+        )
+        board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { WordsWidgetContent(on) })
+        board.row(Grants.FourByThree to renderCard(context, Grants.FourByThree) { WordsWidgetContent(twelve) })
+        board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { WordsWidgetContent(noDial) })
+        board.draw().saveTo(out, "widget-second-clock")
     }
 }

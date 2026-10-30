@@ -3,6 +3,8 @@ package com.callbackdev.tempo.feature.settings
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -10,6 +12,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.data.widget.TempoWidget
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
@@ -21,12 +25,15 @@ import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.UserSettings
 import com.callbackdev.tempo.core.testing.assertAccessible
 import com.callbackdev.tempo.core.testing.walkPage
+import com.callbackdev.tempo.core.testing.writeScreenshot
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.time.Instant
+import java.time.ZoneId
 
 /** Settings drawn from states (PLANNING.md §11 Phase 2), never from a store or a provider. */
 @RunWith(AndroidJUnit4::class)
@@ -101,6 +108,105 @@ class SettingsScreenTest {
         compose.onNodeWithTag(SettingsTags.HORIZON).performClick()
         compose.onNodeWithText("Today and tomorrow").performClick()
         assertThat(saved.horizonDays).isEqualTo(2)
+    }
+
+    @Test
+    fun `the second clock is off until a city is chosen`() {
+        draw()
+        compose.onNodeWithTag(SettingsTags.SECOND_ZONE).assertTextContains("Off")
+    }
+
+    @Test
+    fun `the chosen city is said with its country`() {
+        draw(UserSettings(secondZone = "America/New_York"))
+        compose.onNodeWithTag(SettingsTags.SECOND_ZONE).assertTextContains("New York, United States")
+    }
+
+    @Test
+    fun `a city is found by a part of its name, accents aside, and chosen`() {
+        var saved = UserSettings()
+        draw(actions = SettingsActions(update = { saved = it(saved) }))
+        compose.onNodeWithTag(SettingsTags.SECOND_ZONE).performClick()
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextInput("sao pa")
+        compose.onNodeWithTag(SettingsTags.zone("America/Sao_Paulo")).assertIsDisplayed()
+        compose.onNodeWithTag(SettingsTags.ZONE_NONE).assertDoesNotExist()
+        compose.assertAccessible()
+        compose.writeScreenshot("settings-zone-search")
+        compose.onNodeWithTag(SettingsTags.zone("America/Sao_Paulo")).performClick()
+        assertThat(saved.secondZone).isEqualTo("America/Sao_Paulo")
+        compose.onNodeWithTag(SettingsTags.ZONE_LIST).assertDoesNotExist()
+    }
+
+    @Test
+    fun `a city is found by its country, and a search that finds none says so`() {
+        draw()
+        compose.onNodeWithTag(SettingsTags.SECOND_ZONE).performClick()
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextInput("japan")
+        compose.onNodeWithTag(SettingsTags.zone("Asia/Tokyo")).assertIsDisplayed()
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextClearance()
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextInput("Atlantis")
+        compose.onNodeWithText("No city matches “Atlantis”.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `the second clock is turned off from the top of the list`() {
+        var saved = UserSettings(secondZone = "Asia/Tokyo")
+        draw(settings = saved, actions = SettingsActions(update = { saved = it(saved) }))
+        compose.onNodeWithTag(SettingsTags.SECOND_ZONE).performClick()
+        compose.onNodeWithTag(SettingsTags.ZONE_LIST).performScrollToNode(hasTestTag(SettingsTags.ZONE_NONE))
+        compose.onNodeWithTag(SettingsTags.ZONE_NONE).performClick()
+        assertThat(saved.secondZone).isNull()
+    }
+
+    @Test
+    fun `the list opens on the chosen city`() {
+        draw(UserSettings(secondZone = "Asia/Tokyo"))
+        compose.onNodeWithTag(SettingsTags.SECOND_ZONE).performClick()
+        compose.onNodeWithTag(SettingsTags.zone("Asia/Tokyo")).assertIsDisplayed().assertIsSelected()
+    }
+
+    @Test
+    fun `the phone's own zone is not offered, every city says its country and its offset`() {
+        compose.setContent {
+            TempoTheme {
+                SecondZonePage(
+                    selected = null,
+                    onPick = {},
+                    onBack = {},
+                    phone = ZoneId.of("Europe/Rome"),
+                    now = Instant.parse("2026-01-12T10:00:00Z"),
+                )
+            }
+        }
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextInput("ro")
+        compose.onNodeWithTag(SettingsTags.zone("Europe/Rome")).assertDoesNotExist()
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextClearance()
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextInput("lisbon")
+        compose.onNodeWithTag(SettingsTags.zone("Europe/Lisbon")).assertTextContains("Portugal · UTC")
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextClearance()
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextInput("kolkata")
+        // Stored by ICU's canonical name, which java.time knows too.
+        compose.onNodeWithTag(SettingsTags.zone("Asia/Calcutta")).assertTextContains("India · UTC+5:30")
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextClearance()
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextInput("new york")
+        compose.onNodeWithTag(SettingsTags.zone("America/New_York")).assertTextContains("United States · UTC\u22125")
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi")
+    fun `in Italian, the cities are the language's own`() {
+        draw()
+        compose.onNodeWithTag(SettingsTags.SECOND_ZONE).performClick()
+        compose.onNodeWithTag(SettingsTags.ZONE_SEARCH).performTextInput("lisbona")
+        compose.onNodeWithTag(SettingsTags.zone("Europe/Lisbon")).assertTextContains("Lisbona")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w411dp-h891dp-xxhdpi", fontScale = 2f)
+    fun `the list of cities reads at twice the text size`() {
+        draw(UserSettings(secondZone = "Europe/Lisbon"))
+        compose.onNodeWithTag(SettingsTags.SECOND_ZONE).performClick()
+        compose.walkPage(hasTestTag(SettingsTags.ZONE_LIST), "settings-zones-large-text", maxScreens = 3)
     }
 
     @Test

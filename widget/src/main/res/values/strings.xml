@@ -116,6 +116,9 @@
     <string name="widget_config_days_ahead">The days ahead</string>
     <string name="widget_config_days_ahead_note">Once the rest of today fits, the next days fill the room it leaves, each under its date.</string>
     <string name="widget_config_days_ahead_note_words">When today has nothing left, the first event of the days ahead takes its place.</string>
+    <string name="widget_config_second_zone">Second time zone</string>
+    <!-- %1$s the city chosen in Tempo's settings. -->
+    <string name="widget_config_second_zone_note">The time in %1$s, as chosen in Tempo’s settings, by the date where the card has room for it.</string>
     <string name="widget_config_reset">Reset this widget</string>
     <string name="widget_config_done">Done</string>
     <string name="widget_config_cancel">Cancel</string>

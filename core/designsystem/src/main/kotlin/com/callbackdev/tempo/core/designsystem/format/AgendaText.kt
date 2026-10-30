@@ -6,6 +6,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.LocalResources
 import com.callbackdev.tempo.core.designsystem.R
+import com.callbackdev.tempo.core.domain.agenda.EventZone
+import com.callbackdev.tempo.core.domain.clock.SecondZone
 import com.callbackdev.tempo.core.domain.today.AlarmDay
 import com.callbackdev.tempo.core.domain.today.DaySummary
 import com.callbackdev.tempo.core.domain.today.TodaySentence
@@ -208,6 +210,44 @@ class AgendaText(
 
     /** "Nothing planned.", a day's summary with nothing in it. */
     fun nothingPlanned(): String = resources.getString(R.string.summary_nothing)
+
+    /**
+     * An event's start in the zone it was written in, where the phone's clock reads another time
+     * ([EventZone.differs]): "09:00 in Lisbon". Null where the event has no such zone, or the
+     * zone no city to say.
+     */
+    fun ownZone(event: EventInstance): String? {
+        val own = EventZone.differs(event, zone) ?: return null
+        val city = ZoneCities.city(own, locale) ?: return null
+        return resources.getString(
+            R.string.time_in_zone,
+            DateTimeText.time(event.begin.atZone(own), locale, uses24Hour),
+            city,
+        )
+    }
+
+    /**
+     * The second clock at [now] (step 8.5): "New York 04:20", and its date where it is not the
+     * phone's: "Tokyo 06:20 · tomorrow". Null where [other] has no city to say.
+     */
+    fun secondClock(now: Instant, other: ZoneId): String? {
+        val city = ZoneCities.city(other, locale) ?: return null
+        val time = DateTimeText.time(now.atZone(other), locale, uses24Hour)
+        return when (val days = SecondZone.daysAhead(now, zone, other)) {
+            0L -> resources.getString(R.string.second_clock, city, time)
+
+            1L -> resources.getString(R.string.second_clock_tomorrow, city, time)
+
+            -1L -> resources.getString(R.string.second_clock_yesterday, city, time)
+
+            else -> resources.getString(
+                R.string.second_clock_day,
+                city,
+                time,
+                dateOf(now).plusDays(days).dayOfWeek.getDisplayName(TextStyle.FULL, locale),
+            )
+        }
+    }
 
     /** "Alarm tomorrow at 7:00". */
     fun alarm(at: Instant, day: AlarmDay): String = when (day) {

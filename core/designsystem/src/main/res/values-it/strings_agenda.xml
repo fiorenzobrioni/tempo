@@ -69,4 +69,12 @@
     <string name="alarm_today">Sveglia alle %1$s</string>
     <string name="alarm_tomorrow">Sveglia domani alle %1$s</string>
     <string name="alarm_on">Sveglia %1$s alle %2$s</string>
+
+    <string name="time_in_zone">%1$s ora di %2$s</string>
+    <string name="second_clock">%1$s %2$s</string>
+    <string name="second_clock_tomorrow">%1$s %2$s · domani</string>
+    <string name="second_clock_yesterday">%1$s %2$s · ieri</string>
+    <string name="second_clock_day">%1$s %2$s · %3$s</string>
+    <string name="zone_city_country">%1$s, %2$s</string>
+    <string name="zone_offset">UTC%1$s</string>
 </resources>

@@ -209,6 +209,7 @@ class WordsTest {
         titleLines: Int = 1,
         rows: Int = 0,
         rowTimeEm: Float = 2.7f,
+        secondEm: Float = 0f,
     ) = WordsSpec(
         width = width,
         height = height,
@@ -226,6 +227,7 @@ class WordsTest {
         rows = rows,
         // "13:00"
         rowTimeEm = rowTimeEm,
+        secondEm = secondEm,
     )
 
     @Test
@@ -463,5 +465,80 @@ class WordsTest {
     fun `no rows on a row or a cell`() {
         assertThat(WordsFit.plan(spec(340f, 85f, rows = 2)).rows).isEqualTo(0)
         assertThat(WordsFit.plan(spec(85f, 189f, rows = 2)).rows).isEqualTo(0)
+    }
+
+    // --- The second clock (step 8.5) ---------------------------------------------------------
+
+    /** "New York 23:58" in the regular face. */
+    private val secondEm = 6.9f
+
+    @Test
+    fun `a tall card sets the second clock under the date, beside the dial, and keeps the rest`() {
+        listOf(340f to 189f, 250f to 189f, 340f to 293f).forEach { (w, h) ->
+            val without = WordsFit.plan(spec(w, h, rows = 2))
+            val with = WordsFit.plan(spec(w, h, rows = 2, secondEm = secondEm))
+            assertThat(with.second).isTrue()
+            assertThat(with.copy(second = false)).isEqualTo(without)
+            val band = w - AgendaFit.CARD_PADDING * 2 - with.dial - WordsFit.DIAL_GAP
+            assertThat(widthOf(secondEm, WordsFit.SECOND_SP, 1f)).isAtMost(band)
+            assertThat(
+                clockLineHeight(with.dateSp, 1f) * with.dateLines + WordsFit.SECOND_TOP +
+                    clockLineHeight(WordsFit.SECOND_SP, 1f),
+            ).isAtMost(with.dial)
+        }
+    }
+
+    @Test
+    fun `a band too narrow for the second clock leaves it out, never the date`() {
+        // Beside a two by two's dial the band is the date's 56 dp.
+        val plan = WordsFit.plan(spec(159f, 189f, secondEm = secondEm))
+        assertThat(plan.second).isFalse()
+        assertThat(plan.dateChoice).isEqualTo(WordsFit.plan(spec(159f, 189f)).dateChoice)
+    }
+
+    @Test
+    fun `without the dial, the second clock rides on top under the date`() {
+        val plan = WordsFit.plan(spec(340f, 189f, dial = false, secondEm = secondEm))
+        assertThat(plan.second).isTrue()
+        assertThat(plan.dateChoice).isEqualTo(0)
+    }
+
+    @Test
+    fun `a row and a cell have no second clock`() {
+        assertThat(WordsFit.plan(spec(340f, 85f, secondEm = secondEm)).second).isFalse()
+        assertThat(WordsFit.plan(spec(85f, 189f, secondEm = secondEm)).second).isFalse()
+    }
+
+    @Test
+    fun `a tall card with the second clock fits its height at every text size and grant`() {
+        listOf(1f, 1.15f, 1.3f, 2f).forEach { scale ->
+            listOf(159f to 189f, 250f to 189f, 340f to 189f, 340f to 293f, 159f to 160f).forEach { (w, h) ->
+                listOf(true, false).forEach { dial ->
+                    val plan = WordsFit.plan(spec(w, h, scale, dial = dial, noteLines = 2, secondEm = secondEm))
+                    val words = lineHeight(plan.titleSp, scale) * plan.titleLines +
+                        (if (plan.whenChoice >= 0) lineHeight(plan.whenSp, scale) else 0f) +
+                        (
+                            if (plan.noteLines >
+                                0
+                            ) {
+                                lineHeight(WordsFit.NOTE_SP, scale) * plan.noteLines + WordsFit.NOTE_GAP
+                            } else {
+                                0f
+                            }
+                            ) +
+                        (if (plan.then) lineHeight(WordsFit.NOTE_SP, scale) else 0f)
+                    val date = if (plan.dateChoice >= 0) clockLineHeight(plan.dateSp, scale) * plan.dateLines else 0f
+                    val second = if (plan.second) clockLineHeight(WordsFit.SECOND_SP, scale) else 0f
+                    val top = if (plan.dial > 0f) {
+                        assertThat(date + (if (plan.second) WordsFit.SECOND_TOP else 0f) + second).isAtMost(plan.dial)
+                        plan.dial + WordsFit.DIAL_BOTTOM_GAP
+                    } else {
+                        (if (date > 0f) date + WordsFit.TOP_GAP else 0f) +
+                            (if (plan.second) second + if (date > 0f) WordsFit.SECOND_TOP else WordsFit.TOP_GAP else 0f)
+                    }
+                    assertThat(words + top).isAtMost(h - AgendaFit.CARD_PADDING * 2 + 0.01f)
+                }
+            }
+        }
     }
 }

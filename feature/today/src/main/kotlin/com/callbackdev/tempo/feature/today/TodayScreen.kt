@@ -114,6 +114,7 @@ import com.callbackdev.tempo.core.designsystem.theme.padding
 import com.callbackdev.tempo.core.designsystem.theme.pageGutter
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
 import com.callbackdev.tempo.core.designsystem.theme.tabular
+import com.callbackdev.tempo.core.domain.clock.SecondZone
 import com.callbackdev.tempo.core.domain.clock.newEventIn
 import com.callbackdev.tempo.core.domain.clock.nextHalfHour
 import com.callbackdev.tempo.core.domain.today.AgendaSection
@@ -445,6 +446,7 @@ private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, acti
                         )
                     }
                 }
+                SecondClock(state, text)
             }
             Spacer(Modifier.width(16.dp))
             // The face works without the calendar, as the clock does: its ring is just empty.
@@ -473,6 +475,39 @@ private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, acti
                     .testTag(TodayTags.SENTENCE),
             )
         }
+    }
+}
+
+/**
+ * The second clock (step 8.5): the reader's city and its time, and its date where it is not the
+ * phone's ("Tokyo 06:20 · tomorrow"), under the alarm in the alarm's look; moved by the page's
+ * minute ticker with the clock above it. Not drawn where it would repeat that clock (the reader is
+ * in that city).
+ */
+@Composable
+private fun SecondClock(state: TodayUiState, text: AgendaText) {
+    val zone = SecondZone.of(state.settings.secondZone, state.now.zone) ?: return
+    val line = text.secondClock(state.now.toInstant(), zone) ?: return
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .padding(top = 4.dp)
+            .padding(vertical = 1.dp)
+            .semantics(mergeDescendants = true) { }
+            .testTag(TodayTags.SECOND_CLOCK),
+    ) {
+        Icon(
+            TempoIcons.Globe,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp),
+        )
+        Text(
+            text = line,
+            style = MaterialTheme.typography.bodyMedium.tabular(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -877,8 +912,9 @@ private fun AllDayChip(
 /**
  * One event on the timeline: its times in a column, its calendar's colour as a bar, its title, its
  * place, and what is true of it now. The event under way stands on its own ground with how long
- * is left; past ones are quieter; a declined invitation is struck through. TalkBack reads it as
- * one sentence: "10:00 to 11:00, Dentist, Via Roma 3, in Personal".
+ * is left; past ones are quieter; a declined invitation is struck through; an event written in a
+ * zone whose clock reads another time says its start there ("08:00 in Lisbon", step 8.5). TalkBack
+ * reads it as one sentence: "10:00 to 11:00, Dentist, Via Roma 3, in Personal".
  */
 @Composable
 private fun EventRow(
@@ -899,6 +935,7 @@ private fun EventRow(
     val description = describe(entry, date, calendar, text, now)
     val openLabel = stringResource(R.string.a11y_open_event)
     val notes = listOfNotNull(
+        text.ownZone(event),
         startedNote(entry, date, text),
         endsNote(entry, date, text),
         stringResource(R.string.today_declined).takeIf { event.selfStatus == AttendeeStatus.DECLINED },
@@ -1027,6 +1064,7 @@ private fun describe(
     }
     return listOfNotNull(
         range,
+        text.ownZone(event),
         text.title(event),
         event.location,
         calendar?.let { stringResource(R.string.a11y_in_calendar, it.name) },
@@ -1258,6 +1296,7 @@ object TodayTags {
     const val DATE = "today_date"
     const val DIAL = "today_dial"
     const val ALARM = "today_alarm"
+    const val SECOND_CLOCK = "today_second_clock"
     const val SENTENCE = "today_sentence"
     const val SETTINGS = "today_settings"
     const val CALENDAR = "today_calendar"

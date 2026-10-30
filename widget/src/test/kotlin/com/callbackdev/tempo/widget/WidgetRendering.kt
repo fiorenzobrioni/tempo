@@ -199,6 +199,18 @@ internal fun cutTexts(
         }
         return worst
     }
+
+    /** Where [view]'s ink ends on the card, from its left edge: past the card's width it is not seen. */
+    fun inkRight(view: android.widget.TextView): Float {
+        var left = view.left + view.totalPaddingLeft
+        var parent = view.parent as? View
+        while (parent != null && parent !== host) {
+            left += parent.left
+            parent = parent.parent as? View
+        }
+        val ink = minOf(view.paint.measureText(view.text.toString()), (view.width - view.totalPaddingLeft).toFloat())
+        return left + ink
+    }
     texts.filter { it.visibility == View.VISIBLE && it.text.isNotEmpty() }.mapNotNull { text ->
         val layout = text.layout ?: return@mapNotNull null
         val room = text.width - text.totalPaddingLeft - text.totalPaddingRight
@@ -229,6 +241,11 @@ internal fun cutTexts(
 
             // Laid out below a container's padded area (the card's inset): cut off there.
             clippedBelow(text) > density -> "«${text.text}» cut at the bottom by ${clippedBelow(text) / density} dp"
+
+            // Pushed past the card's side by a neighbour that took the row (step 8.5).
+            inkRight(
+                text,
+            ) > w + density -> "«${text.text}» past the card's side, ending at ${inkRight(text) / density} dp"
 
             else -> null
         }

@@ -61,6 +61,7 @@ class SettingsRepositoryTest {
             showAllDay = false,
             showNextAlarm = false,
             showCalendarButton = false,
+            secondZone = "America/New_York",
             onboardingCompleted = true,
             askedCalendarPermission = true,
         )
@@ -94,6 +95,36 @@ class SettingsRepositoryTest {
             assertThat(settings.horizonDays).isEqualTo(UserSettings.DEFAULT_HORIZON_DAYS)
             assertThat(settings.clockFormat).isEqualTo(ClockFormat.SYSTEM)
         }
+    }
+
+    @Test
+    fun `the second clock is kept as its zone's id`() = runTest {
+        withRepository { repository -> repository.update { it.copy(secondZone = "Asia/Tokyo") } }
+        withRepository { repository -> assertThat(repository.settings.first().secondZone).isEqualTo("Asia/Tokyo") }
+        val raw = PreferenceDataStoreFactory.create(scope = backgroundScope, produceFile = { file }).data.first()
+        assertThat(raw[stringPreferencesKey("second_zone")]).isEqualTo("Asia/Tokyo")
+    }
+
+    @Test
+    fun `the second clock turned off leaves no key behind`() = runTest {
+        withRepository { repository ->
+            repository.update { it.copy(secondZone = "Asia/Tokyo") }
+            repository.update { it.copy(secondZone = null) }
+            assertThat(repository.settings.first().secondZone).isNull()
+        }
+        val raw = PreferenceDataStoreFactory.create(scope = backgroundScope, produceFile = { file }).data.first()
+        assertThat(raw.asMap()).isEmpty()
+    }
+
+    @Test
+    fun `a second zone this phone does not know reads as none`() = runTest {
+        val job = Job()
+        PreferenceDataStoreFactory.create(
+            scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler) + job),
+            produceFile = { File(folder.root, "settings.preferences_pb").also { file = it } },
+        ).edit { it[stringPreferencesKey("second_zone")] = "Mars/Olympus_Mons" }
+        job.cancelAndJoin()
+        withRepository { repository -> assertThat(repository.settings.first().secondZone).isNull() }
     }
 
     @Test

@@ -85,6 +85,22 @@ class WidgetConfigScreenTest {
     }
 
     @Test
+    fun `the second clock's switch is there once Tempo has a city, and off until turned on`() {
+        show(WidgetKind.WORDS, settings = UserSettings(onboardingCompleted = true, secondZone = "Asia/Tokyo"))
+        scrollToTag(WidgetConfigTags.SECOND_ZONE)
+        compose.onNodeWithText("The time in Tokyo", substring = true).assertExists()
+        compose.onNodeWithTag(WidgetConfigTags.SECOND_ZONE).performClick()
+        assertThat(look.showSecondZone).isTrue()
+        compose.assertAccessible()
+    }
+
+    @Test
+    fun `with no city in Tempo's settings there is no second clock's switch`() {
+        show(WidgetKind.AGENDA)
+        compose.onNodeWithTag(WidgetConfigTags.SECOND_ZONE).assertDoesNotExist()
+    }
+
+    @Test
     fun `with no clock app and no calendar app, only Tempo is offered for the time`() {
         show(WidgetKind.AGENDA, doors = WidgetDoors.None)
         scrollToTag(WidgetConfigTags.HEADER_TAP)

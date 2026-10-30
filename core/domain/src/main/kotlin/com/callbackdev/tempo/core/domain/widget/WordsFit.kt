@@ -46,6 +46,8 @@ enum class WordsForm { CELL, ROW, TALL }
  * @property rows how many of the events after the focus a tall card would list as rows, at most
  *   [WordsFit.ROWS_MAX]: all of them or none.
  * @property rowTimeEm the widest of those rows' times ("13:00"), in ems of the regular face.
+ * @property secondEm the second clock's widest line ("New York 23:58"), in ems of the regular
+ *   face; 0 where the card does not show one (step 8.5).
  */
 data class WordsSpec(
     val width: Float,
@@ -61,6 +63,7 @@ data class WordsSpec(
     val then: Boolean,
     val rows: Int = 0,
     val rowTimeEm: Float = 0f,
+    val secondEm: Float = 0f,
 )
 
 /**
@@ -68,7 +71,8 @@ data class WordsSpec(
  * [WordsSpec.dateEms], -1: none), size, lines and column; the title's size and lines (0: none);
  * which time in words ([whenChoice] into [WordsSpec.whenEms], -1: none) at which size, bold where
  * it stands in the dial's place; the note's lines; how many rows of the next events (0: none) and
- * their time column's width; whether the line of times is drawn.
+ * their time column's width; whether the line of times is drawn; whether the second clock is,
+ * under the date ([second]).
  */
 data class WordsPlan(
     val form: WordsForm,
@@ -88,6 +92,7 @@ data class WordsPlan(
     val sidePadding: Float,
     val rows: Int = 0,
     val rowTimeWidth: Float = 0f,
+    val second: Boolean = false,
 )
 
 /** A date as drawn: which style, at which size, on how many lines, how wide and tall. */
@@ -267,11 +272,12 @@ object WordsFit {
     /**
      * Two rows and up, bottom up in the order the hierarchy spends the height:
      * the title's first line and its time; the dial at [TALL_DIAL_MIN] (without it, the date on
-     * top); the note, whole up to [NOTE_MAX_LINES] or not at all; the dial up to
+     * top, and the second clock under it); the note, whole up to [NOTE_MAX_LINES] or not at all; the dial up to
      * [TALL_DIAL_COMFORT]; the title's second line, for a title too long for one even at
      * [TALL_TITLE_MIN_SP]; the next events as rows in the band that is left, all of them or none,
      * else the line of times on a wide card; what is left grows the dial to its ceiling
-     * ([tallDialCeiling]). The date takes the band beside the dial, on one line or two.
+     * ([tallDialCeiling]). The date takes the band beside the dial, on one line or two, and the
+     * second clock the line under it where the band holds it.
      */
     private fun tallPlan(spec: WordsSpec): WordsPlan {
         val scale = spec.fontScale
@@ -291,12 +297,23 @@ object WordsFit {
             minOf(tallDialCeiling(inner, width), if (withDate) width - DIAL_GAP - DATE_BESIDE_MIN else width)
         var dial = 0f
         var top: DatePick? = null
+        val secondWidth = widthOf(spec.secondEm, SECOND_SP, scale)
+        val secondLine = clockLineHeight(SECOND_SP, scale)
+        var topSecond = false
         if (spec.dial && dialMost >= TALL_DIAL_MIN && left - DIAL_BOTTOM_GAP >= TALL_DIAL_MIN) {
             dial = TALL_DIAL_MIN
             left -= TALL_DIAL_MIN + DIAL_BOTTOM_GAP
-        } else if (withDate) {
-            top = date(spec, width, Float.MAX_VALUE, twoLines = false)?.takeIf { left >= it.height + TOP_GAP }
-            top?.let { left -= it.height + TOP_GAP }
+        } else {
+            if (withDate) {
+                top = date(spec, width, Float.MAX_VALUE, twoLines = false)?.takeIf { left >= it.height + TOP_GAP }
+                top?.let { left -= it.height + TOP_GAP }
+            }
+            // Without the dial, the second clock stands on top under the date, or alone in its place.
+            val line = secondLine + if (top != null) SECOND_TOP else TOP_GAP
+            if (spec.secondEm > 0f && secondWidth <= width && left >= line) {
+                topSecond = true
+                left -= line
+            }
         }
         // The note whole or not at all: a sentence cut off mid-phrase says less than none.
         val noteHeight = lineHeight(NOTE_SP, scale) * spec.noteLines + NOTE_GAP
@@ -331,6 +348,17 @@ object WordsFit {
         if (then) left -= noteLine
         grow(dialMost)
         val date = if (dial > 0f && withDate) date(spec, width - dial - DIAL_GAP, dial, twoLines = true) else top
+        // Beside the dial, the second clock under the date, where its line fits the band whole; the
+        // date is never shortened for it.
+        val second = when {
+            spec.secondEm <= 0f -> false
+
+            dial > 0f ->
+                secondWidth <= width - dial - DIAL_GAP &&
+                    (date?.let { it.height + SECOND_TOP } ?: 0f) + secondLine <= dial
+
+            else -> topSecond
+        }
         return WordsPlan(
             form = WordsForm.TALL,
             dial = quarterPoint(dial),
@@ -349,6 +377,7 @@ object WordsFit {
             sidePadding = AgendaFit.CARD_PADDING,
             rows = rows,
             rowTimeWidth = if (rows > 0) rowTime else 0f,
+            second = second,
         )
     }
 
@@ -425,6 +454,13 @@ object WordsFit {
     const val ROWS_GAP = NOTE_GAP
     const val ROW_TIME_GAP = AgendaFit.TIME_GAP
     const val ROW_TITLE_MIN = AgendaFit.TITLE_MIN
+
+    /**
+     * The second clock (step 8.5), under the date on a tall card: a quiet line at the label step,
+     * as «Agenda» sets it, with a little air over it.
+     */
+    const val SECOND_SP = WidgetType.LABEL
+    const val SECOND_TOP = 2f
 
     const val CELL_DIAL_MAX = 104f
     const val CELL_DIAL_COMFORT = 56f

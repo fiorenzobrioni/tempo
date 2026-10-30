@@ -149,6 +149,25 @@ object TempoIcons {
         }
     }
 
+    /** A globe: a second time zone, a city's clock. */
+    val Globe: ImageVector by lazy {
+        icon("globe") {
+            circle(12f, 12f, 9f)
+            ellipse(12f, 12f, 4f, 9f)
+            moveTo(3f, 12f)
+            lineTo(21f, 12f)
+        }
+    }
+
+    /** A magnifier: a search field. */
+    val Search: ImageVector by lazy {
+        icon("search") {
+            circle(10.5f, 10.5f, 6f)
+            moveTo(15f, 15f)
+            lineTo(20f, 20f)
+        }
+    }
+
     /** A home screen's cards: two small ones over a wide one, the sizes the widgets take. */
     val Widgets: ImageVector by lazy {
         icon("widgets") {

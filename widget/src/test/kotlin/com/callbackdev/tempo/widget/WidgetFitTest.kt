@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.DateStyle
+import com.callbackdev.tempo.core.model.UserSettings
 import com.callbackdev.tempo.widget.agenda.AgendaWidgetContent
 import com.callbackdev.tempo.widget.words.WordsWidgetContent
 import com.google.common.truth.Truth.assertThat
@@ -58,10 +59,26 @@ class WidgetFitTest {
         WidgetSamples.model(look = WidgetLook(showClock = false, dateStyle = DateStyle.NUMERIC)),
         WidgetSamples.model(look = WidgetLook(showDate = false, showAllDay = false, showDaysAhead = false)),
         WidgetSamples.model(look = WidgetLook(showClock = false, showDate = false)),
+        // The second clock (step 8.5): a long city, on the twelve-hour clock, without the dial or the date.
+        WidgetSamples.model(look = WidgetLook(showSecondZone = true), settings = second("Asia/Saigon")),
+        WidgetSamples.model(
+            look = WidgetLook(showSecondZone = true, clockFormat = ClockFormat.H12),
+            settings = second("America/Los_Angeles"),
+        ),
+        WidgetSamples.model(
+            look = WidgetLook(showSecondZone = true, showClock = false),
+            settings = second("Asia/Tokyo"),
+        ),
+        WidgetSamples.model(
+            look = WidgetLook(showSecondZone = true, showDate = false),
+            settings = second("Asia/Tokyo"),
+        ),
         WidgetSamples.model(content = WidgetContent.NoPermission),
         WidgetSamples.model(content = WidgetContent.NoCalendars),
         WidgetSamples.model(content = WidgetContent.Unavailable),
     )
+
+    private fun second(zone: String) = UserSettings(onboardingCompleted = true, secondZone = zone)
 
     private val sizes = listOf(
         Grants.OneByOne,
@@ -183,5 +200,49 @@ class WidgetFitTest {
         val short = shownTexts(context, Grants.FourByTwo) { WordsWidgetContent(WidgetSamples.model()) }
         assertThat(short).contains("Then 13:00 · 15:00 · 18:30")
         assertThat(short).doesNotContain("Lunch with Giulia")
+    }
+
+    /**
+     * The second clock (step 8.5): the city and its time, frozen at the sample's 10:20 in Rome,
+     * under the date in «Agenda»'s side column and beside «In words»' dial; at the far edge of the
+     * date's line on «Agenda»'s header on top; nowhere on a row or where the card has no room.
+     */
+    @Test
+    @Config(qualifiers = "en-rGB-w411dp-h891dp-xhdpi")
+    fun `the second clock is drawn where the card has room for it`() {
+        val newYork = WidgetSamples.model(
+            look = WidgetLook(showSecondZone = true),
+            settings = second("America/New_York"),
+        )
+        assertThat(shownTexts(context, Grants.FourByTwo) { AgendaWidgetContent(newYork) }).contains("New York 04:20")
+        assertThat(shownTexts(context, Grants.FourByThree) { AgendaWidgetContent(newYork) }).contains("New York 04:20")
+        assertThat(shownTexts(context, Grants.FourByTwo) { WordsWidgetContent(newYork) }).contains("New York 04:20")
+        assertThat(
+            shownTexts(context, Grants.FourByOne) {
+                AgendaWidgetContent(newYork)
+            },
+        ).doesNotContain("New York 04:20")
+        assertThat(
+            shownTexts(context, Grants.FourByOne) {
+                WordsWidgetContent(newYork)
+            },
+        ).doesNotContain("New York 04:20")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w411dp-h891dp-xhdpi")
+    fun `no second clock unless the card asks for it, or in its own city`() {
+        val off = WidgetSamples.model(settings = second("America/New_York"))
+        assertThat(shownTexts(context, Grants.FourByTwo) { AgendaWidgetContent(off) }).doesNotContain("New York 04:20")
+        val home = WidgetSamples.model(look = WidgetLook(showSecondZone = true), settings = second("Europe/Rome"))
+        assertThat(shownTexts(context, Grants.FourByTwo) { AgendaWidgetContent(home) }.filter { it.startsWith("Rome") })
+            .isEmpty()
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xhdpi")
+    fun `the second clock in Italian`() {
+        val tokyo = WidgetSamples.model(look = WidgetLook(showSecondZone = true), settings = second("Asia/Tokyo"))
+        assertThat(shownTexts(context, Grants.FourByTwo) { AgendaWidgetContent(tokyo) }).contains("Tokyo 17:20")
     }
 }

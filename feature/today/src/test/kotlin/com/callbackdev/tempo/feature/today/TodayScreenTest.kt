@@ -34,6 +34,7 @@ import com.callbackdev.tempo.core.model.EventInstance
 import com.callbackdev.tempo.core.model.UserSettings
 import com.callbackdev.tempo.core.testing.assertAccessible
 import com.callbackdev.tempo.core.testing.walkPage
+import com.callbackdev.tempo.core.testing.writeScreenshot
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -117,6 +118,86 @@ class TodayScreenTest {
     fun `no alarm line when the reader hid it or none is set`() {
         draw(TodaySample.state(alarm = null))
         compose.onNodeWithTag(TodayTags.ALARM).assertDoesNotExist()
+    }
+
+    @Test
+    fun `a second clock under the alarm, in the reader's city`() {
+        draw(TodaySample.state(settings = UserSettings(onboardingCompleted = true, secondZone = "America/New_York")))
+        compose.onNodeWithTag(TodayTags.SECOND_CLOCK).assertIsDisplayed().assertHasNoClickAction()
+            .assert(hasText("New York 04:20"))
+        compose.assertAccessible()
+        compose.writeScreenshot("today-second-clock")
+    }
+
+    @Test
+    fun `the second clock says its date where it is not the phone's`() {
+        val tokyo = UserSettings(onboardingCompleted = true, secondZone = "Asia/Tokyo")
+        draw(TodaySample.state(now = TodaySample.at("2026-10-07T21:10"), settings = tokyo))
+        compose.onNodeWithTag(TodayTags.SECOND_CLOCK).assert(hasText("Tokyo 04:10 · tomorrow"))
+    }
+
+    @Test
+    fun `the second clock says yesterday in the early morning`() {
+        val newYork = UserSettings(onboardingCompleted = true, secondZone = "America/New_York")
+        draw(TodaySample.state(now = TodaySample.at("2026-10-07T01:30"), settings = newYork))
+        compose.onNodeWithTag(TodayTags.SECOND_CLOCK).assert(hasText("New York 19:30 · yesterday"))
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi")
+    fun `the second clock in Italian`() {
+        val tokyo = UserSettings(onboardingCompleted = true, secondZone = "Asia/Tokyo")
+        draw(TodaySample.state(now = TodaySample.at("2026-10-07T21:10"), settings = tokyo))
+        compose.onNodeWithTag(TodayTags.SECOND_CLOCK).assert(hasText("Tokyo 04:10 · domani"))
+    }
+
+    @Test
+    fun `no second clock when none is chosen`() {
+        draw()
+        compose.onNodeWithTag(TodayTags.SECOND_CLOCK).assertDoesNotExist()
+    }
+
+    @Test
+    fun `no second clock in its own city`() {
+        draw(TodaySample.state(settings = UserSettings(onboardingCompleted = true, secondZone = "Europe/Rome")))
+        compose.onNodeWithTag(TodayTags.SECOND_CLOCK).assertDoesNotExist()
+    }
+
+    @Test
+    fun `an event written where the clock reads another time says its start there`() {
+        val call = TodaySample.call.copy(timeZone = "Europe/Lisbon")
+        draw(TodaySample.state(instances = TodaySample.instances - TodaySample.call + call))
+        scrollTo(TodayTags.event(call.eventId))
+        compose.onNodeWithTag(TodayTags.event(call.eventId))
+            .assertIsDisplayed()
+            .assert(
+                hasContentDescription(
+                    "09:00 to 09:30, 08:00 in Lisbon, Call with Lisbon, Google Meet",
+                    substring = true,
+                ),
+            )
+        compose.assertAccessible()
+        compose.writeScreenshot("today-event-zone")
+    }
+
+    @Test
+    fun `an event written on the phone's clock says no zone`() {
+        val call = TodaySample.call.copy(timeZone = "Europe/Paris")
+        draw(TodaySample.state(instances = TodaySample.instances - TodaySample.call + call))
+        scrollTo(TodayTags.event(call.eventId))
+        compose.onNodeWithTag(TodayTags.event(call.eventId))
+            .assert(hasContentDescription("09:00 to 09:30, Call with Lisbon", substring = true))
+        compose.onNode(hasContentDescription("in Paris", substring = true)).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi")
+    fun `an event's own zone in Italian`() {
+        val call = TodaySample.call.copy(timeZone = "Europe/Lisbon")
+        draw(TodaySample.state(instances = TodaySample.instances - TodaySample.call + call))
+        scrollTo(TodayTags.event(call.eventId))
+        compose.onNodeWithTag(TodayTags.event(call.eventId))
+            .assert(hasContentDescription("dalle 09:00 alle 09:30, 08:00 ora di Lisbona", substring = true))
     }
 
     @Test
