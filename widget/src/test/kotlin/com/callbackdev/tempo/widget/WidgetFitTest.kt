@@ -7,6 +7,7 @@ import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.DateStyle
 import com.callbackdev.tempo.widget.agenda.AgendaWidgetContent
 import com.callbackdev.tempo.widget.words.WordsWidgetContent
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,8 +51,14 @@ class WidgetFitTest {
             instances = WidgetSamples.instances + nightTrain,
         ),
         WidgetSamples.model(now = WidgetSamples.at("2026-10-11T23:00")),
+        // An alarm later today, and one on the twelve-hour clock (every sample has tomorrow's at 07:00).
+        WidgetSamples.model(
+            now = WidgetSamples.at("2026-10-07T05:00"),
+            alarm = WidgetSamples.at("2026-10-07T06:45").toInstant(),
+        ),
         WidgetSamples.model(look = WidgetLook(clockFormat = ClockFormat.H12, dateStyle = DateStyle.NUMERIC)),
         WidgetSamples.model(look = WidgetLook(showClock = false)),
+        WidgetSamples.model(look = WidgetLook(showClock = false, dateStyle = DateStyle.NUMERIC)),
         WidgetSamples.model(look = WidgetLook(showDate = false, showAllDay = false, showDaysAhead = false)),
         WidgetSamples.model(look = WidgetLook(showClock = false, showDate = false)),
         WidgetSamples.model(content = WidgetContent.NoPermission),
@@ -121,5 +128,31 @@ class WidgetFitTest {
     private companion object {
         const val STRETCH = 1.05f
         const val TITLE_PREFIX = 4
+    }
+
+    /**
+     * The README's four-by-two at 10:20: every event of the rest of today with its title whole.
+     * Before the arrow and the all-day line across the list, English cut "Lunch with Gi…" and
+     * "Swimming les…" for a column as wide as "Until 11:00", and Italian stacked every row for
+     * "Tutto il giorno" and listed three events (review of 30 Oct 2026).
+     */
+    private fun assertFourByTwoWhole() {
+        val shown = shownTexts(context, Grants.FourByTwo) { AgendaWidgetContent(WidgetSamples.model()) }
+        assertThat(shown).containsAtLeast("Design review", "Lunch with Giulia", "Dentist", "Swimming lesson")
+        assertThat(shown).contains("→ 11:00")
+        val cut = cutTexts(context, Grants.FourByTwo, 1f) { AgendaWidgetContent(WidgetSamples.model()) }
+        assertWithMessage(cut.joinToString("\n")).that(cut).isEmpty()
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w411dp-h891dp-xhdpi")
+    fun `the four-by-two lists the rest of today, every title whole, in English`() = assertFourByTwoWhole()
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xhdpi")
+    fun `the four-by-two lists the rest of today, every title whole, in Italian`() {
+        assertFourByTwoWhole()
+        val shown = shownTexts(context, Grants.FourByTwo) { AgendaWidgetContent(WidgetSamples.model()) }
+        assertThat(shown).containsAtLeast("Tutto il giorno", "Domani 07:00")
     }
 }

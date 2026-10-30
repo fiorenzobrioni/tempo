@@ -157,4 +157,143 @@ class AgendaFitTest {
         val short = AgendaFit.plan(spec(340f, 189f).copy(titleEm = 3f, lines = 2))
         assertThat(short.rowStyle).isEqualTo(RowStyle.INLINE_START)
     }
+
+    // --- The time column ("→ 11:00", the all-day line across the list), review of 30 Oct 2026 ----
+
+    /** Measured as [startEm] is: the start-only times of the README's sample at 10:20. */
+    private val arrowEm = 3.4f
+    private val oneEm = 2.6f
+    private val allDayEm = 3.1f
+    private val tuttoIlGiornoEm = 6.5f
+    private val finoAlleEm = 6.8f
+
+    @Test
+    fun `the event under way sets the column by its arrow, where its until would widen it`() {
+        val column = AgendaFit.timeColumn(
+            listOf(TimeCell(allDayEm, allDay = true), TimeCell(startEm, arrowEm), TimeCell(oneEm), TimeCell(oneEm)),
+        )
+        assertThat(column.em).isEqualTo(arrowEm)
+        assertThat(column.holdsFull(TimeCell(startEm, arrowEm))).isFalse()
+        assertThat(column.spans(TimeCell(allDayEm, allDay = true))).isFalse()
+    }
+
+    @Test
+    fun `until stays where the column is as wide anyway`() {
+        // The ranges ("13:00 – 14:00") are wider than "Until 11:00": the column holds it whole.
+        val column = AgendaFit.timeColumn(listOf(TimeCell(startEm, arrowEm), TimeCell(rangeEm)))
+        assertThat(column.em).isEqualTo(rangeEm)
+        assertThat(column.holdsFull(TimeCell(startEm, arrowEm))).isTrue()
+    }
+
+    @Test
+    fun `an all-day label much wider than the times goes over its titles, and leaves the column to them`() {
+        val tutto = TimeCell(tuttoIlGiornoEm, allDay = true)
+        val column = AgendaFit.timeColumn(listOf(tutto, TimeCell(finoAlleEm, arrowEm), TimeCell(oneEm)))
+        assertThat(column.spans(tutto)).isTrue()
+        assertThat(column.em).isEqualTo(arrowEm)
+    }
+
+    @Test
+    fun `a list of all-day lines alone is set by them`() {
+        val tutto = TimeCell(tuttoIlGiornoEm, allDay = true)
+        val column = AgendaFit.timeColumn(listOf(tutto, TimeCell(allDayEm, allDay = true)))
+        assertThat(column.spans(tutto)).isFalse()
+        assertThat(column.em).isEqualTo(tuttoIlGiornoEm)
+    }
+
+    @Test
+    fun `an all-day line across the list is weighed at its stacked height, where it stands`() {
+        // Four inline rows fit a four-by-two whole; four lines over their titles would not, and
+        // then stacking every row shows as many and cuts no title.
+        val wide = spec(340f, 189f).copy(startEm = arrowEm, titleEm = 12f, lines = 4)
+        assertThat(AgendaFit.plan(wide).rowStyle).isEqualTo(RowStyle.INLINE_START)
+        assertThat(AgendaFit.plan(wide.copy(spanning = setOf(0, 1, 2, 3))).rowStyle).isEqualTo(RowStyle.STACKED)
+        // Today's all-day line over its titles, and the days ahead's further down, past what the
+        // card shows: the rows stay inline, five lines where stacked ones would be three.
+        val week = wide.copy(lines = 15, spanning = setOf(0, 6, 9, 12))
+        assertThat(AgendaFit.plan(week).rowStyle).isEqualTo(RowStyle.INLINE_START)
+    }
+
+    @Test
+    fun `the four-by-two's titles keep their room once the arrow sets the column`() {
+        val before = AgendaFit.plan(spec(340f, 189f))
+        val after = AgendaFit.plan(spec(340f, 189f).copy(startEm = arrowEm))
+        val gained = AgendaFit.timeColumn(before.rowStyle, rangeEm, startEm, 1f) -
+            AgendaFit.timeColumn(after.rowStyle, rangeEm, arrowEm, 1f)
+        // Two letters and more for every title: "Lunch with Gi…" was short of "ulia".
+        assertThat(after.rowStyle).isEqualTo(RowStyle.INLINE_START)
+        assertThat(gained).isAtLeast(18f)
+    }
+
+    // --- The next alarm in the header -------------------------------------------------------
+
+    /** "Tomorrow 07:00" and "07:00" in the medium face. */
+    private val alarmEms = listOf(6.6f, 2.7f)
+
+    private fun withAlarm(width: Float, height: Float, scale: Float = 1f, clock: Boolean = true, date: Boolean = true) =
+        AgendaFit.plan(spec(width, height, clock, date, scale).copy(alarmEms = alarmEms))
+
+    @Test
+    fun `the four-by-two's side column says the alarm under the date, in the room it has`() {
+        val without = checkNotNull(plan(340f, 189f).header)
+        val with = checkNotNull(withAlarm(340f, 189f).header)
+        assertThat(with.alarmChoice).isEqualTo(0)
+        assertThat(with.width).isEqualTo(without.width)
+        assertThat(with.height).isEqualTo(
+            without.height + AgendaFit.ALARM_TOP + lineHeight(AgendaFit.ALARM_SP, 1f),
+        )
+        assertThat(with.height).isAtMost(189f - AgendaFit.CARD_PADDING * 2)
+        assertThat(withAlarm(340f, 189f).listWidth).isEqualTo(plan(340f, 189f).listWidth)
+    }
+
+    @Test
+    fun `where the column is narrow the alarm is its time alone, and with no room at all it is not drawn`() {
+        // "Tomorrow 7:00 AM" is wider than the column the clock sets; "7:00 AM" is not.
+        val narrow = AgendaFit.plan(spec(340f, 189f).copy(alarmEms = listOf(9f, 4.3f)))
+        assertThat(checkNotNull(narrow.header).alarmChoice).isEqualTo(1)
+        val none = AgendaFit.plan(spec(340f, 189f).copy(alarmEms = listOf(9.5f, 9f)))
+        assertThat(checkNotNull(none.header).alarmChoice).isEqualTo(-1)
+        assertThat(checkNotNull(none.header).height).isEqualTo(checkNotNull(plan(340f, 189f).header).height)
+    }
+
+    @Test
+    fun `the side column never grows past the card for the alarm, at any text size`() {
+        listOf(1f, 1.3f, 2f).forEach { scale ->
+            val plan = withAlarm(340f, 189f, scale)
+            if (plan.form != AgendaForm.SIDE) return@forEach
+            val header = checkNotNull(plan.header)
+            assertThat(header.height).isAtMost(189f - AgendaFit.CARD_PADDING * 2)
+            if (header.alarmChoice >= 0) {
+                assertThat(AgendaFit.alarmWidth(alarmEms[header.alarmChoice], scale)).isAtMost(header.width)
+            }
+        }
+    }
+
+    @Test
+    fun `on top, the alarm stands at the far end of the date's line where both fit whole`() {
+        listOf(340f to 293f, 340f to 397f).forEach { (w, h) ->
+            val plan = withAlarm(w, h)
+            assertThat(plan.form).isEqualTo(AgendaForm.AGENDA)
+            val header = checkNotNull(plan.header)
+            assertThat(header.alarmChoice).isAtLeast(0)
+            val date = widthOf(dateEms[header.dateChoice], header.dateSp, 1f)
+            val alarm = AgendaFit.alarmWidth(alarmEms[header.alarmChoice], 1f)
+            assertThat(date + AgendaFit.ALARM_GAP + alarm).isAtMost(w - AgendaFit.CARD_PADDING * 2)
+            // On the date's line: the header is no taller for it.
+            assertThat(header.height).isEqualTo(checkNotNull(plan(w, h).header).height)
+        }
+    }
+
+    @Test
+    fun `where the date fills its line the alarm is not drawn, and a row or a cell has none at all`() {
+        // The date keeps its style: it is not shortened for the alarm.
+        listOf(159f to 189f, 250f to 189f).forEach { (w, h) ->
+            val header = checkNotNull(withAlarm(w, h).header)
+            assertThat(header.alarmChoice).isEqualTo(-1)
+            assertThat(header.dateChoice).isEqualTo(checkNotNull(plan(w, h).header).dateChoice)
+        }
+        listOf(85f to 85f, 340f to 85f, 85f to 189f).forEach { (w, h) ->
+            assertThat(checkNotNull(withAlarm(w, h).header).alarmChoice).isEqualTo(-1)
+        }
+    }
 }

@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,7 +35,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -44,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
+import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
 import com.callbackdev.tempo.core.domain.widget.AgendaFit
 import com.callbackdev.tempo.core.domain.widget.AgendaForm
 import com.callbackdev.tempo.core.domain.widget.AgendaSpec
@@ -130,12 +136,30 @@ private fun agendaForm(size: DpSize): AgendaForm = AgendaFit.plan(
 /**
  * The card as it will look, on a ground that stands in for a wallpaper, with the sizes it can
  * be given underneath and a line saying what that size carries. It opens on the size the card
- * really has when the launcher has said it: the reader's own card first.
+ * really has when the launcher has said it: the reader's own card first. The chosen size is
+ * brought into view when the screen opens and when it changes: on a phone the default four by
+ * two was the seventh chip, off the screen's edge, and the row looked as if none was chosen.
  */
 @Composable
 internal fun WidgetPreviewSection(kind: WidgetKind, model: WidgetModel?, placed: DpSize?) {
     var size by remember { mutableStateOf(placed ?: DefaultPreviewSize.size) }
     val colors = MaterialTheme.colorScheme
+    val chips = rememberScrollState()
+    val reduced = reducedMotion()
+    val edge = with(LocalDensity.current) { ChipRowEdge.roundToPx() }
+    // Each chip's start and width in the row, as laid out: what the scroll is brought to.
+    val placedChips = remember { mutableStateMapOf<Int, Pair<Int, Int>>() }
+    val chosen = if (placed != null && size == placed) {
+        0
+    } else {
+        PreviewSize.entries.indexOfFirst { it.size == size } + if (placed != null) 1 else 0
+    }
+    LaunchedEffect(chosen, placedChips[chosen], chips.viewportSize) {
+        val (left, width) = placedChips[chosen] ?: return@LaunchedEffect
+        val target = chipInView(edge + left, width, edge, chips.value, chips.viewportSize)
+            ?.coerceIn(0, chips.maxValue) ?: return@LaunchedEffect
+        if (reduced) chips.scrollTo(target) else chips.animateScrollTo(target)
+    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -150,22 +174,28 @@ internal fun WidgetPreviewSection(kind: WidgetKind, model: WidgetModel?, placed:
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp),
+            .horizontalScroll(chips)
+            .padding(horizontal = ChipRowEdge)
+            .testTag(WidgetConfigTags.SIZES),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        fun Modifier.measured(index: Int) =
+            onPlaced { placedChips[index] = it.positionInParent().x.toInt() to it.size.width }
         placed?.let { here ->
             FilterChip(
                 selected = size == here,
                 onClick = { size = here },
                 label = { Text(stringResource(R.string.widget_config_size_placed)) },
+                modifier = Modifier.measured(0),
             )
         }
-        PreviewSize.entries.forEach { option ->
+        val first = if (placed != null) 1 else 0
+        PreviewSize.entries.forEachIndexed { index, option ->
             FilterChip(
                 selected = size == option.size && size != placed,
                 onClick = { size = option.size },
                 label = { Text(option.label) },
+                modifier = Modifier.measured(first + index),
             )
         }
     }
@@ -243,4 +273,19 @@ private class TouchlessFrame(context: Context) : FrameLayout(context) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean = true
+}
+
+/** The chip row's inset at each end, inside its scroll: a chosen chip is brought this far in. */
+private val ChipRowEdge = 16.dp
+
+/**
+ * Where a row scrolled to [scroll] of [viewport] must go for the chip at [start], [width] wide, to
+ * stand whole with [edge] beside it; null where it already does, so a touch on a chip in view
+ * leaves the row where it is.
+ */
+internal fun chipInView(start: Int, width: Int, edge: Int, scroll: Int, viewport: Int): Int? = when {
+    viewport <= 0 -> null
+    start - edge < scroll -> start - edge
+    start + width + edge > scroll + viewport -> start + width + edge - viewport
+    else -> null
 }

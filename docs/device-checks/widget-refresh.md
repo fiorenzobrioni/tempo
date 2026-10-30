@@ -67,6 +67,34 @@ and the date» to each choice and touch the time: Tempo, the calendar app at tod
 app. Touch an event: its occurrence in the calendar app (the right one for a repeating event:
 today's, not tomorrow's), or Tempo.
 
+## 7. The next alarm follows the clock app (PLANNING.md §11, step 8.2)
+
+Place an «Agenda» card at its default 4×2, with «Next alarm» on in its settings. Open the Clock
+app, set an alarm for tomorrow morning, then go to the home screen and leave Tempo in the
+background (do not open it). In another window:
+
+```bash
+adb logcat -s TempoWidget
+```
+
+Then, each time from the Clock app and back to the home screen: move the alarm by an hour; turn
+it off; turn it on again; set one for later today. Expected after each change, within a few
+seconds and with no Tempo screen opened: a line `NEXT_ALARM_CLOCK_CHANGED: 1 card(s) drawn in …`,
+and the card under the date saying the new time ("Tomorrow 07:00", "07:00"), or nothing when no
+alarm rings within 24 hours. Touch the alarm on the card: the Clock app opens.
+
+To see the broadcast reach a Tempo that is not running at all, stop its process first (not a
+force stop, which keeps an app from any broadcast until it is opened):
+
+```bash
+adb shell am kill $PKG
+```
+
+Expected: the same line, after a `Start proc … for broadcast` of Tempo's in `adb logcat`.
+
+If no line comes, the alarm comes off the cards and step 8.2's other way is built (the day in a
+few words in the column), as the owner decided (PLANNING.md §15, 30 Oct 2026).
+
 ## Results
 
 | Check | Phone, Android, launcher | Result | Date |
@@ -77,3 +105,4 @@ today's, not tomorrow's), or Tempo.
 | 4 |  |  |  |
 | 5 |  |  |  |
 | 6 |  |  |  |
+| 7 |  |  |  |

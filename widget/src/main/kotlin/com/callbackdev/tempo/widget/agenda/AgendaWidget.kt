@@ -7,8 +7,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
@@ -31,6 +34,7 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics
@@ -43,11 +47,14 @@ import com.callbackdev.tempo.core.domain.widget.AgendaForm
 import com.callbackdev.tempo.core.domain.widget.AgendaPlan
 import com.callbackdev.tempo.core.domain.widget.AgendaSpec
 import com.callbackdev.tempo.core.domain.widget.CardAgenda
+import com.callbackdev.tempo.core.domain.widget.CardAlarm
 import com.callbackdev.tempo.core.domain.widget.CardFit
 import com.callbackdev.tempo.core.domain.widget.CardFooter
 import com.callbackdev.tempo.core.domain.widget.CardLine
 import com.callbackdev.tempo.core.domain.widget.HeaderPlan
 import com.callbackdev.tempo.core.domain.widget.RowStyle
+import com.callbackdev.tempo.core.domain.widget.TimeCell
+import com.callbackdev.tempo.core.domain.widget.TimeColumn
 import com.callbackdev.tempo.core.domain.widget.clockLineHeight
 import com.callbackdev.tempo.core.domain.widget.fitLines
 import com.callbackdev.tempo.core.domain.widget.lineHeight
@@ -170,7 +177,12 @@ internal fun AgendaWidgetContent(model: WidgetModel, appWidgetId: Int = 0) {
 }
 
 /** Everything a form needs, measured once: the plan, the lines, what fits, and the words. */
-private class AgendaParts(val context: Context, val model: WidgetModel, size: DpSize, val appWidgetId: Int) {
+private class AgendaParts(
+    val context: Context,
+    val model: WidgetModel,
+    private val size: DpSize,
+    val appWidgetId: Int,
+) {
     val text = CardText(context, model)
     val scale = fontScale(context)
     val look = model.look
@@ -189,31 +201,129 @@ private class AgendaParts(val context: Context, val model: WidgetModel, size: Dp
     }
 
     private val lines: List<CardLine> = wholeCard?.lines.orEmpty()
-    private val rangeEm =
-        lines.filter { it.isEvent }.maxOfOrNull { textEm(context, text.range(it), TextWeight.MEDIUM) } ?: 0f
-    private val startEm =
-        lines.filter { it.isEvent }.maxOfOrNull { textEm(context, text.start(it), TextWeight.MEDIUM) } ?: 0f
-    private val titleEm =
-        lines.filter { it.isEvent }.maxOfOrNull { textEm(context, shortTitle(it), TextWeight.MEDIUM) } ?: 0f
 
-    val plan: AgendaPlan = AgendaFit.plan(
-        AgendaSpec(
-            width = size.width.value,
-            height = size.height.value,
-            fontScale = scale,
-            clock = look.showClock,
-            date = look.showDate,
-            clockEm = clockEm(context, timePatterns, ClockFace.BOLD, model.now),
-            dateEms = dateEms,
-            rangeEm = rangeEm,
-            startEm = startEm,
-            titleEm = titleEm,
-            lines = lines.size,
-        ),
+    /** A row's time as the inline column may print it, measured: its full form and its short one. */
+    private fun cell(line: CardLine, startOnly: Boolean) = TimeCell(
+        full = textEm(context, if (startOnly) text.start(line) else text.range(line), TextWeight.MEDIUM),
+        short = textEm(context, text.short(line, startOnly), TextWeight.MEDIUM),
+        allDay = line is CardLine.AllDay,
     )
 
-    /** The card's lines; on a row, today's timed events before its all-day line ([CardAgenda.timedFirst]). */
-    val card: CardAgenda? = if (plan.form == AgendaForm.LINE) wholeCard?.timedFirst() else wholeCard
+    /** The inline rows' two time columns (ranges, starts) and the titles beside them, over [measured]. */
+    private inner class Columns(measured: List<CardLine>) {
+        private val events = measured.filter { it.isEvent }
+        val rangeCells: Map<CardLine, TimeCell> = events.associateWith { cell(it, startOnly = false) }
+        val startCells: Map<CardLine, TimeCell> = events.associateWith { cell(it, startOnly = true) }
+        val range: TimeColumn = AgendaFit.timeColumn(rangeCells.values.toList())
+        val start: TimeColumn = AgendaFit.timeColumn(startCells.values.toList())
+        private fun across(line: CardLine) = startCells[line]?.let(start::spans) == true
+
+        /** Where the all-day lines over their titles stand among the card's lines. */
+        val spanning: Set<Int> = lines.indices.filter { across(lines[it]) }.toSet()
+
+        /** The widest title beside a time: an all-day line across the list has the list's width. */
+        val titleEm =
+            events.filterNot(::across).maxOfOrNull { textEm(context, shortTitle(it), TextWeight.MEDIUM) } ?: 0f
+    }
+
+    /** The phone's next alarm where this card says it: within a day, and the reader's switch on. */
+    val alarm: CardAlarm? =
+        if (look.showAlarm) CardAlarm.of(model.alarm, model.now.toInstant(), model.now.zone) else null
+    val alarmTexts: List<String> = alarm?.let(text::alarm).orEmpty()
+    private val alarmEms = alarmTexts.map { textEm(context, it, TextWeight.MEDIUM) }
+    private val clockEm = clockEm(context, timePatterns, ClockFace.BOLD, model.now)
+
+    /** One layout of the card: its plan for [columns], its lines in order, and how many of them fit. */
+    private inner class Pass(val columns: Columns, maxLines: Int) {
+        val plan: AgendaPlan = AgendaFit.plan(
+            AgendaSpec(
+                width = size.width.value,
+                height = size.height.value,
+                fontScale = scale,
+                clock = look.showClock,
+                date = look.showDate,
+                clockEm = clockEm,
+                dateEms = dateEms,
+                rangeEm = columns.range.em,
+                startEm = columns.start.em,
+                titleEm = columns.titleEm,
+                lines = lines.size,
+                spanning = columns.spanning,
+                alarmEms = alarmEms,
+            ),
+        )
+
+        /** The column the inline rows' times stand in; none where every row is stacked. */
+        val column: TimeColumn?
+            get() = when (plan.rowStyle) {
+                RowStyle.INLINE_RANGE -> columns.range
+                RowStyle.INLINE_START -> columns.start
+                RowStyle.STACKED -> null
+            }
+
+        fun cellOf(line: CardLine): TimeCell? =
+            (if (plan.rowStyle == RowStyle.INLINE_RANGE) columns.rangeCells else columns.startCells)[line]
+
+        fun styleOf(line: CardLine): RowStyle {
+            val cell = cellOf(line) ?: return plan.rowStyle
+            return if (column?.spans(cell) == true) RowStyle.STACKED else plan.rowStyle
+        }
+
+        /** The card's lines; on a row, today's timed events before its all-day line ([CardAgenda.timedFirst]). */
+        val card: CardAgenda? = if (plan.form == AgendaForm.LINE) wholeCard?.timedFirst() else wholeCard
+
+        val fit: CardFit? = card?.let { agenda ->
+            fitLines(
+                maxLines = maxLines,
+                agenda = agenda,
+                heights = { line ->
+                    AgendaFit.height(
+                        line,
+                        styleOf(line),
+                        scale,
+                        (line as? CardLine.Note)?.let { noteLines(it, plan.listWidth.dp) } ?: 1,
+                    )
+                },
+                room = plan.listRoom,
+                footerHeight = AgendaFit.footerHeight(scale),
+            )
+        }
+    }
+
+    /**
+     * The card laid out twice. The first time every line of the week sets the time column; the
+     * second only the lines that fitted, and it shows no more of them (a line past them was not
+     * measured): a time further down, never drawn ("Day 3 of 4" under tomorrow on a four-by-two),
+     * had widened the column for every title the card did show. Stacked rows have no column, and
+     * keep the first layout.
+     */
+    private val pass: Pass = Pass(Columns(lines), MAX_LINES).let { first ->
+        val shown = first.fit?.shown
+        val card = first.card
+        if (shown == null || card == null || first.plan.rowStyle == RowStyle.STACKED) {
+            first
+        } else {
+            Pass(Columns(card.lines.take(shown)), shown)
+        }
+    }
+
+    val plan: AgendaPlan = pass.plan
+    val card: CardAgenda? = pass.card
+    val fit: CardFit? = pass.fit
+
+    /**
+     * How [line] is set: as the list is, or over its titles across the list where it is an all-day
+     * line whose label would widen the time column for every title ("Tutto il giorno").
+     */
+    fun styleOf(line: CardLine): RowStyle = pass.styleOf(line)
+
+    /** An inline row's time: whole where the column holds it, else in fewer letters ("→ 11:00"). */
+    fun inlineTime(line: CardLine): String {
+        val startOnly = plan.rowStyle == RowStyle.INLINE_START
+        val full = if (startOnly) text.start(line) else text.range(line)
+        val cell = pass.cellOf(line) ?: return full
+        return if (pass.column?.holdsFull(cell) != false) full else text.short(line, startOnly)
+    }
 
     val headerWidth: Dp get() = (plan.header?.width ?: 0f).dp
 
@@ -236,40 +346,23 @@ private class AgendaParts(val context: Context, val model: WidgetModel, size: Dp
     val listWidth: Dp get() = plan.listWidth.dp
 
     /** The note's lines at the list's width, two at most. */
-    fun noteLines(line: CardLine.Note): Int = measureWidgetLines(
+    fun noteLines(line: CardLine.Note, width: Dp = listWidth): Int = measureWidgetLines(
         context,
         text.note(line.note),
         AgendaFit.NOTE_SP,
-        listWidth,
+        width,
         TextWeight.REGULAR,
     ).coerceIn(1, AgendaFit.NOTE_MAX_LINES)
 
-    val fit: CardFit? = card?.let { agenda ->
-        fitLines(
-            maxLines = MAX_LINES,
-            agenda = agenda,
-            heights = { line ->
-                AgendaFit.height(
-                    line,
-                    plan.rowStyle,
-                    scale,
-                    (line as? CardLine.Note)?.let(::noteLines) ?: 1,
-                )
-            },
-            room = plan.listRoom,
-            footerHeight = AgendaFit.footerHeight(scale),
-        )
-    }
-
-    val timeColumn: Dp get() = AgendaFit.timeColumn(plan.rowStyle, rangeEm, startEm, scale).dp
+    val timeColumn: Dp
+        get() = AgendaFit.timeColumn(plan.rowStyle, pass.columns.range.em, pass.columns.start.em, scale).dp
 
     /** The title's room in a row: the list's width less the mark, and the time column beside it. */
-    private val titleWidth: Dp
-        get() = if (plan.rowStyle == RowStyle.STACKED) {
-            listWidth - (AgendaFit.MARK_WIDTH + AgendaFit.MARK_GAP).dp
-        } else {
-            listWidth - AgendaFit.MARK_WIDTH.dp - timeColumn - AgendaFit.MARK_GAP.dp - AgendaFit.TIME_GAP.dp
-        }
+    private fun titleWidth(style: RowStyle): Dp = if (style == RowStyle.STACKED) {
+        listWidth - (AgendaFit.MARK_WIDTH + AgendaFit.MARK_GAP).dp
+    } else {
+        listWidth - AgendaFit.MARK_WIDTH.dp - timeColumn - AgendaFit.MARK_GAP.dp - AgendaFit.TIME_GAP.dp
+    }
 
     /** A date's several all-day events as the first and a count ("Design Week +1"); any other line's title. */
     private fun shortTitle(line: CardLine): String {
@@ -288,9 +381,10 @@ private class AgendaParts(val context: Context, val model: WidgetModel, size: Dp
     fun rowTitle(line: CardLine): Pair<String, String?> {
         val all = text.title(line)
         if (line !is CardLine.AllDay || line.entries.size < 2) return all to null
-        if (fits(all, AgendaFit.TITLE_SP, TextWeight.MEDIUM, titleWidth)) return all to null
+        val room = titleWidth(styleOf(line))
+        if (fits(all, AgendaFit.TITLE_SP, TextWeight.MEDIUM, room)) return all to null
         val short = shortTitle(line)
-        if (fits(short, AgendaFit.TITLE_SP, TextWeight.MEDIUM, titleWidth)) return short to null
+        if (fits(short, AgendaFit.TITLE_SP, TextWeight.MEDIUM, room)) return short to null
         return text.title(line.entries.first().event) to moreCount(line)
     }
 
@@ -301,17 +395,20 @@ private class AgendaParts(val context: Context, val model: WidgetModel, size: Dp
             WidgetIntents.header(context, look.headerTap, model.doors, model.now.toInstant()),
         )
 
+    val alarmIntent = WidgetIntents.alarm(context, model.doors)
+
     private fun fits(text: String, sizeSp: Float, weight: TextWeight, width: Dp): Boolean =
         widthOf(textEm(context, text, weight), sizeSp, scale) <= width.value
 
     /**
      * A stacked row's time line: the range where the column holds it, its start where only that
-     * fits, and none on a column too narrow for either (a headerless one-cell card): the title
-     * still says which event it is, and a time cut in half would say a wrong one.
+     * fits, "→ 11:00" for "Until 11:00" where not even that does, and none on a column too narrow
+     * for any (a headerless one-cell card): the title still says which event it is, and a time cut
+     * in half would say a wrong one.
      */
     fun stackedTime(line: CardLine): String? {
         val room = listWidth - (AgendaFit.MARK_WIDTH + AgendaFit.MARK_GAP).dp
-        return listOf(text.range(line), text.start(line)).firstOrNull {
+        return listOf(text.range(line), text.start(line), text.short(line, startOnly = true)).firstOrNull {
             fits(it, AgendaFit.TIME_SP, TextWeight.MEDIUM, room)
         }
     }
@@ -331,52 +428,117 @@ private class AgendaParts(val context: Context, val model: WidgetModel, size: Dp
 
 // --- The header --------------------------------------------------------------------------------
 
-/** The clock over the date, both the system's `TextClock`, each where the reader keeps it. */
+/**
+ * The clock over the date, both the system's `TextClock`, each where the reader keeps it; the
+ * next alarm under the date in a side column, at the far end of the date's line on top.
+ */
 @Composable
 private fun Header(parts: AgendaParts, palette: WidgetPalette) {
     val header: HeaderPlan = parts.plan.header ?: return
     val context = parts.context
     val frozen = parts.model.now.takeIf { parts.model.frozenClock }
     val centred = parts.plan.form == AgendaForm.CLOCK
-    Column(horizontalAlignment = if (centred) Alignment.CenterHorizontally else Alignment.Start) {
+    val alarm = header.alarmChoice.takeIf { it >= 0 }
+    val alarmBeside = alarm != null && parts.plan.form == AgendaForm.AGENDA
+    val onDateLine = header.dateChoice >= 0
+    Column(
+        modifier = if (alarmBeside) GlanceModifier.fillMaxWidth() else GlanceModifier,
+        horizontalAlignment = if (centred) Alignment.CenterHorizontally else Alignment.Start,
+    ) {
         if (header.clockSp > 0f) {
-            AndroidRemoteViews(
-                remoteViews = clockViews(
-                    context,
-                    ClockFace.BOLD,
-                    parts.timePatterns,
-                    header.clockSp,
-                    palette.primary,
-                    1,
-                    parts.headerIntent,
-                    frozen,
-                ),
-                // Its own height, measured: a container Glance sizes alone may take its column's. Its
-                // own width too beside a two-line date, whose balanced width would otherwise be the
-                // column's, and the clock's container takes the column's width.
-                modifier = GlanceModifier
-                    .height(clockLineHeight(header.clockSp, parts.scale).dp)
-                    .then(if (header.dateLines > 1) GlanceModifier.width(header.width.dp) else GlanceModifier),
-            )
+            BesideAlarm(parts, palette, alarm.takeIf { alarmBeside && !onDateLine }) {
+                AndroidRemoteViews(
+                    remoteViews = clockViews(
+                        context,
+                        ClockFace.BOLD,
+                        parts.timePatterns,
+                        header.clockSp,
+                        palette.primary,
+                        1,
+                        parts.headerIntent,
+                        frozen,
+                    ),
+                    // Its own height, measured: a container Glance sizes alone may take its column's. Its
+                    // own width too beside a two-line date, whose balanced width would otherwise be the
+                    // column's, and the clock's container takes the column's width.
+                    modifier = GlanceModifier
+                        .height(clockLineHeight(header.clockSp, parts.scale).dp)
+                        .then(if (header.dateLines > 1) GlanceModifier.width(header.width.dp) else GlanceModifier),
+                )
+            }
         }
-        if (header.dateChoice >= 0) {
+        if (onDateLine) {
             val (patterns, twoLineWidth) = parts.date(header)
-            AndroidRemoteViews(
-                remoteViews = clockViews(
-                    context,
-                    ClockFace.MEDIUM,
-                    patterns,
-                    header.dateSp,
-                    if (header.clockSp > 0f) palette.secondary else palette.primary,
-                    header.dateLines,
-                    parts.headerIntent,
-                    frozen,
-                ),
-                modifier = GlanceModifier
-                    .height((clockLineHeight(header.dateSp, parts.scale) * header.dateLines).dp)
-                    .then(twoLineWidth?.let { GlanceModifier.width(it) } ?: GlanceModifier),
-            )
+            BesideAlarm(parts, palette, alarm.takeIf { alarmBeside }) {
+                AndroidRemoteViews(
+                    remoteViews = clockViews(
+                        context,
+                        ClockFace.MEDIUM,
+                        patterns,
+                        header.dateSp,
+                        if (header.clockSp > 0f) palette.secondary else palette.primary,
+                        header.dateLines,
+                        parts.headerIntent,
+                        frozen,
+                    ),
+                    modifier = GlanceModifier
+                        .height((clockLineHeight(header.dateSp, parts.scale) * header.dateLines).dp)
+                        .then(twoLineWidth?.let { GlanceModifier.width(it) } ?: GlanceModifier),
+                )
+            }
         }
+        if (alarm != null && !alarmBeside) {
+            // As wide as the column, as the clock's and the date's views are: a column whose lines
+            // all fill it takes its widest line's width, and one line that only wraps its words
+            // would set the column to its own and squeeze the clock (a 12-hour time was cut).
+            AlarmLine(parts, palette, alarm, GlanceModifier.fillMaxWidth().padding(top = AgendaFit.ALARM_TOP.dp))
+        }
+    }
+}
+
+/** [line], and the alarm at the far end of the header's width where [alarm] says so. */
+@Composable
+private fun BesideAlarm(parts: AgendaParts, palette: WidgetPalette, alarm: Int?, line: @Composable () -> Unit) {
+    if (alarm == null) {
+        line()
+        return
+    }
+    Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Box(modifier = GlanceModifier.defaultWeight()) { line() }
+        AlarmLine(parts, palette, alarm, GlanceModifier.padding(start = AgendaFit.ALARM_GAP.dp))
+    }
+}
+
+/**
+ * The phone's next alarm: a bell and a clock time, in the secondary ink (VISION.md, the widgets).
+ * Tempo only shows it; a touch opens the clock app, where it is set, moved or turned off.
+ */
+@Composable
+private fun AlarmLine(parts: AgendaParts, palette: WidgetPalette, choice: Int, modifier: GlanceModifier) {
+    val alarm = parts.alarm ?: return
+    val tap = parts.alarmIntent
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .then(if (tap != null) GlanceModifier.clickable(actionStartActivity(tap)) else GlanceModifier)
+            .semantics { contentDescription = parts.text.describe(alarm) },
+    ) {
+        Image(
+            provider = ImageProvider(R.drawable.widget_alarm),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(palette.secondaryInk),
+            modifier = GlanceModifier.size((AgendaFit.ALARM_ICON * parts.scale).dp),
+        )
+        Text(
+            text = parts.alarmTexts[choice],
+            style = TextStyle(
+                color = palette.secondaryInk,
+                fontSize = AgendaFit.ALARM_SP.sp,
+                fontWeight = FontWeight.Medium,
+            ),
+            maxLines = 1,
+            modifier = GlanceModifier.padding(start = (AgendaFit.ALARM_ICON_GAP * parts.scale).dp),
+        )
     }
 }
 
@@ -480,10 +642,9 @@ private fun EventRow(parts: AgendaParts, palette: WidgetPalette, line: CardLine)
         WidgetIntents.tempo(context)
     }
     val description = parts.text.describe(line, calendars)
-    val style = parts.plan.rowStyle
+    val style = parts.styleOf(line)
     val timeText = when (style) {
-        RowStyle.INLINE_START -> parts.text.start(line)
-        RowStyle.INLINE_RANGE -> parts.text.range(line)
+        RowStyle.INLINE_START, RowStyle.INLINE_RANGE -> parts.inlineTime(line)
         RowStyle.STACKED -> parts.stackedTime(line)
     }
     val timeStyle = TextStyle(

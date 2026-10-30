@@ -49,7 +49,7 @@
     <!-- I widget -->
     <string name="guide_widgets_title">Nella schermata Home</string>
     <string name="guide_widgets_two_title">Due widget</string>
-    <string name="guide_widgets_two_body">«Agenda» mette l’ora e la data sopra il resto della giornata; «In parole» è il quadrante, con quello che viene dopo e la giornata in poche parole. Tutti e due stanno in ogni misura, da una sola cella in su. Tienine premuto uno per le sue impostazioni: l’ora e la data, cosa apre un tocco, il colore e l’opacità.</string>
+    <string name="guide_widgets_two_body">«Agenda» mette l’ora e la data sopra il resto della giornata; «In parole» è il quadrante, con quello che viene dopo e la giornata in poche parole. Tutti e due stanno in ogni misura, da una sola cella in su. Con la data, «Agenda» mostra la prossima sveglia quando suona entro un giorno; toccandola si apre l’app Orologio. Tieni premuto un widget per le sue impostazioni: l’ora e la data, cosa apre un tocco, il colore e l’opacità.</string>
     <string name="guide_widgets_fit_title">Mai una lista da scorrere</string>
     <string name="guide_widgets_fit_body">Una scheda mostra tutti gli impegni che ci stanno interi, disposti per la misura che ha davvero, e dice quanti altri ce ne sono: niente è tagliato a metà, niente scorre.</string>
     <string name="guide_widgets_times_title">Orari, non conti alla rovescia</string>

@@ -452,7 +452,8 @@ private fun RowContent(parts: WordsParts, palette: WidgetPalette) {
 
 /**
  * Two rows and up: the dial in the top trailing corner and the date beside it;
- * the title, when and the note hanging from the bottom leading corner.
+ * the title, when and the note hanging from the bottom leading corner. A message stands centred
+ * in the room under the dial ([WordsParts.messageRoom]).
  */
 @Composable
 private fun TallContent(parts: WordsParts, palette: WidgetPalette) {

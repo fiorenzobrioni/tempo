@@ -1,5 +1,6 @@
 package com.callbackdev.tempo.widget
 
+import android.app.AlarmManager
 import android.content.Context
 import android.os.SystemClock
 import android.util.Log
@@ -34,6 +35,8 @@ import javax.inject.Singleton
  *
  * @property frozenClock the samples' drawing of the time as plain text at [now], so a preview and
  *   a picture show the sample's time; a placed card always draws the system's live `TextClock`.
+ * @property alarm the phone's next alarm, as the system has it (`AlarmManager.getNextAlarmClock`,
+ *   no permission), however far away; the card says it only within a day (`CardAlarm`).
  */
 data class WidgetModel(
     val look: WidgetLook,
@@ -42,6 +45,7 @@ data class WidgetModel(
     val content: WidgetContent,
     val doors: WidgetDoors,
     val frozenClock: Boolean = false,
+    val alarm: Instant? = null,
 ) {
     companion object {
         /** A card that says it could not read the calendar, in the default dress. */
@@ -85,6 +89,8 @@ data class WidgetDoors(val canOpenEvent: Boolean, val canOpenDay: Boolean, val c
 /**
  * Reads a [WidgetModel], and arms what keeps the card fresh once it is drawn: the calendar's
  * content-URI trigger and the alarm at the next boundary ([WidgetRefreshArming], PLANNING.md §7).
+ * The phone's next alarm is read here too, at every drawing: a change to it in the clock app is
+ * the system's broadcast's to tell (`WidgetSystemReceiver`).
  */
 @Singleton
 class WidgetModelLoader
@@ -122,9 +128,16 @@ constructor(
                 )
             }
         }
-        arming.afterRender((content as? WidgetContent.Ready)?.agenda, now.zone)
-        return WidgetModel(look, settings, now, content, doors(now.toInstant()))
+        val alarm = nextAlarm()
+        arming.afterRender((content as? WidgetContent.Ready)?.agenda, now.zone, alarm)
+        return WidgetModel(look, settings, now, content, doors(now.toInstant()), alarm = alarm)
     }
+
+    /** The alarm the clock app set (an app's own timers are not alarm clocks); none where the system says none. */
+    private fun nextAlarm(): Instant? = context.getSystemService(AlarmManager::class.java)
+        ?.nextAlarmClock
+        ?.triggerTime
+        ?.let(Instant::ofEpochMilli)
 
     /**
      * [load] for a card waiting to be drawn: never longer than [LOAD_TIMEOUT_MILLIS] and never an

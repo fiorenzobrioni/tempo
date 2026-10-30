@@ -52,8 +52,9 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
    waiting at a time, armed again as each run starts; whatever asked stays until the cards are
    drawn, so the process is not frozen with a card half drawn; one `AlarmManager.set(RTC)` at the
    next boundary (`NextBoundary`), inexact and non-wakeup, replaced by each render; the exempt
-   broadcasts (time set, zone, language, package replaced) from the manifest; Tempo's settings
-   changing, and the reader leaving the app. The last card removed disarms the job and the alarm.
+   broadcasts (time set, zone, language, package replaced, and since 30 Oct 2026 the next alarm
+   changed, decision 12) from the manifest; Tempo's settings changing, and the reader leaving the
+   app. The last card removed disarms the job and the alarm.
    No service, no periodic work, no wakelock of Tempo's own.
 
 6. **Touches.** The card opens Tempo; an event opens its occurrence in the calendar app by default
@@ -103,6 +104,38 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
     takes the radius the launcher gives its widgets (`system_app_widget_background_radius`, in
     `WidgetCard`, the settings preview and `widget_preview_card`) instead of a fixed 24 dp: the
     same on stock Android 16, and the launcher's own wherever a phone sets another.
+12. **The next alarm on «Agenda»** (amendment of 30 Oct 2026, PLANNING.md §11 step 8.2; the
+    owner's choices). The leading column of the 4×2 was empty under the date for about 40% of the
+    card; it now says the phone's next alarm, a bell drawn as a vector (`widget_alarm`, Today's
+    bell) and a clock time at the label step in the secondary ink: "Tomorrow 07:00", or "07:00"
+    where the column has no room for the day (within a day a clock time names one moment only).
+    Only an alarm that rings within 24 hours (`CardAlarm`): one on Monday seen on Friday is noise.
+    In a side column under the date, never widening the column; on a header on top, at the far
+    end of the date's line where both fit whole, else not (the date is not shortened for it); not
+    on a row or a cell. A per-widget switch, on by default, «Agenda»'s alone until «In words»
+    shows it too. Its touch opens the clock app, else Tempo. Tempo reads the alarm
+    (`AlarmManager.getNextAlarmClock`, no permission) and never sets, rings or moves one. It stays
+    true without polling: the system's `NEXT_ALARM_CLOCK_CHANGED`, which AOSP's
+    `AlarmManagerService` sends with `FLAG_RECEIVER_INCLUDE_BACKGROUND` (as the provider sends
+    `PROVIDER_CHANGED`) and the exempt-broadcast list names beside `TIME_SET`, reaches the
+    manifest's receiver; and the moments it changes by itself (a day before it rings, midnight
+    for tomorrow's, the ring) are boundaries where an «Agenda» card is placed. The step asked for
+    the broadcast to be seen on the phone before the alarm was built; the owner chose to build it
+    on the source's evidence and check it on the phone before the merge (PLANNING.md §15). Where
+    the alarm stands under the date its line fills the column: a vertical `LinearLayout` whose
+    lines all fill it takes its widest line's width, and one line that only wraps its words set
+    the column to its own and cut a 12-hour clock.
+13. **«Agenda»'s time column is set by the rows it shows** (amendment of 30 Oct 2026, step 8.2).
+    The event under way says "→ 11:00" on an inline row where "Until 11:00" would be the widest
+    time of the list and widen the column for every title, and keeps "Until 11:00" where the
+    column is as wide anyway and on a stacked row. An all-day label much wider than the timed
+    rows' times (Italian's "Tutto il giorno", over an em wider) stands over its titles across the
+    list instead, and the column is left to the timed rows (`AgendaFit.timeColumn`, `TimeColumn`).
+    And the column is measured over the lines the card shows: the card is laid out once with
+    every line of the week, then again with the lines that fitted, and shows no more than those (a
+    line past them was not measured). A time never drawn ("Day 3 of 4" under tomorrow) had widened
+    it. On the README's four-by-two at 10:20 the titles are whole in English ("Lunch with Gi…"
+    and "Swimming les…" before) and Italian lists five events where it listed three.
 
 ## Consequences
 

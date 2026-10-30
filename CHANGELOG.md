@@ -17,6 +17,10 @@ All notable changes to Tempo are documented here. The format follows
   opens the Clock app, where alarms are set. Tempo still only reads it.
 - **The dial in your calendars' colours.** The events on Today's clock face wear their
   calendar's colour, as in the list under it; the next one stays in the accent.
+- **The next alarm on «Agenda».** Under the date (or beside it on a tall widget), a bell and the
+  time of your next alarm when it rings within a day: "Tomorrow 7:00 AM". A touch opens your
+  clock app; a switch in the widget's settings hides it. It follows the clock app's changes as
+  they are made, and Tempo still only reads it.
 
 ### Changed
 
@@ -29,6 +33,14 @@ All notable changes to Tempo are documented here. The format follows
   the "more today" line are one size, and the note on «In words» matches it, the same sizes
   the family's other cards use.
 - **Widgets wear your launcher's corner**, so they match the widgets beside them.
+- **More of the day on «Agenda».** The event under way says "→ 11:00" where "Until 11:00"
+  would squeeze every title beside it, and in Italian the all-day line spans the list: on the
+  default size the rest of the day fits with its titles whole, five events where Italian
+  showed three.
+- **Widget messages in the middle.** "Tempo cannot read your calendar" and the other messages
+  stand centred in the widget, not at its top over an empty card.
+- **The widget's size in view.** In a widget's settings the size picked is scrolled into
+  view; the default one was past the screen's edge, as if none were picked.
 - **Times line up.** Today's columns of times use figures of one width, so the times stand
   under each other and "40 min left" no longer shifts as it counts down; the day's sentence
   breaks into even lines, and a time never parts from its AM or PM.

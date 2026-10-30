@@ -14,6 +14,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.await
 import com.callbackdev.tempo.core.domain.agenda.NextBoundary
+import com.callbackdev.tempo.core.domain.widget.CardAlarm
 import com.callbackdev.tempo.core.model.Agenda
 import com.callbackdev.tempo.widget.TempoWidgets
 import com.callbackdev.tempo.widget.WidgetKind
@@ -47,7 +48,9 @@ import javax.inject.Singleton
  * - the agenda changes by itself (an event starts or ends, a day begins): one inexact,
  *   non-wakeup alarm at the next boundary, delivered when the phone is next awake, which is when
  *   someone can see the card;
- * - the clock, the zone or the language changed, or the app was updated: the exempt broadcasts.
+ * - the clock, the zone or the language changed, the next alarm changed, or the app was updated:
+ *   the exempt broadcasts. The system sends the next alarm's with `FLAG_RECEIVER_INCLUDE_BACKGROUND`
+ *   (AOSP's `AlarmManagerService`), as the provider sends its own: a receiver in the manifest has it.
  *
  * Whatever asked stays until the cards are drawn (`TempoWidgets.repaintAll`): Glance draws in a
  * worker of Tempo's process that no job holds awake, and a process left cached may be frozen
@@ -59,13 +62,20 @@ import javax.inject.Singleton
 class WidgetRefreshArming @Inject constructor(@ApplicationContext private val context: Context) {
     /**
      * After a card is drawn: the calendar's trigger, and the alarm at [agenda]'s next boundary,
-     * counting the moments events come onto the dial where an «In words» card is placed.
+     * counting the moments events come onto the dial where an «In words» card is placed, and the
+     * moments the phone's next [alarm] comes onto, changes on and leaves an «Agenda» card. Every
+     * card arms the same boundary, whichever is drawn last: one pending intent for all.
      */
-    fun afterRender(agenda: Agenda?, zone: ZoneId) {
+    fun afterRender(agenda: Agenda?, zone: ZoneId, alarm: Instant? = null) {
         Arming.launch { armCalendarTrigger(context) }
-        if (agenda != null) {
-            armBoundary(NextBoundary.after(agenda, zone, dial = TempoWidgets.has(context, WidgetKind.WORDS)))
+        val onCards = alarm.takeIf { TempoWidgets.has(context, WidgetKind.AGENDA) }
+        val next = if (agenda != null) {
+            NextBoundary.after(agenda, zone, dial = TempoWidgets.has(context, WidgetKind.WORDS), alarm = onCards)
+        } else {
+            // A card with no day to list still shows the time, and the alarm under it.
+            CardAlarm.changes(onCards, Instant.now(), zone).minOrNull()
         }
+        next?.let(::armBoundary)
     }
 
     /** The last card is gone: nothing of Tempo waits on a calendar no card shows. */
@@ -192,8 +202,8 @@ class BoundaryReceiver : BroadcastReceiver() {
 
 /**
  * The exempt broadcasts (PLANNING.md §7): the clock set, the zone changed (a trip moves the
- * days), the language changed, the app updated. Received from the manifest, delivered by the
- * system only.
+ * days), the language changed, the next alarm set, moved or turned off in the clock app, the app
+ * updated. Received from the manifest, delivered by the system only.
  */
 class WidgetSystemReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -207,6 +217,7 @@ class WidgetSystemReceiver : BroadcastReceiver() {
             Intent.ACTION_TIMEZONE_CHANGED,
             Intent.ACTION_LOCALE_CHANGED,
             Intent.ACTION_MY_PACKAGE_REPLACED,
+            AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED,
         )
     }
 }

@@ -9,6 +9,7 @@ import com.callbackdev.tempo.core.model.Availability
 import com.callbackdev.tempo.core.model.CalendarInfo
 import com.callbackdev.tempo.core.model.EventInstance
 import com.callbackdev.tempo.core.model.UserSettings
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -55,6 +56,9 @@ object WidgetSamples {
 
     val Now: ZonedDateTime = at("2026-10-07T10:20")
 
+    /** The phone's alarm in the sample, Today's: tomorrow at 07:00. */
+    val Alarm: Instant = at("2026-10-08T07:00").toInstant()
+
     fun model(
         look: WidgetLook = WidgetLook(),
         now: ZonedDateTime = Now,
@@ -62,6 +66,7 @@ object WidgetSamples {
         instances: List<EventInstance> = this.instances,
         content: WidgetContent? = null,
         doors: WidgetDoors = WidgetDoors(canOpenEvent = true, canOpenDay = true, clockPackage = null),
+        alarm: Instant? = Alarm,
     ): WidgetModel {
         val agenda = AgendaBuilder.build(
             instances = instances,
@@ -78,6 +83,7 @@ object WidgetSamples {
             content = content ?: WidgetContent.Ready(agenda, calendars.associateBy { it.id }),
             doors = doors,
             frozenClock = true,
+            alarm = alarm,
         )
     }
 

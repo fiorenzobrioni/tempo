@@ -48,6 +48,8 @@ enum class EventTap { TEMPO, CALENDAR }
  * @property eventTap the calendar app by default: on Today a touch on an event opens it there too.
  * @property showAllDay can only take away: with Tempo's own switch off there are none to show.
  * @property showDaysAhead the days after today, in the room today leaves (owner, PLANNING.md §15).
+ * @property showAlarm the phone's next alarm under the date, when it rings within a day (owner,
+ *   30 Oct 2026): on by default, since it fills a column that was empty.
  * @property cardColor kept while another background is picked, so coming back finds it.
  */
 data class WidgetLook(
@@ -62,6 +64,7 @@ data class WidgetLook(
     val eventTap: EventTap = EventTap.CALENDAR,
     val showAllDay: Boolean = true,
     val showDaysAhead: Boolean = true,
+    val showAlarm: Boolean = true,
 ) {
     companion object {
         /** Solid: below [INK_TRUST_FLOOR_PCT] the ink has to ask the wallpaper, a different conversation. */
@@ -99,6 +102,7 @@ class WidgetLookStore internal constructor(private val dataStore: DataStore<Pref
             eventTap = enumOf(prefs[key("event_tap", id)], default.eventTap),
             showAllDay = prefs[boolKey("all_day", id)] ?: default.showAllDay,
             showDaysAhead = prefs[boolKey("days_ahead", id)] ?: default.showDaysAhead,
+            showAlarm = prefs[boolKey("alarm", id)] ?: default.showAlarm,
         )
     }
 
@@ -116,6 +120,7 @@ class WidgetLookStore internal constructor(private val dataStore: DataStore<Pref
             prefs[key("event_tap", id)] = look.eventTap.name
             prefs[boolKey("all_day", id)] = look.showAllDay
             prefs[boolKey("days_ahead", id)] = look.showDaysAhead
+            prefs[boolKey("alarm", id)] = look.showAlarm
         }
     }
 

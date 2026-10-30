@@ -2,6 +2,7 @@ package com.callbackdev.tempo.widget
 
 import android.app.AlarmManager
 import android.app.Application
+import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -20,12 +21,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.calendar.ClockApp
 import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.EventInstance
+import com.callbackdev.tempo.widget.agenda.AgendaWidgetReceiver
 import com.callbackdev.tempo.widget.refresh.WidgetRefreshArming
+import com.callbackdev.tempo.widget.refresh.WidgetSystemReceiver
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import java.time.Duration
 import java.time.Instant
 import java.util.Locale
 
@@ -160,5 +164,42 @@ class WidgetDoorsTest {
         assertThat(alarms.scheduledAlarms).hasSize(1)
         arming.disarm()
         assertThat(alarms.scheduledAlarms).isEmpty()
+    }
+
+    @Test
+    fun `the alarm's touch opens the clock app, else Tempo`() {
+        installClock("com.example.clock", system = true)
+        val doors = WidgetDoors(canOpenEvent = false, canOpenDay = false, clockPackage = ClockApp.packageName(context))
+        assertThat(WidgetIntents.alarm(context, doors)?.component)
+            .isEqualTo(ComponentName("com.example.clock", "com.example.clock.Main"))
+        val none = WidgetIntents.alarm(context, WidgetDoors.None)
+        assertThat(none?.`package` ?: none?.component?.packageName).isNotEqualTo("com.example.clock")
+    }
+
+    @Test
+    fun `the next alarm's change reaches the cards from the manifest, as the clock's own changes do`() {
+        val intent = Intent(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED).setPackage(context.packageName)
+        val receivers = context.packageManager.queryBroadcastReceivers(intent, 0).map { it.activityInfo.name }
+        assertThat(receivers).contains(WidgetSystemReceiver::class.java.name)
+    }
+
+    @Test
+    fun `with «Agenda» placed, the alarm's own moments are boundaries, with or without a day to list`() {
+        shadowOf(AppWidgetManager.getInstance(context))
+            .bindAppWidgetId(7, ComponentName(context, AgendaWidgetReceiver::class.java))
+        val arming = WidgetRefreshArming(context)
+        val alarms = shadowOf(context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
+        // At 05:00 the 07:00 alarm rings, and leaves the card, before the day's first event at 07:30.
+        val dawn = WidgetSamples.model(now = WidgetSamples.at("2026-10-07T05:00"))
+        val ringing = WidgetSamples.at("2026-10-07T07:00").toInstant()
+        arming.afterRender((dawn.content as WidgetContent.Ready).agenda, dawn.now.zone, ringing)
+        assertThat(checkNotNull(alarms.peekNextScheduledAlarm()).triggerAtMs).isEqualTo(ringing.toEpochMilli())
+        // No day to list (the permission refused): the alarm still comes onto the card a day before it rings.
+        val later = Instant.now().plus(Duration.ofHours(30))
+        arming.afterRender(null, dawn.now.zone, later)
+        val armed = checkNotNull(alarms.peekNextScheduledAlarm())
+        assertThat(armed.type).isEqualTo(AlarmManager.RTC)
+        assertThat(armed.triggerAtMs).isEqualTo(later.minus(Duration.ofHours(24)).toEpochMilli())
+        assertThat(alarms.scheduledAlarms).hasSize(1)
     }
 }

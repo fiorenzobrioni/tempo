@@ -138,11 +138,35 @@ class WidgetGalleryTest {
             board.row(Grants.FourByOne to renderCard(context, Grants.FourByOne) { WordsWidgetContent(model) })
         }
         val none = WidgetSamples.model(content = WidgetContent.NoPermission)
+        // Centred in the room under the header, on top and under the dial.
+        board.row(Grants.ThreeByTwo to renderCard(context, Grants.ThreeByTwo) { AgendaWidgetContent(none) })
+        board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { WordsWidgetContent(none) })
         board.row(
             Grants.OneByOne to renderCard(context, Grants.OneByOne) { AgendaWidgetContent(none) },
             Grants.OneByOne to renderCard(context, Grants.OneByOne) { WordsWidgetContent(none) },
             Grants.TwoByTwo to renderCard(context, Grants.TwoByTwo) { WordsWidgetContent(none) },
         )
         board.draw().saveTo(out, "widget-states")
+    }
+
+    @Test
+    fun `the next alarm`() {
+        val board = HomeBoard(context, widthDp = 380)
+        listOf(
+            // Tomorrow's, at 10:20; today's, at 05:00; on the twelve-hour clock; turned off on the card.
+            WidgetSamples.model(),
+            WidgetSamples.model(now = WidgetSamples.at("2026-10-07T05:00")).copy(
+                alarm = WidgetSamples.at("2026-10-07T06:45").toInstant(),
+            ),
+            WidgetSamples.model(look = WidgetLook(clockFormat = ClockFormat.H12)),
+            WidgetSamples.model(look = WidgetLook(showClock = false)),
+            WidgetSamples.model(look = WidgetLook(showAlarm = false)),
+        ).forEach { model ->
+            board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { AgendaWidgetContent(model) })
+        }
+        listOf(Grants.ThreeByTwo, Grants.FourByThree).forEach { size ->
+            board.row(size to renderCard(context, size) { AgendaWidgetContent(WidgetSamples.model()) })
+        }
+        board.draw().saveTo(out, "widget-alarm")
     }
 }

@@ -36,6 +36,8 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -244,7 +246,8 @@ internal fun rememberWidgetModel(
 /**
  * One message on the card, where the agenda would be: what is true, and what a touch does about it,
  * as [room] holds them whole. The sentence and its hint where both fit; the sentence alone where
- * the hint does not; the message's one word where not even the sentence does. Never cut.
+ * the hint does not; the message's one word where not even the sentence does. Never cut. Centred
+ * in [room], beside the header or under it: hung from the top, it left the card empty under it.
  */
 @Composable
 internal fun MessageContent(message: CardMessage, palette: WidgetPalette, width: Dp, room: Dp) {
@@ -272,7 +275,10 @@ internal fun MessageContent(message: CardMessage, palette: WidgetPalette, width:
             false,
         )
     }
-    Column(verticalAlignment = Alignment.Vertical.CenterVertically) {
+    Column(
+        modifier = GlanceModifier.fillMaxWidth().height(room),
+        verticalAlignment = Alignment.Vertical.CenterVertically,
+    ) {
         Text(
             text = title,
             style = TextStyle(color = palette.primaryInk, fontSize = MESSAGE_SP.sp, fontWeight = FontWeight.Medium),
