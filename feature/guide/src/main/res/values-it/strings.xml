@@ -30,7 +30,7 @@
     <string name="guide_today_ahead_title">I prossimi giorni</string>
     <string name="guide_today_ahead_body">Domani e il resto della settimana, ognuno su una scheda con un breve riassunto accanto al nome; una serie di giorni vuoti si dice una volta sola. Nelle impostazioni: una settimana, oggi e domani, o solo oggi.</string>
     <string name="guide_today_alarm_title">La prossima sveglia</string>
-    <string name="guide_today_alarm_body">La prossima sveglia impostata sul telefono, come la tiene l’app Orologio, sotto l’ora; un tocco apre l’app Orologio. Tempo la legge soltanto; un interruttore nelle impostazioni la nasconde.</string>
+    <string name="guide_today_alarm_body">La prossima sveglia impostata nell’app Orologio, sotto l’ora; un tocco apre l’app Orologio. Tempo la legge soltanto; un interruttore nelle impostazioni la nasconde. Alcune app calendario tengono i loro promemoria come sveglie: quelli non compaiono, e una tua sveglia che viene dopo uno di loro compare quando il promemoria è suonato.</string>
     <string name="guide_today_live_title">Viva mentre guardi</string>
     <string name="guide_today_live_body">Mentre Oggi è aperta l’orologio avanza a ogni minuto, e un impegno creato o cambiato nella tua app calendario è lì quando torni. Quando esci, non resta in funzione niente.</string>
 
@@ -49,7 +49,7 @@
     <!-- I widget -->
     <string name="guide_widgets_title">Nella schermata Home</string>
     <string name="guide_widgets_two_title">Due widget</string>
-    <string name="guide_widgets_two_body">«Agenda» mette l’ora e la data sopra il resto della giornata; «In parole» è il quadrante, con quello che viene dopo e la giornata in poche parole. Tutti e due stanno in ogni misura, da una sola cella in su. Tienine premuto uno per le sue impostazioni: l’ora e la data, cosa apre un tocco, il colore e l’opacità.</string>
+    <string name="guide_widgets_two_body">«Agenda» mette l’ora e la data sopra il resto della giornata; «In parole» è il quadrante, con quello che viene dopo e la giornata in poche parole. Tutti e due stanno in ogni misura, da una sola cella in su. Su un’«Agenda» larga, sotto la data, quanti impegni restano oggi e fino a che ora. Tieni premuto un widget per le sue impostazioni: l’ora e la data, cosa apre un tocco, il colore e l’opacità.</string>
     <string name="guide_widgets_fit_title">Mai una lista da scorrere</string>
     <string name="guide_widgets_fit_body">Una scheda mostra tutti gli impegni che ci stanno interi, disposti per la misura che ha davvero, e dice quanti altri ce ne sono: niente è tagliato a metà, niente scorre.</string>
     <string name="guide_widgets_times_title">Orari, non conti alla rovescia</string>

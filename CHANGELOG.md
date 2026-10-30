@@ -17,6 +17,8 @@ All notable changes to Tempo are documented here. The format follows
   opens the Clock app, where alarms are set. Tempo still only reads it.
 - **The dial in your calendars' colours.** The events on Today's clock face wear their
   calendar's colour, as in the list under it; the next one stays in the accent.
+- **The rest of the day on «Agenda».** Under the date on the wide widget, how many events are
+  left today and until when: "4 left today, until 7:30 PM".
 
 ### Changed
 
@@ -29,6 +31,14 @@ All notable changes to Tempo are documented here. The format follows
   the "more today" line are one size, and the note on «In words» matches it, the same sizes
   the family's other cards use.
 - **Widgets wear your launcher's corner**, so they match the widgets beside them.
+- **More of the day on «Agenda».** The event under way says "→ 11:00" where "Until 11:00"
+  would squeeze every title beside it, and in Italian the all-day line spans the list: on the
+  default size the rest of the day fits with its titles whole, five events where Italian
+  showed three.
+- **Widget messages in the middle.** "Tempo cannot read your calendar" and the other messages
+  stand centred in the widget, not at its top over an empty card.
+- **The widget's size in view.** In a widget's settings the size picked is scrolled into
+  view; the default one was past the screen's edge, as if none were picked.
 - **Times line up.** Today's columns of times use figures of one width, so the times stand
   under each other and "40 min left" no longer shifts as it counts down; the day's sentence
   breaks into even lines, and a time never parts from its AM or PM.
@@ -48,6 +58,9 @@ All notable changes to Tempo are documented here. The format follows
 - **An end on another day says its day**: "Night train until tomorrow at 6:30", "Ends
   Saturday", on Today and on the widgets, where a bare time read as today's.
 - **The launcher's "New event"** follows the app's language when you change it.
+- **The next alarm is yours.** Some calendar apps keep their reminders as alarms, and Today
+  showed one as "Alarm tomorrow at 10:00" with no alarm set. Only an alarm set in a clock app
+  is shown now.
 - **«In words» shows the next event on its dial** as soon as it comes within the dial's twelve
   hours, rather than at midnight; and on one cell its dial stays when the calendar cannot be
   read, as «Agenda»'s clock does.

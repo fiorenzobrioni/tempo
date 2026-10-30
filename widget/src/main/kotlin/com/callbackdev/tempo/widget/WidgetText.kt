@@ -5,6 +5,7 @@ import android.text.format.DateFormat
 import com.callbackdev.tempo.core.designsystem.format.AgendaText
 import com.callbackdev.tempo.core.domain.widget.CardFooter
 import com.callbackdev.tempo.core.domain.widget.CardLine
+import com.callbackdev.tempo.core.domain.widget.CardSummary
 import com.callbackdev.tempo.core.domain.widget.TodayNote
 import com.callbackdev.tempo.core.domain.widget.WordsFocus
 import com.callbackdev.tempo.core.domain.widget.WordsNote
@@ -12,7 +13,6 @@ import com.callbackdev.tempo.core.model.CalendarInfo
 import com.callbackdev.tempo.core.model.DateStyle
 import com.callbackdev.tempo.core.model.EntryState
 import com.callbackdev.tempo.core.model.EventInstance
-import com.callbackdev.tempo.core.model.TimedEntry
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.callbackdev.tempo.core.designsystem.R as DesignR
@@ -44,26 +44,47 @@ internal class CardText(private val context: Context, model: WidgetModel) {
             ?.let { context.getString(R.string.widget_day_of, it.dayNumber, it.dayCount) }
             ?: context.getString(R.string.widget_all_day)
 
-        is CardLine.Timed -> timed(line.entry, startOnly = false)
+        is CardLine.Timed -> timed(line, startOnly = false)
 
         is CardLine.Heading, is CardLine.Note -> ""
     }
 
     /** The same, where only the start fits: "10:00", "Until 11:00" for the one under way. */
     fun start(line: CardLine): String = when (line) {
-        is CardLine.Timed -> timed(line.entry, startOnly = true)
+        is CardLine.Timed -> timed(line, startOnly = true)
         else -> range(line)
     }
 
-    private fun timed(entry: TimedEntry, startOnly: Boolean): String {
-        val event = entry.event
+    /**
+     * The same in fewer letters where there are fewer: "→ 11:00" for "Until 11:00", "→ Tomorrow ·
+     * 06:30" for an end on a later date, as «In words» says them; any other time as it is. An
+     * inline row prints it where the full form would widen the time column for every title
+     * (`AgendaFit.timeColumn`).
+     */
+    fun short(line: CardLine, startOnly: Boolean): String {
+        if (line is CardLine.Timed && line.saysUntil) {
+            val end = line.entry.event.end
+            val ends = agenda.endDate(end)
+            val time = agenda.time(end)
+            return context.getString(
+                R.string.widget_until_short,
+                if (ends <= line.date) time else context.getString(R.string.widget_when_day, heading(ends), time),
+            )
+        }
+        return if (startOnly) start(line) else range(line)
+    }
+
+    /** An event under way, or one that began on an earlier date: its row says when it ends. */
+    private val CardLine.Timed.saysUntil: Boolean
+        get() = !entry.startsOnDate || entry.state == EntryState.UNDER_WAY
+
+    private fun timed(line: CardLine.Timed, startOnly: Boolean): String {
+        val event = line.entry.event
         return when {
-            !entry.startsOnDate -> agenda.until(event.end)
+            // An end on a later date says its day ("Until tomorrow at 06:00"): a bare time reads as the row's date's.
+            line.saysUntil -> agenda.until(event.end, line.date)
 
-            // An end on a later date says its day ("Until tomorrow at 06:00"): a bare time reads as today's.
-            entry.state == EntryState.UNDER_WAY -> agenda.until(event.end, today)
-
-            !entry.endsOnDate -> agenda.from(event.begin)
+            !line.entry.endsOnDate -> agenda.from(event.begin)
 
             startOnly -> agenda.time(event.begin)
 
@@ -204,6 +225,15 @@ internal class CardText(private val context: Context, model: WidgetModel) {
             }
         }
     }
+
+    /**
+     * The rest of today in a few words, a line each: "4 left today", "until 19:30"; an end on a
+     * later date says its day ("until tomorrow at 06:30"), as the sentence's does.
+     */
+    fun summary(summary: CardSummary): List<String> = listOf(
+        resources.getQuantityString(R.plurals.widget_summary_left, summary.left, summary.left),
+        agenda.until(summary.until, today),
+    )
 
     /** "Then 16:30 · 18:00", with as many times as [count]. */
     fun then(events: List<EventInstance>, count: Int): String =

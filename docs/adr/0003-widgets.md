@@ -103,6 +103,34 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
     takes the radius the launcher gives its widgets (`system_app_widget_background_radius`, in
     `WidgetCard`, the settings preview and `widget_preview_card`) instead of a fixed 24 dp: the
     same on stock Android 16, and the launcher's own wherever a phone sets another.
+12. **The rest of the day under the date, not the next alarm** (amendment of 30 Oct 2026,
+    PLANNING.md §11 step 8.2; the owner's choices). The leading column of the 4×2 was empty under
+    the date for about 40% of the card. The step planned the phone's next alarm there, kept true
+    by the system's `NEXT_ALARM_CLOCK_CHANGED`, received in the manifest, and on the condition that
+    a phone showed it reaching Tempo in the background. AOSP sends it with
+    `FLAG_RECEIVER_INCLUDE_BACKGROUND` and does not hold it for a cached app's manifest receiver,
+    so it was built and tried on the owner's phone: the card followed a change once in about 5 s,
+    and once not within 30 s. A card must not show an alarm it cannot keep true, so the owner took
+    it off the cards; Today keeps it, read every minute while the page is open, and shows only an
+    alarm a clock app set (`ClockApp.nextAlarm`: a calendar app may keep its reminders as alarm
+    clocks). In its place, the step's other way: the rest of today in a few words, "4 left today"
+    over "until 19:30" (`CardSummary`), at the label step in the secondary ink, each line where it
+    fits whole in the column the clock and the date set, never wider; none once today's timed
+    events are over (the list says it). These are counts and clock times the card is redrawn at
+    anyway, so no trigger is added. A line under the date fills the column: a vertical
+    `LinearLayout` whose lines all fill it takes its widest line's width, and one line that only
+    wrapped its words set the column to its own and cut a 12-hour clock.
+13. **«Agenda»'s time column is set by the rows it shows** (amendment of 30 Oct 2026, step 8.2).
+    The event under way says "→ 11:00" on an inline row where "Until 11:00" would be the widest
+    time of the list and widen the column for every title, and keeps "Until 11:00" where the
+    column is as wide anyway and on a stacked row. An all-day label much wider than the timed
+    rows' times (Italian's "Tutto il giorno", over an em wider) stands over its titles across the
+    list instead, and the column is left to the timed rows (`AgendaFit.timeColumn`, `TimeColumn`).
+    And the column is measured over the lines the card shows: the card is laid out once with
+    every line of the week, then again with the lines that fitted, and shows no more than those (a
+    line past them was not measured). A time never drawn ("Day 3 of 4" under tomorrow) had widened
+    it. On the README's four-by-two at 10:20 the titles are whole in English ("Lunch with Gi…"
+    and "Swimming les…" before) and Italian lists five events where it listed three.
 
 ## Consequences
 

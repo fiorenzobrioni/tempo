@@ -138,11 +138,30 @@ class WidgetGalleryTest {
             board.row(Grants.FourByOne to renderCard(context, Grants.FourByOne) { WordsWidgetContent(model) })
         }
         val none = WidgetSamples.model(content = WidgetContent.NoPermission)
+        // Centred in the room under the header, on top and under the dial.
+        board.row(Grants.ThreeByTwo to renderCard(context, Grants.ThreeByTwo) { AgendaWidgetContent(none) })
+        board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { WordsWidgetContent(none) })
         board.row(
             Grants.OneByOne to renderCard(context, Grants.OneByOne) { AgendaWidgetContent(none) },
             Grants.OneByOne to renderCard(context, Grants.OneByOne) { WordsWidgetContent(none) },
             Grants.TwoByTwo to renderCard(context, Grants.TwoByTwo) { WordsWidgetContent(none) },
         )
         board.draw().saveTo(out, "widget-states")
+    }
+
+    @Test
+    fun `the rest of the day under the date`() {
+        val board = HomeBoard(context, widthDp = 380)
+        listOf(
+            // The whole day ahead; at 10:20; on the twelve-hour clock; the date alone; the evening.
+            WidgetSamples.model(now = WidgetSamples.at("2026-10-07T05:00")),
+            WidgetSamples.model(),
+            WidgetSamples.model(look = WidgetLook(clockFormat = ClockFormat.H12)),
+            WidgetSamples.model(look = WidgetLook(showClock = false)),
+            WidgetSamples.model(now = WidgetSamples.at("2026-10-07T21:10")),
+        ).forEach { model ->
+            board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { AgendaWidgetContent(model) })
+        }
+        board.draw().saveTo(out, "widget-summary")
     }
 }

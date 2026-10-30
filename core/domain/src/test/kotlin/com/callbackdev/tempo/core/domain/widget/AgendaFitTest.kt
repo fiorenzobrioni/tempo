@@ -157,4 +157,121 @@ class AgendaFitTest {
         val short = AgendaFit.plan(spec(340f, 189f).copy(titleEm = 3f, lines = 2))
         assertThat(short.rowStyle).isEqualTo(RowStyle.INLINE_START)
     }
+
+    // --- The time column ("→ 11:00", the all-day line across the list), review of 30 Oct 2026 ----
+
+    /** Measured as [startEm] is: the start-only times of the README's sample at 10:20. */
+    private val arrowEm = 3.4f
+    private val oneEm = 2.6f
+    private val allDayEm = 3.1f
+    private val tuttoIlGiornoEm = 6.5f
+    private val finoAlleEm = 6.8f
+
+    @Test
+    fun `the event under way sets the column by its arrow, where its until would widen it`() {
+        val column = AgendaFit.timeColumn(
+            listOf(TimeCell(allDayEm, allDay = true), TimeCell(startEm, arrowEm), TimeCell(oneEm), TimeCell(oneEm)),
+        )
+        assertThat(column.em).isEqualTo(arrowEm)
+        assertThat(column.holdsFull(TimeCell(startEm, arrowEm))).isFalse()
+        assertThat(column.spans(TimeCell(allDayEm, allDay = true))).isFalse()
+    }
+
+    @Test
+    fun `until stays where the column is as wide anyway`() {
+        // The ranges ("13:00 – 14:00") are wider than "Until 11:00": the column holds it whole.
+        val column = AgendaFit.timeColumn(listOf(TimeCell(startEm, arrowEm), TimeCell(rangeEm)))
+        assertThat(column.em).isEqualTo(rangeEm)
+        assertThat(column.holdsFull(TimeCell(startEm, arrowEm))).isTrue()
+    }
+
+    @Test
+    fun `an all-day label much wider than the times goes over its titles, and leaves the column to them`() {
+        val tutto = TimeCell(tuttoIlGiornoEm, allDay = true)
+        val column = AgendaFit.timeColumn(listOf(tutto, TimeCell(finoAlleEm, arrowEm), TimeCell(oneEm)))
+        assertThat(column.spans(tutto)).isTrue()
+        assertThat(column.em).isEqualTo(arrowEm)
+    }
+
+    @Test
+    fun `a list of all-day lines alone is set by them`() {
+        val tutto = TimeCell(tuttoIlGiornoEm, allDay = true)
+        val column = AgendaFit.timeColumn(listOf(tutto, TimeCell(allDayEm, allDay = true)))
+        assertThat(column.spans(tutto)).isFalse()
+        assertThat(column.em).isEqualTo(tuttoIlGiornoEm)
+    }
+
+    @Test
+    fun `an all-day line across the list is weighed at its stacked height, where it stands`() {
+        // Four inline rows fit a four-by-two whole; four lines over their titles would not, and
+        // then stacking every row shows as many and cuts no title.
+        val wide = spec(340f, 189f).copy(startEm = arrowEm, titleEm = 12f, lines = 4)
+        assertThat(AgendaFit.plan(wide).rowStyle).isEqualTo(RowStyle.INLINE_START)
+        assertThat(AgendaFit.plan(wide.copy(spanning = setOf(0, 1, 2, 3))).rowStyle).isEqualTo(RowStyle.STACKED)
+        // Today's all-day line over its titles, and the days ahead's further down, past what the
+        // card shows: the rows stay inline, five lines where stacked ones would be three.
+        val week = wide.copy(lines = 15, spanning = setOf(0, 6, 9, 12))
+        assertThat(AgendaFit.plan(week).rowStyle).isEqualTo(RowStyle.INLINE_START)
+    }
+
+    @Test
+    fun `the four-by-two's titles keep their room once the arrow sets the column`() {
+        val before = AgendaFit.plan(spec(340f, 189f))
+        val after = AgendaFit.plan(spec(340f, 189f).copy(startEm = arrowEm))
+        val gained = AgendaFit.timeColumn(before.rowStyle, rangeEm, startEm, 1f) -
+            AgendaFit.timeColumn(after.rowStyle, rangeEm, arrowEm, 1f)
+        // Two letters and more for every title: "Lunch with Gi…" was short of "ulia".
+        assertThat(after.rowStyle).isEqualTo(RowStyle.INLINE_START)
+        assertThat(gained).isAtLeast(18f)
+    }
+
+    // --- The day in a few words, under the date in the side column -------------------------
+
+    /** "4 left today", "until 19:30" in the medium face. */
+    private val summaryEms = listOf(6.2f, 5.2f)
+
+    private fun withSummary(width: Float, height: Float, scale: Float = 1f, ems: List<Float> = summaryEms) =
+        AgendaFit.plan(spec(width, height, scale = scale).copy(summaryEms = ems))
+
+    @Test
+    fun `the four-by-two's side column says the rest of the day under the date, in the room it has`() {
+        val without = checkNotNull(plan(340f, 189f).header)
+        val with = checkNotNull(withSummary(340f, 189f).header)
+        assertThat(with.summaryLines).isEqualTo(2)
+        assertThat(with.width).isEqualTo(without.width)
+        assertThat(with.height).isEqualTo(
+            without.height + AgendaFit.SUMMARY_TOP + lineHeight(AgendaFit.SUMMARY_SP, 1f) * 2,
+        )
+        assertThat(with.height).isAtMost(189f - AgendaFit.CARD_PADDING * 2)
+        assertThat(withSummary(340f, 189f).listWidth).isEqualTo(plan(340f, 189f).listWidth)
+    }
+
+    @Test
+    fun `a line too wide for the column is left out, and the ones after it too`() {
+        // The count alone where "until tomorrow at 06:30" does not fit; nothing where the count does not.
+        assertThat(checkNotNull(withSummary(340f, 189f, ems = listOf(6.2f, 11f)).header).summaryLines).isEqualTo(1)
+        assertThat(checkNotNull(withSummary(340f, 189f, ems = listOf(11f, 5.2f)).header).summaryLines).isEqualTo(0)
+    }
+
+    @Test
+    fun `the side column never grows past the card for the summary, at any text size`() {
+        listOf(1f, 1.3f, 2f).forEach { scale ->
+            val plan = withSummary(340f, 189f, scale)
+            if (plan.form != AgendaForm.SIDE) return@forEach
+            val header = checkNotNull(plan.header)
+            assertThat(header.height).isAtMost(189f - AgendaFit.CARD_PADDING * 2)
+            summaryEms.take(header.summaryLines).forEach { em ->
+                assertThat(widthOf(em, AgendaFit.SUMMARY_SP, scale)).isAtMost(header.width)
+            }
+        }
+    }
+
+    @Test
+    fun `only a side column says it, not a header on top, a row or a cell`() {
+        listOf(159f to 189f, 250f to 189f, 340f to 293f, 85f to 85f, 340f to 85f, 85f to 189f).forEach { (w, h) ->
+            val header = checkNotNull(withSummary(w, h).header)
+            assertThat(header.summaryLines).isEqualTo(0)
+            assertThat(header.height).isEqualTo(checkNotNull(plan(w, h).header).height)
+        }
+    }
 }

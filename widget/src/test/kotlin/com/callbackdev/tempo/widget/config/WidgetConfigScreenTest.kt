@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -158,5 +159,24 @@ class WidgetConfigScreenTest {
         val bitmap = compose.onRoot().captureToImage().asAndroidBitmap()
         val dir = File("build/screenshots").apply { mkdirs() }
         File(dir, "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w360dp-h1600dp-xhdpi")
+    fun `the chosen size is in view when the page opens, the default four-by-two past the edge no more`() {
+        show(WidgetKind.AGENDA)
+        val screen = compose.onRoot().fetchSemanticsNode().boundsInRoot
+        val chip = compose.onNodeWithText("4×2").assertIsSelected().fetchSemanticsNode().boundsInRoot
+        assertThat(chip.left).isAtLeast(screen.left)
+        assertThat(chip.right).isAtMost(screen.right)
+        save("widget-config-sizes")
+    }
+
+    @Test
+    fun `a chip in view leaves the row where it is, one past an edge comes in with the row's margin`() {
+        assertThat(chipInView(start = 100, width = 50, edge = 16, scroll = 0, viewport = 300)).isNull()
+        assertThat(chipInView(start = 400, width = 50, edge = 16, scroll = 0, viewport = 300)).isEqualTo(166)
+        assertThat(chipInView(start = 20, width = 50, edge = 16, scroll = 100, viewport = 300)).isEqualTo(4)
+        assertThat(chipInView(start = 20, width = 50, edge = 16, scroll = 0, viewport = 0)).isNull()
     }
 }

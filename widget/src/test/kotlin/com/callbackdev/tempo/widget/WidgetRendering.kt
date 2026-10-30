@@ -101,6 +101,21 @@ internal fun Bitmap.saveTo(dir: File, name: String) {
     File(dir, "$name.png").outputStream().use { compress(Bitmap.CompressFormat.PNG, 100, it) }
 }
 
+/** Every line of text a card shows on [size], as the launcher would lay it out. */
+@OptIn(ExperimentalGlanceRemoteViewsApi::class)
+internal fun shownTexts(context: Context, size: DpSize, content: @Composable () -> Unit): List<String> = runBlocking {
+    val views = GlanceRemoteViews().compose(context, size) { content() }.remoteViews
+    val host = FrameLayout(context)
+    host.addView(views.apply(context, host))
+    val texts = mutableListOf<String>()
+    fun collect(view: View) {
+        if (view is android.widget.TextView && view.visibility == View.VISIBLE) texts += view.text.toString()
+        if (view is android.view.ViewGroup) for (i in 0 until view.childCount) collect(view.getChildAt(i))
+    }
+    collect(host)
+    texts
+}
+
 /** The household's reference grants. */
 internal object Grants {
     val OneByOne = DpSize(85.dp, 85.dp)

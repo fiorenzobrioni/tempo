@@ -82,6 +82,7 @@ object WidgetConfigTags {
     const val LIST = "widget_config_list"
     const val HEADER_TAP = "widget_config_header_tap"
     const val EVENT_TAP = "widget_config_event_tap"
+    const val SIZES = "widget_config_sizes"
 }
 
 private enum class ConfigDialog { CLOCK_FORMAT, DATE_STYLE, HEADER_TAP, EVENT_TAP }

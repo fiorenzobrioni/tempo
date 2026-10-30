@@ -25,6 +25,12 @@
     </plurals>
     <string name="widget_more_count">+%1$d</string>
 
+    <!-- The rest of today in a few words, under the date on the wide card; then "until 19:30" -->
+    <plurals name="widget_summary_left">
+        <item quantity="one">One left today</item>
+        <item quantity="other">%1$d left today</item>
+    </plurals>
+
     <!-- «In words» -->
     <string name="widget_free">Free</string>
     <string name="widget_until_short">→ %1$s</string>
