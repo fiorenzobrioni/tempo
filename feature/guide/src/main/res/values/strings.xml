@@ -49,7 +49,7 @@
     <!-- The widgets -->
     <string name="guide_widgets_title">On the home screen</string>
     <string name="guide_widgets_two_title">Two widgets</string>
-    <string name="guide_widgets_two_body">«Agenda» puts the time and the date over the rest of your day; «In words» is the dial, with what comes next and the day in a few words. Both fit any size, from a single cell up. With the date, «Agenda» shows your next alarm when it rings within a day; a touch on it opens your clock app. Touch and hold a widget for its own settings: the time and the date, what a touch opens, its colour and opacity.</string>
+    <string name="guide_widgets_two_body">«Agenda» puts the time and the date over the rest of your day; «In words» is the dial, with what comes next and the day in a few words. Both fit any size, from a single cell up. On a wide «Agenda», under the date, how many events are left today and until when. Touch and hold a widget for its own settings: the time and the date, what a touch opens, its colour and opacity.</string>
     <string name="guide_widgets_fit_title">Never a list to scroll</string>
     <string name="guide_widgets_fit_body">A card shows as many events as fit whole, laid out for the size it really has, and says how many more there are: nothing is cut in half, nothing scrolls.</string>
     <string name="guide_widgets_times_title">Clock times, not countdowns</string>

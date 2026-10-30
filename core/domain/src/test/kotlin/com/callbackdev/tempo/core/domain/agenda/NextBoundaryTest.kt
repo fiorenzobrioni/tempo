@@ -63,15 +63,4 @@ class NextBoundaryTest {
         val result = agenda(now = at("2026-03-29T12:00"))
         assertThat(NextBoundary.after(result, Rome)).isEqualTo(at("2026-03-30T00:00"))
     }
-
-    @Test
-    fun `with an alarm on a card, its changes are boundaries`() {
-        // At 05:00 the 07:00 alarm leaves the card when it rings, before the 09:00 meeting begins.
-        val late = agenda(timed(1, "2026-10-08T09:00", "2026-10-08T10:00"), now = at("2026-10-08T05:00"))
-        assertThat(NextBoundary.after(late, Rome, alarm = at("2026-10-08T07:00"))).isEqualTo(at("2026-10-08T07:00"))
-        // Two days away, it comes onto the card a day before it rings, before the next midnight.
-        val early = agenda(now = at("2026-10-07T10:20"))
-        assertThat(NextBoundary.after(early, Rome, alarm = at("2026-10-08T21:00"))).isEqualTo(at("2026-10-07T21:00"))
-        assertThat(NextBoundary.after(early, Rome)).isEqualTo(at("2026-10-08T00:00"))
-    }
 }

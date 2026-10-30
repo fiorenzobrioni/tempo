@@ -162,34 +162,6 @@ class WidgetConfigScreenTest {
     }
 
     @Test
-    fun `the next alarm has its switch on «Agenda», on until the reader turns it off`() {
-        show(WidgetKind.AGENDA)
-        scrollToTag(WidgetConfigTags.ALARM)
-        compose.onNodeWithText("Next alarm").assertExists()
-        compose.onNodeWithText("in the next 24 hours", substring = true).assertExists()
-        assertThat(look.showAlarm).isTrue()
-        compose.onNodeWithTag(WidgetConfigTags.ALARM).performClick()
-        assertThat(look.showAlarm).isFalse()
-        compose.assertAccessible()
-    }
-
-    @Test
-    @Config(qualifiers = "it-rIT-w411dp-h1600dp-xhdpi")
-    fun `in Italian, the alarm's switch says so`() {
-        show(WidgetKind.AGENDA)
-        scrollToTag(WidgetConfigTags.ALARM)
-        compose.onNodeWithText("Prossima sveglia").assertExists()
-        compose.onNodeWithText("nelle prossime 24 ore", substring = true).assertExists()
-    }
-
-    @Test
-    fun `«In words» shows no alarm yet, so it has no switch for one`() {
-        show(WidgetKind.WORDS)
-        compose.onNodeWithTag(WidgetConfigTags.LIST).performScrollToNode(hasText("All-day events"))
-        compose.onNodeWithTag(WidgetConfigTags.ALARM).assertDoesNotExist()
-    }
-
-    @Test
     @Config(qualifiers = "en-rGB-w360dp-h1600dp-xhdpi")
     fun `the chosen size is in view when the page opens, the default four-by-two past the edge no more`() {
         show(WidgetKind.AGENDA)

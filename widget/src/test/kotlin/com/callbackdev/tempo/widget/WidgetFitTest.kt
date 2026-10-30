@@ -51,11 +51,8 @@ class WidgetFitTest {
             instances = WidgetSamples.instances + nightTrain,
         ),
         WidgetSamples.model(now = WidgetSamples.at("2026-10-11T23:00")),
-        // An alarm later today, and one on the twelve-hour clock (every sample has tomorrow's at 07:00).
-        WidgetSamples.model(
-            now = WidgetSamples.at("2026-10-07T05:00"),
-            alarm = WidgetSamples.at("2026-10-07T06:45").toInstant(),
-        ),
+        // The whole day left to say under the date: six events, from the run at 07:30.
+        WidgetSamples.model(now = WidgetSamples.at("2026-10-07T05:00")),
         WidgetSamples.model(look = WidgetLook(clockFormat = ClockFormat.H12, dateStyle = DateStyle.NUMERIC)),
         WidgetSamples.model(look = WidgetLook(showClock = false)),
         WidgetSamples.model(look = WidgetLook(showClock = false, dateStyle = DateStyle.NUMERIC)),
@@ -153,6 +150,6 @@ class WidgetFitTest {
     fun `the four-by-two lists the rest of today, every title whole, in Italian`() {
         assertFourByTwoWhole()
         val shown = shownTexts(context, Grants.FourByTwo) { AgendaWidgetContent(WidgetSamples.model()) }
-        assertThat(shown).containsAtLeast("Tutto il giorno", "Domani 07:00")
+        assertThat(shown).containsAtLeast("Tutto il giorno", "Ancora 4 oggi", "fino alle 19:30")
     }
 }

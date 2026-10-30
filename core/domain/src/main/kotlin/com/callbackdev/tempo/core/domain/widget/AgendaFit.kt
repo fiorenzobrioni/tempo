@@ -45,8 +45,8 @@ enum class RowStyle { INLINE_RANGE, INLINE_START, STACKED }
  *   unknown, as for a message, which keeps the inline rows.
  * @property spanning the positions, among the [lines], of the all-day lines that stand over their
  *   titles across the list even where the rows are inline ([TimeColumn.spans]).
- * @property alarmEms the card's next alarm in each form it may take, the fullest first
- *   ("Tomorrow 07:00", "07:00"), in ems of the medium face; empty with no alarm on the card.
+ * @property summaryEms the rest of today in a few words ([CardSummary]), its lines in order
+ *   ("4 left today", "until 19:30"), in ems of the medium face; empty with nothing left today.
  */
 data class AgendaSpec(
     val width: Float,
@@ -61,14 +61,14 @@ data class AgendaSpec(
     val titleEm: Float = 0f,
     val lines: Int = 0,
     val spanning: Set<Int> = emptySet(),
-    val alarmEms: List<Float> = emptyList(),
+    val summaryEms: List<Float> = emptyList(),
 )
 
 /**
  * The header as drawn: the clock's size (0 when hidden), which date style ([dateChoice] into
  * [AgendaSpec.dateEms], -1 when hidden), its size and lines, and the space the whole block takes;
- * and which form of the next alarm ([alarmChoice] into [AgendaSpec.alarmEms], -1 when it is not
- * drawn): under the date in a side column, at the far end of the date's line on top.
+ * and how many lines of the day in a few words ([summaryLines] of [AgendaSpec.summaryEms]) stand
+ * under the date, in a side column only: on top, the list is right under the date.
  */
 data class HeaderPlan(
     val clockSp: Float,
@@ -77,7 +77,7 @@ data class HeaderPlan(
     val dateLines: Int,
     val width: Float,
     val height: Float,
-    val alarmChoice: Int = -1,
+    val summaryLines: Int = 0,
 )
 
 /**
@@ -203,15 +203,7 @@ object AgendaFit {
         } else {
             0f
         }
-        val plan = header(spec, clock, width, DATE_SP)
-        // The alarm at the far end of the date's line (the clock's, with no date), where both fit whole.
-        val line = if (plan.dateChoice >= 0) {
-            widthOf(spec.dateEms[plan.dateChoice], plan.dateSp, spec.fontScale)
-        } else {
-            widthOf(spec.clockEm, clock, spec.fontScale)
-        }
-        val alarm = spec.alarmEms.indexOfFirst { line + ALARM_GAP + alarmWidth(it, spec.fontScale) <= width }
-        return if (alarm >= 0) plan.copy(alarmChoice = alarm) else plan
+        return header(spec, clock, width, DATE_SP)
     }
 
     /** The clock beside a tall card's list: a column of at most [SIDE_SHARE] of the card. */
@@ -235,15 +227,18 @@ object AgendaFit {
         val room = if (spec.clock) maxOf(clockWidth, SIDE_DATE_MIN) else most
         val plan = header(spec, clock, minOf(room, most), DATE_SP, maxLines = 2)
         val column = plan.copy(width = minOf(most, maxOf(clockWidth, plan.width)))
-        // The alarm under the date, in the room the column already has: it never widens it.
-        val alarm = spec.alarmEms.indexOfFirst { alarmWidth(it, spec.fontScale) <= column.width }
-        val withAlarm = column.height + ALARM_TOP + lineHeight(ALARM_SP, spec.fontScale)
-        return if (alarm >= 0 && withAlarm <= inner) column.copy(alarmChoice = alarm, height = withAlarm) else column
+        // The day in a few words under the date, its lines in order while each fits whole in the
+        // room the column already has (it never widens it), and the column's height holds them.
+        var lines = 0
+        var height = column.height
+        for (em in spec.summaryEms) {
+            val next = height + (if (lines == 0) SUMMARY_TOP else 0f) + lineHeight(SUMMARY_SP, spec.fontScale)
+            if (widthOf(em, SUMMARY_SP, spec.fontScale) > column.width || next > inner) break
+            height = next
+            lines++
+        }
+        return column.copy(summaryLines = lines, height = height)
     }
-
-    /** The alarm's line: the bell, then its time ([AgendaSpec.alarmEms]). */
-    fun alarmWidth(em: Float, fontScale: Float): Float =
-        (ALARM_ICON + ALARM_ICON_GAP) * fontScale + widthOf(em, ALARM_SP, fontScale)
 
     /**
      * The clock on a one-row card: as tall as the row leaves under the date, up to
@@ -474,16 +469,9 @@ object AgendaFit {
      */
     const val ALL_DAY_SLACK = 1f
 
-    // The next alarm (PLANNING.md §7): a bell and a time, at the list's size, in the secondary ink.
-    const val ALARM_SP = WidgetType.LABEL
-
-    /** The bell, as tall as the line's letters, and its gap to the time; both grow with the text. */
-    const val ALARM_ICON = 13f
-    const val ALARM_ICON_GAP = 4f
+    // The day in a few words (PLANNING.md §7): at the list's size, in the secondary ink.
+    const val SUMMARY_SP = WidgetType.LABEL
 
     /** Under the date in a side column, as the list is under the header on top. */
-    const val ALARM_TOP = HEADER_GAP
-
-    /** Between the date and the alarm on the top header's line. */
-    const val ALARM_GAP = 12f
+    const val SUMMARY_TOP = HEADER_GAP
 }

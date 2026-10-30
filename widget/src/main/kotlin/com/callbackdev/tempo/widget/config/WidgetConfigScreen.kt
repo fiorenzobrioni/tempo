@@ -83,7 +83,6 @@ object WidgetConfigTags {
     const val HEADER_TAP = "widget_config_header_tap"
     const val EVENT_TAP = "widget_config_event_tap"
     const val SIZES = "widget_config_sizes"
-    const val ALARM = "widget_config_alarm"
 }
 
 private enum class ConfigDialog { CLOCK_FORMAT, DATE_STYLE, HEADER_TAP, EVENT_TAP }
@@ -203,18 +202,6 @@ fun WidgetConfigScreen(
                         ),
                         checked = look.showDaysAhead,
                         onChange = { onLook(look.copy(showDaysAhead = it)) },
-                    )
-                }
-                // «Agenda»'s alone for now: «In words» shows no alarm, and a switch that does
-                // nothing is not drawn (PLANNING.md §11, 8.3 brings it there).
-                if (kind == WidgetKind.AGENDA) {
-                    GroupDivider()
-                    SwitchRow(
-                        label = stringResource(R.string.widget_config_alarm),
-                        note = stringResource(R.string.widget_config_alarm_note),
-                        checked = look.showAlarm,
-                        onChange = { onLook(look.copy(showAlarm = it)) },
-                        modifier = Modifier.testTag(WidgetConfigTags.ALARM),
                     )
                 }
             }

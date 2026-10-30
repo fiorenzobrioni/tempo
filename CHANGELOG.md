@@ -17,10 +17,8 @@ All notable changes to Tempo are documented here. The format follows
   opens the Clock app, where alarms are set. Tempo still only reads it.
 - **The dial in your calendars' colours.** The events on Today's clock face wear their
   calendar's colour, as in the list under it; the next one stays in the accent.
-- **The next alarm on «Agenda».** Under the date (or beside it on a tall widget), a bell and the
-  time of your next alarm when it rings within a day: "Tomorrow 7:00 AM". A touch opens your
-  clock app; a switch in the widget's settings hides it. It follows the clock app's changes as
-  they are made, and Tempo still only reads it.
+- **The rest of the day on «Agenda».** Under the date on the wide widget, how many events are
+  left today and until when: "4 left today, until 7:30 PM".
 
 ### Changed
 
@@ -62,7 +60,7 @@ All notable changes to Tempo are documented here. The format follows
 - **The launcher's "New event"** follows the app's language when you change it.
 - **The next alarm is yours.** Some calendar apps keep their reminders as alarms, and Today
   showed one as "Alarm tomorrow at 10:00" with no alarm set. Only an alarm set in a clock app
-  is shown now, on Today and on the widget.
+  is shown now.
 - **«In words» shows the next event on its dial** as soon as it comes within the dial's twelve
   hours, rather than at midnight; and on one cell its dial stays when the calendar cannot be
   read, as «Agenda»'s clock does.

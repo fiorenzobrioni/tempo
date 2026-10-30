@@ -3,9 +3,8 @@ package com.callbackdev.tempo.widget
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.callbackdev.tempo.core.domain.today.AlarmDay
-import com.callbackdev.tempo.core.domain.widget.CardAlarm
 import com.callbackdev.tempo.core.domain.widget.CardLine
+import com.callbackdev.tempo.core.domain.widget.CardSummary
 import com.callbackdev.tempo.core.domain.widget.WordsDay
 import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.EventInstance
@@ -14,7 +13,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/** The cards' words for an event's end (a time today, its day as well on a later date) and the next alarm. */
+/** The cards' words for an event's end (a time today, its day as well on a later date) and the rest of the day. */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "en-rGB")
 class CardTextTest {
@@ -97,25 +96,32 @@ class CardTextTest {
     }
 
     @Test
-    fun `the alarm is a clock time, and tomorrow's says its day where there is room`() {
-        val (text, _) = words("2026-10-07T22:00")
-        val tomorrow = CardAlarm(WidgetSamples.at("2026-10-08T07:00").toInstant(), AlarmDay.Tomorrow)
-        assertThat(text.alarm(tomorrow)).containsExactly("Tomorrow 07:00", "07:00").inOrder()
-        assertThat(text.describe(tomorrow)).contains("tomorrow")
-        val tonight = CardAlarm(WidgetSamples.at("2026-10-07T23:30").toInstant(), AlarmDay.Today)
-        assertThat(text.alarm(tonight)).containsExactly("23:30")
+    fun `the rest of the day in a few words, a line each`() {
+        val (text, content) = words("2026-10-07T10:20", *WidgetSamples.instances.toTypedArray())
+        val summary = checkNotNull(CardSummary.of(content.agenda))
+        assertThat(text.summary(summary)).containsExactly("4 left today", "until 19:30").inOrder()
+        assertThat(text.summary(summary.copy(left = 1))).contains("One left today")
+    }
+
+    @Test
+    fun `a day that ends past midnight says so`() {
+        val train = event(20, "2026-10-07T22:30", "2026-10-08T06:30", "Night train")
+        val (text, content) = words("2026-10-07T23:00", train)
+        val summary = checkNotNull(CardSummary.of(content.agenda))
+        assertThat(text.summary(summary)).containsExactly("One left today", "until tomorrow at 06:30").inOrder()
     }
 
     @Test
     @Config(qualifiers = "it-rIT")
-    fun `in Italian, the alarm and the short end`() {
+    fun `in Italian, the rest of the day and the short end`() {
         val review = event(21, "2026-10-07T10:00", "2026-10-07T11:00", "Design review")
         val (text, content) = words("2026-10-07T10:20", review)
         val today = content.agenda.days.first()
         val row = CardLine.Timed(today.timed.single(), today.date)
         assertThat(text.start(row)).isEqualTo("Fino alle 11:00")
         assertThat(text.short(row, startOnly = true)).isEqualTo("→ 11:00")
-        val tomorrow = CardAlarm(WidgetSamples.at("2026-10-08T07:00").toInstant(), AlarmDay.Tomorrow)
-        assertThat(text.alarm(tomorrow)).containsExactly("Domani 07:00", "07:00").inOrder()
+        val (all, day) = words("2026-10-07T10:20", *WidgetSamples.instances.toTypedArray())
+        assertThat(all.summary(checkNotNull(CardSummary.of(day.agenda))))
+            .containsExactly("Ancora 4 oggi", "fino alle 19:30").inOrder()
     }
 }

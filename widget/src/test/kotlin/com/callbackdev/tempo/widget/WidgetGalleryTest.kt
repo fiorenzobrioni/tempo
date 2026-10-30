@@ -150,23 +150,18 @@ class WidgetGalleryTest {
     }
 
     @Test
-    fun `the next alarm`() {
+    fun `the rest of the day under the date`() {
         val board = HomeBoard(context, widthDp = 380)
         listOf(
-            // Tomorrow's, at 10:20; today's, at 05:00; on the twelve-hour clock; turned off on the card.
+            // The whole day ahead; at 10:20; on the twelve-hour clock; the date alone; the evening.
+            WidgetSamples.model(now = WidgetSamples.at("2026-10-07T05:00")),
             WidgetSamples.model(),
-            WidgetSamples.model(now = WidgetSamples.at("2026-10-07T05:00")).copy(
-                alarm = WidgetSamples.at("2026-10-07T06:45").toInstant(),
-            ),
             WidgetSamples.model(look = WidgetLook(clockFormat = ClockFormat.H12)),
             WidgetSamples.model(look = WidgetLook(showClock = false)),
-            WidgetSamples.model(look = WidgetLook(showAlarm = false)),
+            WidgetSamples.model(now = WidgetSamples.at("2026-10-07T21:10")),
         ).forEach { model ->
             board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { AgendaWidgetContent(model) })
         }
-        listOf(Grants.ThreeByTwo, Grants.FourByThree).forEach { size ->
-            board.row(size to renderCard(context, size) { AgendaWidgetContent(WidgetSamples.model()) })
-        }
-        board.draw().saveTo(out, "widget-alarm")
+        board.draw().saveTo(out, "widget-summary")
     }
 }

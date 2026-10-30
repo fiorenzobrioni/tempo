@@ -31,9 +31,9 @@ object ClockApp {
     /**
      * The next alarm the reader set in a clock app, or null. The system's next alarm clock
      * (`AlarmManager.getNextAlarmClock`, no permission) is the next one *any* app set: a calendar
-     * app may set its reminders as alarm clocks, so they ring on time in Doze, and Today and the
-     * cards said "Alarm tomorrow at 10:00" for a reminder two days before Monday's event (owner's
-     * phone, 30 Oct 2026, with no alarm in the clock app). So the alarm is kept only where the app
+     * app may set its reminders as alarm clocks, so they ring on time in Doze, and Today said
+     * "Alarm tomorrow at 10:00" for a reminder two days before Monday's event (owner's phone,
+     * 30 Oct 2026, with no alarm in the clock app). So the alarm is kept only where the app
      * that set it is a clock app (it shows the alarms), read off its show intent's creator; one
      * with no show intent is nobody's to name. A reader's alarm behind another app's is said once
      * that one has rung: none is better than a wrong one.

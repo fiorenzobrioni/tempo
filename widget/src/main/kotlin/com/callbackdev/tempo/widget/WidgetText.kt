@@ -3,10 +3,9 @@ package com.callbackdev.tempo.widget
 import android.content.Context
 import android.text.format.DateFormat
 import com.callbackdev.tempo.core.designsystem.format.AgendaText
-import com.callbackdev.tempo.core.domain.today.AlarmDay
-import com.callbackdev.tempo.core.domain.widget.CardAlarm
 import com.callbackdev.tempo.core.domain.widget.CardFooter
 import com.callbackdev.tempo.core.domain.widget.CardLine
+import com.callbackdev.tempo.core.domain.widget.CardSummary
 import com.callbackdev.tempo.core.domain.widget.TodayNote
 import com.callbackdev.tempo.core.domain.widget.WordsFocus
 import com.callbackdev.tempo.core.domain.widget.WordsNote
@@ -228,20 +227,13 @@ internal class CardText(private val context: Context, model: WidgetModel) {
     }
 
     /**
-     * The next alarm beside the bell, the fullest first: "Tomorrow 07:00", "07:00". Within a day
-     * a clock time names one moment only, so the time alone stays true where the day has no room.
+     * The rest of today in a few words, a line each: "4 left today", "until 19:30"; an end on a
+     * later date says its day ("until tomorrow at 06:30"), as the sentence's does.
      */
-    fun alarm(alarm: CardAlarm): List<String> {
-        val time = agenda.time(alarm.at)
-        return if (alarm.day == AlarmDay.Tomorrow) {
-            listOf(context.getString(R.string.widget_alarm_tomorrow, time), time)
-        } else {
-            listOf(time)
-        }
-    }
-
-    /** What TalkBack reads for it: Today's line, "Alarm tomorrow at 07:00". */
-    fun describe(alarm: CardAlarm): String = agenda.alarm(alarm.at, alarm.day)
+    fun summary(summary: CardSummary): List<String> = listOf(
+        resources.getQuantityString(R.plurals.widget_summary_left, summary.left, summary.left),
+        agenda.until(summary.until, today),
+    )
 
     /** "Then 16:30 · 18:00", with as many times as [count]. */
     fun then(events: List<EventInstance>, count: Int): String =

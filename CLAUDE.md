@@ -67,7 +67,7 @@ that does not match it.
 | Module | Kind | Holds |
 |---|---|---|
 | `:core:model` | pure Kotlin/JVM | data classes shared by everything: `EventInstance`, `CalendarInfo`, the provider's codes as enums, `Agenda` (`AgendaDay`, `AllDayEntry`, `TimedEntry`, `FreeGap`), `CalendarPermission`, the settings enums (`ClockFormat`, `DateStyle`, appearance) |
-| `:core:domain` | pure Kotlin/JVM | the calendar engine: `AgendaBuilder`, `AgendaFilter`, `allDayDates()` (UTC), `FreeTime`, `NextBoundary`, `AgendaWindow`, `calendarPermission()`; the reader's calendars (`CalendarChoices`, `CalendarGroups`) and their colour as a mark (`markColor`, 3:1; `markAlpha`, how quiet it may be drawn); the clock helpers (`uses24Hour`, `untilNextMinute`, `nextHalfHour`); Today's views (`DaySentence`, `DaySummary`, `Timeline`, `AgendaSections`, `AlarmDay`); the widgets' arithmetic (`CardAgenda`, `fitLines`, `AgendaFit` with its `TimeColumn`, `CardAlarm`, `WordsDay`, `WordsFit`, `DialArcs`, `DialGeometry`) |
+| `:core:domain` | pure Kotlin/JVM | the calendar engine: `AgendaBuilder`, `AgendaFilter`, `allDayDates()` (UTC), `FreeTime`, `NextBoundary`, `AgendaWindow`, `calendarPermission()`; the reader's calendars (`CalendarChoices`, `CalendarGroups`) and their colour as a mark (`markColor`, 3:1; `markAlpha`, how quiet it may be drawn); the clock helpers (`uses24Hour`, `untilNextMinute`, `nextHalfHour`); Today's views (`DaySentence`, `DaySummary`, `Timeline`, `AgendaSections`, `AlarmDay`); the widgets' arithmetic (`CardAgenda`, `fitLines`, `AgendaFit` with its `TimeColumn`, `CardSummary`, `WordsDay`, `WordsFit`, `DialArcs`, `DialGeometry`) |
 | `:core:data` | Android library | DataStore: `SettingsRepository` (`UserSettings`, only what differs from a default stored); `HomeScreenWidgets`, the widgets as the feature modules reach them (bound by `:widget`) |
 | `:core:calendar` | Android library | the Calendar Provider's Android half: `CalendarSource` (Instances, Calendars → `CalendarRead`), `CalendarChanges` (observer, debounced), `CalendarIntents` (view, insert, open a day, `canOpen`), `ClockApp` (the phone's clock app, opened by its front door: Today's alarm line, a card's time), `CalendarAccess` (the permission); `READ_CALENDAR` and the `<queries>` in its manifest. Tested against `FakeCalendarProvider` under Robolectric |
 | `:core:designsystem` | Android library | M3 theme (Chiaro's dresses through Passo), typography, shapes, motion, page gutter, the widget card colours, `TempoIcons`; Passo's settings rows (`SettingsRows.kt`) and `StatusCard`, `CalendarPermissionCard`, `DateTimeText` (times and dates from the locale's patterns), `AgendaText` (the agenda's words, for Today and the widgets), `CalendarDot`, `CalendarBar`, `DayDial` (the «In words» dial drawn in Compose, for Today's hero) |
@@ -99,9 +99,8 @@ the phase that brings its first code.
   screen is off, no wakelocks of the app's own, no exact or wake-up alarms, no periodic workers.
   The minute ticker and the calendar observer live in a visible page's lifecycle. The widget's
   clock is the system's `TextClock`, never an app repaint per minute; the widget's list changes
-  on the calendar's content-URI trigger, a non-wakeup inexact alarm at the next boundary, the
-  exempt time broadcasts, and the system's next-alarm broadcast (the card's alarm line). Nothing
-  else.
+  on the calendar's content-URI trigger, a non-wakeup inexact alarm at the next boundary, and the
+  exempt time broadcasts. Nothing else.
 - **The widget never scrolls**: a Glance `Column`, never `LazyColumn`; what does not fit is
   counted. Glance drops the eleventh child of a container silently: count them.
 - **Calendar colours are data, not roles**: they mark an event, they never colour its text or

@@ -128,11 +128,10 @@ The concept's widget, in the family's dress.
 
 - **A header with the clock and the date**, each shown or hidden and in its own format, drawn by
   the system's `TextClock`: always right to the minute, with no work by the app.
-- **The next alarm with the date** (review of 30 Oct 2026): a bell and a clock time ("Tomorrow
-  07:00") when the phone's next alarm rings within a day, under the date on the wide card, at the
-  far end of the date's line on a tall one. Read from the system, never set; a touch opens the
-  clock app. It follows the clock app's changes through the system's own broadcast, never by
-  asking.
+- **The rest of the day under the date** on the wide card (review of 30 Oct 2026): "4 left
+  today", "until 19:30". Counts and clock times, redrawn when an event starts or ends. The next
+  alarm is Today's alone: a card could not follow its changes reliably on a phone (PLANNING.md
+  §15, 30 Oct 2026).
 - **The day's events under it, as many as the card's size allows, never a scrolling list.** The
   card is laid out for the size the launcher really granted, every time it is resized; whatever
   does not fit is counted at the bottom ("2 more today").
@@ -148,13 +147,12 @@ The concept's widget, in the family's dress.
   - *Touching an event*: opens Tempo, or opens that event in the calendar app.
   - *The card*: light, dark, following the phone, or one of Chiaro's six colours, at any
     opacity, with a live preview: the family's widget settings.
-  - *Content*: all-day events shown or not; the days ahead when today is done; the next alarm.
+  - *Content*: all-day events shown or not; the days ahead when today is done.
 - **States**: no permission ("Touch to let Tempo read your calendar"), nothing left today (and
   tomorrow's first event, if the reader wants it). A message stands centred in the room the
   agenda would have.
 - **Updates without polling**: when the calendar changes, when the next event starts or ends,
-  at midnight, and when the clock, the time zone, the language or the next alarm changes. Never
-  on a timer.
+  at midnight, and when the clock, the time zone or the language changes. Never on a timer.
 #### «In words» («In parole»)
 
 The family's card in words, for a reader who wants to know where the day stands rather than read
@@ -222,8 +220,8 @@ its list. Redesigned around a dial after the first cards on the phone (owner, 8 
   needs the network.
 - **Event reminders and notifications**: the calendar app's job.
 - **Alarms, timers, a stopwatch, a world clock**: the system Clock app's job. Tempo shows the
-  next alarm, read-only, and nothing else of it; Today's alarm line, a widget's time and its
-  alarm line open the Clock app.
+  next alarm, read-only, and nothing else of it; Today's alarm line and a widget's time open the
+  Clock app.
 - **Tasks and to-dos**: they are not in the Calendar Provider (Google Tasks is a separate service).
 - **Week and month grids**: the calendar app's job. Tempo is the day, and the few days after it.
 - **Weather on the agenda**: Chiaro's job, and each app of the family stands alone.
@@ -271,7 +269,7 @@ corrections and the additions, each with its reason.
 | Writing | None: the reader's calendar app, through `ACTION_VIEW` and `ACTION_INSERT` | No write permission, no way to damage the reader's calendar, no editor to build and keep right |
 | Storage | No database: DataStore for the settings and the widgets' looks | There is nothing of Tempo's to store; the provider is the truth. Room joins the stack the day a feature needs a table (none in v1) |
 | Widget | Jetpack Glance, `SizeMode.Exact`, a plain `Column`, the system `TextClock` for the clock | The family's widget technology; exact sizes; no scrolling; a clock that costs nothing |
-| Refresh | Content-URI-triggered job on calendar changes; inexact non-wakeup alarm at the next event boundary and at midnight; exempt broadcasts for time, zone, language and the next alarm | Event-driven, never periodic. No exact alarms and no `SCHEDULE_EXACT_ALARM`: a card that drops a finished event a few minutes late is acceptable; one that drains the battery is not |
+| Refresh | Content-URI-triggered job on calendar changes; inexact non-wakeup alarm at the next event boundary and at midnight; exempt broadcasts for time, zone and language | Event-driven, never periodic. No exact alarms and no `SCHEDULE_EXACT_ALARM`: a card that drops a finished event a few minutes late is acceptable; one that drains the battery is not |
 | Platform | `minSdk 34` (Android 14), `targetSdk`/`compileSdk 37` (Android 17) | Passo's levels (owner): one platform floor for the two apps built from one build-logic. Per-app languages, themed icons and the Android 12 widget APIs are native. Android 13 phones are left out, a choice the owner made knowingly |
 | UI | Jetpack Compose + Material 3 in Chiaro's design language; Jetpack Glance for the widget | One design system for the family |
 | Languages | Italian and English for the app; English for code and documentation | As the family |

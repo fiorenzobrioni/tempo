@@ -54,7 +54,6 @@ class WidgetLookStoreTest {
             clockFormat = ClockFormat.H12,
             headerTap = HeaderTap.CLOCK,
             showDaysAhead = false,
-            showAlarm = false,
         )
         val light = WidgetLook(
             background = WidgetBackground.LIGHT,

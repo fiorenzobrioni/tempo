@@ -7,11 +7,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.Image
-import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
@@ -34,7 +31,6 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
-import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics
@@ -47,10 +43,10 @@ import com.callbackdev.tempo.core.domain.widget.AgendaForm
 import com.callbackdev.tempo.core.domain.widget.AgendaPlan
 import com.callbackdev.tempo.core.domain.widget.AgendaSpec
 import com.callbackdev.tempo.core.domain.widget.CardAgenda
-import com.callbackdev.tempo.core.domain.widget.CardAlarm
 import com.callbackdev.tempo.core.domain.widget.CardFit
 import com.callbackdev.tempo.core.domain.widget.CardFooter
 import com.callbackdev.tempo.core.domain.widget.CardLine
+import com.callbackdev.tempo.core.domain.widget.CardSummary
 import com.callbackdev.tempo.core.domain.widget.HeaderPlan
 import com.callbackdev.tempo.core.domain.widget.RowStyle
 import com.callbackdev.tempo.core.domain.widget.TimeCell
@@ -226,11 +222,9 @@ private class AgendaParts(
             events.filterNot(::across).maxOfOrNull { textEm(context, shortTitle(it), TextWeight.MEDIUM) } ?: 0f
     }
 
-    /** The phone's next alarm where this card says it: within a day, and the reader's switch on. */
-    val alarm: CardAlarm? =
-        if (look.showAlarm) CardAlarm.of(model.alarm, model.now.toInstant(), model.now.zone) else null
-    val alarmTexts: List<String> = alarm?.let(text::alarm).orEmpty()
-    private val alarmEms = alarmTexts.map { textEm(context, it, TextWeight.MEDIUM) }
+    /** The rest of today in a few words, line by line, for a side column under the date. */
+    val summaryLines: List<String> = ready?.let { CardSummary.of(it.agenda) }?.let(text::summary).orEmpty()
+    private val summaryEms = summaryLines.map { textEm(context, it, TextWeight.MEDIUM) }
     private val clockEm = clockEm(context, timePatterns, ClockFace.BOLD, model.now)
 
     /** One layout of the card: its plan for [columns], its lines in order, and how many of them fit. */
@@ -249,7 +243,7 @@ private class AgendaParts(
                 titleEm = columns.titleEm,
                 lines = lines.size,
                 spanning = columns.spanning,
-                alarmEms = alarmEms,
+                summaryEms = summaryEms,
             ),
         )
 
@@ -395,8 +389,6 @@ private class AgendaParts(
             WidgetIntents.header(context, look.headerTap, model.doors, model.now.toInstant()),
         )
 
-    val alarmIntent = WidgetIntents.alarm(context, model.doors)
-
     private fun fits(text: String, sizeSp: Float, weight: TextWeight, width: Dp): Boolean =
         widthOf(textEm(context, text, weight), sizeSp, scale) <= width.value
 
@@ -429,8 +421,8 @@ private class AgendaParts(
 // --- The header --------------------------------------------------------------------------------
 
 /**
- * The clock over the date, both the system's `TextClock`, each where the reader keeps it; the
- * next alarm under the date in a side column, at the far end of the date's line on top.
+ * The clock over the date, both the system's `TextClock`, each where the reader keeps it; in a
+ * side column, the rest of the day in a few words under them.
  */
 @Composable
 private fun Header(parts: AgendaParts, palette: WidgetPalette) {
@@ -438,107 +430,61 @@ private fun Header(parts: AgendaParts, palette: WidgetPalette) {
     val context = parts.context
     val frozen = parts.model.now.takeIf { parts.model.frozenClock }
     val centred = parts.plan.form == AgendaForm.CLOCK
-    val alarm = header.alarmChoice.takeIf { it >= 0 }
-    val alarmBeside = alarm != null && parts.plan.form == AgendaForm.AGENDA
-    val onDateLine = header.dateChoice >= 0
-    Column(
-        modifier = if (alarmBeside) GlanceModifier.fillMaxWidth() else GlanceModifier,
-        horizontalAlignment = if (centred) Alignment.CenterHorizontally else Alignment.Start,
-    ) {
+    Column(horizontalAlignment = if (centred) Alignment.CenterHorizontally else Alignment.Start) {
         if (header.clockSp > 0f) {
-            BesideAlarm(parts, palette, alarm.takeIf { alarmBeside && !onDateLine }) {
-                AndroidRemoteViews(
-                    remoteViews = clockViews(
-                        context,
-                        ClockFace.BOLD,
-                        parts.timePatterns,
-                        header.clockSp,
-                        palette.primary,
-                        1,
-                        parts.headerIntent,
-                        frozen,
-                    ),
-                    // Its own height, measured: a container Glance sizes alone may take its column's. Its
-                    // own width too beside a two-line date, whose balanced width would otherwise be the
-                    // column's, and the clock's container takes the column's width.
-                    modifier = GlanceModifier
-                        .height(clockLineHeight(header.clockSp, parts.scale).dp)
-                        .then(if (header.dateLines > 1) GlanceModifier.width(header.width.dp) else GlanceModifier),
-                )
-            }
+            AndroidRemoteViews(
+                remoteViews = clockViews(
+                    context,
+                    ClockFace.BOLD,
+                    parts.timePatterns,
+                    header.clockSp,
+                    palette.primary,
+                    1,
+                    parts.headerIntent,
+                    frozen,
+                ),
+                // Its own height, measured: a container Glance sizes alone may take its column's. Its
+                // own width too beside a two-line date, whose balanced width would otherwise be the
+                // column's, and the clock's container takes the column's width.
+                modifier = GlanceModifier
+                    .height(clockLineHeight(header.clockSp, parts.scale).dp)
+                    .then(if (header.dateLines > 1) GlanceModifier.width(header.width.dp) else GlanceModifier),
+            )
         }
-        if (onDateLine) {
+        if (header.dateChoice >= 0) {
             val (patterns, twoLineWidth) = parts.date(header)
-            BesideAlarm(parts, palette, alarm.takeIf { alarmBeside }) {
-                AndroidRemoteViews(
-                    remoteViews = clockViews(
-                        context,
-                        ClockFace.MEDIUM,
-                        patterns,
-                        header.dateSp,
-                        if (header.clockSp > 0f) palette.secondary else palette.primary,
-                        header.dateLines,
-                        parts.headerIntent,
-                        frozen,
-                    ),
-                    modifier = GlanceModifier
-                        .height((clockLineHeight(header.dateSp, parts.scale) * header.dateLines).dp)
-                        .then(twoLineWidth?.let { GlanceModifier.width(it) } ?: GlanceModifier),
-                )
-            }
+            AndroidRemoteViews(
+                remoteViews = clockViews(
+                    context,
+                    ClockFace.MEDIUM,
+                    patterns,
+                    header.dateSp,
+                    if (header.clockSp > 0f) palette.secondary else palette.primary,
+                    header.dateLines,
+                    parts.headerIntent,
+                    frozen,
+                ),
+                modifier = GlanceModifier
+                    .height((clockLineHeight(header.dateSp, parts.scale) * header.dateLines).dp)
+                    .then(twoLineWidth?.let { GlanceModifier.width(it) } ?: GlanceModifier),
+            )
         }
-        if (alarm != null && !alarmBeside) {
+        parts.summaryLines.take(header.summaryLines).forEachIndexed { index, line ->
             // As wide as the column, as the clock's and the date's views are: a column whose lines
             // all fill it takes its widest line's width, and one line that only wraps its words
             // would set the column to its own and squeeze the clock (a 12-hour time was cut).
-            AlarmLine(parts, palette, alarm, GlanceModifier.fillMaxWidth().padding(top = AgendaFit.ALARM_TOP.dp))
+            Text(
+                text = line,
+                style = TextStyle(
+                    color = palette.secondaryInk,
+                    fontSize = AgendaFit.SUMMARY_SP.sp,
+                    fontWeight = FontWeight.Medium,
+                ),
+                maxLines = 1,
+                modifier = GlanceModifier.fillMaxWidth()
+                    .then(if (index == 0) GlanceModifier.padding(top = AgendaFit.SUMMARY_TOP.dp) else GlanceModifier),
+            )
         }
-    }
-}
-
-/** [line], and the alarm at the far end of the header's width where [alarm] says so. */
-@Composable
-private fun BesideAlarm(parts: AgendaParts, palette: WidgetPalette, alarm: Int?, line: @Composable () -> Unit) {
-    if (alarm == null) {
-        line()
-        return
-    }
-    Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Box(modifier = GlanceModifier.defaultWeight()) { line() }
-        AlarmLine(parts, palette, alarm, GlanceModifier.padding(start = AgendaFit.ALARM_GAP.dp))
-    }
-}
-
-/**
- * The phone's next alarm: a bell and a clock time, in the secondary ink (VISION.md, the widgets).
- * Tempo only shows it; a touch opens the clock app, where it is set, moved or turned off.
- */
-@Composable
-private fun AlarmLine(parts: AgendaParts, palette: WidgetPalette, choice: Int, modifier: GlanceModifier) {
-    val alarm = parts.alarm ?: return
-    val tap = parts.alarmIntent
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .then(if (tap != null) GlanceModifier.clickable(actionStartActivity(tap)) else GlanceModifier)
-            .semantics { contentDescription = parts.text.describe(alarm) },
-    ) {
-        Image(
-            provider = ImageProvider(R.drawable.widget_alarm),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(palette.secondaryInk),
-            modifier = GlanceModifier.size((AgendaFit.ALARM_ICON * parts.scale).dp),
-        )
-        Text(
-            text = parts.alarmTexts[choice],
-            style = TextStyle(
-                color = palette.secondaryInk,
-                fontSize = AgendaFit.ALARM_SP.sp,
-                fontWeight = FontWeight.Medium,
-            ),
-            maxLines = 1,
-            modifier = GlanceModifier.padding(start = (AgendaFit.ALARM_ICON_GAP * parts.scale).dp),
-        )
     }
 }
 

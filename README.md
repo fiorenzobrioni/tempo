@@ -41,7 +41,7 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
     <td align="center" width="33%"><img src="docs/screenshots/settings-calendars.png" width="250" alt="Settings: the agenda's choices with the calendar button's switch, and five calendars from two accounts, each with its colour and a switch, one hidden"><br><sub><b>Your calendars</b>, each shown or hidden</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/widgets.png" width="250" alt="The widgets on a home screen: Agenda at four by two with the time, the date and tomorrow's alarm beside the rest of the day and 2 more today; In words in terracotta, a clock face at 2:20 PM with the dentist drawn on its ring, Dentist from 3:00 PM to 3:45 PM, free until then; a small Agenda in terracotta; a one-row In words with its dial, Design review until 11:00 AM, and the date at the far edge"><br><sub><b>The widgets</b>: never a list to scroll</sub></td>
+    <td align="center"><img src="docs/screenshots/widgets.png" width="250" alt="The widgets on a home screen: Agenda at four by two with the time, the date and 4 left today until 7:30 PM beside the rest of the day and 2 more today; In words in terracotta, a clock face at 2:20 PM with the dentist drawn on its ring, Dentist from 3:00 PM to 3:45 PM, free until then; a small Agenda in terracotta; a one-row In words with its dial, Design review until 11:00 AM, and the date at the far edge"><br><sub><b>The widgets</b>: never a list to scroll</sub></td>
     <td align="center"><img src="docs/screenshots/widget-settings.png" width="250" alt="One widget's settings: the card itself at the top, the sizes it can take, the time and the date with their formats"><br><sub><b>Each widget</b>, set on its own</sub></td>
     <td align="center"><img src="docs/screenshots/onboarding.png" width="250" alt="The first run: the name Tempo and its sentence, the time and what comes next, then three promises in words (your calendars in one view, read-only and private, battery is a feature), and the Start button at the bottom"><br><sub><b>First run</b>: one permission, to read</sub></td>
   </tr>
@@ -60,7 +60,7 @@ For 1.0 ([VISION.md](./VISION.md) has the full scope):
 
 - 🕓 **Today**: the time large beside a clock face with the next twelve hours' events on its ring, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
 - 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and your next free hour (a touch starts an event there), then the rest of the week a card a day, empty days said once.
-- ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow. A touch opens your clock app. The «Agenda» widget shows it too, under the date, when it rings within a day.
+- ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow. A touch opens your clock app.
 - ✏️ **Your calendar app does the writing**: touch an event to open it there; the calendar button, the date and a day's name open it on that day; the new-event button opens its new-event page, the start already set.
 - 🏠 **Two widgets that never scroll**: «Agenda», the clock and the date (each optional, in your format) over as many events as the card's size allows, and how many more; «In words», a clock face with the next event drawn on its ring (the hour hand walks through it by itself) and the day in a few words.
 - 🪶 **A clock that costs nothing**: the widget's time is drawn by Android itself, right to the minute, with no work by the app.

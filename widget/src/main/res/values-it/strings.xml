@@ -26,8 +26,12 @@
     </plurals>
     <string name="widget_more_count">+%1$d</string>
 
-    <!-- The phone's next alarm, with the date: a clock time, and its day when it is tomorrow's -->
-    <string name="widget_alarm_tomorrow">Domani %1$s</string>
+    <!-- The rest of today in a few words, under the date on the wide card; then "until 19:30" -->
+    <plurals name="widget_summary_left">
+        <item quantity="one">Ancora uno oggi</item>
+        <item quantity="many">Ancora %1$d oggi</item>
+        <item quantity="other">Ancora %1$d oggi</item>
+    </plurals>
 
     <string name="widget_free">Libero</string>
     <string name="widget_until_short">→ %1$s</string>
@@ -113,8 +117,6 @@
     <string name="widget_config_days_ahead">I prossimi giorni</string>
     <string name="widget_config_days_ahead_note">Quando il resto di oggi ci sta, i giorni seguenti riempiono lo spazio che lascia, ciascuno sotto la sua data.</string>
     <string name="widget_config_days_ahead_note_words">Quando oggi non resta altro, al suo posto va il primo impegno dei prossimi giorni.</string>
-    <string name="widget_config_alarm">Prossima sveglia</string>
-    <string name="widget_config_alarm_note">Con la data, quando ne suona una nelle prossime 24 ore. Toccandola si apre l’app Orologio.</string>
     <string name="widget_config_reset">Ripristina questo widget</string>
     <string name="widget_config_done">Fatto</string>
     <string name="widget_config_cancel">Annulla</string>
