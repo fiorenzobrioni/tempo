@@ -6,7 +6,8 @@
 
   <queries>: since Android 11 an app sees only the packages it declares an interest in. These
   are the three intents CalendarIntents builds (PLANNING.md §4.7), so Tempo can tell whether a
-  calendar app will take one before it draws the button that sends it. Not a permission.
+  calendar app will take one before it draws the button that sends it, and the clock app's
+  (ClockApp), the door of Today's alarm line and of a card's time. Not a permission.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -27,6 +28,10 @@
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="content" android:host="com.android.calendar" />
+        </intent>
+        <!-- The phone's clock app, opened by its front door (ClockApp.kt): never sets an alarm. -->
+        <intent>
+            <action android:name="android.intent.action.SHOW_ALARMS" />
         </intent>
     </queries>
 

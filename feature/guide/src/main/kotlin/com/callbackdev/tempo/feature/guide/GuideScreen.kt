@@ -197,9 +197,12 @@ object GuideTags {
 /** Minutes from twelve o'clock on the face: 10:20. */
 private const val SAMPLE_NOW = 620f
 
-/** 10:00 to 11:00 under way, 13:00 to 14:00, 15:00 to 15:45. */
+/**
+ * 10:00 to 11:00 under way, 13:00 to 14:00 in a green calendar, 15:00 to 15:45 in an orange one:
+ * the quiet arcs in their calendars' colours, as on Today.
+ */
 private val SAMPLE_ARCS = listOf(
+    DialArc(from = 60f, sweep = 60f, focus = false, color = 0xFF0B8043.toInt()),
+    DialArc(from = 180f, sweep = 45f, focus = false, color = 0xFFF4511E.toInt()),
     DialArc(from = 600f, sweep = 60f, focus = true),
-    DialArc(from = 60f, sweep = 60f, focus = false),
-    DialArc(from = 180f, sweep = 45f, focus = false),
 )

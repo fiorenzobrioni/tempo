@@ -28,7 +28,8 @@ data class Agenda(
  *   from Monday 9:00 to Wednesday 17:00 is "all day" on Tuesday).
  * @property timed the events with a time on this date, in start order, then end, then title.
  * @property free the gaps between the busy events of the date; on today only what is still ahead,
- *   from now. Every gap feeds the day's sentence; [freeRows] are the ones the timeline draws.
+ *   from now. Every gap feeds the day's sentence; the first of [freeRows] is the row today's
+ *   timeline draws.
  */
 data class AgendaDay(
     val date: LocalDate,
@@ -38,7 +39,7 @@ data class AgendaDay(
 ) {
     val isEmpty: Boolean get() = allDay.isEmpty() && timed.isEmpty()
 
-    /** The gaps long enough for a row of their own (owner, PLANNING.md §15): an hour or more. */
+    /** The gaps long enough to be a row (owner, PLANNING.md §15): an hour or more. */
     val freeRows: List<FreeGap> get() = free.filter { it.duration >= FREE_ROW_MINIMUM }
 
     companion object {

@@ -42,11 +42,31 @@ class TimelineTest {
     }
 
     @Test
-    fun `on today every gap of an hour or more is a row`() {
-        // 08:30 to 09:30 and 10:00 to 11:00 are an hour each: rows, as the 11:30 to 15:00 gap.
-        val day = agenda(early, standup, review, dentist, now = at("2026-10-07T07:00")).days.first()
-        assertThat(kinds(Timeline.of(day, isToday = true)))
-            .containsExactly("now", "free", "Early", "free", "Standup", "free", "Review", "free", "Dentist").inOrder()
+    fun `on today only the first gap of an hour or more is a row`() {
+        // 08:30 to 09:30, 10:00 to 11:00 and 11:30 to 15:00 are all an hour or more: the first is
+        // the row, the others are the sentence's and the summary's.
+        val day = agenda(early, standup, review, dentist, now = at("2026-10-07T08:10")).days.first()
+        val items = Timeline.of(day, isToday = true)
+        assertThat(kinds(items)).containsExactly("now", "Early", "free", "Standup", "Review", "Dentist").inOrder()
+        assertThat(items.filterIsInstance<TimelineItem.Free>().single().gap.start).isEqualTo(at("2026-10-07T08:30"))
+        assertThat(day.freeRows).hasSize(3)
+    }
+
+    @Test
+    fun `the gap open now is the row when it lasts an hour`() {
+        val day = agenda(review, dentist, now = at("2026-10-07T09:00")).days.first()
+        val items = Timeline.of(day, isToday = true)
+        assertThat(kinds(items)).containsExactly("now", "free", "Review", "Dentist").inOrder()
+        assertThat(items.filterIsInstance<TimelineItem.Free>().single().gap.start).isEqualTo(at("2026-10-07T09:00"))
+    }
+
+    @Test
+    fun `a gap open now shorter than an hour leaves the row to the next one`() {
+        // 09:00 to 09:30 is half an hour: not a row; 10:00 to 11:00 is.
+        val day = agenda(standup, review, dentist, now = at("2026-10-07T09:00")).days.first()
+        val items = Timeline.of(day, isToday = true)
+        assertThat(kinds(items)).containsExactly("now", "Standup", "free", "Review", "Dentist").inOrder()
+        assertThat(items.filterIsInstance<TimelineItem.Free>().single().gap.start).isEqualTo(at("2026-10-07T10:00"))
     }
 
     @Test

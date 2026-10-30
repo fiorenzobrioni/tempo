@@ -3,6 +3,7 @@ package com.callbackdev.tempo.core.domain.calendar
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
+import kotlin.math.roundToInt
 
 /**
  * A calendar's colour as a mark on a ground (PLANNING.md §6): the reader's colour, stepped in
@@ -28,9 +29,32 @@ fun markColor(argb: Int, ground: Int): Int {
     }
 }
 
+/**
+ * How faint a [mark] (an opaque colour that already reads on [ground], from [markColor]) may be
+ * drawn and still read: [quiet] where the mark blended over the ground keeps [MIN_CONTRAST], else
+ * the lowest alpha above it that does, up to opaque. Today's dial draws its quiet arcs so (review
+ * of 30 Oct 2026): a deep colour on a light page fades a long way, while a mark lifted to 3:1 on
+ * a dark page barely fades, and is as quiet as the ratio allows.
+ */
+fun markAlpha(mark: Int, ground: Int, quiet: Float): Float {
+    var alpha = quiet
+    while (alpha < 1f && contrast(blend(mark, ground, alpha), ground) < MIN_CONTRAST) alpha += ALPHA_STEP
+    return alpha.coerceAtMost(1f)
+}
+
+/** [top] drawn at [alpha] over an opaque [ground], channel by channel, as a canvas composites it. */
+fun blend(top: Int, ground: Int, alpha: Float): Int {
+    fun channel(shift: Int): Int {
+        val mixed = ((top shr shift) and 0xFF) * alpha + ((ground shr shift) and 0xFF) * (1 - alpha)
+        return mixed.roundToInt().coerceIn(0, 255)
+    }
+    return OPAQUE or (channel(16) shl 16) or (channel(8) shl 8) or channel(0)
+}
+
 const val MIN_CONTRAST = 3.0
 
 private const val STEP = 0.02
+private const val ALPHA_STEP = 0.05f
 private const val MID_LUMINANCE = 0.18
 private const val OPAQUE = 0xFF shl 24
 

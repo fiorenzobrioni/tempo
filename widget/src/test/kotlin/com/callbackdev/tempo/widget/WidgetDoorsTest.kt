@@ -17,6 +17,7 @@ import android.widget.TextView
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.callbackdev.tempo.core.calendar.ClockApp
 import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.EventInstance
 import com.callbackdev.tempo.widget.refresh.WidgetRefreshArming
@@ -57,12 +58,12 @@ class WidgetDoorsTest {
     }
 
     @Test
-    fun `the clock app is the one that shows the alarms, opened by its front door`() {
+    fun `a card's time opens the clock app by its front door`() {
         installClock("com.example.clock", system = true)
-        assertThat(ClockApp.packageName(context)).isEqualTo("com.example.clock")
-        val open = ClockApp.open(context, "com.example.clock")
-        assertThat(open?.component).isEqualTo(ComponentName("com.example.clock", "com.example.clock.Main"))
-        assertThat(open?.flags?.and(Intent.FLAG_ACTIVITY_NEW_TASK)).isNotEqualTo(0)
+        val doors = WidgetDoors(canOpenEvent = false, canOpenDay = false, clockPackage = ClockApp.packageName(context))
+        val tap = WidgetIntents.header(context, HeaderTap.CLOCK, doors, Instant.EPOCH)
+        assertThat(tap?.component).isEqualTo(ComponentName("com.example.clock", "com.example.clock.Main"))
+        assertThat(tap?.flags?.and(Intent.FLAG_ACTIVITY_NEW_TASK)).isNotEqualTo(0)
     }
 
     @Test

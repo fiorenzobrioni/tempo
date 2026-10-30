@@ -20,17 +20,17 @@
     <string name="guide_today_title">Today</string>
     <string name="guide_today_p1">The time large, the date above it, and one sentence before any list: the event under way and when it ends, the next one and how soon, or how long you are free.</string>
     <string name="guide_today_dial_description">An example clock face at twenty past ten, with a meeting under way until eleven and two more events later in the day</string>
-    <string name="guide_today_dial_caption">An example: twenty past ten, a meeting under way until eleven in the accent, two more events later in the day.</string>
+    <string name="guide_today_dial_caption">An example: twenty past ten, a meeting under way until eleven in the accent, two more events later in the day, each in its calendar’s colour.</string>
     <string name="guide_today_dial_title">The dial</string>
-    <string name="guide_today_dial_body">Beside the time, a clock face with the next twelve hours on its ring: what comes next in the accent, the rest quieter. The hour hand walks through a meeting as it goes. It is the face of the «In words» widget.</string>
+    <string name="guide_today_dial_body">Beside the time, a clock face with the next twelve hours on its ring: what comes next in the accent, the rest quieter, each in its calendar’s colour. The hour hand walks through a meeting as it goes. It is the face of the «In words» widget.</string>
     <string name="guide_today_timeline_title">The day in order</string>
     <string name="guide_today_timeline_body">Today’s events one under the other, each with its calendar’s colour as a mark. The one under way says how long is left; the ones that are over grow quieter, and two or more of them fold into one line that opens. A line marks now.</string>
     <string name="guide_today_free_title">Free time</string>
-    <string name="guide_today_free_body">A gap of an hour or more between two of today’s events is a row of its own, and the sentence says how long you are free. Shorter gaps are left alone, so the day does not fill up with the ten minutes between two meetings.</string>
+    <string name="guide_today_free_body">Your next free hour or more today is a row of its own, where it falls: a touch on it starts a new event there, and the sentence says how long you are free. Shorter gaps, and the free time later on, are left out, so the day does not fill up with rows of free time.</string>
     <string name="guide_today_ahead_title">The days ahead</string>
     <string name="guide_today_ahead_body">Tomorrow and the rest of the week, each on a card with a short summary beside its name; a run of empty days is said once. In the settings: a week, today and tomorrow, or today alone.</string>
     <string name="guide_today_alarm_title">The next alarm</string>
-    <string name="guide_today_alarm_body">The next alarm set on the phone, as the Clock app has it, under the time. Tempo only reads it; a switch in the settings hides it.</string>
+    <string name="guide_today_alarm_body">The next alarm set on the phone, as the Clock app has it, under the time; a touch on it opens the Clock app. Tempo only reads it; a switch in the settings hides it.</string>
     <string name="guide_today_live_title">Live while you look</string>
     <string name="guide_today_live_body">While Today is open the clock moves at each minute, and an event made or changed in your calendar app is there when you come back. Once you leave, nothing runs.</string>
 

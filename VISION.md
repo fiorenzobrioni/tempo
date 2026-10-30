@@ -79,19 +79,23 @@ app the reader already uses.
   page's top row, both in the reader's format. Digital (Key decisions), beside the dial.
 - **The dial**: the «In words» card's clock face beside the time (the owner's review of 9 Oct
   2026): the next twelve hours' events as arcs on its ring, what comes next in the accent, the
+  others quieter in their calendars' colours (as the list's marks, review of 30 Oct 2026), the
   hands moving with the minute. When the page opens the hands wind forward to now and the arcs
   draw themselves, in one short movement.
 - **The day's sentence**, before any list.
 - **The next alarm**: "Alarm tomorrow at 7:00", from the system's own next alarm clock, which
-  needs no permission. On by default, one switch hides it.
+  needs no permission. On by default, one switch hides it. A touch opens the Clock app, where the
+  alarm is set (review of 30 Oct 2026); Tempo only reads it.
 - **All-day and multi-day events** in a row of their own above the timeline ("Holiday, day 2 of 5").
 - **The timeline of the day's timed events**: the time range, the title, the calendar's colour
   as a mark, the location as one line of text (no map). The event under way says how much is
   left ("ends in 25 min"), past events are quieter, and a "now" line stands between what has
   been and what is next.
 - **Free time**: said in the day's sentence ("Free until 3 pm"), and drawn on today's timeline as
-  a quiet row of its own only for a gap of an hour or more, so the timeline does not fill up with
-  the ten minutes between two meetings. A touch on the row starts a new event there.
+  one quiet row: the first gap of an hour or more still ahead, the one open now or else the next
+  (owner, 30 Oct 2026). A row for every such gap took three rows of seven on the first screen,
+  and the ten minutes between two meetings were never a row. A touch on the row starts a new
+  event there.
 - **The days ahead**: tomorrow and the rest of the week (a week by default, the reader's
   horizon), each day on its own card with its own short sentence beside its name. Today stays on
   top, whole; tomorrow is drawn as today is; the days after it are compact (one line per event);
@@ -209,7 +213,8 @@ its list. Redesigned around a dial after the first cards on the phone (owner, 8 
   needs the network.
 - **Event reminders and notifications**: the calendar app's job.
 - **Alarms, timers, a stopwatch, a world clock**: the system Clock app's job. Tempo shows the
-  next alarm, read-only, and nothing else of it; a widget's time can open the Clock app.
+  next alarm, read-only, and nothing else of it; Today's alarm line and a widget's time open the
+  Clock app.
 - **Tasks and to-dos**: they are not in the Calendar Provider (Google Tasks is a separate service).
 - **Week and month grids**: the calendar app's job. Tempo is the day, and the few days after it.
 - **Weather on the agenda**: Chiaro's job, and each app of the family stands alone.
@@ -294,7 +299,8 @@ Every suggestion of the vision was accepted with them.
    the week costs the screen nothing at a glance; on the widgets the days ahead only fill the
    room today leaves.
 3. **The next alarm** on Today: yes, on by default, one switch hides it.
-4. **Free time**: in the sentence, and as a row for gaps of an hour or more.
+4. **Free time**: in the sentence, and as a row for gaps of an hour or more. Changed by the owner
+   on 30 Oct 2026 (Phase 8.1): one row, the first such gap still ahead today.
 5. **minSdk 34**, Passo's.
 6. **Name**: Tempo, plain; GitHub Releases is the only channel for now.
 7. **The launcher shortcut "New event"**: in v1.

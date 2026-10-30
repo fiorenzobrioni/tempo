@@ -62,6 +62,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -93,6 +94,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callbackdev.tempo.core.calendar.CalendarAccess
 import com.callbackdev.tempo.core.calendar.CalendarIntents
+import com.callbackdev.tempo.core.calendar.ClockApp
 import com.callbackdev.tempo.core.designsystem.components.CalendarBar
 import com.callbackdev.tempo.core.designsystem.components.CalendarDot
 import com.callbackdev.tempo.core.designsystem.components.CalendarPermissionCard
@@ -180,6 +182,7 @@ fun TodayRoute(onOpenSettings: () -> Unit, viewModel: TodayViewModel = hiltViewM
             openEvent = { launch(CalendarIntents.view(it)) },
             newEvent = { begin, end -> launch(CalendarIntents.insert(begin, end)) },
             openDay = { launch(CalendarIntents.openDay(it)) },
+            openClock = { current.doors.clockPackage?.let { ClockApp.open(context, it) }?.let(launch) },
         ),
     )
 }
@@ -193,6 +196,8 @@ class TodayActions(
     /** A new event from its start to its end, in the calendar app. */
     val newEvent: (begin: Instant, end: Instant) -> Unit = { _, _ -> },
     val openDay: (Instant) -> Unit = {},
+    /** The phone's clock app, by its front door: where the alarm is set, moved or turned off. */
+    val openClock: () -> Unit = {},
 )
 
 /**
@@ -403,10 +408,29 @@ private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, acti
                 Clock(now, locale, text.uses24Hour, Modifier.testTag(TodayTags.TIME))
                 val alarm = state.alarm
                 if (alarm != null) {
+                    // A door to the clock app where there is one, with the line's own look: Compose
+                    // gives the touch its 48dp, and a 48dp row would push the list 20dp down (§15).
+                    val openClock = actions.openClock.takeIf { state.doors.clockPackage != null }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(top = 6.dp).testTag(TodayTags.ALARM),
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .then(
+                                if (openClock != null) {
+                                    Modifier.clickable(
+                                        onClickLabel = stringResource(R.string.today_open_clock),
+                                        role = Role.Button,
+                                        onClick = openClock,
+                                    )
+                                } else {
+                                    Modifier
+                                },
+                            )
+                            .padding(vertical = 1.dp)
+                            .padding(end = 6.dp)
+                            .testTag(TodayTags.ALARM),
                     ) {
                         Icon(
                             TempoIcons.Bell,
@@ -425,7 +449,7 @@ private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, acti
             Spacer(Modifier.width(16.dp))
             // The face works without the calendar, as the clock does: its ring is just empty.
             val arcs = if (content is TodayContent.Ready) {
-                remember(content.agenda, state.settings.showAllDay) {
+                remember(content.agenda, content.calendars, state.settings.showAllDay) {
                     dialArcs(content, state.settings.showAllDay, now.zone)
                 }
             } else {
@@ -452,10 +476,13 @@ private fun Hero(state: TodayUiState, text: AgendaText, gutter: PageGutter, acti
     }
 }
 
-/** The dial's arcs, as the «In words» card draws them: the focus in the accent, the rest quiet. */
+/**
+ * The dial's arcs, as the «In words» card places them: the focus in the accent, the rest quiet, in
+ * their calendars' colours, as the list's bars under it.
+ */
 private fun dialArcs(content: TodayContent.Ready, showAllDay: Boolean, zone: ZoneId): List<DialArc> {
     val focus = WordsDay.of(content.agenda, showAllDay = showAllDay, showDaysAhead = true).focus
-    return DialArcs.of(content.agenda, focus, zone, showDaysAhead = true)
+    return DialArcs.of(content.agenda, focus, zone, showDaysAhead = true, calendars = content.calendars)
 }
 
 /**
@@ -770,7 +797,10 @@ private fun DayCard(
 /** What a card's rows keep from its edge. */
 private val CARD_EDGE = 16.dp
 
-/** The all-day events, as chips over the timeline: a holiday is the day's frame, not one of its rows. */
+/**
+ * The all-day events, as chips over the timeline: a holiday is the day's frame, not one of its
+ * rows. Fully round, as the family's chips are (`Shape.kt`).
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AllDayRow(
@@ -832,13 +862,13 @@ private fun AllDayChip(
         Surface(
             onClick = { openEvent(event) },
             color = ground,
-            shape = MaterialTheme.shapes.medium,
+            shape = CircleShape,
             modifier = Modifier.semantics { contentDescription = description },
         ) { chip() }
     } else {
         Surface(
             color = ground,
-            shape = MaterialTheme.shapes.medium,
+            shape = CircleShape,
             modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = description },
         ) { chip() }
     }

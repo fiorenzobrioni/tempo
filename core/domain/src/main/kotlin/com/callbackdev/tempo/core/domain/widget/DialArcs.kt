@@ -1,6 +1,7 @@
 package com.callbackdev.tempo.core.domain.widget
 
 import com.callbackdev.tempo.core.model.Agenda
+import com.callbackdev.tempo.core.model.CalendarInfo
 import com.callbackdev.tempo.core.model.EntryState
 import com.callbackdev.tempo.core.model.EventInstance
 import java.time.Duration
@@ -11,8 +12,13 @@ import java.time.ZoneId
  * One event on the «In words» dial: where it starts on a twelve-hour face, in minutes from twelve
  * o'clock (0 until 720), and how long it is there, in minutes. [focus] is the event the card's words
  * are about, drawn in the accent; the others are drawn quiet.
+ *
+ * [color] is the event's calendar colour (its own, else its calendar's; null when neither is
+ * known). Today's face draws a quiet arc in it, as a mark, so the ring says which calendar each
+ * event is, as the list's bars do; the cards keep their inks on their six grounds (PLANNING.md §15,
+ * 30 Oct 2026).
  */
-data class DialArc(val from: Float, val sweep: Float, val focus: Boolean)
+data class DialArc(val from: Float, val sweep: Float, val focus: Boolean, val color: Int? = null)
 
 /**
  * The events the dial carries (PLANNING.md §7): the focus and whatever else is still to come in
@@ -34,7 +40,13 @@ data class DialArc(val from: Float, val sweep: Float, val focus: Boolean)
  * first night, and an event at the same hour next morning read as now.
  */
 object DialArcs {
-    fun of(agenda: Agenda, focus: WordsFocus, zone: ZoneId, showDaysAhead: Boolean): List<DialArc> {
+    fun of(
+        agenda: Agenda,
+        focus: WordsFocus,
+        zone: ZoneId,
+        showDaysAhead: Boolean,
+        calendars: Map<Long, CalendarInfo> = emptyMap(),
+    ): List<DialArc> {
         val focused = when (focus) {
             is WordsFocus.UnderWay -> focus.event
             is WordsFocus.Next -> focus.event
@@ -52,11 +64,18 @@ object DialArcs {
             focused?.let { add(it) }
         }.distinctBy { it.eventId to it.begin }
         return events.mapNotNull { event ->
-            arc(event, opens, zone, focus = event.sameAs(focused))
+            arc(
+                event,
+                opens,
+                zone,
+                focus = event.sameAs(focused),
+                color =
+                event.color ?: calendars[event.calendarId]?.color,
+            )
         }.sortedBy { it.focus }
     }
 
-    private fun arc(event: EventInstance, opens: Instant, zone: ZoneId, focus: Boolean): DialArc? {
+    private fun arc(event: EventInstance, opens: Instant, zone: ZoneId, focus: Boolean, color: Int?): DialArc? {
         val end = maxOf(event.end, event.begin)
         if (end < opens || (end == opens && event.begin < opens)) return null
         val from = maxOf(event.begin, opens)
@@ -64,7 +83,7 @@ object DialArcs {
         val ahead = faceMinutesBetween(opens, from, zone).coerceAtLeast(0f)
         if (ahead >= SPAN_MINUTES) return null
         val minutes = minOf(faceMinutesBetween(from, end, zone), SPAN_MINUTES - ahead)
-        return DialArc(minuteOnFace(from, zone), maxOf(minutes, MIN_SWEEP), focus)
+        return DialArc(minuteOnFace(from, zone), maxOf(minutes, MIN_SWEEP), focus, color)
     }
 
     /** How far the hand moves from [from] to [to]: wall-clock minutes, not elapsed ones. */

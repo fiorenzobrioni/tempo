@@ -5,6 +5,7 @@ import com.callbackdev.tempo.core.domain.agenda.Rome
 import com.callbackdev.tempo.core.domain.agenda.agenda
 import com.callbackdev.tempo.core.domain.agenda.allDay
 import com.callbackdev.tempo.core.domain.agenda.at
+import com.callbackdev.tempo.core.domain.agenda.calendar
 import com.callbackdev.tempo.core.domain.agenda.timed
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -88,6 +89,35 @@ class WordsTest {
             DialArc(from = 180f, sweep = 60f, focus = false),
             DialArc(from = 360f, sweep = 60f, focus = false),
         )
+    }
+
+    @Test
+    fun `each arc carries its calendar's colour, the event's own first`() {
+        val green = 0xFF0B8043.toInt()
+        val orange = 0xFFF4511E.toInt()
+        val personal = calendar(1).copy(color = green)
+        val tinted = dentist.copy(color = orange)
+        val agenda = agenda(standup, tinted, gym, now = at("2026-10-07T10:05"), calendars = listOf(personal))
+        val result = DialArcs.of(agenda, WordsDay.of(agenda, true, true).focus, Rome, true, mapOf(1L to personal))
+        // The standup (the focus, last) and the gym have no colour of their own: their calendar's.
+        assertThat(result.map { it.from to it.color }).containsExactly(
+            180f to orange,
+            360f to green,
+            570f to green,
+        ).inOrder()
+    }
+
+    @Test
+    fun `the card's arcs are where they were, a colour beside them`() {
+        // The cards call the dial without the calendars: only the event's own colour comes along,
+        // and the arcs' places and the focus are the same as Today's.
+        val tinted = dentist.copy(color = 0xFFF4511E.toInt())
+        val agenda = agenda(standup, tinted, now = at("2026-10-07T10:05"))
+        val focus = WordsDay.of(agenda, true, true).focus
+        val card = DialArcs.of(agenda, focus, Rome, true)
+        val today = DialArcs.of(agenda, focus, Rome, true, mapOf(1L to calendar(1)))
+        assertThat(card.map { it.copy(color = null) }).isEqualTo(today.map { it.copy(color = null) })
+        assertThat(card.map { it.color }).containsExactly(0xFFF4511E.toInt(), null).inOrder()
     }
 
     @Test

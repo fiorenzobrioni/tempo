@@ -36,7 +36,7 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
 
 <table>
   <tr>
-    <td align="center" width="33%"><img src="docs/screenshots/today.png" width="250" alt="Today at 10:20 AM: the date on top with the calendar and settings buttons, the time large beside a clock face with the day's events on its ring, tomorrow's alarm, the sentence Design review until 11:00 AM, then 3 more today, the all-day events, the morning folded, the line for now, the meeting under way with 40 minutes left, the free hours ahead, and tomorrow's card beginning"><br><sub><b>Today</b>: the time, the day on a dial, and one sentence</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/today.png" width="250" alt="Today at 10:20 AM: the date on top with the calendar and settings buttons, the time large beside a clock face with the day's events on its ring in their calendars' colours, tomorrow's alarm, the sentence Design review until 11:00 AM, then 3 more today, the all-day events, the morning folded, the line for now, the meeting under way with 40 minutes left, two free hours from 11:00 AM, the rest of the day's events, and tomorrow's card with its first event"><br><sub><b>Today</b>: the time, the day on a dial, and one sentence</sub></td>
     <td align="center" width="33%"><img src="docs/screenshots/today-evening-dark.png" width="250" alt="Today at 9:10 PM in the dark theme: nothing left today, tomorrow starts at 9:00 AM with a call, the clock face with an empty ring, then tomorrow's card in full and Friday's card"><br><sub><b>The evening</b>: tomorrow moves up</sub></td>
     <td align="center" width="33%"><img src="docs/screenshots/settings-calendars.png" width="250" alt="Settings: the agenda's choices with the calendar button's switch, and five calendars from two accounts, each with its colour and a switch, one hidden"><br><sub><b>Your calendars</b>, each shown or hidden</sub></td>
   </tr>
@@ -59,8 +59,8 @@ launcher draws them, on a stand-in wallpaper. The command that redraws them is i
 For 1.0 ([VISION.md](./VISION.md) has the full scope):
 
 - 🕓 **Today**: the time large beside a clock face with the next twelve hours' events on its ring, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
-- 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and the free hours between them, then the rest of the week a card a day, empty days said once.
-- ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow.
+- 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and your next free hour (a touch starts an event there), then the rest of the week a card a day, empty days said once.
+- ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow. A touch opens your clock app.
 - ✏️ **Your calendar app does the writing**: touch an event to open it there; the calendar button, the date and a day's name open it on that day; the new-event button opens its new-event page, the start already set.
 - 🏠 **Two widgets that never scroll**: «Agenda», the clock and the date (each optional, in your format) over as many events as the card's size allows, and how many more; «In words», a clock face with the next event drawn on its ring (the hour hand walks through it by itself) and the day in a few words.
 - 🪶 **A clock that costs nothing**: the widget's time is drawn by Android itself, right to the minute, with no work by the app.
