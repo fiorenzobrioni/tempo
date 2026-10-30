@@ -18,7 +18,7 @@ shortest way to the same look, and keeps one drawing of each thing in the family
    Passo (`passo@f8d7aa9`) into Tempo unchanged; when Chiaro regenerates, they are copied again), `Type.kt`
    (Google Sans by default, Inter, the phone's sans; the same scale; the hero and the reading
    styles, tabular), `Shape.kt`, `Motion.kt` (springs, a 100 ms fade under reduced motion, read
-   live), `PageWidth.kt` (the centred column on an open foldable), `WidgetPalette.kt` (Chiaro's
+   live), `PageWidth.kt` (the centred column on an open foldable; since step 8.7 also Today's two panes on a large screen, ADR 0004), `WidgetPalette.kt` (Chiaro's
    six card colours, hex for hex), `DenseTargets.kt`. Vivid is the default and dynamic colour is
    off by default, as in the family. Both fonts are the same files (OFL, credited in
    `licenses/`).

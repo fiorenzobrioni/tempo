@@ -4,6 +4,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -16,6 +17,7 @@ import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
@@ -28,6 +30,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.designsystem.theme.LocalReducedMotion
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
@@ -547,6 +550,8 @@ class TodayScreenTest {
         compose.onNodeWithTag(sunday).assertDoesNotExist()
         compose.mainClock.autoAdvance = false
         back(tea)
+        // The paused clock runs frames, not the main thread's apply notification: sent by hand.
+        Snapshot.sendApplyNotifications()
         // A frame for the new state, then the scroll and the glow at its height.
         compose.mainClock.advanceTimeBy(16)
         compose.mainClock.advanceTimeBy(400)
@@ -614,10 +619,167 @@ class TodayScreenTest {
     }
 
     @Test
-    @Config(qualifiers = "en-rGB-w841dp-h701dp-xxhdpi")
-    fun `the whole page reads on an open foldable`() {
+    @Config(qualifiers = "en-rGB-w829dp-h690dp-xxhdpi")
+    fun `the whole page reads on a foldable open under 840 dp, in its one column`() {
         draw()
+        compose.onNodeWithTag(TodayTags.HERO_PANE).assertDoesNotExist()
+        compose.onNode(hasTestTag(TodayTags.TIME) and hasAnyAncestor(hasTestTag(TodayTags.LIST))).assertExists()
         compose.walkPage(hasTestTag(TodayTags.LIST), "today-foldable")
+    }
+
+    // --- Today on a large screen: two panes (step 8.7) ------------------------------------------
+
+    private val inHeroPane = hasAnyAncestor(hasTestTag(TodayTags.HERO_PANE))
+    private val inAgendaPane = hasAnyAncestor(hasTestTag(TodayTags.LIST))
+
+    private fun bounds(tag: String) = compose.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot
+
+    /** Both panes walked, each from its top to its bottom. */
+    private fun walkPanes(name: String) {
+        compose.walkPage(hasTestTag(TodayTags.HERO_PANE), "$name-hero")
+        compose.walkPage(hasTestTag(TodayTags.LIST), "$name-agenda")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `a tablet on its side, the hero beside the agenda and the dial at its largest`() {
+        draw()
+        compose.onNodeWithTag(TodayTags.HERO_PANE).assertWidthIsEqualTo(512.dp)
+        compose.onNodeWithTag(TodayTags.DIAL).assertWidthIsEqualTo(200.dp)
+        // The clock is never shrunk for the face.
+        compose.onNodeWithTag(TodayTags.TIME).assertTextEquals("10:20")
+        for (tag in listOf(TodayTags.DATE, TodayTags.TIME, TodayTags.DIAL, TodayTags.ALARM, TodayTags.SENTENCE)) {
+            compose.onNode(hasTestTag(tag) and inHeroPane).assertIsDisplayed()
+        }
+        compose.onNode(hasTestTag(TodayTags.ALL_DAY) and inHeroPane).assertIsDisplayed()
+        compose.onNode(hasTestTag(TodayTags.ALL_DAY) and inAgendaPane).assertDoesNotExist()
+        compose.onNode(hasTestTag(TodayTags.NOW) and inAgendaPane).assertIsDisplayed()
+        compose.onNode(hasTestTag(TodayTags.event(TodaySample.review.eventId)) and inAgendaPane).assertIsDisplayed()
+        // Side by side, the agenda's first row level with the date's, and the button over the agenda.
+        val hero = bounds(TodayTags.HERO_PANE)
+        val agenda = bounds(TodayTags.LIST)
+        assertThat(agenda.left).isAtLeast(hero.right)
+        assertThat(bounds(TodayTags.EARLIER).top).isEqualTo(bounds(TodayTags.DATE).top)
+        assertThat(bounds(TodayTags.NEW_EVENT).left).isAtLeast(agenda.left)
+        walkPanes("today-tablet")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `the two panes scroll each on its own`() {
+        draw()
+        val time = bounds(TodayTags.TIME)
+        compose.onNodeWithTag(TodayTags.NOW).assertIsDisplayed()
+        scrollTo(TodayTags.day(java.time.LocalDate.parse("2026-10-11")))
+        // "Now" has gone up out of the agenda's pane; the clock has not moved.
+        assertThat(compose.onAllNodesWithTag(TodayTags.NOW).fetchSemanticsNodes().none { it.layoutInfo.isPlaced })
+            .isTrue()
+        assertThat(bounds(TodayTags.TIME)).isEqualTo(time)
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w900dp-h1200dp-xhdpi")
+    fun `a large tablet upright in two panes, the hero a phone's width at least`() {
+        draw()
+        compose.onNodeWithTag(TodayTags.HERO_PANE).assertWidthIsEqualTo(400.dp)
+        compose.onNodeWithTag(TodayTags.TIME).assertTextEquals("10:20")
+        val dial = bounds(TodayTags.DIAL).width / compose.density.density
+        assertThat(dial).isAtLeast(112f)
+        assertThat(dial).isLessThan(200f)
+        walkPanes("today-tablet-upright")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w841dp-h701dp-xxhdpi")
+    fun `the whole page reads on an open foldable 840 dp wide, in two panes`() {
+        draw()
+        compose.onNodeWithTag(TodayTags.HERO_PANE).assertWidthIsEqualTo(400.dp)
+        walkPanes("today-foldable-panes")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w891dp-h411dp-xxhdpi")
+    fun `a phone on its side keeps its one column`() {
+        draw()
+        compose.onNodeWithTag(TodayTags.HERO_PANE).assertDoesNotExist()
+        compose.onNodeWithTag(TodayTags.DIAL).assertWidthIsEqualTo(112.dp)
+        compose.walkPage(hasTestTag(TodayTags.LIST), "today-phone-sideways", maxScreens = 3)
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi", fontScale = 2f)
+    fun `two panes at twice the text size`() {
+        draw()
+        walkPanes("today-tablet-large-text")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `two panes in the dark, on the twelve-hour clock`() {
+        draw(TodaySample.state(settings = TodaySample.settings.copy(clockFormat = ClockFormat.H12)), dark = true)
+        compose.onNodeWithTag(TodayTags.TIME).assertTextEquals("10:20\u202Fam")
+        compose.assertAccessible()
+        compose.writeScreenshot("today-tablet-dark")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `on a large screen the first day's tip stands in the hero's pane`() {
+        draw(TodaySample.state(settings = firstDay))
+        compose.onNode(hasTestTag(TodayTags.TIP) and inHeroPane).assertIsDisplayed()
+        assertThat(bounds(TodayTags.TIP).top).isAtLeast(bounds(TodayTags.ALL_DAY).bottom)
+        compose.assertAccessible()
+        compose.writeScreenshot("today-tablet-tip")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `on a large screen a state's card stands in the agenda's pane`() {
+        var asked = false
+        draw(
+            state = TodaySample.state().copy(content = TodayContent.NoPermission),
+            permission = CalendarPermission.ASKABLE,
+            actions = TodayActions(askPermission = { asked = true }),
+        )
+        compose.onNode(hasTestTag(TodayTags.DIAL) and inHeroPane).assertIsDisplayed()
+        compose.onNode(hasText("Allow") and inAgendaPane).performClick()
+        assertThat(asked).isTrue()
+        compose.assertAccessible()
+        compose.writeScreenshot("today-tablet-permission")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `on a large screen the event made is brought into view in the agenda's pane`() {
+        var revealed = 0
+        val tea = event(30, "2026-10-11T16:00", "2026-10-11T17:00", "Tea with Anna")
+        val sunday = TodayTags.day(java.time.LocalDate.parse("2026-10-11"))
+        val back = leftForNewEvent(onRevealed = { revealed++ })
+        compose.onNodeWithTag(sunday).assertDoesNotExist()
+        val time = bounds(TodayTags.TIME)
+        back(tea)
+        compose.waitForIdle()
+        compose.onNode(hasTestTag(sunday) and inAgendaPane).assertIsDisplayed()
+        // Whole, above the button's room, and the hero where it was.
+        assertThat(bounds(sunday).bottom).isAtMost(bounds(TodayTags.LIST).bottom)
+        assertThat(bounds(TodayTags.TIME)).isEqualTo(time)
+        assertThat(revealed).isEqualTo(1)
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `on a large screen an all-day event made today glows in the hero's pane`() {
+        val holiday = TodaySample.birthday.copy(eventId = 34, title = "Day off")
+        val back = leftForNewEvent()
+        compose.mainClock.autoAdvance = false
+        back(holiday)
+        Snapshot.sendApplyNotifications()
+        compose.mainClock.advanceTimeBy(16)
+        compose.mainClock.advanceTimeBy(400)
+        compose.writeScreenshot("today-tablet-reveal")
+        compose.mainClock.autoAdvance = true
+        compose.waitForIdle()
+        compose.onNode(hasContentDescription("Day off", substring = true) and inHeroPane).assertIsDisplayed()
     }
 
     /** An event of the Personal calendar, from and to local times in Rome. */
