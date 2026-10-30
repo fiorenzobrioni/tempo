@@ -123,8 +123,9 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
     manifest's receiver; and the moments it changes by itself (a day before it rings, midnight
     for tomorrow's, the ring) are boundaries where an «Agenda» card is placed. The step asked for
     the broadcast to be seen on the phone before the alarm was built; the owner chose to build it
-    on the source's evidence and check it on the phone before the merge (PLANNING.md §15): it
-    arrives, about 5 s after a change in the Clock app with Tempo in the background. Where
+    on the source's evidence and check it on the phone before the merge (PLANNING.md §15); on the
+    owner's phone it reached the card once in about 5 s and once not within 30 s, under
+    investigation. Where
     the alarm stands under the date its line fills the column: a vertical `LinearLayout` whose
     lines all fill it takes its widest line's width, and one line that only wraps its words set
     the column to its own and cut a 12-hour clock.

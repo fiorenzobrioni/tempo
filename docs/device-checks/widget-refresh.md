@@ -105,4 +105,4 @@ few words in the column), as the owner decided (PLANNING.md §15, 30 Oct 2026).
 | 4 |  |  |  |
 | 5 |  |  |  |
 | 6 |  |  |  |
-| 7 | Galaxy S24 Ultra (owner's) | Pass: with Tempo in the background, an alarm moved and one turned off in the Clock app reached the card in about 5 s each | 30 Oct 2026 |
+| 7 | Galaxy S24 Ultra (owner's) | **Not reliable.** First try: an alarm moved and one turned off reached the card in about 5 s each. Second try, later: no change on the card after about 30 s with Tempo in the background; opening Tempo showed the alarm, and the card changed about 10 s after leaving it. Under investigation, with `adb logcat -s TempoWidget` | 30 Oct 2026 |
