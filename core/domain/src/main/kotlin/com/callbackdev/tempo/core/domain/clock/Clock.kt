@@ -1,6 +1,7 @@
 package com.callbackdev.tempo.core.domain.clock
 
 import com.callbackdev.tempo.core.model.ClockFormat
+import com.callbackdev.tempo.core.model.FreeGap
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -37,4 +38,20 @@ fun nextHalfHour(now: Instant, zone: ZoneId): Instant {
     val local = now.atZone(zone).truncatedTo(ChronoUnit.MINUTES)
     val minutesPast = local.minute % 30
     return local.plusMinutes((30 - minutesPast).toLong()).toInstant()
+}
+
+/**
+ * The new event a touch on a free gap hands to the calendar app (PLANNING.md §4.7): from the gap's
+ * start, which is an event's end ("free from 11:00"), for [length] or to the gap's end, whichever
+ * comes first. The gap that is open now starts at [now] itself, seconds and all ("8:07:41"): its
+ * event starts at the next half hour instead, as the new-event button's does, while that is still
+ * inside the gap (review of 30 Oct 2026).
+ */
+fun newEventIn(gap: FreeGap, now: Instant, zone: ZoneId, length: Duration): FreeGap {
+    val start = if (gap.start > now) {
+        gap.start
+    } else {
+        nextHalfHour(now, zone).takeIf { it < gap.end } ?: now.atZone(zone).truncatedTo(ChronoUnit.MINUTES).toInstant()
+    }
+    return FreeGap(start, minOf(start.plus(length), gap.end))
 }

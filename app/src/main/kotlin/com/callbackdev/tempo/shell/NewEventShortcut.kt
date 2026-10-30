@@ -13,18 +13,23 @@ import com.callbackdev.tempo.R
  * the calendar app lands on Today, where the new event then shows.
  *
  * Dynamic, not declared in XML: a static shortcut names its
- * package, and the debug build's is another (`.debug`). Published once; the launcher keeps it.
+ * package, and the debug build's is another (`.debug`). The launcher keeps it, with the words it
+ * was given: published again when they are not the app's words any more (the reader changed the
+ * app's language), and left alone otherwise.
  */
 object NewEventShortcut {
     const val EXTRA_NEW_EVENT = "com.callbackdev.tempo.extra.NEW_EVENT"
     private const val ID = "new_event"
 
     fun publish(context: Context) {
-        if (ShortcutManagerCompat.getDynamicShortcuts(context).any { it.id == ID }) return
+        val short = context.getString(R.string.shortcut_new_event)
+        val long = context.getString(R.string.shortcut_new_event_long)
+        val published = ShortcutManagerCompat.getDynamicShortcuts(context).firstOrNull { it.id == ID }
+        if (published?.shortLabel?.toString() == short && published?.longLabel?.toString() == long) return
         val launch = context.packageManager.getLaunchIntentForPackage(context.packageName) ?: return
         val shortcut = ShortcutInfoCompat.Builder(context, ID)
-            .setShortLabel(context.getString(R.string.shortcut_new_event))
-            .setLongLabel(context.getString(R.string.shortcut_new_event_long))
+            .setShortLabel(short)
+            .setLongLabel(long)
             .setIcon(IconCompat.createWithResource(context, R.drawable.ic_shortcut_new_event))
             .setIntent(Intent(launch).setAction(Intent.ACTION_VIEW).putExtra(EXTRA_NEW_EVENT, true))
             .build()

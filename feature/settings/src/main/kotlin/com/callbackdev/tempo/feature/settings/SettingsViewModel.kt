@@ -64,7 +64,7 @@ class SettingsViewModel @Inject constructor(
 
     private val rereads = MutableStateFlow(0)
 
-    private val calendars: Flow<CalendarsState?> = merge(rereads.map { }, changes.flow()).map {
+    private val calendars: Flow<CalendarsState?> = merge(rereads.map { }, changes.flow(restarts = rereads)).map {
         source.readCalendars()?.let { CalendarsState.Listed(CalendarGroups.of(it)) } ?: CalendarsState.NoPermission
     }
 

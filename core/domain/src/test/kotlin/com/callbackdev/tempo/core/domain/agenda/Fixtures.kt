@@ -21,7 +21,7 @@ val Utc: ZoneId = ZoneOffset.UTC
 /** A local date and time in [zone], as the instant the provider would store. */
 fun at(local: String, zone: ZoneId = Rome): Instant = LocalDateTime.parse(local).atZone(zone).toInstant()
 
-fun calendar(id: Long = 1, visible: Boolean = true) = CalendarInfo(
+fun calendar(id: Long = 1, visible: Boolean = true, synced: Boolean = true) = CalendarInfo(
     id = id,
     name = "Calendar $id",
     accountName = "reader@example.com",
@@ -29,6 +29,7 @@ fun calendar(id: Long = 1, visible: Boolean = true) = CalendarInfo(
     color = 0xFF3F51B5.toInt(),
     visibleInProvider = visible,
     isPrimary = id == 1L,
+    syncsEvents = synced,
 )
 
 fun timed(

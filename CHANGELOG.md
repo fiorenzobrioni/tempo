@@ -10,18 +10,38 @@ All notable changes to Tempo are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **Invitations you have not answered** say so on Today ("Not answered"), as "Maybe" already did.
+
 ### Changed
 
 - **Widgets: one size for a list.** On «Agenda» an event's title, its time, the headings and
   the "more today" line are one size, and the note on «In words» matches it, the same sizes
   the family's other cards use.
 - **Widgets wear your launcher's corner**, so they match the widgets beside them.
+- **Times line up.** Today's columns of times use figures of one width, so the times stand
+  under each other and "40 min left" no longer shifts as it counts down; the day's sentence
+  breaks into even lines, and a time never parts from its AM or PM.
 
 ### Fixed
 
 - **The dial on the nights the clocks change.** An event early the next morning could sit
   under the hand and look like now, and an event across the change drew an arc an hour too
   long or too short. The dial now counts the hours the clock on the wall shows.
+- **Only the calendars on this phone.** An account also lists calendars it does not sync here
+  (a colleague's, a country's holidays you ticked off): Settings no longer offers switches for
+  them, and they no longer count as calendars shown.
+- **Live after you allow the calendar.** Allowing it from Today or Settings now keeps the
+  page live at once: a change made meanwhile shows without leaving the app first.
+- **A new event from "Free" now** starts at the next half hour, and ends with the free time if
+  that comes first. It used to start at the very minute, seconds and all.
+- **An end on another day says its day**: "Night train until tomorrow at 6:30", "Ends
+  Saturday", on Today and on the widgets, where a bare time read as today's.
+- **The launcher's "New event"** follows the app's language when you change it.
+- **«In words» shows the next event on its dial** as soon as it comes within the dial's twelve
+  hours, rather than at midnight; and on one cell its dial stays when the calendar cannot be
+  read, as «Agenda»'s clock does.
 
 ## [1.0.1] - 2026-10-10
 

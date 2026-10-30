@@ -121,6 +121,37 @@ class CalendarSourceTest {
     }
 
     @Test
+    fun `whether the phone syncs a calendar is read, and a provider that does not say keeps it`() = runTest {
+        FakeCalendarProvider.calendars = listOf(
+            mapOf(Calendars._ID to 1L, Calendars.CALENDAR_DISPLAY_NAME to "Synced", Calendars.SYNC_EVENTS to 1),
+            mapOf(Calendars._ID to 2L, Calendars.CALENDAR_DISPLAY_NAME to "Listed only", Calendars.SYNC_EVENTS to 0),
+            mapOf(Calendars._ID to 3L, Calendars.CALENDAR_DISPLAY_NAME to "Unsaid"),
+        )
+        val calendars = (source.read(window) as CalendarRead.Read).calendars.associate { it.name to it.syncsEvents }
+        assertThat(calendars).containsExactly("Synced", true, "Listed only", false, "Unsaid", true)
+    }
+
+    @Test
+    fun `an invitation not answered yet is told from one the reader sent`() = runTest {
+        FakeCalendarProvider.instances = listOf(
+            instance(1) + mapOf(
+                Instances.SELF_ATTENDEE_STATUS to Attendees.ATTENDEE_STATUS_INVITED,
+                Instances.IS_ORGANIZER to 0,
+            ),
+            instance(2) + mapOf(
+                Instances.SELF_ATTENDEE_STATUS to Attendees.ATTENDEE_STATUS_INVITED,
+                Instances.IS_ORGANIZER to 1,
+            ),
+            instance(3) + (Instances.SELF_ATTENDEE_STATUS to Attendees.ATTENDEE_STATUS_INVITED),
+        )
+        val events = (source.read(window) as CalendarRead.Read).instances.associateBy { it.eventId }
+        assertThat(events.getValue(1).awaitsAnswer).isTrue()
+        assertThat(events.getValue(2).awaitsAnswer).isFalse()
+        assertThat(events.getValue(3).isOrganizer).isNull()
+        assertThat(events.getValue(3).awaitsAnswer).isTrue()
+    }
+
+    @Test
     fun `an all-day event is read as stored, its midnights in UTC`() = runTest {
         FakeCalendarProvider.instances = listOf(
             instance(1, begin = "2026-10-07T00:00:00Z", end = "2026-10-08T00:00:00Z") + (Instances.ALL_DAY to 1),
@@ -150,6 +181,8 @@ class CalendarSourceTest {
         FakeCalendarProvider.missing = setOf(
             Calendars.VISIBLE,
             Calendars.IS_PRIMARY,
+            Calendars.SYNC_EVENTS,
+            Instances.IS_ORGANIZER,
             Calendars.CALENDAR_COLOR,
             Instances.DISPLAY_COLOR,
             Instances.STATUS,
@@ -163,6 +196,7 @@ class CalendarSourceTest {
         val calendar = read.calendars.single()
         assertThat(calendar.name).isEqualTo("Phone")
         assertThat(calendar.visibleInProvider).isTrue()
+        assertThat(calendar.syncsEvents).isTrue()
         assertThat(calendar.color).isNull()
         val event = read.instances.single()
         assertThat(event.color).isNull()

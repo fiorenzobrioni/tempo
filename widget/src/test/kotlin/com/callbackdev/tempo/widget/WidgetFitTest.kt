@@ -27,7 +27,15 @@ import org.robolectric.annotation.GraphicsMode
 class WidgetFitTest {
     private val context: Context get() = ApplicationProvider.getApplicationContext()
 
-    private val titles = WidgetSamples.instances.mapNotNull { it.title }
+    /** Under way at 23:00 and over at 06:30: an end on a later date says its day, and must fit too. */
+    private val nightTrain = WidgetSamples.instances.first().copy(
+        eventId = 99,
+        title = "Night train",
+        begin = WidgetSamples.at("2026-10-07T22:30").toInstant(),
+        end = WidgetSamples.at("2026-10-08T06:30").toInstant(),
+    )
+
+    private val titles = (WidgetSamples.instances + nightTrain).mapNotNull { it.title }
 
     /** A title, or a date's all-day titles one after the other. */
     private fun isTitle(text: String) = titles.any { text.startsWith(it.take(TITLE_PREFIX)) }
@@ -37,6 +45,10 @@ class WidgetFitTest {
         WidgetSamples.model(),
         WidgetSamples.model(now = WidgetSamples.at("2026-10-07T14:20")),
         WidgetSamples.model(now = WidgetSamples.at("2026-10-07T21:10")),
+        WidgetSamples.model(
+            now = WidgetSamples.at("2026-10-07T23:00"),
+            instances = WidgetSamples.instances + nightTrain,
+        ),
         WidgetSamples.model(now = WidgetSamples.at("2026-10-11T23:00")),
         WidgetSamples.model(look = WidgetLook(clockFormat = ClockFormat.H12, dateStyle = DateStyle.NUMERIC)),
         WidgetSamples.model(look = WidgetLook(showClock = false)),

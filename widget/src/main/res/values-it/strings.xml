@@ -28,8 +28,6 @@
 
     <string name="widget_free">Libero</string>
     <string name="widget_until_short">→ %1$s</string>
-    <string name="widget_label_until">Fino alle</string>
-    <string name="widget_label_next">Poi</string>
     <plurals name="widget_note_then_more">
         <item quantity="one">Poi un altro oggi.</item>
         <item quantity="many">Poi altri %1$d oggi.</item>

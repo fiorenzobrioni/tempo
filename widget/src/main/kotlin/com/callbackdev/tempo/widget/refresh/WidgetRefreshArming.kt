@@ -16,6 +16,7 @@ import androidx.work.await
 import com.callbackdev.tempo.core.domain.agenda.NextBoundary
 import com.callbackdev.tempo.core.model.Agenda
 import com.callbackdev.tempo.widget.TempoWidgets
+import com.callbackdev.tempo.widget.WidgetKind
 import com.callbackdev.tempo.widget.logWidgetFailure
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
@@ -56,10 +57,15 @@ import javax.inject.Singleton
 /** Arms and disarms the two things a card leaves behind it: the calendar's trigger and the boundary alarm. */
 @Singleton
 class WidgetRefreshArming @Inject constructor(@ApplicationContext private val context: Context) {
-    /** After a card is drawn: the calendar's trigger, and the alarm at [agenda]'s next boundary. */
+    /**
+     * After a card is drawn: the calendar's trigger, and the alarm at [agenda]'s next boundary,
+     * counting the moments events come onto the dial where an «In words» card is placed.
+     */
     fun afterRender(agenda: Agenda?, zone: ZoneId) {
         Arming.launch { armCalendarTrigger(context) }
-        if (agenda != null) armBoundary(NextBoundary.after(agenda, zone))
+        if (agenda != null) {
+            armBoundary(NextBoundary.after(agenda, zone, dial = TempoWidgets.has(context, WidgetKind.WORDS)))
+        }
     }
 
     /** The last card is gone: nothing of Tempo waits on a calendar no card shows. */

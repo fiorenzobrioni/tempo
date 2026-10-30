@@ -4,12 +4,14 @@ import android.content.Context
 import android.database.ContentObserver
 import android.provider.CalendarContract
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,8 +26,23 @@ import javax.inject.Singleton
  */
 @Singleton
 class CalendarChanges @Inject constructor(@ApplicationContext private val context: Context) {
+    /**
+     * The ticks, watched afresh each time [restarts] emits (a page's every return, a permission
+     * just answered). Without `READ_CALENDAR` there is nothing to watch and [flow] ends at once;
+     * granted later, from the page's own card or the system's settings, the next restart watches
+     * again, so the page stays live without being left and reopened (review of 30 Oct 2026).
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun flow(restarts: Flow<*>): Flow<Unit> = restarts.flatMapLatest { flow() }
+
     @OptIn(FlowPreview::class)
     fun flow(): Flow<Unit> = callbackFlow {
+        // Android refuses an observer on the calendar without the permission; asked first, so
+        // the answer is the same on every phone and in the tests.
+        if (!CalendarAccess.isGranted(context)) {
+            close()
+            return@callbackFlow
+        }
         val observer = object : ContentObserver(null) {
             override fun onChange(selfChange: Boolean) {
                 trySend(Unit)
@@ -35,7 +52,7 @@ class CalendarChanges @Inject constructor(@ApplicationContext private val contex
         try {
             resolver.registerContentObserver(CalendarContract.CONTENT_URI, true, observer)
         } catch (_: SecurityException) {
-            // No permission to watch: nothing will change that the page could show.
+            // Revoked in between: nothing to watch until the next restart.
             close()
             return@callbackFlow
         }

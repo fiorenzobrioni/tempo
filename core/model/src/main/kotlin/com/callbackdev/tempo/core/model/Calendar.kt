@@ -10,6 +10,9 @@ import java.time.Instant
  *   (PLANNING.md §6), so it marks an event and never paints its text.
  * @property visibleInProvider whether the calendar app shows it (`VISIBLE`). Tempo follows that by
  *   default; the reader's own choice in Tempo wins over it.
+ * @property syncsEvents whether the phone keeps this calendar's events (`SYNC_EVENTS`). An account
+ *   lists every calendar it has, synced on this phone or not; calendar apps list only the synced
+ *   ones, and so does Tempo (PLANNING.md §4.1).
  */
 data class CalendarInfo(
     val id: Long,
@@ -19,6 +22,7 @@ data class CalendarInfo(
     val color: Int?,
     val visibleInProvider: Boolean,
     val isPrimary: Boolean,
+    val syncsEvents: Boolean = true,
 )
 
 /**
@@ -33,6 +37,8 @@ data class CalendarInfo(
  *   provider has neither.
  * @property timeZone the zone the event was written in (`EVENT_TIMEZONE`), for saying it when it
  *   differs from the phone's; never used to place the event.
+ * @property isOrganizer whether the reader organises the event (`IS_ORGANIZER`); null when the
+ *   provider does not say.
  */
 data class EventInstance(
     val eventId: Long,
@@ -47,7 +53,14 @@ data class EventInstance(
     val selfStatus: AttendeeStatus = AttendeeStatus.NONE,
     val availability: Availability = Availability.BUSY,
     val timeZone: String? = null,
-)
+    val isOrganizer: Boolean? = null,
+) {
+    /**
+     * An invitation the reader has not answered yet: invited, and not by themselves (a provider
+     * that marks the organiser's own events as invited must not flag every meeting they set up).
+     */
+    val awaitsAnswer: Boolean get() = selfStatus == AttendeeStatus.INVITED && isOrganizer != true
+}
 
 /** The event's own status (`STATUS`): a cancelled one is never shown (PLANNING.md §4.4). */
 enum class EventStatus {

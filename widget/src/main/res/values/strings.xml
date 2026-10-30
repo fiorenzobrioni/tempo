@@ -28,8 +28,6 @@
     <!-- «In words» -->
     <string name="widget_free">Free</string>
     <string name="widget_until_short">→ %1$s</string>
-    <string name="widget_label_until">Until</string>
-    <string name="widget_label_next">Next</string>
     <plurals name="widget_note_then_more">
         <item quantity="one">Then one more today.</item>
         <item quantity="other">Then %1$d more today.</item>

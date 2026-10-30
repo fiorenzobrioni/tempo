@@ -13,8 +13,13 @@
     <string name="today_left">%1$s left</string>
     <string name="today_started_before">Started the day before</string>
     <string name="today_ends_after">Ends the next day</string>
+    <!-- %1$s a weekday ("Monday") or, further away, a date ("Monday 5 October"). -->
+    <string name="today_started_on">Started %1$s</string>
+    <string name="today_ends_on">Ends %1$s</string>
     <string name="today_declined">Declined</string>
     <string name="today_maybe">Maybe</string>
+    <!-- An invitation the reader has not answered yet. -->
+    <string name="today_not_answered">Not answered</string>
     <string name="today_free_for">Free for %1$s</string>
     <plurals name="today_earlier">
         <item quantity="one">%1$d event earlier today</item>
@@ -30,8 +35,10 @@
     <string name="a11y_over">over</string>
     <string name="a11y_declined">declined</string>
     <string name="a11y_maybe">maybe</string>
+    <string name="a11y_not_answered">not answered yet</string>
     <string name="a11y_open_event">Open in your calendar</string>
     <string name="a11y_free">Free from %1$s, for %2$s</string>
+    <string name="a11y_free_now">Free from now, for %1$s</string>
 
     <string name="today_no_calendars_title">There is no calendar on this phone yet</string>
     <string name="today_no_calendars_body">Add one in your calendar app, or add an account that has one in the phone’s settings: its events appear here.</string>

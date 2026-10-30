@@ -100,7 +100,8 @@ internal fun typographyFor(family: FontFamily): Typography = Typography().run {
  * The two roles Material does not have, in the reader's family.
  *
  * @property heroNumber the time, the thing the screen is for: bold, tracked in, tabular so the
- *   minutes do not wobble as they change (64sp on a 68sp line, −0.02em). Whether the clock wants a larger cut is Phase 3's to measure.
+ *   minutes do not wobble as they change (64sp on a 68sp line, −0.02em). Today sets it at 80sp,
+ *   grown with the reader's text size and fitted beside the dial (PLANNING.md §15, 7 and 9 Oct 2026).
  * @property readingValue a value in a metric tile: light, tabular, 24sp on a 32sp line.
  */
 @Immutable

@@ -30,8 +30,12 @@ shortest way to the same look, and keeps one drawing of each thing in the family
    with no thought for Tempo's grounds, so they mark an event and never paint its text or
    ground (PLANNING.md §6).
 4. **The hero is the time.** `heroNumber` is Chiaro's temperature and Passo's step count; in
-   Tempo it is the clock, tabular so the minutes do not wobble as they change. Whether the clock
-   wants a larger cut than 64sp is Phase 3's to measure on a phone, not a guess made now.
+   Tempo it is the clock, tabular so the minutes do not wobble as they change. Measured in
+   Phase 3: the style's 64sp is set at 80sp on Today, grown with the reader's text size up to
+   104dp and shrunk to fit beside the dial (PLANNING.md §15, 7 and 9 Oct 2026). Every column of
+   times, and a figure that changes while it is read ("40 min left"), is tabular too
+   (`tabular()`), as Chiaro's timeline is; a time is one word, never broken between its figures
+   and its day marker (review of 30 Oct 2026).
 5. **Icons**: `TempoIcons`, a dozen of Passo's line icons (Chiaro's weight, drawn in code); new
    shapes are drawn the same way.
 6. **The launcher mark** (`tools/draw_launcher_icon.py`): the family's ring (radius 21, stroke 10,

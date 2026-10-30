@@ -13,12 +13,15 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
+import com.callbackdev.tempo.core.model.AttendeeStatus
 import com.callbackdev.tempo.core.model.CalendarPermission
 import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.DateStyle
@@ -106,7 +109,13 @@ class TodayScreenTest {
         var opened: EventInstance? = null
         var created: Instant? = null
         var day: Instant? = null
-        draw(actions = TodayActions(openEvent = { opened = it }, newEvent = { created = it }, openDay = { day = it }))
+        draw(
+            actions = TodayActions(
+                openEvent = { opened = it },
+                newEvent = { begin, _ -> created = begin },
+                openDay = { day = it },
+            ),
+        )
         compose.onNodeWithTag(TodayTags.event(TodaySample.review.eventId)).performClick()
         assertThat(opened).isEqualTo(TodaySample.review)
         compose.onNodeWithTag(TodayTags.NEW_EVENT).performClick()
@@ -121,6 +130,45 @@ class TodayScreenTest {
         day = null
         compose.onNodeWithTag(TodayTags.CALENDAR).performClick()
         assertThat(day).isEqualTo(TodaySample.at("2026-10-07T10:20").toInstant())
+    }
+
+    @Test
+    fun `the gap open now has no time of its own, and its new event starts at the next half hour`() {
+        var created: Pair<Instant, Instant>? = null
+        draw(
+            TodaySample.state(now = TodaySample.at("2026-10-07T08:20:41")),
+            actions = TodayActions(newEvent = { begin, end -> created = begin to end }),
+        )
+        val gap = hasContentDescription("Free from now, for 1 h 9 min")
+        compose.onNodeWithTag(TodayTags.LIST).performScrollToNode(gap)
+        compose.onNode(gap).performClick()
+        assertThat(created).isEqualTo(
+            TodaySample.at("2026-10-07T08:30").toInstant() to TodaySample.at("2026-10-07T09:30").toInstant(),
+        )
+    }
+
+    @Test
+    fun `an end on a later date says its day, in the sentence and on the row`() {
+        val train = event(20, "2026-10-07T22:30", "2026-10-08T06:30", "Night train")
+        val trip = event(21, "2026-10-07T21:00", "2026-10-10T17:00", "Trip to Florence")
+        draw(TodaySample.state(now = TodaySample.at("2026-10-07T23:00"), instances = listOf(train, trip)))
+        compose.onNodeWithTag(TodayTags.SENTENCE)
+            .assertTextEquals("Night train until tomorrow at 06:30, the last today.")
+        // The train is on tomorrow's card too ("Started the day before"); today's row comes first.
+        compose.onAllNodesWithTag(TodayTags.event(train.eventId)).onFirst()
+            .assert(hasContentDescription("Ends the next day", substring = true))
+        compose.onNodeWithTag(TodayTags.event(trip.eventId))
+            .assert(hasContentDescription("Ends Saturday", substring = true))
+    }
+
+    @Test
+    fun `an invitation not answered yet says so`() {
+        val invite = event(22, "2026-10-07T16:30", "2026-10-07T17:00", "Budget sync")
+            .copy(selfStatus = AttendeeStatus.INVITED, isOrganizer = false)
+        draw(TodaySample.state(instances = TodaySample.instances + invite))
+        scrollTo(TodayTags.event(invite.eventId))
+        compose.onNodeWithTag(TodayTags.event(invite.eventId))
+            .assert(hasContentDescription("not answered yet", substring = true))
     }
 
     @Test
@@ -277,4 +325,16 @@ class TodayScreenTest {
         draw()
         compose.walkPage(hasTestTag(TodayTags.LIST), "today-foldable")
     }
+
+    /** An event of the Personal calendar, from and to local times in Rome. */
+    private fun event(id: Long, from: String, to: String, title: String) = EventInstance(
+        eventId = id,
+        calendarId = TodaySample.personal.id,
+        title = title,
+        location = null,
+        begin = TodaySample.at(from).toInstant(),
+        end = TodaySample.at(to).toInstant(),
+        allDay = false,
+        color = null,
+    )
 }

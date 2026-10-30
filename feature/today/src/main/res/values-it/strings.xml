@@ -13,8 +13,11 @@
     <string name="today_left">Ancora %1$s</string>
     <string name="today_started_before">Iniziato il giorno prima</string>
     <string name="today_ends_after">Finisce il giorno dopo</string>
+    <string name="today_started_on">Iniziato %1$s</string>
+    <string name="today_ends_on">Finisce %1$s</string>
     <string name="today_declined">Rifiutato</string>
     <string name="today_maybe">Forse</string>
+    <string name="today_not_answered">Da rispondere</string>
     <string name="today_free_for">Libero per %1$s</string>
     <plurals name="today_earlier">
         <item quantity="one">%1$d impegno già passato</item>
@@ -30,8 +33,10 @@
     <string name="a11y_over">finito</string>
     <string name="a11y_declined">rifiutato</string>
     <string name="a11y_maybe">forse</string>
+    <string name="a11y_not_answered">ancora senza risposta</string>
     <string name="a11y_open_event">Apri nel tuo calendario</string>
     <string name="a11y_free">Libero dalle %1$s, per %2$s</string>
+    <string name="a11y_free_now">Libero da adesso, per %1$s</string>
 
     <string name="today_no_calendars_title">Sul telefono non c’è ancora nessun calendario</string>
     <string name="today_no_calendars_body">Aggiungine uno nella tua app calendario, o aggiungi nelle impostazioni del telefono un account che ne ha uno: i suoi impegni compariranno qui.</string>

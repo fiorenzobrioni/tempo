@@ -25,11 +25,13 @@ data class AgendaFilter(
     /**
      * A calendar is shown if the reader said so, or, when they said nothing, if the calendar app
      * shows it. An instance whose calendar is not in the list (a sync landing between the two
-     * queries) is shown: hiding an event is worse than showing one a moment early.
+     * queries) is shown: hiding an event is worse than showing one a moment early. A calendar the
+     * phone does not sync is not on the phone, whatever was chosen for it while it was.
      */
-    fun shows(calendar: CalendarInfo?, calendarId: Long): Boolean = when (calendarId) {
-        in hiddenCalendars -> false
-        in shownCalendars -> true
+    fun shows(calendar: CalendarInfo?, calendarId: Long): Boolean = when {
+        calendar?.syncsEvents == false -> false
+        calendarId in hiddenCalendars -> false
+        calendarId in shownCalendars -> true
         else -> calendar?.visibleInProvider ?: true
     }
 

@@ -28,7 +28,7 @@ enum class WidgetKind {
     /** «Agenda»: the clock and the date over the rest of the day. */
     AGENDA,
 
-    /** «In words»: what comes next, large, and the day in a line. */
+    /** «In words»: a clock face with what comes next on its ring, and the day in a few words. */
     WORDS,
 }
 
@@ -59,6 +59,11 @@ object TempoWidgets {
             runCatching { manager.getAppWidgetIds(ComponentName(context, receiver)) }.getOrNull()?.isNotEmpty() == true
         }
     }
+
+    /** Whether a card of [kind] is on a home screen. */
+    fun has(context: Context, kind: WidgetKind): Boolean = runCatching {
+        AppWidgetManager.getInstance(context).getAppWidgetIds(provider(context, kind))
+    }.getOrNull()?.isNotEmpty() == true
 
     /** Which card [appWidgetId] is; null for an id the host has not bound yet. */
     fun kindOf(context: Context, appWidgetId: Int): WidgetKind? =
