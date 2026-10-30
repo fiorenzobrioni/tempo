@@ -117,6 +117,8 @@
     <string name="widget_config_days_ahead">I prossimi giorni</string>
     <string name="widget_config_days_ahead_note">Quando il resto di oggi ci sta, i giorni seguenti riempiono lo spazio che lascia, ciascuno sotto la sua data.</string>
     <string name="widget_config_days_ahead_note_words">Quando oggi non resta altro, al suo posto va il primo impegno dei prossimi giorni.</string>
+    <string name="widget_config_second_zone">Secondo fuso orario</string>
+    <string name="widget_config_second_zone_note">L’ora di %1$s, come nelle impostazioni di Tempo, vicino alla data dove il widget ha spazio.</string>
     <string name="widget_config_reset">Ripristina questo widget</string>
     <string name="widget_config_done">Fatto</string>
     <string name="widget_config_cancel">Annulla</string>

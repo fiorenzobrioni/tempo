@@ -55,11 +55,13 @@ import com.callbackdev.tempo.core.designsystem.components.SettingsGroup
 import com.callbackdev.tempo.core.designsystem.components.SwitchRow
 import com.callbackdev.tempo.core.designsystem.components.ValueRow
 import com.callbackdev.tempo.core.designsystem.format.DateTimeText
+import com.callbackdev.tempo.core.designsystem.format.ZoneCities
 import com.callbackdev.tempo.core.designsystem.icons.TempoIcons
 import com.callbackdev.tempo.core.designsystem.theme.WidgetCardColor
 import com.callbackdev.tempo.core.designsystem.theme.padding
 import com.callbackdev.tempo.core.designsystem.theme.pageGutter
 import com.callbackdev.tempo.core.designsystem.theme.widgetCardContainer
+import com.callbackdev.tempo.core.domain.agenda.EventZone
 import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.DateStyle
 import com.callbackdev.tempo.core.model.UserSettings
@@ -83,6 +85,14 @@ object WidgetConfigTags {
     const val HEADER_TAP = "widget_config_header_tap"
     const val EVENT_TAP = "widget_config_event_tap"
     const val SIZES = "widget_config_sizes"
+    const val SECOND_ZONE = "widget_config_second_zone"
+}
+
+/** The second clock's city, as Tempo's settings chose it, in the app's language; null with none. */
+@Composable
+private fun secondCity(settings: UserSettings): String? {
+    val locale = LocalLocale.current.platformLocale
+    return settings.secondZone?.let(EventZone::place)?.let { ZoneCities.city(it, locale) }
 }
 
 private enum class ConfigDialog { CLOCK_FORMAT, DATE_STYLE, HEADER_TAP, EVENT_TAP }
@@ -202,6 +212,17 @@ fun WidgetConfigScreen(
                         ),
                         checked = look.showDaysAhead,
                         onChange = { onLook(look.copy(showDaysAhead = it)) },
+                    )
+                }
+                // With no city chosen in Tempo's settings there is no second clock to show: no switch.
+                secondCity(settings)?.let { city ->
+                    GroupDivider()
+                    SwitchRow(
+                        label = stringResource(R.string.widget_config_second_zone),
+                        note = stringResource(R.string.widget_config_second_zone_note, city),
+                        checked = look.showSecondZone,
+                        onChange = { onLook(look.copy(showSecondZone = it)) },
+                        modifier = Modifier.testTag(WidgetConfigTags.SECOND_ZONE),
                     )
                 }
             }

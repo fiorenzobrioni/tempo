@@ -61,6 +61,7 @@ For 1.0 ([VISION.md](./VISION.md) has the full scope):
 - 🕓 **Today**: the time large beside a clock face with the next twelve hours' events on its ring, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
 - 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and your next free hour (a touch starts an event there), then the rest of the week a card a day, empty days said once.
 - ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow. A touch opens your clock app.
+- 🌍 **Another time zone**: a second clock for a city you choose, under the alarm and on the widgets you want it on ("New York 4:20 AM"); an event written in another time zone says when it starts there too ("9:00 AM in Lisbon").
 - ✏️ **Your calendar app does the writing**: touch an event to open it there; the calendar button, the date and a day's name open it on that day; the new-event button opens its new-event page, the start already set.
 - 🏠 **Two widgets that never scroll**: «Agenda», the clock and the date (each optional, in your format) over as many events as the card's size allows, and how many more; «In words», a clock face with the next event drawn on its ring (the hour hand walks through it by itself) and the day in a few words.
 - 🪶 **A clock that costs nothing**: the widget's time is drawn by Android itself, right to the minute, with no work by the app.

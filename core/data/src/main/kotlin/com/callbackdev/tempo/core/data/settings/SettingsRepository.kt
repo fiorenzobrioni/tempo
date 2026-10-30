@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.callbackdev.tempo.core.domain.agenda.EventZone
 import com.callbackdev.tempo.core.model.AppFont
 import com.callbackdev.tempo.core.model.AppPalette
 import com.callbackdev.tempo.core.model.ClockFormat
@@ -65,6 +66,7 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
             showAllDay = prefs[Keys.SHOW_ALL_DAY] ?: defaults.showAllDay,
             showNextAlarm = prefs[Keys.SHOW_NEXT_ALARM] ?: defaults.showNextAlarm,
             showCalendarButton = prefs[Keys.SHOW_CALENDAR_BUTTON] ?: defaults.showCalendarButton,
+            secondZone = prefs[Keys.SECOND_ZONE],
             onboardingCompleted = prefs[Keys.ONBOARDING_COMPLETED] ?: defaults.onboardingCompleted,
             askedCalendarPermission = prefs[Keys.ASKED_CALENDAR_PERMISSION] ?: defaults.askedCalendarPermission,
         ).sanitized()
@@ -89,6 +91,7 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
         prefs.write(Keys.SHOW_ALL_DAY, old.showAllDay, new.showAllDay, d.showAllDay)
         prefs.write(Keys.SHOW_NEXT_ALARM, old.showNextAlarm, new.showNextAlarm, d.showNextAlarm)
         prefs.write(Keys.SHOW_CALENDAR_BUTTON, old.showCalendarButton, new.showCalendarButton, d.showCalendarButton)
+        prefs.write(Keys.SECOND_ZONE, old.secondZone.orEmpty(), new.secondZone.orEmpty(), "")
         prefs.write(Keys.ONBOARDING_COMPLETED, old.onboardingCompleted, new.onboardingCompleted, d.onboardingCompleted)
         prefs.write(
             Keys.ASKED_CALENDAR_PERMISSION,
@@ -117,6 +120,7 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
         val SHOW_ALL_DAY = booleanPreferencesKey("show_all_day")
         val SHOW_NEXT_ALARM = booleanPreferencesKey("show_next_alarm")
         val SHOW_CALENDAR_BUTTON = booleanPreferencesKey("show_calendar_button")
+        val SECOND_ZONE = stringPreferencesKey("second_zone")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val ASKED_CALENDAR_PERMISSION = booleanPreferencesKey("asked_calendar_permission")
     }
@@ -127,9 +131,13 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
     }
 }
 
-/** These settings with every value the app would not accept replaced by its default. */
+/**
+ * These settings with every value the app would not accept replaced by its default. A second zone
+ * this phone's time-zone data does not know (a backup from a newer phone) reads as none.
+ */
 internal fun UserSettings.sanitized(): UserSettings = copy(
     horizonDays = horizonDays.takeIf { it in UserSettings.HORIZON_CHOICES } ?: UserSettings.DEFAULT_HORIZON_DAYS,
+    secondZone = secondZone?.takeIf { EventZone.place(it) != null },
 )
 
 private inline fun <reified E : Enum<E>> String?.toEnumOrNull(): E? =

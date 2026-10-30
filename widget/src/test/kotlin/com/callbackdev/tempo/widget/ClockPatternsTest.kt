@@ -24,4 +24,14 @@ class ClockPatternsTest {
     fun `a pattern of one word has no break`() {
         assertThat(broken("EEEE")).isNull()
     }
+
+    @Test
+    fun `a city is a literal, its apostrophes doubled, and prints as it is`() {
+        assertThat(ClockPatterns.literal("New York")).isEqualTo("'New York'")
+        assertThat(ClockPatterns.literal("L’Avana")).isEqualTo("'L’Avana'")
+        assertThat(ClockPatterns.literal("L'Avana")).isEqualTo("'L''Avana'")
+        val pattern = "${ClockPatterns.literal("L'Avana")} HH:mm"
+        val moment = java.time.ZonedDateTime.parse("2026-10-07T04:20:00-04:00[America/Havana]")
+        assertThat(java.time.format.DateTimeFormatter.ofPattern(pattern).format(moment)).isEqualTo("L'Avana 04:20")
+    }
 }

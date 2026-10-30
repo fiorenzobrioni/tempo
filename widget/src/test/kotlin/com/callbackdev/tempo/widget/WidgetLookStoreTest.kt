@@ -44,6 +44,7 @@ class WidgetLookStoreTest {
         assertThat(look.dateStyle).isNull()
         assertThat(look.headerTap).isEqualTo(HeaderTap.TEMPO)
         assertThat(look.eventTap).isEqualTo(EventTap.CALENDAR)
+        assertThat(look.showSecondZone).isFalse()
     }
 
     @Test
@@ -54,6 +55,7 @@ class WidgetLookStoreTest {
             clockFormat = ClockFormat.H12,
             headerTap = HeaderTap.CLOCK,
             showDaysAhead = false,
+            showSecondZone = true,
         )
         val light = WidgetLook(
             background = WidgetBackground.LIGHT,

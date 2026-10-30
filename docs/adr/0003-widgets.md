@@ -146,6 +146,17 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
     they leave events out ("Then 3 more today." over two of them). Two rows high the band is
     already spent at the dial's comfort, so the two-row cards are unchanged; a row before the
     comfort would have cut the four-by-two's dial to 56 dp.
+15. **A second clock, as a second `TextClock`** (amendment of 30 Oct 2026, step 8.5). A city
+    the reader chose in Tempo's settings, on the cards that turn it on (a per-widget switch, off
+    by default, offered once a city is chosen): one more `TextClock`, its pattern the city as a
+    quoted literal before the card's time ("'New York' HH:mm"), its zone set with
+    `setTimeZone`. The system moves it as it moves the first, so it costs nothing and adds no
+    boundary. It says no day: whether the city's date is the phone's changes at two midnights,
+    and a word written into the pattern would be wrong between them; Today says "· tomorrow".
+    At the label step in the quiet ink, in the face of the card's date. «Agenda»: under the date
+    in the side column; on top, at the far edge of the date's line where both fit whole, or in
+    the date's place under a clock without one. «In words»: under the date beside the dial.
+    Never on a row or a cell, never where it does not fit whole, never by shortening the date.
 
 ## Consequences
 

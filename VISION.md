@@ -88,11 +88,16 @@ app the reader already uses.
   clocks, and a reminder is not the reader's alarm (30 Oct 2026). On by default, one switch hides
   it. A touch opens the Clock app, where the alarm is set (review of 30 Oct 2026); Tempo only
   reads it.
+- **A second clock** (step 8.5, moved here from the post-1.0 ideas): a city the reader chose in
+  Settings, as one line under the alarm, "New York 04:20", with "tomorrow" or "yesterday" when
+  its date is not the phone's. Off by default; not drawn while the phone is in that city.
 - **All-day and multi-day events** in a row of their own above the timeline ("Holiday, day 2 of 5").
 - **The timeline of the day's timed events**: the time range, the title, the calendar's colour
   as a mark, the location as one line of text (no map). The event under way says how much is
   left ("ends in 25 min"), past events are quieter, and a "now" line stands between what has
-  been and what is next.
+  been and what is next. An event written in a time zone whose clock reads another time than the
+  phone's says its start there too, in one note: "09:00 in Lisbon" (step 8.5); never for an
+  all-day event, and never for a zone on the phone's clock (Paris beside Rome).
 - **Free time**: said in the day's sentence ("Free until 3 pm"), and drawn on today's timeline as
   one quiet row: the first gap of an hour or more still ahead, the one open now or else the next
   (owner, 30 Oct 2026). A row for every such gap took three rows of seven on the first screen,
@@ -127,7 +132,9 @@ settings screen.
 The concept's widget, in the family's dress.
 
 - **A header with the clock and the date**, each shown or hidden and in its own format, drawn by
-  the system's `TextClock`: always right to the minute, with no work by the app.
+  the system's `TextClock`: always right to the minute, with no work by the app. The second
+  clock, where the reader turns it on for the card: another `TextClock`, set to the city's zone,
+  under the date in the side column or at the far edge of the date's line on top, where it fits.
 - **The rest of the day under the date** on the wide card (review of 30 Oct 2026): "4 left
   today", "until 19:30". Counts and clock times, redrawn when an event starts or ends. The next
   alarm is Today's alone: a card could not follow its changes reliably on a phone (PLANNING.md
@@ -147,7 +154,8 @@ The concept's widget, in the family's dress.
   - *Touching an event*: opens Tempo, or opens that event in the calendar app.
   - *The card*: light, dark, following the phone, or one of Chiaro's six colours, at any
     opacity, with a live preview: the family's widget settings.
-  - *Content*: all-day events shown or not; the days ahead when today is done.
+  - *Content*: all-day events shown or not; the days ahead when today is done; the second
+    clock, once a city is chosen in Tempo's settings (off by default).
 - **States**: no permission ("Touch to let Tempo read your calendar"), nothing left today (and
   tomorrow's first event, if the reader wants it). A message stands centred in the room the
   agenda would have.
@@ -165,7 +173,8 @@ its list. Redesigned around a dial after the first cards on the phone (owner, 8 
 - **What comes next, in words**: its title, and when ("Until 11:00", "15:00 – 15:45",
   "Tomorrow · 9:00"); the day's sentence under it on a larger card ("Then 3 more today.").
 - **The date**, drawn by `TextClock` like the «Agenda» card's: at the far edge of a row, beside
-  the dial on a taller card. The dial is the clock; the reader can hide either.
+  the dial on a taller card. The dial is the clock; the reader can hide either. The second clock,
+  where the card asks for it, under the date beside the dial.
 - **Forms for every size**: one cell is the dial; one row is the dial, the words and the date,
   Passo's row; two rows and up put the dial and the date on top and the words at the bottom,
   Passo's tall card, with the next one or two events under the words where there is room
@@ -182,7 +191,8 @@ its list. Redesigned around a dial after the first cards on the phone (owner, 8 
 
 ### Settings and personalization
 
-- **Clock**: the phone's format (default), 24-hour or 12-hour.
+- **Clock**: the phone's format (default), 24-hour or 12-hour; a second time zone, off by
+  default or a city chosen from a searchable list of the phone's own time-zone data.
 - **Date**: long ("Tuesday 7 October"), medium ("Tue 7 Oct") or numeric, in the words and order
   of the reader's language.
 - **Appearance**, the family's: theme (system, light, dark), palette (Vivid, Paper), typeface
@@ -234,7 +244,6 @@ its list. Redesigned around a dial after the first cards on the phone (owner, 8 
 ### Possible post-1.0 ideas (not committed)
 
 - An analog face, in the family's style: the ring of the icon as the dial.
-- A second time zone, as one line under the clock.
 - A lock-screen (keyguard) form of the widget, where the launcher offers it.
 - A morning summary notification, opt-in.
 - A countdown to an event the reader picks.

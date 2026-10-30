@@ -47,6 +47,8 @@ enum class RowStyle { INLINE_RANGE, INLINE_START, STACKED }
  *   titles across the list even where the rows are inline ([TimeColumn.spans]).
  * @property summaryEms the rest of today in a few words ([CardSummary]), its lines in order
  *   ("4 left today", "until 19:30"), in ems of the medium face; empty with nothing left today.
+ * @property secondEm the second clock's widest line ("New York 23:58"), in ems of the medium face;
+ *   0 where the card does not show one (step 8.5).
  */
 data class AgendaSpec(
     val width: Float,
@@ -62,13 +64,22 @@ data class AgendaSpec(
     val lines: Int = 0,
     val spanning: Set<Int> = emptySet(),
     val summaryEms: List<Float> = emptyList(),
+    val secondEm: Float = 0f,
 )
+
+/**
+ * Where a header's second clock stands (step 8.5): on a line of its own under the date (in a side
+ * column; on top, under a clock with no date), at the far edge of the date's line on top, or
+ * nowhere: on a row and a cell, or where it does not fit whole.
+ */
+enum class SecondPlace { NONE, UNDER, BESIDE }
 
 /**
  * The header as drawn: the clock's size (0 when hidden), which date style ([dateChoice] into
  * [AgendaSpec.dateEms], -1 when hidden), its size and lines, and the space the whole block takes;
  * and how many lines of the day in a few words ([summaryLines] of [AgendaSpec.summaryEms]) stand
- * under the date, in a side column only: on top, the list is right under the date.
+ * under the date, in a side column only: on top, the list is right under the date; and where the
+ * second clock stands ([second]), its line counted in the height where it has one of its own.
  */
 data class HeaderPlan(
     val clockSp: Float,
@@ -78,6 +89,7 @@ data class HeaderPlan(
     val width: Float,
     val height: Float,
     val summaryLines: Int = 0,
+    val second: SecondPlace = SecondPlace.NONE,
 )
 
 /**
@@ -203,8 +215,37 @@ object AgendaFit {
         } else {
             0f
         }
-        return header(spec, clock, width, DATE_SP)
+        return secondOnTop(spec, header(spec, clock, width, DATE_SP), width)
     }
+
+    /**
+     * The second clock in a header on top: at the far edge of the date's line where both fit whole
+     * on it, so it costs the list nothing; on a line of its own under a clock with no date, in the
+     * date's place; else not at all. A date is never shortened for it.
+     */
+    private fun secondOnTop(spec: AgendaSpec, plan: HeaderPlan, width: Float): HeaderPlan {
+        if (spec.secondEm <= 0f) return plan
+        val second = widthOf(spec.secondEm, SECOND_SP, spec.fontScale)
+        return when {
+            plan.dateChoice >= 0 -> {
+                val date = widthOf(spec.dateEms[plan.dateChoice], plan.dateSp, spec.fontScale)
+                if (plan.dateLines == 1 && date + SECOND_GAP + second <= width) {
+                    plan.copy(second = SecondPlace.BESIDE)
+                } else {
+                    plan
+                }
+            }
+
+            plan.clockSp > 0f && second <= width ->
+                plan.copy(second = SecondPlace.UNDER, height = plan.height + secondLine(plan, spec.fontScale))
+
+            else -> plan
+        }
+    }
+
+    /** The height a second clock's own line adds under [plan]'s lines, with the air over it. */
+    private fun secondLine(plan: HeaderPlan, fontScale: Float): Float =
+        (if (plan.height > 0f) SECOND_TOP else 0f) + clockLineHeight(SECOND_SP, fontScale)
 
     /** The clock beside a tall card's list: a column of at most [SIDE_SHARE] of the card. */
     private fun sideHeader(spec: AgendaSpec): HeaderPlan {
@@ -226,7 +267,16 @@ object AgendaFit {
         // unless it is the date alone.
         val room = if (spec.clock) maxOf(clockWidth, SIDE_DATE_MIN) else most
         val plan = header(spec, clock, minOf(room, most), DATE_SP, maxLines = 2)
-        val column = plan.copy(width = minOf(most, maxOf(clockWidth, plan.width)))
+        var column = plan.copy(width = minOf(most, maxOf(clockWidth, plan.width)))
+        // The second clock under the date, where its line fits whole in the room the date had and
+        // the column's height holds it.
+        if (spec.secondEm > 0f) {
+            val second = widthOf(spec.secondEm, SECOND_SP, spec.fontScale)
+            val height = column.height + secondLine(column, spec.fontScale)
+            if (second <= minOf(room, most) && height <= inner) {
+                column = column.copy(width = maxOf(column.width, second), height = height, second = SecondPlace.UNDER)
+            }
+        }
         // The day in a few words under the date, its lines in order while each fits whole in the
         // room the column already has (it never widens it), and the column's height holds them.
         var lines = 0
@@ -474,4 +524,12 @@ object AgendaFit {
 
     /** Under the date in a side column, as the list is under the header on top. */
     const val SUMMARY_TOP = HEADER_GAP
+
+    /**
+     * The second clock (step 8.5): a quiet line at the list's size, as the day in a few words; a
+     * little air over it under the date, and a column's gap from the date beside it.
+     */
+    const val SECOND_SP = WidgetType.LABEL
+    const val SECOND_TOP = 2f
+    const val SECOND_GAP = 12f
 }

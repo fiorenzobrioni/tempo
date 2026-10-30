@@ -11,6 +11,14 @@
     <string name="settings_time_note">Tempo writes every time this way: on Today, on the agenda and on the widgets.</string>
     <string name="settings_date_format">Date</string>
     <string name="settings_date_note">In the words and the order of the app’s language.</string>
+    <string name="settings_second_zone">Second time zone</string>
+    <string name="settings_second_zone_off">Off</string>
+    <!-- The chosen city in the row: %1$s the city, %2$s its country. -->
+    <string name="settings_second_zone_on">%1$s, %2$s</string>
+    <string name="settings_second_zone_note">A city’s time under the clock on Today, and on the widgets you turn it on for.</string>
+    <string name="settings_second_zone_none">No second clock</string>
+    <string name="settings_zone_search">Search for a city or a country</string>
+    <string name="settings_zone_not_found">No city matches “%1$s”.</string>
 
     <string name="settings_group_agenda">Agenda</string>
     <string name="settings_horizon">Days ahead</string>

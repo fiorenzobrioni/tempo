@@ -11,6 +11,13 @@
     <string name="settings_time_note">Tempo scrive così ogni orario: su Oggi, nell’agenda e nei widget.</string>
     <string name="settings_date_format">Data</string>
     <string name="settings_date_note">Con le parole e l’ordine della lingua dell’app.</string>
+    <string name="settings_second_zone">Secondo fuso orario</string>
+    <string name="settings_second_zone_off">Nessuno</string>
+    <string name="settings_second_zone_on">%1$s, %2$s</string>
+    <string name="settings_second_zone_note">L’ora di una città sotto l’orologio su Oggi, e sui widget in cui la attivi.</string>
+    <string name="settings_second_zone_none">Nessun secondo orologio</string>
+    <string name="settings_zone_search">Cerca una città o un paese</string>
+    <string name="settings_zone_not_found">Nessuna città corrisponde a «%1$s».</string>
 
     <string name="settings_group_agenda">Agenda</string>
     <string name="settings_horizon">Giorni in avanti</string>

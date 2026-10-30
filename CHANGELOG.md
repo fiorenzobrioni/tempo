@@ -19,6 +19,11 @@ All notable changes to Tempo are documented here. The format follows
   calendar's colour, as in the list under it; the next one stays in the accent.
 - **The rest of the day on «Agenda».** Under the date on the wide widget, how many events are
   left today and until when: "4 left today, until 7:30 PM".
+- **A second clock.** Choose a city in Settings, under Clock, and its time stands under the
+  alarm on Today: "New York 4:20 AM", with "tomorrow" or "yesterday" when its date is not yours.
+  Each widget can show it too, by its date, from the widget's own settings.
+- **An event's own time zone.** An event written where the clock reads another time says when
+  it starts there too: "9:00 AM in Lisbon".
 
 ### Changed
 

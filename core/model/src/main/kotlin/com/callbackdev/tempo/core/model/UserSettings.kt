@@ -10,6 +10,8 @@ package com.callbackdev.tempo.core.model
  *   choice follows the calendar app ([CalendarInfo.visibleInProvider]).
  * @property showCalendarButton whether Today draws the button that opens the reader's calendar
  *   app at today, beside the settings' gear (owner, PLANNING.md §15, 9 Oct 2026).
+ * @property secondZone the second clock's city, as a time-zone id ("America/New_York"); null when
+ *   the reader has none, the default. An id this phone does not know reads as none (`SecondZone`).
  * @property askedCalendarPermission whether Tempo ever asked for the calendar: what tells a
  *   refusal Android lets the app repeat from one it does not (`calendarPermission`).
  */
@@ -26,6 +28,7 @@ data class UserSettings(
     val showAllDay: Boolean = true,
     val showNextAlarm: Boolean = true,
     val showCalendarButton: Boolean = true,
+    val secondZone: String? = null,
     val onboardingCompleted: Boolean = false,
     val askedCalendarPermission: Boolean = false,
 ) {

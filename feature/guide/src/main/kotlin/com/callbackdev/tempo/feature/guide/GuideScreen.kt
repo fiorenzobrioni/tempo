@@ -108,6 +108,7 @@ private fun GuideContent(modifier: Modifier) {
         Feature(R.string.guide_today_free_title, R.string.guide_today_free_body)
         Feature(R.string.guide_today_ahead_title, R.string.guide_today_ahead_body)
         Feature(R.string.guide_today_alarm_title, R.string.guide_today_alarm_body)
+        Feature(R.string.guide_today_zones_title, R.string.guide_today_zones_body)
         Feature(R.string.guide_today_live_title, R.string.guide_today_live_body)
 
         Chapter(TempoIcons.Plus, stringResource(R.string.guide_handover_title))

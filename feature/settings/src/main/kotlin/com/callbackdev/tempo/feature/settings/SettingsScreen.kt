@@ -68,6 +68,7 @@ import com.callbackdev.tempo.core.designsystem.components.SettingsGroup
 import com.callbackdev.tempo.core.designsystem.components.SwitchRow
 import com.callbackdev.tempo.core.designsystem.components.ValueRow
 import com.callbackdev.tempo.core.designsystem.format.DateTimeText
+import com.callbackdev.tempo.core.designsystem.format.ZoneCities
 import com.callbackdev.tempo.core.designsystem.format.uses24Hour
 import com.callbackdev.tempo.core.designsystem.icons.TempoIcons
 import com.callbackdev.tempo.core.designsystem.theme.GroupShape
@@ -87,6 +88,7 @@ import com.callbackdev.tempo.core.model.ThemeMode
 import com.callbackdev.tempo.core.model.UserSettings
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Locale
 
@@ -211,6 +213,7 @@ private fun WidgetsSection(widgets: WidgetsInfo, pin: (TempoWidget) -> Unit) {
 private enum class Dialog {
     TIME,
     DATE,
+    SECOND_ZONE,
     HORIZON,
     THEME,
     PALETTE,
@@ -249,6 +252,13 @@ private fun SettingsList(
                     value = DateTimeText.date(LocalDate.now(), locale, settings.dateStyle),
                     onClick = { dialog = Dialog.DATE },
                     modifier = Modifier.testTag(SettingsTags.DATE),
+                )
+                GroupDivider()
+                ValueRow(
+                    label = stringResource(R.string.settings_second_zone),
+                    value = secondZoneLabel(settings.secondZone),
+                    onClick = { dialog = Dialog.SECOND_ZONE },
+                    modifier = Modifier.testTag(SettingsTags.SECOND_ZONE),
                 )
             }
         }
@@ -404,6 +414,12 @@ private fun SettingsList(
             options = DateStyle.entries.map { it to DateTimeText.date(LocalDate.now(), locale, it) },
             selected = settings.dateStyle,
             onSelect = { style -> choose { it.copy(dateStyle = style) } },
+            onDismiss = close,
+        )
+
+        Dialog.SECOND_ZONE -> SecondZoneDialog(
+            selected = settings.secondZone,
+            onPick = { zone -> choose { it.copy(secondZone = zone) } },
             onDismiss = close,
         )
 
@@ -658,6 +674,16 @@ private fun timeLabel(format: ClockFormat): String {
     }
 }
 
+/** "Off", or the chosen city with its country: "New York, United States". */
+@Composable
+private fun secondZoneLabel(id: String?): String {
+    val locale = LocalLocale.current.platformLocale
+    val zone = id?.let { runCatching { ZoneId.of(it) }.getOrNull() }
+    val city = zone?.let { ZoneCities.city(it, locale) } ?: return stringResource(R.string.settings_second_zone_off)
+    val country = ZoneCities.country(zone, locale) ?: return city
+    return stringResource(R.string.settings_second_zone_on, city, country)
+}
+
 @Composable
 private fun horizonLabel(days: Int): String = stringResource(
     when (days) {
@@ -735,6 +761,12 @@ object SettingsTags {
     const val PIN_AGENDA = "settings_pin_agenda"
     const val PIN_WORDS = "settings_pin_words"
     const val GUIDE = "settings_guide"
+    const val SECOND_ZONE = "settings_second_zone"
+    const val ZONE_SEARCH = "settings_zone_search"
+    const val ZONE_LIST = "settings_zone_list"
+    const val ZONE_NONE = "settings_zone_none"
+
+    fun zone(id: String) = "settings_zone_$id"
 
     fun calendar(id: Long) = "settings_calendar_$id"
 }
