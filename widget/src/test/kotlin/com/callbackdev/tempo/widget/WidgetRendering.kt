@@ -116,6 +116,22 @@ internal fun shownTexts(context: Context, size: DpSize, content: @Composable () 
     texts
 }
 
+/** What TalkBack reads for each view a card describes, in the card's order. */
+@OptIn(ExperimentalGlanceRemoteViewsApi::class)
+internal fun describedViews(context: Context, size: DpSize, content: @Composable () -> Unit): List<String> =
+    runBlocking {
+        val views = GlanceRemoteViews().compose(context, size) { content() }.remoteViews
+        val host = FrameLayout(context)
+        host.addView(views.apply(context, host))
+        val described = mutableListOf<String>()
+        fun collect(view: View) {
+            view.contentDescription?.let { described += it.toString() }
+            if (view is android.view.ViewGroup) for (i in 0 until view.childCount) collect(view.getChildAt(i))
+        }
+        collect(host)
+        described
+    }
+
 /** The household's reference grants. */
 internal object Grants {
     val OneByOne = DpSize(85.dp, 85.dp)
@@ -127,6 +143,8 @@ internal object Grants {
     val FourByTwo = DpSize(340.dp, 189.dp)
     val FourByThree = DpSize(340.dp, 293.dp)
     val OneByTwo = DpSize(85.dp, 189.dp)
+    val TwoByThree = DpSize(159.dp, 293.dp)
+    val ThreeByThree = DpSize(250.dp, 293.dp)
 }
 
 /**

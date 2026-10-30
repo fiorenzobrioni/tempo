@@ -207,6 +207,8 @@ class WordsTest {
         date: Boolean = true,
         noteLines: Int = 1,
         titleLines: Int = 1,
+        rows: Int = 0,
+        rowTimeEm: Float = 2.7f,
     ) = WordsSpec(
         width = width,
         height = height,
@@ -221,6 +223,9 @@ class WordsTest {
         whenEms = listOf(5.3f, 2.7f),
         noteLines = noteLines,
         then = true,
+        rows = rows,
+        // "13:00"
+        rowTimeEm = rowTimeEm,
     )
 
     @Test
@@ -306,9 +311,19 @@ class WordsTest {
     @Test
     fun `a tall card fits its height at every text size and grant`() {
         listOf(1f, 1.15f, 1.3f).forEach { scale ->
-            listOf(159f to 189f, 250f to 189f, 340f to 189f, 340f to 293f, 159f to 160f).forEach { (w, h) ->
-                val plan = WordsFit.plan(spec(w, h, scale, noteLines = 2, titleLines = 2))
+            listOf(
+                159f to 189f,
+                250f to 189f,
+                340f to 189f,
+                159f to 293f,
+                250f to 293f,
+                340f to 293f,
+                340f to 397f,
+                159f to 160f,
+            ).forEach { (w, h) ->
+                val plan = WordsFit.plan(spec(w, h, scale, noteLines = 2, titleLines = 2, rows = 2))
                 val words = lineHeight(plan.titleSp, scale) * plan.titleLines +
+                    (if (plan.rows > 0) lineHeight(WordsFit.ROW_SP, scale) * plan.rows + WordsFit.ROWS_GAP else 0f) +
                     (if (plan.whenChoice >= 0) lineHeight(plan.whenSp, scale) else 0f) +
                     (
                         if (plan.noteLines >
@@ -364,5 +379,89 @@ class WordsTest {
         assertThat(plan.titleSp).isLessThan(WordsFit.TALL_TITLE_SP)
         assertThat(plan.titleSp).isAtLeast(WordsFit.TALL_TITLE_MIN_SP)
         assertThat(WordsFit.plan(spec(340f, 189f)).titleSp).isEqualTo(WordsFit.TALL_TITLE_SP)
+    }
+
+    // --- «In words» uses its room (step 8.3) ------------------------------------------------------
+
+    @Test
+    fun `the dial's side at the reference grants`() {
+        // One by two is a cell: the dial as wide as the cell, the time under it.
+        assertThat(WordsFit.plan(spec(85f, 189f, rows = 2)).dial).isEqualTo(85f - AgendaFit.CELL_PADDING * 2)
+        // Two by two: held by the date beside it, as before.
+        assertThat(WordsFit.plan(spec(159f, 189f, rows = 2)).dial)
+            .isEqualTo(159f - AgendaFit.CARD_PADDING * 2 - WordsFit.DIAL_GAP - WordsFit.DATE_BESIDE_MIN)
+        // Three and four by two: held by the room the words leave, as before (not by the share,
+        // 72 dp, which would shrink them).
+        assertThat(WordsFit.plan(spec(250f, 189f, rows = 2)).dial).isEqualTo(78.5f)
+        assertThat(WordsFit.plan(spec(340f, 189f, rows = 2)).dial).isEqualTo(78.5f)
+        // Four by three: past the old 104 dp, to 45% of its inner height.
+        assertThat(WordsFit.plan(spec(340f, 293f, rows = 2)).dial).isEqualTo(119.25f)
+    }
+
+    @Test
+    fun `the dial's ceiling is a share of the card, never under its old one`() {
+        // Four by three: 45% of 265 dp of height.
+        assertThat(WordsFit.tallDialCeiling(265f, 312f)).isEqualTo(119.25f)
+        // Four by four: 45% of 312 dp of width.
+        assertThat(WordsFit.tallDialCeiling(369f, 312f)).isWithin(0.01f).of(140.4f)
+        // Two rows high: the old ceiling, where the room holds the dial under it anyway.
+        assertThat(WordsFit.tallDialCeiling(161f, 312f)).isEqualTo(WordsFit.TALL_DIAL_CEILING)
+    }
+
+    @Test
+    fun `a four by three lists the next two events in its band`() {
+        val plan = WordsFit.plan(spec(340f, 293f, rows = 2))
+        assertThat(plan.rows).isEqualTo(2)
+        assertThat(plan.then).isFalse()
+        assertThat(plan.noteLines).isEqualTo(1)
+        assertThat(plan.rowTimeWidth).isEqualTo(widthOf(2.7f, WordsFit.ROW_SP, 1f))
+        // One event after the focus is one row.
+        assertThat(WordsFit.plan(spec(340f, 293f, rows = 1)).rows).isEqualTo(1)
+        // Three by three and two by three too: a row's title keeps its room beside the time.
+        assertThat(WordsFit.plan(spec(250f, 293f, rows = 2)).rows).isEqualTo(2)
+        assertThat(WordsFit.plan(spec(159f, 293f, rows = 2)).rows).isEqualTo(2)
+    }
+
+    @Test
+    fun `the rows are all or none, and the line of times stays where only it fits`() {
+        // A four by two holds one line under the words at its dial's comfort, not two (under way,
+        // without the note: the times say how many are left).
+        val plan = WordsFit.plan(spec(340f, 189f, noteLines = 0, rows = 2))
+        assertThat(plan.rows).isEqualTo(0)
+        assertThat(plan.rowTimeWidth).isEqualTo(0f)
+        assertThat(plan.then).isTrue()
+        assertThat(plan.dial).isAtLeast(WordsFit.TALL_DIAL_COMFORT)
+    }
+
+    @Test
+    fun `the note's count where neither fits`() {
+        // Three by two: no room for the rows, too narrow for the line of times.
+        val plan = WordsFit.plan(spec(250f, 189f, rows = 2))
+        assertThat(plan.rows).isEqualTo(0)
+        assertThat(plan.then).isFalse()
+        assertThat(plan.noteLines).isEqualTo(1)
+    }
+
+    @Test
+    fun `the rows wait for the dial's comfort`() {
+        // Between two and three rows high, the rows come only once the dial has its comfort.
+        listOf(189f, 210f, 230f, 250f, 293f).forEach { h ->
+            val plan = WordsFit.plan(spec(340f, h, rows = 2))
+            if (plan.rows > 0) assertThat(plan.dial).isAtLeast(WordsFit.TALL_DIAL_COMFORT)
+        }
+    }
+
+    @Test
+    fun `a row's title keeps its room beside the time, or there are no rows`() {
+        // A two by three at 130% with a time as wide as "10:00 AM": the title would keep 59 dp.
+        val plan = WordsFit.plan(spec(159f, 293f, scale = 1.3f, rows = 2, rowTimeEm = 4.2f))
+        assertThat(plan.rows).isEqualTo(0)
+        assertThat(WordsFit.plan(spec(340f, 293f, scale = 1.3f, rows = 2, rowTimeEm = 4.2f)).rows).isEqualTo(2)
+    }
+
+    @Test
+    fun `no rows on a row or a cell`() {
+        assertThat(WordsFit.plan(spec(340f, 85f, rows = 2)).rows).isEqualTo(0)
+        assertThat(WordsFit.plan(spec(85f, 189f, rows = 2)).rows).isEqualTo(0)
     }
 }

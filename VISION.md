@@ -168,7 +168,8 @@ its list. Redesigned around a dial after the first cards on the phone (owner, 8 
   the dial on a taller card. The dial is the clock; the reader can hide either.
 - **Forms for every size**: one cell is the dial; one row is the dial, the words and the date,
   Passo's row; two rows and up put the dial and the date on top and the words at the bottom,
-  Passo's tall card, with the rest of the day as a line of times where there is room.
+  Passo's tall card, with the next one or two events under the words where there is room
+  ("13:00  Lunch with Giulia"), else the rest of the day as a line of times.
 - The same settings, states and updates as «Agenda».
 
 ### Calendars and filters

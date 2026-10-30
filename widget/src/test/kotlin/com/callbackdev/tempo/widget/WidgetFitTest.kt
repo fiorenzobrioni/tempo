@@ -72,6 +72,7 @@ class WidgetFitTest {
         Grants.TwoByTwo,
         Grants.ThreeByTwo,
         Grants.FourByTwo,
+        Grants.TwoByThree,
         Grants.FourByThree,
     )
 
@@ -151,5 +152,36 @@ class WidgetFitTest {
         assertFourByTwoWhole()
         val shown = shownTexts(context, Grants.FourByTwo) { AgendaWidgetContent(WidgetSamples.model()) }
         assertThat(shown).containsAtLeast("Tutto il giorno", "Ancora 4 oggi", "fino alle 19:30")
+    }
+
+    /**
+     * «In words» three rows high: the next two events as rows under the note, which keeps the count
+     * where they leave one out; one row and the note without its count where one is left; each
+     * row read as one sentence, as «Agenda»'s. Two rows high, the line of times stays: the
+     * dial's comfort leaves it one line (step 8.3).
+     */
+    @Test
+    @Config(qualifiers = "en-rGB-w411dp-h891dp-xhdpi")
+    fun `a tall in words lists the next events where it has the room`() {
+        val morning = shownTexts(context, Grants.FourByThree) { WordsWidgetContent(WidgetSamples.model()) }
+        assertThat(morning).containsAtLeast("Then 3 more today.", "13:00", "Lunch with Giulia", "15:00", "Dentist")
+            .inOrder()
+        assertThat(morning).doesNotContain("Swimming lesson")
+        assertThat(morning.filter { it.startsWith("Then 13:00") }).isEmpty()
+
+        val afternoon = WidgetSamples.model(now = WidgetSamples.at("2026-10-07T14:20"))
+        val one = shownTexts(context, Grants.FourByThree) { WordsWidgetContent(afternoon) }
+        assertThat(one).containsAtLeast("Free until then.", "18:30", "Swimming lesson").inOrder()
+
+        val read = describedViews(context, Grants.FourByThree) { WordsWidgetContent(WidgetSamples.model()) }
+        assertThat(read).containsAtLeast(
+            "Design review, Until 11:00",
+            "13:00 to 14:00, Lunch with Giulia, Trattoria da Mario, in Personal",
+            "15:00 to 15:45, Dentist, Via Roma 3, in Personal",
+        ).inOrder()
+
+        val short = shownTexts(context, Grants.FourByTwo) { WordsWidgetContent(WidgetSamples.model()) }
+        assertThat(short).contains("Then 13:00 · 15:00 · 18:30")
+        assertThat(short).doesNotContain("Lunch with Giulia")
     }
 }
