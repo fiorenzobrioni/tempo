@@ -105,4 +105,4 @@ few words in the column), as the owner decided (PLANNING.md §15, 30 Oct 2026).
 | 4 |  |  |  |
 | 5 |  |  |  |
 | 6 |  |  |  |
-| 7 |  |  |  |
+| 7 | Galaxy S24 Ultra (owner's) | Pass: with Tempo in the background, an alarm moved and one turned off in the Clock app reached the card in about 5 s each | 30 Oct 2026 |
