@@ -195,8 +195,12 @@ where a value's provenance matters (the generated schemes), it is written in its
   created only when the four `TEMPO_KEYSTORE*` / `TEMPO_KEY_*` properties are all set (from
   `~/.gradle/gradle.properties` locally, from `ORG_GRADLE_PROJECT_*` env vars in CI). Without
   them the release build is unsigned; `-PsignReleaseWithDebugKey` signs it with the debug key
-  for testing only. The release key does not exist yet: the owner creates it before the first
-  release (PLANNING.md §11 Phase 0, `keystore/README.md`).
+  for testing only. The release key exists since 10 Oct 2026 (`CN=callbackdev`, created by the
+  owner, kept outside the repo with an offline backup; PLANNING.md §11 Phase 0); it has signed
+  every release since 1.0.0. Its SHA-256 fingerprint (`A9:43:D8:BA:…:58:58:FE`) is published in
+  `keystore/README.md` and the root README, and `release.yml` refuses an APK signed by any
+  other key. Never regenerate it: a future Google Play listing reuses it (§11 Phase 7), and a
+  new key would mean no reader could update without uninstalling.
 - **Release key in CI**: the four repository secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`,
   `KEY_ALIAS`, `KEY_PASSWORD` (the same names as the sister apps'); `release.yml` decodes the
   keystore into the runner's temp folder and fails by name if one is missing. Never commit
