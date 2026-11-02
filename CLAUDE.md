@@ -23,7 +23,21 @@ Source of truth:
   views (§6), the widget (§7), battery rules (§9), permissions (§10), and the phased plan with
   checkable steps (§11). **Keep it updated as work progresses**: tick the boxes, and record
   every decision and deviation with its reason in §15 (and as an ADR in `docs/adr/` when it
-  is architectural).
+  is architectural). Since 2 Nov 2026 it is split, as Chiaro's:
+  - **Write only in `PLANNING.md`**: a new `###` section at the end of §15's log, dated, with
+    who asked. A box ticked or opened goes in §11 (a phase's step) or in §15's Open list.
+    §1-§10 and §12-§14 are the living specification: they change in place, with the code.
+  - **`docs/planning/NN-<period>.md` is the archive**, the closed periods of the log from
+    Phase 0 on, with the phases they closed, **frozen**: never edit it. A decision that changes
+    an archived one is written in `PLANNING.md`, naming the archived file and the section or
+    entry it changes.
+  - **To find a section** cited by name or date in the code ("PLANNING.md §11 Phase 3",
+    "§15, 9 Oct 2026"), grep `PLANNING.md` first, then `docs/planning/README.md`, the index of
+    every archived heading and dated entry with its file and line, and read from that line.
+    Never load an archive file whole.
+  - **Archive** when the log passes ~80 KB or at a release, whichever first, as `PLANNING.md`
+    "How it is made" says, then run `python3 tools/planning_index.py` (`--check` tells if the
+    index is behind).
 
 Work one phase at a time, starting from the phase's section in PLANNING.md §11. The owner
 answered VISION.md's questions on 7 Oct 2026 (VISION, "The owner's answers"; PLANNING §15); a
