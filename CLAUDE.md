@@ -23,7 +23,21 @@ Source of truth:
   views (§6), the widget (§7), battery rules (§9), permissions (§10), and the phased plan with
   checkable steps (§11). **Keep it updated as work progresses**: tick the boxes, and record
   every decision and deviation with its reason in §15 (and as an ADR in `docs/adr/` when it
-  is architectural).
+  is architectural). Since 2 Nov 2026 it is split, as Chiaro's:
+  - **Write only in `PLANNING.md`**: a new `###` section at the end of §15's log, dated, with
+    who asked. A box ticked or opened goes in §11 (a phase's step) or in §15's Open list.
+    §1-§10 and §12-§14 are the living specification: they change in place, with the code.
+  - **`docs/planning/NN-<period>.md` is the archive**, the closed periods of the log from
+    Phase 0 on, with the phases they closed, **frozen**: never edit it. A decision that changes
+    an archived one is written in `PLANNING.md`, naming the archived file and the section or
+    entry it changes.
+  - **To find a section** cited by name or date in the code ("PLANNING.md §11 Phase 3",
+    "§15, 9 Oct 2026"), grep `PLANNING.md` first, then `docs/planning/README.md`, the index of
+    every archived heading and dated entry with its file and line, and read from that line.
+    Never load an archive file whole.
+  - **Archive** when the log passes ~80 KB or at a release, whichever first, as `PLANNING.md`
+    "How it is made" says, then run `python3 tools/planning_index.py` (`--check` tells if the
+    index is behind).
 
 Work one phase at a time, starting from the phase's section in PLANNING.md §11. The owner
 answered VISION.md's questions on 7 Oct 2026 (VISION, "The owner's answers"; PLANNING §15); a
@@ -181,8 +195,12 @@ where a value's provenance matters (the generated schemes), it is written in its
   created only when the four `TEMPO_KEYSTORE*` / `TEMPO_KEY_*` properties are all set (from
   `~/.gradle/gradle.properties` locally, from `ORG_GRADLE_PROJECT_*` env vars in CI). Without
   them the release build is unsigned; `-PsignReleaseWithDebugKey` signs it with the debug key
-  for testing only. The release key does not exist yet: the owner creates it before the first
-  release (PLANNING.md §11 Phase 0, `keystore/README.md`).
+  for testing only. The release key exists since 10 Oct 2026 (`CN=callbackdev`, created by the
+  owner, kept outside the repo with an offline backup; PLANNING.md §11 Phase 0); it has signed
+  every release since 1.0.0. Its SHA-256 fingerprint (`A9:43:D8:BA:…:58:58:FE`) is published in
+  `keystore/README.md` and the root README, and `release.yml` refuses an APK signed by any
+  other key. Never regenerate it: a future Google Play listing reuses it (§11 Phase 7), and a
+  new key would mean no reader could update without uninstalling.
 - **Release key in CI**: the four repository secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`,
   `KEY_ALIAS`, `KEY_PASSWORD` (the same names as the sister apps'); `release.yml` decodes the
   keystore into the runner's temp folder and fails by name if one is missing. Never commit

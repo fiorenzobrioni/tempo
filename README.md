@@ -111,7 +111,7 @@ are in [CHANGELOG.md](./CHANGELOG.md).
 
 ## Roadmap
 
-The phased plan, with every decision and its reason, is in [PLANNING.md](./PLANNING.md):
+The phased plan, with every decision and its reason, is in [PLANNING.md](./PLANNING.md) (the closed periods in [docs/planning](./docs/planning/README.md)):
 
 - **Phase 0**, foundations: the build, the design system, CI. *Done.*
 - **Phase 1**, the calendar engine: reading the phone's calendars right, every edge case tested. *Done.*
@@ -189,6 +189,7 @@ the wrong module.
 |---|---|
 | [VISION.md](./VISION.md) | the product: principles, scope, non-goals, key decisions, open questions |
 | [PLANNING.md](./PLANNING.md) | architecture, calendar engine, data, widget, the phased plan and its decisions |
+| [docs/planning](./docs/planning/README.md) | the closed periods of that plan's log, frozen, with an index of every section |
 | [docs/adr/](./docs/adr/) | the architecture decision records |
 | [CHANGELOG.md](./CHANGELOG.md) | what shipped, per version; a section is written before its tag |
 | [CLAUDE.md](./CLAUDE.md) | the operating rules for AI-assisted development in this repo |
