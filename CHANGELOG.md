@@ -10,6 +10,12 @@ All notable changes to Tempo are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-02
+
+**A second clock, your events' own time zones, two weeks ahead, and Today on a tablet**, with
+widgets that make more of their room. Installs over 1.0.1 and keeps your settings; signed with
+the same key (fingerprint in the [README](https://github.com/fiorenzobrioni/tempo#install)).
+
 ### Added
 
 - **Invitations you have not answered** say so on Today ("Not answered"), as "Maybe" already did.
@@ -33,6 +39,8 @@ All notable changes to Tempo are documented here. The format follows
 - **Today on a tablet.** On a large screen (a tablet, or a foldable open wide) Today stands in two
   panes: the time, a larger dial and the day's sentence on one side, the agenda beside them, each
   scrolling on its own. Phones are unchanged.
+- **Reset a widget.** "Reset this widget", at the bottom of a widget's settings, puts the card
+  back as it was when you placed it.
 
 ### Changed
 
@@ -42,9 +50,10 @@ All notable changes to Tempo are documented here. The format follows
 - **Rounder chips.** Today's all-day events are fully round, and the first run's widget cards
   match the day cards on Today.
 - **Widgets: one size for a list.** On «Agenda» an event's title, its time, the headings and
-  the "more today" line are one size, and the note on «In words» matches it, the same sizes
-  the family's other cards use.
+  the "more today" line are one size, and the note on «In words» matches it.
 - **Widgets wear your launcher's corner**, so they match the widgets beside them.
+- **A widget's settings in a clearer order**: under the card, its background first, then the
+  time and the date, what the card shows, and what a touch opens.
 - **More of the day on «Agenda».** The event under way says "→ 11:00" where "Until 11:00"
   would squeeze every title beside it, and in Italian the all-day line spans the list: on the
   default size the rest of the day fits with its titles whole, five events where Italian
@@ -59,6 +68,9 @@ All notable changes to Tempo are documented here. The format follows
 - **Times line up.** Today's columns of times use figures of one width, so the times stand
   under each other and "40 min left" no longer shifts as it counts down; the day's sentence
   breaks into even lines, and a time never parts from its AM or PM.
+- **A quieter first run.** Three pages, each moved on by its own button, with no picture and no
+  progress bar; once you allow the calendar, its page moves on by itself.
+- **The icon's clock hands end round**, where their square ends read as a cut.
 
 ### Fixed
 
@@ -81,6 +93,8 @@ All notable changes to Tempo are documented here. The format follows
 - **«In words» shows the next event on its dial** as soon as it comes within the dial's twelve
   hours, rather than at midnight; and on one cell its dial stays when the calendar cannot be
   read, as «Agenda»'s clock does.
+- **Animations off means off.** With animations removed in Android's accessibility settings,
+  the bar of the event under way on Today no longer slides.
 
 ## [1.0.1] - 2026-10-10
 

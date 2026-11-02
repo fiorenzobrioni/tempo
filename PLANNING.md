@@ -18,7 +18,7 @@
 
 - **Released**: 1.0.1 (10 Oct 2026, `v1.0.1`). What came in after is in `CHANGELOG.md`'s `[Unreleased]` section.
 - **Closed**: Phases 0 to 6 (the 1.0.0, 10 Oct 2026) and the 1.0.1 after them: their steps, their acceptance and their log are in `docs/planning/01-phases-0-8.md`.
-- **In progress**: **Phase 8**, 1.1, the review of 30 Oct 2026 (§11): 8.0 to 8.3 and 8.5 to 8.7 done (their entries in archive 01, §15, 30 Oct 2026), 8.4 on hold, 8.8 (the 1.1.0) to do. A step closed from here on writes its entry in §15's log.
+- **In progress**: **Phase 8**, 1.1, the review of 30 Oct 2026 (§11): 8.0 to 8.3 and 8.5 to 8.7 done (their entries in archive 01, §15, 30 Oct 2026), 8.4 on hold, 8.8 (the 1.1.0) ready to tag, its checks on the phone, the rehearsal and the tag the owner's (§15, 2 Nov 2026, Phase 8.8). A step closed from here on writes its entry in §15's log.
 - **Later, and optional**: Phase 7, Google Play (§11).
 
 ---
@@ -474,6 +474,7 @@ The owner asked for a review of the whole app (30 Oct 2026): its UI/UX and graph
   - `CHANGELOG.md`'s 1.1.0 section from Unreleased; `tempo.versionName=1.1.0` (versionCode 10100); the README's features and pictures (replace rather than add: the set stays small).
   - On the owner's phone: "Join" with a Meet and a Teams invite (8.4, if it is taken up again before 1.1.0), the second clock on a card across midnight (8.5), and §9.6's battery check (`dumpsys alarm`: still one non-wakeup alarm of Tempo's; with «In words» placed, about two boundaries an event a day, plus the moments events come onto the dial).
   - The release workflow's rehearsal on `main`, then the owner's tag `v1.1.0`.
+  - **Ready to tag** (§15, 2 Nov 2026, Phase 8.8; branch `ccr-fd97d712-fupqxs`), after a review before the release that found the code ready: `CHANGELOG.md`'s 1.1.0 section, `tempo.versionName=1.1.0`, the README's features and roadmap; the README's pictures redrawn and byte for byte as committed, so none is replaced. Still the owner's: the checks on the phone above (8.4 stays on hold, so no "Join"), the rehearsal, and the tag `v1.1.0` on `main` after the merge. Phase 8 goes to archive 02 once the tag is out.
 
 **For the sisters** (not Tempo's work; written here so their sessions find it): Passo takes Tempo's filled `StatusCard` button (§15, 7 Oct 2026), its first-run and Settings "Add to the home screen" (`requestPinAppWidget`), the picker's generated previews and a Widgets group in Settings; Passo's `FilterChip`s (8 dp) against its own "chips are fully round" rule is its call; Chiaro takes the generated previews. The family decides together whether to adopt Chiaro's segmented groups, and makes the Material 3 Expressive pass when `material3` 1.5 is stable.
 
@@ -549,3 +550,31 @@ Reread on 2 Nov 2026, at archive 01: two boxes open, the question on the two-row
 9. **Not imported**: Chiaro's other rule at the top of its plan (21 Sep 2026), that an evaluation ending in "nothing is done" is not logged. It is about what is written, not about archiving; it is the owner's to take up.
 
 **The boxes reread.** Open: the question on the two-row «In words» (30 Oct 2026, step 8.3), unchanged and made a box, and Phase 5's "Baseline Profile, if start-up measures slow", the one open box of the archived phases, carried here. In §11: Phase 7 (optional, later), 8.4 (on hold), 8.8 (1.1.0).
+
+### 1.1.0, ready to tag (owner, 2 Nov 2026, Phase 8.8)
+
+**Where it comes from.** The owner: "review before publishing a new release on GitHub; after the review, tell me which version you advise", then "prepare 8.8's commit for 1.1.0".
+
+**The review.**
+
+- `main`'s CI green on `0693d87`; no pull request or issue open.
+- The release workflow's gates run here (`spotlessCheck`, `:app:checkForbiddenPermissions`, `test`, `:app:lintDebug`) with the minified build: green; 487 tests, none failed, 8 skipped (the README's pictures, drawn only on request).
+- The minified APK asks 1.0.1's permissions (`READ_CALENDAR` and WorkManager's, §10); no new dependency (`gradle/libs.versions.toml` unchanged since `v1.0.1`); the manifests change only by `SHOW_ALARMS`'s `<queries>`, moved from `:widget` to `:core:calendar` (8.1).
+- An update from 1.0.x keeps its settings: the new keys (`second_zone`, `today_tip_seen`, a card's `second_zone_<id>`) read their default when absent, none was removed or renamed, and a zone this phone's data does not know reads as none.
+- Every English string, plural and array has its Italian; the guide, VISION, ADR 0004 and the archive's index are current; the README has no dash.
+- The README's pictures redrawn (`-PupdateScreenshots`): all eight byte for byte as committed.
+- The code of 1.1 that decides what is shown, or when a card is redrawn, reread (`NextBoundary` with the dial, `SYNC_EVENTS` read as synced when absent, "Not answered" for `INVITED` alone, `SecondZone`, `NewEvents`): no defect.
+
+**Done.**
+
+1. **1.1.0, a minor version**, by Semantic Versioning, which `CHANGELOG.md` says Tempo follows: features added (the second clock, an event's own zone, two weeks, Today in two panes, the rest of the day on «Agenda», a widget's reset), nothing incompatible (minSdk 34, the same key, the same permissions, the settings kept). versionCode 10100. The number 8.8 planned.
+2. **`CHANGELOG.md`**: Unreleased becomes `## [1.1.0] - 2026-11-02`, the day it was readied (to change if the tag comes another day), with two lines at its head as 1.0.1's (what it brings; it installs over 1.0.1 with the same key), and an empty Unreleased above it. Five changes of the release were not in the notes, from before Phase 8 or too small for a step's own line: a widget's «Reset this widget» and its settings' new order (16 Oct 2026, `b886bca`), the first run's frame (18 Oct 2026, `07504bc`), the icon's round hands (18 Oct 2026, `c391dbc`), and the bar of the event under way under reduced motion (8.0). Gone: "the same sizes the family's other cards use", which the release page's reader cannot follow.
+3. **`README.md`**: Features "For 1.1", the agenda's "or two weeks"; the Roadmap gains Phase 7 (optional) and Phase 8. No picture replaced: none shows anything else than the app now draws.
+4. **`gradle.properties`**: `tempo.versionName=1.1.0`.
+
+**Not done, and why.**
+
+- **No archive yet.** How it is made archives at a release, but an archive is frozen and 8.8's checks are still open: archive 02 comes with Phase 8's close, after the tag, carrying Phase 8's plan and this period's log.
+- **The main code's one compiler warning** (`app/.../shell/NewEventShortcut.kt:28`, a needless `?.` on a non-null `ShortcutInfoCompat`) is left: no code changes in the commit that readies a release whose steps were checked on the phone; the next change to that file takes it.
+
+**The owner's, before the tag.** 8.8's checks on the phone (the second clock on a card across midnight; §9.6's battery check, now with «In words»'s moments on the dial, written in `docs/device-checks/widget-refresh.md`, whose Results table is still empty); the release workflow's rehearsal on `main` (the last ran there on 10 Oct 2026, before 1.0.0); the merge; then the tag `v1.1.0` on `main` (this sandbox's git proxy refuses a tag push, as at 1.0.0).
