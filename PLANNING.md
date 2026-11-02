@@ -18,7 +18,7 @@
 
 - **Released**: 1.0.1 (10 Oct 2026, `v1.0.1`). What came in after is in `CHANGELOG.md`'s `[Unreleased]` section.
 - **Closed**: Phases 0 to 6 (the 1.0.0, 10 Oct 2026) and the 1.0.1 after them: their steps, their acceptance and their log are in `docs/planning/01-phases-0-8.md`.
-- **In progress**: **Phase 8**, 1.1, the review of 30 Oct 2026 (§11): 8.0 to 8.3 and 8.5 to 8.7 done (their entries in archive 01, §15, 30 Oct 2026), 8.4 on hold, 8.8 (the 1.1.0) ready to tag, its checks on the phone, the rehearsal and the tag the owner's (§15, 2 Nov 2026, Phase 8.8). A step closed from here on writes its entry in §15's log.
+- **In progress**: **Phase 8**, 1.1, the review of 30 Oct 2026 (§11): 8.0 to 8.3 and 8.5 to 8.7 done (their entries in archive 01, §15, 30 Oct 2026), 8.4 on hold, 8.8 (the 1.1.0) ready to tag, the battery check on the phone, the rehearsal and the tag the owner's (§15, 2 Nov 2026, Phase 8.8). A step closed from here on writes its entry in §15's log.
 - **Later, and optional**: Phase 7, Google Play (§11).
 
 ---
@@ -474,7 +474,7 @@ The owner asked for a review of the whole app (30 Oct 2026): its UI/UX and graph
   - `CHANGELOG.md`'s 1.1.0 section from Unreleased; `tempo.versionName=1.1.0` (versionCode 10100); the README's features and pictures (replace rather than add: the set stays small).
   - On the owner's phone: "Join" with a Meet and a Teams invite (8.4, if it is taken up again before 1.1.0), the second clock on a card across midnight (8.5), and §9.6's battery check (`dumpsys alarm`: still one non-wakeup alarm of Tempo's; with «In words» placed, about two boundaries an event a day, plus the moments events come onto the dial).
   - The release workflow's rehearsal on `main`, then the owner's tag `v1.1.0`.
-  - **Ready to tag** (§15, 2 Nov 2026, Phase 8.8; branch `ccr-fd97d712-fupqxs`), after a review before the release that found the code ready: `CHANGELOG.md`'s 1.1.0 section, `tempo.versionName=1.1.0`, the README's features and roadmap; the README's pictures redrawn and byte for byte as committed, so none is replaced. Still the owner's: the checks on the phone above (8.4 stays on hold, so no "Join"), the rehearsal, and the tag `v1.1.0` on `main` after the merge. Phase 8 goes to archive 02 once the tag is out.
+  - **Ready to tag** (§15, 2 Nov 2026, Phase 8.8; branch `ccr-fd97d712-fupqxs`), after a review before the release that found the code ready: `CHANGELOG.md`'s 1.1.0 section, `tempo.versionName=1.1.0`, the README's features and roadmap; the README's pictures redrawn and byte for byte as committed, so none is replaced. The second clock on a card across midnight already checked by the owner on the phone (2 Nov 2026). Still the owner's: §9.6's battery check (8.4 stays on hold, so no "Join"), the rehearsal, and the tag `v1.1.0` on `main` after the merge. Phase 8 goes to archive 02 once the tag is out.
 
 **For the sisters** (not Tempo's work; written here so their sessions find it): Passo takes Tempo's filled `StatusCard` button (§15, 7 Oct 2026), its first-run and Settings "Add to the home screen" (`requestPinAppWidget`), the picker's generated previews and a Widgets group in Settings; Passo's `FilterChip`s (8 dp) against its own "chips are fully round" rule is its call; Chiaro takes the generated previews. The family decides together whether to adopt Chiaro's segmented groups, and makes the Material 3 Expressive pass when `material3` 1.5 is stable.
 
@@ -577,4 +577,6 @@ Reread on 2 Nov 2026, at archive 01: two boxes open, the question on the two-row
 - **No archive yet.** How it is made archives at a release, but an archive is frozen and 8.8's checks are still open: archive 02 comes with Phase 8's close, after the tag, carrying Phase 8's plan and this period's log.
 - **The main code's one compiler warning** (`app/.../shell/NewEventShortcut.kt:28`, a needless `?.` on a non-null `ShortcutInfoCompat`) is left: no code changes in the commit that readies a release whose steps were checked on the phone; the next change to that file takes it.
 
-**The owner's, before the tag.** 8.8's checks on the phone (the second clock on a card across midnight; §9.6's battery check, now with «In words»'s moments on the dial, written in `docs/device-checks/widget-refresh.md`, whose Results table is still empty); the release workflow's rehearsal on `main` (the last ran there on 10 Oct 2026, before 1.0.0); the merge; then the tag `v1.1.0` on `main` (this sandbox's git proxy refuses a tag push, as at 1.0.0).
+**The second clock on a card across midnight** (8.8's first check on the phone): already done, the owner said when the pull request was asked for ("I had already done the second clock's check").
+
+**The owner's, before the tag.** §9.6's battery check on the phone, now with «In words»'s moments on the dial, written in `docs/device-checks/widget-refresh.md` (whose Results table is still empty); the release workflow's rehearsal on `main` (the last ran there on 10 Oct 2026, before 1.0.0); the merge; then the tag `v1.1.0` on `main` (this sandbox's git proxy refuses a tag push, as at 1.0.0).
