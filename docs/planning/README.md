@@ -106,3 +106,13 @@ of the current period is not here: it is in `PLANNING.md`, short, and searched t
     - L301: 30 Oct 2026, Phase 8.5. Time zones: the event's own, and a second clock
     - L312: 30 Oct 2026, Phase 8.6. Two weeks ahead, the first day's tip, the new event brought into view
     - L325: 30 Oct 2026, Phase 8.7. Today on a large screen: two panes
+
+## [02-phase-8.md](02-phase-8.md): PLANNING, archive 02: Phase 8 and the 1.1.0, 30 October to 2 November 2026
+
+- L13: 11. Delivery phases
+  - L17: Phase 8 — 1.1: the review of 30 Oct 2026
+- L115: 15. Decisions log and open questions
+  - L117: Log since 2 Nov 2026, after archive 01
+  - L119: PLANNING split: the living plan and the archive (owner, 2 Nov 2026)
+  - L137: 1.1.0, ready to tag (owner, 2 Nov 2026, Phase 8.8)
+  - L167: 1.1.0 released (owner, 2 Nov 2026, Phase 8.8)
