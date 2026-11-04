@@ -8,7 +8,7 @@ package com.callbackdev.tempo.core.domain.widget
  *
  * | rank | what | size | weight | ink |
  * |---|---|---|---|---|
- * | 1 | the dial: the hands, and the focus's arc on the ring | up to [ROW_DIAL_MAX]; [TALL_DIAL_SHARE] of a tall card | – | strong, accent |
+ * | 1 | the dial: the hands, and the focus's arc on the ring | the family's circle: [WordsFit.cellCircle], [WordsFit.rowCircle], [WordsFit.tallCircle] | – | strong, accent |
  * | 2 | the focus's title ("Design review"; "Free" when nothing is left) | [TITLE_SP], [TALL_TITLE_SP] | Medium | strong |
  * | 3 | when ("Until 11:00", "15:00 – 16:00", "Tomorrow · 9:00 – 10:00") | [WHEN_SP] | Regular | quiet |
  * | 4 | the date (the system's `TextClock`, so it turns at midnight) | [DATE_SP] | Regular | quiet |
@@ -24,10 +24,13 @@ package com.callbackdev.tempo.core.domain.widget
  *   the cell is taller than wide.
  * - [WordsForm.ROW], one row. The dial; the title over its time; the date at the far edge, over
  *   two lines, where the row has the room.
- * - [WordsForm.TALL], two rows and up. The dial in the top trailing corner with
- *   the date beside it (under three cells wide, the tall circle: [WordsFit.tallCircle]); the
- *   title, its time and the note hanging from the bottom leading corner, and under them, where the
- *   card has the room, the next events as rows ("13:00  Lunch").
+ * - [WordsForm.TALL], two rows and up. The dial in the top trailing corner with the date beside
+ *   it, or over the title where the dial leaves it no column; the title, its time and the note
+ *   hanging from the bottom leading corner, and under them, where the card has the room, the next
+ *   events as rows ("13:00  Lunch").
+ *
+ * The dial's side is the family's circle for the card's size, the one every card of the family
+ * draws there, never the day's words' (owner, 4 Nov 2026).
  */
 enum class WordsForm { CELL, ROW, TALL }
 
@@ -73,7 +76,8 @@ data class WordsSpec(
  * which time in words ([whenChoice] into [WordsSpec.whenEms], -1: none) at which size, bold where
  * it stands in the dial's place; the note's lines; how many rows of the next events (0: none) and
  * their time column's width; whether the line of times is drawn; whether the second clock is,
- * under the date ([second]).
+ * under the date ([second]); whether the date stands over the title rather than beside the dial
+ * ([dateOver]).
  */
 data class WordsPlan(
     val form: WordsForm,
@@ -94,6 +98,7 @@ data class WordsPlan(
     val rows: Int = 0,
     val rowTimeWidth: Float = 0f,
     val second: Boolean = false,
+    val dateOver: Boolean = false,
 )
 
 /** A date as drawn: which style, at which size, on how many lines, how wide and tall. */
@@ -148,9 +153,10 @@ object WordsFit {
     }
 
     /**
-     * One cell: the dial as large as the cell holds, and the focus's time under it where the cell
-     * is tall enough to keep the dial [CELL_DIAL_COMFORT]. Without the dial, the time in its place,
-     * bold and as large as fits, the title under it where a line is left.
+     * One cell: the dial is the cell's circle ([cellCircle]), and the focus's time under it where
+     * the cell is tall enough to hold it whole beside the dial's size, the title under that where a
+     * line is left. Without the dial, the time in its place, bold and as large as fits, the title
+     * under it where a line is left.
      */
     private fun cellPlan(spec: WordsSpec): WordsPlan {
         val snug = spec.height < AgendaFit.TALL_MIN_HEIGHT
@@ -175,14 +181,13 @@ object WordsFit {
             sidePadding = AgendaFit.CELL_PADDING,
         )
         if (spec.dial) {
-            val alone = minOf(width, inner, CELL_DIAL_MAX)
+            val dial = cellCircle(spec.width, spec.height)
             val time = whenFor(spec, width, listOf(CELL_WHEN_SP))
             val under = time?.let { lineHeight(it.sp, scale) + CELL_GAP } ?: 0f
-            val withTime = minOf(width, inner - under, CELL_DIAL_MAX)
-            if (time == null || withTime < CELL_DIAL_COMFORT) return base.copy(dial = alone)
-            val title = inner - withTime - under >= lineHeight(CELL_TITLE_SP, scale)
+            if (time == null || inner - dial < under) return base.copy(dial = dial)
+            val title = inner - dial - under >= lineHeight(CELL_TITLE_SP, scale)
             return base.copy(
-                dial = withTime,
+                dial = dial,
                 whenChoice = time.choice,
                 whenSp = time.sp,
                 titleLines = if (title) 1 else 0,
@@ -208,8 +213,8 @@ object WordsFit {
     }
 
     /**
-     * One row: the dial, as tall as the row leaves up to [ROW_DIAL_MAX] and never so wide
-     * that the words beside it lose [ROW_WORDS_MIN]; the title over its time; the date at the far
+     * One row: the dial is the row's circle ([rowCircle]), drawn where the words beside it keep
+     * [ROW_WORDS_MIN]; the title over its time; the date at the far
      * edge where the words keep what they need ([TITLE_KEEP] of the title), over two lines when on
      * one it would be wider than [ROW_DATE_ONE_LINE]. Under a large text size the time goes before
      * the title shrinks under [TITLE_MIN_SP]. A narrow row sets the words a size smaller, and a long
@@ -220,7 +225,7 @@ object WordsFit {
         val inner = spec.height - AgendaFit.CARD_PADDING_SNUG * 2
         val width = spec.width - AgendaFit.CARD_PADDING * 2
         val dial = if (spec.dial && width - DIAL_GAP - ROW_DIAL_MIN >= ROW_WORDS_MIN) {
-            (width - DIAL_GAP - ROW_WORDS_MIN).coerceIn(ROW_DIAL_MIN, minOf(inner, ROW_DIAL_MAX))
+            rowCircle(spec.width, spec.height)
         } else {
             0f
         }
@@ -271,16 +276,15 @@ object WordsFit {
     }
 
     /**
-     * Two rows and up, bottom up in the order the hierarchy spends the height:
-     * the title's first line and its time; the dial at [TALL_DIAL_MIN] (without it, the date on
-     * top, and the second clock under it); the note, whole up to [NOTE_MAX_LINES] or not at all; the dial up to
-     * [TALL_DIAL_COMFORT]; the title's second line, for a title too long for one even at
-     * [TALL_TITLE_MIN_SP]; the next events as rows in the band that is left, all of them or none,
-     * else the line of times on a wide card; what is left grows the dial to its ceiling
-     * ([tallDialCeiling]), under three cells wide never past the tall circle ([tallCircle]), which
-     * it starts from where that is under [TALL_DIAL_MIN], and whose room under the comfort is left
-     * empty rather than given to more words. The date takes the band beside the dial,
-     * on one line or two, and the second clock the line under it where the band holds it.
+     * Two rows and up. The dial is the tall circle ([tallCircle]), a size of the card alone, so it
+     * is one size through the day; it yields only where the title's first line and its time would
+     * not fit under it (a large text size), never under [TALL_CIRCLE_MIN]. The date stands beside
+     * it where its column holds it ([DATE_BESIDE_MIN]), else on its own line over the title
+     * ([dateOver]), whichever leaves the larger dial; the second clock under the date. Then, in the
+     * band left under the dial, bottom up: the note, whole up to [NOTE_MAX_LINES] or not at all;
+     * then, where they fit with the dial at [TALL_DIAL_COMFORT], the title's second line, for a
+     * title too long for one even at [TALL_TITLE_MIN_SP], and the next events as rows, all of them
+     * or none, else the line of times on a wide card. What is left is air. Without the dial, the date on top and the second clock under it.
      */
     private fun tallPlan(spec: WordsSpec): WordsPlan {
         val scale = spec.fontScale
@@ -296,29 +300,70 @@ object WordsFit {
         val time = whenFor(spec, width, WHEN_SIZES)
         if (time != null) left -= lineHeight(time.sp, scale)
         val withDate = spec.dateEms.isNotEmpty()
-        val roomMost =
-            minOf(tallDialCeiling(inner, width), if (withDate) width - DIAL_GAP - DATE_BESIDE_MIN else width)
-        // Under three cells wide the dial is the tall circle, one size through the day; it starts
-        // under its floor only where the circle itself is smaller (a large text size).
-        val dialMost = if (spec.width < CIRCLE_MAX_WIDTH) minOf(roomMost, tallCircle(inner, scale)) else roomMost
-        val dialFirst = minOf(TALL_DIAL_MIN, dialMost)
-        var dial = 0f
-        var top: DatePick? = null
         val secondWidth = widthOf(spec.secondEm, SECOND_SP, scale)
         val secondLine = clockLineHeight(SECOND_SP, scale)
-        var topSecond = false
-        if (spec.dial && roomMost >= TALL_DIAL_MIN && left - DIAL_BOTTOM_GAP >= dialFirst) {
-            dial = dialFirst
-            left -= dialFirst + DIAL_BOTTOM_GAP
+        var dial = 0f
+        var date: DatePick? = null
+        var dateOver = false
+        var second = false
+        if (spec.dial && left - DIAL_BOTTOM_GAP >= TALL_CIRCLE_MIN) {
+            val most = minOf(tallCircle(spec.width, spec.height, scale), left - DIAL_BOTTOM_GAP)
+            dial = most
+            if (withDate) {
+                fun beside(side: Float) = if (width - side - DIAL_GAP >= DATE_BESIDE_MIN) {
+                    date(spec, width - side - DIAL_GAP, side, twoLines = true)
+                } else {
+                    null
+                }
+                val besideMost = beside(most)
+                if (besideMost != null) {
+                    date = besideMost
+                } else {
+                    // Too wide for the date's column: the date over the title, or beside a dial
+                    // made smaller for it, whichever dial is the larger; neither, and it goes.
+                    val over = date(spec, width, Float.MAX_VALUE, twoLines = false)
+                    val overDial = over?.let { minOf(most, left - DIAL_BOTTOM_GAP - it.height - DATE_OVER_GAP) } ?: 0f
+                    val narrower = minOf(most, width - DIAL_GAP - DATE_BESIDE_MIN)
+                    val besideNarrower = beside(narrower)?.takeIf { narrower >= TALL_CIRCLE_MIN }
+                    val overFits = over != null && overDial >= TALL_CIRCLE_MIN
+                    when {
+                        over != null && overFits && (besideNarrower == null || overDial >= narrower) -> {
+                            date = over
+                            dateOver = true
+                            dial = overDial
+                            left -= over.height + DATE_OVER_GAP
+                        }
+
+                        besideNarrower != null -> {
+                            date = besideNarrower
+                            dial = narrower
+                        }
+                    }
+                }
+            }
+            left -= dial + DIAL_BOTTOM_GAP
+            if (spec.secondEm > 0f) {
+                second = if (dateOver) {
+                    // Over the title, under the date, where a line is left for it.
+                    (secondWidth <= width && left >= SECOND_TOP + secondLine).also {
+                        if (it) left -= SECOND_TOP + secondLine
+                    }
+                } else {
+                    // Beside the dial, under the date, where its line fits the band whole; the date
+                    // is never shortened for it.
+                    secondWidth <= width - dial - DIAL_GAP &&
+                        (date?.let { it.height + SECOND_TOP } ?: 0f) + secondLine <= dial
+                }
+            }
         } else {
             if (withDate) {
-                top = date(spec, width, Float.MAX_VALUE, twoLines = false)?.takeIf { left >= it.height + TOP_GAP }
-                top?.let { left -= it.height + TOP_GAP }
+                date = date(spec, width, Float.MAX_VALUE, twoLines = false)?.takeIf { left >= it.height + TOP_GAP }
+                date?.let { left -= it.height + TOP_GAP }
             }
             // Without the dial, the second clock stands on top under the date, or alone in its place.
-            val line = secondLine + if (top != null) SECOND_TOP else TOP_GAP
+            val line = secondLine + if (date != null) SECOND_TOP else TOP_GAP
             if (spec.secondEm > 0f && secondWidth <= width && left >= line) {
-                topSecond = true
+                second = true
                 left -= line
             }
         }
@@ -326,24 +371,16 @@ object WordsFit {
         val noteHeight = lineHeight(NOTE_SP, scale) * spec.noteLines + NOTE_GAP
         val noteLines = if (spec.noteLines in 1..NOTE_MAX_LINES && left >= noteHeight) spec.noteLines else 0
         if (noteLines > 0) left -= noteHeight
-        fun grow(to: Float) {
-            if (dial <= 0f) return
-            val more = minOf(to - dial, left).coerceAtLeast(0f)
-            dial += more
-            left -= more
-        }
-        grow(minOf(TALL_DIAL_COMFORT, dialMost))
-        // What the tall circle gives up under the dial's comfort stays air: the words under it are
-        // the ones the card held with its dial at that comfort (owner, 4 Nov 2026: the circle alone
-        // changes).
-        if (dial > 0f) left -= minOf(minOf(TALL_DIAL_COMFORT, roomMost) - dial, left).coerceAtLeast(0f)
+        // The rest come where they fit with the dial at its comfort, as they did when the dial grew
+        // to it first: a smaller circle leaves air, and a card keeps the words it held.
+        if (dial > 0f) left -= (TALL_DIAL_COMFORT - dial).coerceIn(0f, left.coerceAtLeast(0f))
         var titleLines = 1
         if (!oneLine && spec.titleLines >= 2 && left >= titleLine) {
             left -= titleLine
             titleLines = 2
         }
-        // The rows stand where the line of times would, in the band the dial leaves at its comfort,
-        // each title keeping [ROW_TITLE_MIN] beside the time column, or an ellipsis says nothing.
+        // The rows stand where the line of times would, each title keeping [ROW_TITLE_MIN] beside
+        // the time column, or an ellipsis says nothing.
         val rowTime = if (spec.rows > 0) widthOf(spec.rowTimeEm, ROW_SP, scale) else 0f
         val rowsHeight = lineHeight(ROW_SP, scale) * spec.rows + ROWS_GAP
         val rows = if (spec.rows in 1..ROWS_MAX && width - rowTime - ROW_TIME_GAP >= ROW_TITLE_MIN &&
@@ -354,22 +391,7 @@ object WordsFit {
             0
         }
         if (rows > 0) left -= rowsHeight
-        val noteLine = lineHeight(NOTE_SP, scale)
-        val then = rows == 0 && spec.then && width >= THEN_MIN_WIDTH && left >= noteLine
-        if (then) left -= noteLine
-        grow(dialMost)
-        val date = if (dial > 0f && withDate) date(spec, width - dial - DIAL_GAP, dial, twoLines = true) else top
-        // Beside the dial, the second clock under the date, where its line fits the band whole; the
-        // date is never shortened for it.
-        val second = when {
-            spec.secondEm <= 0f -> false
-
-            dial > 0f ->
-                secondWidth <= width - dial - DIAL_GAP &&
-                    (date?.let { it.height + SECOND_TOP } ?: 0f) + secondLine <= dial
-
-            else -> topSecond
-        }
+        val then = rows == 0 && spec.then && width >= THEN_MIN_WIDTH && left >= lineHeight(NOTE_SP, scale)
         return WordsPlan(
             form = WordsForm.TALL,
             dial = quarterPoint(dial),
@@ -389,6 +411,7 @@ object WordsFit {
             rows = rows,
             rowTimeWidth = if (rows > 0) rowTime else 0f,
             second = second,
+            dateOver = dateOver,
         )
     }
 
@@ -400,17 +423,40 @@ object WordsFit {
     fun tallDialCeiling(innerHeight: Float, innerWidth: Float): Float =
         maxOf(TALL_DIAL_CEILING, TALL_DIAL_SHARE * minOf(innerHeight, innerWidth))
 
-    /**
-     * The tall circle (4 Nov 2026, owner): the side of the circle in the top trailing corner of
-     * every tall card of the family under three cells wide ([CIRCLE_MAX_WIDTH]), the height the
-     * card's inner [innerHeight] leaves over the words' band ([TALL_WORDS_BAND]), never under
-     * [TALL_CIRCLE_MIN]. The band is budgeted, never measured: the day's words do not move it, so
-     * a free day's dial is a busy day's, and two cards of one size side by side on the home screen
-     * draw one circle. It grows with the card, and with the reader's text size the band grows and
-     * the circle yields. The dial's own limits still hold: the date beside it, the ceiling.
+    /*
+     * The family's circle (owner, 4 Nov 2026): every card of the family that draws a circle (a dial,
+     * a ring) draws it at the size these three give for the card's size, whatever the day's words
+     * say, so two cards of one size side by side on the home screen show one circle, and a card's
+     * own does not grow on a free day. It grows with the card, and with the reader's text size it
+     * yields where the words need the room.
      */
-    fun tallCircle(innerHeight: Float, fontScale: Float): Float =
-        quarterPoint(maxOf(TALL_CIRCLE_MIN, innerHeight - TALL_WORDS_BAND * LINE_BOX_EM * fontScale))
+
+    /** One cell wide: the cell's shorter side, less [CELL_CIRCLE_INSET] on each side. */
+    fun cellCircle(width: Float, height: Float): Float =
+        (minOf(width, height) - CELL_CIRCLE_INSET * 2).coerceIn(CELL_CIRCLE_MIN, CELL_DIAL_MAX)
+
+    /**
+     * One row: the height inside the snug insets, but never so wide that the words beside it keep
+     * less than [ROW_CIRCLE_WORDS]; between [ROW_DIAL_MIN] and [ROW_DIAL_MAX].
+     */
+    fun rowCircle(width: Float, height: Float): Float = minOf(
+        height - AgendaFit.CARD_PADDING_SNUG * 2,
+        width - AgendaFit.CARD_PADDING * 2 - DIAL_GAP - ROW_CIRCLE_WORDS,
+    ).coerceIn(ROW_DIAL_MIN, ROW_DIAL_MAX)
+
+    /**
+     * Two rows and up: the height inside the card left over a budgeted band of words
+     * ([TALL_WORDS_BAND], [WIDE_WORDS_BAND] from [WIDE_BAND_MIN_WIDTH]), never measured, between
+     * [TALL_CIRCLE_MIN] and the ceiling ([tallDialCeiling]) or the card's inner width, rounded down
+     * to a quarter.
+     */
+    fun tallCircle(width: Float, height: Float, fontScale: Float): Float {
+        val innerHeight = height - AgendaFit.CARD_PADDING * 2
+        val innerWidth = width - AgendaFit.CARD_PADDING * 2
+        val band = if (width < WIDE_BAND_MIN_WIDTH) TALL_WORDS_BAND else WIDE_WORDS_BAND
+        val most = minOf(tallDialCeiling(innerHeight, innerWidth), innerWidth)
+        return quarterPoint((innerHeight - band * LINE_BOX_EM * fontScale).coerceIn(TALL_CIRCLE_MIN, most))
+    }
 
     /** The title on a row. */
     const val TITLE_SP = 20f
@@ -444,9 +490,13 @@ object WordsFit {
     const val ROW_DIAL_MIN = 44f
     const val DIAL_GAP = 12f
 
-    /** The narrowest the words beside the dial may be, and where they are set a size smaller. */
+    /**
+     * The narrowest the words beside the dial may be, and where they are set a size smaller; the
+     * width the row's circle leaves beside it on every card of the family (a count and its goal).
+     */
     const val ROW_WORDS_MIN = 72f
     const val ROW_WORDS_COMFORT = 150f
+    const val ROW_CIRCLE_WORDS = 84f
 
     /** What the title keeps on a row before the date is given its column, and the column's floor. */
     const val TITLE_KEEP = 120f
@@ -455,12 +505,10 @@ object WordsFit {
     const val ROW_DATE_ONE_LINE = 100f
 
     /**
-     * The tall dial, with a comfortable middle the note and the rows do not take, and its ceiling:
-     * a share of the card, or [TALL_DIAL_CEILING] where that share is smaller. On the share alone
-     * the two-row cards' dials would shrink (the four-by-two's to 72 dp) where the card's room,
-     * not the ceiling, holds them (review of 30 Oct 2026, step 8.3).
+     * The tall dial's comfort, which the words after the note leave it (step 8.3: a two-row card's
+     * band is spent there), and its ceiling: a share of the card, or [TALL_DIAL_CEILING] where that
+     * share is smaller (review of 30 Oct 2026, step 8.3).
      */
-    const val TALL_DIAL_MIN = 48f
     const val TALL_DIAL_COMFORT = 72f
     const val TALL_DIAL_CEILING = 104f
     const val TALL_DIAL_SHARE = 0.45f
@@ -470,13 +518,16 @@ object WordsFit {
 
     /**
      * The tall circle ([tallCircle]): the words' band under it, in sp of 1.32 em lines with no
-     * rounding pixel (a figure's line and three lines of text: 108.24 dp at the default text size);
-     * its floor, a row's own; and the width under which it holds, three cells (two measure 159 dp,
-     * three 250). From three cells wide the dial grows with the room its words leave (step 8.3).
+     * rounding pixel: a figure's line and three lines of text under three cells wide (108.24 dp at
+     * the default text size), a figure's line and two from three cells, where a sentence that
+     * takes two lines on two cells takes one (87.12 dp); three cells measure 250 dp, two 159. Its
+     * floor is a row's own. The date's line over the title, where the dial leaves it no column.
      */
     const val TALL_WORDS_BAND = WidgetType.HERO + 3 * WidgetType.BODY
+    const val WIDE_WORDS_BAND = WidgetType.HERO + 2 * WidgetType.BODY
+    const val WIDE_BAND_MIN_WIDTH = 230f
     const val TALL_CIRCLE_MIN = ROW_DIAL_MIN
-    const val CIRCLE_MAX_WIDTH = 230f
+    const val DATE_OVER_GAP = TOP_GAP
 
     /**
      * The next events as rows (step 8.3): one or two, each a line at the label step, the time in
@@ -495,8 +546,10 @@ object WordsFit {
     const val SECOND_SP = WidgetType.LABEL
     const val SECOND_TOP = 2f
 
+    /** The cell's circle: its ceiling, its floor and the inset on each side of it. */
     const val CELL_DIAL_MAX = 104f
-    const val CELL_DIAL_COMFORT = 56f
+    const val CELL_CIRCLE_MIN = 36f
+    const val CELL_CIRCLE_INSET = 8f
     const val CELL_GAP = 4f
     const val CELL_WHEN_SP = WidgetType.LABEL
     const val CELL_WHEN_MIN = 18f

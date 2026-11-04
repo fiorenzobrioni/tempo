@@ -308,17 +308,21 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
     val focusDescription: String = listOfNotNull(title, whens.firstOrNull()).joinToString(", ")
 
     /**
-     * What a message has of a tall card: its height, less the insets and the dial, or the date and
-     * the second clock, over it.
+     * What a message has of a tall card: its height, less the insets and the dial (and the date
+     * over the words, where it stands there), or the date and the second clock, over it.
      */
     val messageRoom: Dp
         get() {
             val date = if (plan.dateChoice >= 0) clockLineHeight(plan.dateSp, scale) * plan.dateLines else 0f
+            val second = clockLineHeight(WordsFit.SECOND_SP, scale) + (if (date > 0f) WordsFit.SECOND_TOP else 0f)
             val top = when {
+                plan.dial > 0f && plan.dateOver ->
+                    plan.dial + WordsFit.DIAL_BOTTOM_GAP + date +
+                        (if (plan.second) second else 0f) + WordsFit.DATE_OVER_GAP
+
                 plan.dial > 0f -> plan.dial + WordsFit.DIAL_BOTTOM_GAP
 
-                plan.second -> date + clockLineHeight(WordsFit.SECOND_SP, scale) +
-                    (if (date > 0f) WordsFit.SECOND_TOP else 0f) + WordsFit.TOP_GAP
+                plan.second -> date + second + WordsFit.TOP_GAP
 
                 date > 0f -> date + WordsFit.TOP_GAP
 
@@ -576,19 +580,27 @@ private fun RowContent(parts: WordsParts, palette: WidgetPalette) {
 
 /**
  * Two rows and up: the dial in the top trailing corner and the date beside it, the second clock
- * under the date;
+ * under the date, or both over the title where the dial leaves them no column;
  * the title, when and the note hanging from the bottom leading corner, the next events under them
  * as rows or as a line of times. A message stands centred in the room under the dial
  * ([WordsParts.messageRoom]).
  */
 @Composable
 private fun TallContent(parts: WordsParts, palette: WidgetPalette) {
+    val over = parts.plan.dateOver
     Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
         Dial(parts, palette)
         Column(modifier = GlanceModifier.fillMaxSize()) {
-            DateLine(parts, palette, end = false)
-            SecondLine(parts, palette)
+            if (!over) {
+                DateLine(parts, palette, end = false)
+                SecondLine(parts, palette)
+            }
             Spacer(modifier = GlanceModifier.defaultWeight())
+            if (over) {
+                DateLine(parts, palette, end = false)
+                SecondLine(parts, palette)
+                Spacer(modifier = GlanceModifier.height(WordsFit.DATE_OVER_GAP.dp))
+            }
             val message = parts.message
             if (message != null) {
                 MessageContent(message, palette, parts.innerWidth, parts.messageRoom)

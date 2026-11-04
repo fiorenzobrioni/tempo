@@ -12,8 +12,9 @@ All notable changes to Tempo are documented here. The format follows
 
 ### Changed
 
-- **«In words» keeps one dial.** On a widget two cells wide the clock face keeps one size all
-  day, with events or without.
+- **«In words» keeps one dial.** At every size the clock face keeps one size all day, with
+  events or without. On a widget two cells wide and three rows high it is larger, with the date
+  on its own line over the event.
 
 ## [1.1.0] - 2026-11-02
 
