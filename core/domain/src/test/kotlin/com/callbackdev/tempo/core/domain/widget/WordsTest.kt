@@ -389,8 +389,10 @@ class WordsTest {
     fun `the dial's side at the reference grants`() {
         // One by two is a cell: the dial as wide as the cell, the time under it.
         assertThat(WordsFit.plan(spec(85f, 189f, rows = 2)).dial).isEqualTo(85f - AgendaFit.CELL_PADDING * 2)
-        // Two by two: held by the date beside it, as before.
-        assertThat(WordsFit.plan(spec(159f, 189f, rows = 2)).dial)
+        // Two by two: the tall circle (4 Nov 2026; it was 63 dp, held by the date beside it).
+        assertThat(WordsFit.plan(spec(159f, 189f, rows = 2)).dial).isEqualTo(52.75f)
+        // Two by three: held by the date beside it, as before; the circle would be larger.
+        assertThat(WordsFit.plan(spec(159f, 293f, rows = 2)).dial)
             .isEqualTo(159f - AgendaFit.CARD_PADDING * 2 - WordsFit.DIAL_GAP - WordsFit.DATE_BESIDE_MIN)
         // Three and four by two: held by the room the words leave, as before (not by the share,
         // 72 dp, which would shrink them).
@@ -398,6 +400,52 @@ class WordsTest {
         assertThat(WordsFit.plan(spec(340f, 189f, rows = 2)).dial).isEqualTo(78.5f)
         // Four by three: past the old 104 dp, to 45% of its inner height.
         assertThat(WordsFit.plan(spec(340f, 293f, rows = 2)).dial).isEqualTo(119.25f)
+    }
+
+    // --- The tall circle (4 Nov 2026) ---------------------------------------------------------------
+
+    @Test
+    fun `the tall circle is the height the words' band leaves`() {
+        // Two rows high: 161 dp inside, less the band's 108.24.
+        assertThat(WordsFit.tallCircle(161f, 1f)).isEqualTo(52.75f)
+        // At larger text sizes the band grows and the circle yields, to its floor.
+        assertThat(WordsFit.tallCircle(161f, 1.15f)).isEqualTo(WordsFit.TALL_CIRCLE_MIN)
+        assertThat(WordsFit.tallCircle(161f, 1.3f)).isEqualTo(WordsFit.TALL_CIRCLE_MIN)
+        // A taller card, a larger circle.
+        assertThat(WordsFit.tallCircle(186f, 1f)).isEqualTo(77.75f)
+    }
+
+    @Test
+    fun `under three cells wide the dial is one size through the day`() {
+        // Busy: the title, its time, a note over two lines. Free: the title alone and a line of
+        // note. Neither moves the dial, on the reference two by two or on a wider one, where a
+        // free day's dial grew to the date's limit (79 dp at 175 dp wide) and a busy one's stayed
+        // at 60.5.
+        listOf(159f, 175f, 200f).forEach { w ->
+            val busy = WordsFit.plan(spec(w, 189f, noteLines = 2))
+            val free = WordsFit.plan(spec(w, 189f).copy(whenEms = emptyList()))
+            val bare = WordsFit.plan(spec(w, 189f, noteLines = 0).copy(whenEms = emptyList()))
+            listOf(busy, free, bare).forEach { assertThat(it.dial).isEqualTo(WordsFit.tallCircle(161f, 1f)) }
+        }
+        // A large text size: the dial is the circle's floor, with the words whole under it.
+        val large = WordsFit.plan(spec(159f, 189f, scale = 1.3f))
+        assertThat(large.dial).isEqualTo(WordsFit.TALL_CIRCLE_MIN)
+        assertThat(large.whenChoice).isAtLeast(0)
+    }
+
+    @Test
+    fun `what the circle gives up is air, and the words are the ones the card held`() {
+        // The 10 dp under the old 63 would hold the next event as a row; the card keeps its note.
+        val plan = WordsFit.plan(spec(159f, 189f, noteLines = 1, rows = 1))
+        assertThat(plan.rows).isEqualTo(0)
+        assertThat(plan.noteLines).isEqualTo(1)
+        assertThat(WordsFit.plan(spec(159f, 189f, noteLines = 2, rows = 1)).noteLines).isEqualTo(2)
+    }
+
+    @Test
+    fun `from three cells wide the dial still grows with its room`() {
+        val free = WordsFit.plan(spec(250f, 189f, noteLines = 0).copy(whenEms = emptyList()))
+        assertThat(free.dial).isGreaterThan(WordsFit.plan(spec(250f, 189f)).dial)
     }
 
     @Test
@@ -490,7 +538,7 @@ class WordsTest {
 
     @Test
     fun `a band too narrow for the second clock leaves it out, never the date`() {
-        // Beside a two by two's dial the band is the date's 56 dp.
+        // Beside a two by two's dial the band is 66 dp, the date's.
         val plan = WordsFit.plan(spec(159f, 189f, secondEm = secondEm))
         assertThat(plan.second).isFalse()
         assertThat(plan.dateChoice).isEqualTo(WordsFit.plan(spec(159f, 189f)).dateChoice)

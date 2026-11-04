@@ -10,6 +10,11 @@ All notable changes to Tempo are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- **«In words» keeps one dial.** On a widget two cells wide the clock face keeps one size all
+  day, with events or without.
+
 ## [1.1.0] - 2026-11-02
 
 **A second clock, your events' own time zones, two weeks ahead, and Today on a tablet**, with

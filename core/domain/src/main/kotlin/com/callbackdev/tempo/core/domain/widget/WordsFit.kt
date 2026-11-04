@@ -25,8 +25,9 @@ package com.callbackdev.tempo.core.domain.widget
  * - [WordsForm.ROW], one row. The dial; the title over its time; the date at the far edge, over
  *   two lines, where the row has the room.
  * - [WordsForm.TALL], two rows and up. The dial in the top trailing corner with
- *   the date beside it; the title, its time and the note hanging from the bottom leading corner,
- *   and under them, where the card has the room, the next events as rows ("13:00  Lunch").
+ *   the date beside it (under three cells wide, the tall circle: [WordsFit.tallCircle]); the
+ *   title, its time and the note hanging from the bottom leading corner, and under them, where the
+ *   card has the room, the next events as rows ("13:00  Lunch").
  */
 enum class WordsForm { CELL, ROW, TALL }
 
@@ -276,8 +277,10 @@ object WordsFit {
      * [TALL_DIAL_COMFORT]; the title's second line, for a title too long for one even at
      * [TALL_TITLE_MIN_SP]; the next events as rows in the band that is left, all of them or none,
      * else the line of times on a wide card; what is left grows the dial to its ceiling
-     * ([tallDialCeiling]). The date takes the band beside the dial, on one line or two, and the
-     * second clock the line under it where the band holds it.
+     * ([tallDialCeiling]), under three cells wide never past the tall circle ([tallCircle]), which
+     * it starts from where that is under [TALL_DIAL_MIN], and whose room under the comfort is left
+     * empty rather than given to more words. The date takes the band beside the dial,
+     * on one line or two, and the second clock the line under it where the band holds it.
      */
     private fun tallPlan(spec: WordsSpec): WordsPlan {
         val scale = spec.fontScale
@@ -293,16 +296,20 @@ object WordsFit {
         val time = whenFor(spec, width, WHEN_SIZES)
         if (time != null) left -= lineHeight(time.sp, scale)
         val withDate = spec.dateEms.isNotEmpty()
-        val dialMost =
+        val roomMost =
             minOf(tallDialCeiling(inner, width), if (withDate) width - DIAL_GAP - DATE_BESIDE_MIN else width)
+        // Under three cells wide the dial is the tall circle, one size through the day; it starts
+        // under its floor only where the circle itself is smaller (a large text size).
+        val dialMost = if (spec.width < CIRCLE_MAX_WIDTH) minOf(roomMost, tallCircle(inner, scale)) else roomMost
+        val dialFirst = minOf(TALL_DIAL_MIN, dialMost)
         var dial = 0f
         var top: DatePick? = null
         val secondWidth = widthOf(spec.secondEm, SECOND_SP, scale)
         val secondLine = clockLineHeight(SECOND_SP, scale)
         var topSecond = false
-        if (spec.dial && dialMost >= TALL_DIAL_MIN && left - DIAL_BOTTOM_GAP >= TALL_DIAL_MIN) {
-            dial = TALL_DIAL_MIN
-            left -= TALL_DIAL_MIN + DIAL_BOTTOM_GAP
+        if (spec.dial && roomMost >= TALL_DIAL_MIN && left - DIAL_BOTTOM_GAP >= dialFirst) {
+            dial = dialFirst
+            left -= dialFirst + DIAL_BOTTOM_GAP
         } else {
             if (withDate) {
                 top = date(spec, width, Float.MAX_VALUE, twoLines = false)?.takeIf { left >= it.height + TOP_GAP }
@@ -326,6 +333,10 @@ object WordsFit {
             left -= more
         }
         grow(minOf(TALL_DIAL_COMFORT, dialMost))
+        // What the tall circle gives up under the dial's comfort stays air: the words under it are
+        // the ones the card held with its dial at that comfort (owner, 4 Nov 2026: the circle alone
+        // changes).
+        if (dial > 0f) left -= minOf(minOf(TALL_DIAL_COMFORT, roomMost) - dial, left).coerceAtLeast(0f)
         var titleLines = 1
         if (!oneLine && spec.titleLines >= 2 && left >= titleLine) {
             left -= titleLine
@@ -389,6 +400,18 @@ object WordsFit {
     fun tallDialCeiling(innerHeight: Float, innerWidth: Float): Float =
         maxOf(TALL_DIAL_CEILING, TALL_DIAL_SHARE * minOf(innerHeight, innerWidth))
 
+    /**
+     * The tall circle (4 Nov 2026, owner): the side of the circle in the top trailing corner of
+     * every tall card of the family under three cells wide ([CIRCLE_MAX_WIDTH]), the height the
+     * card's inner [innerHeight] leaves over the words' band ([TALL_WORDS_BAND]), never under
+     * [TALL_CIRCLE_MIN]. The band is budgeted, never measured: the day's words do not move it, so
+     * a free day's dial is a busy day's, and two cards of one size side by side on the home screen
+     * draw one circle. It grows with the card, and with the reader's text size the band grows and
+     * the circle yields. The dial's own limits still hold: the date beside it, the ceiling.
+     */
+    fun tallCircle(innerHeight: Float, fontScale: Float): Float =
+        quarterPoint(maxOf(TALL_CIRCLE_MIN, innerHeight - TALL_WORDS_BAND * LINE_BOX_EM * fontScale))
+
     /** The title on a row. */
     const val TITLE_SP = 20f
     const val TALL_TITLE_SP = WidgetType.TITLE
@@ -444,6 +467,16 @@ object WordsFit {
     const val DIAL_BOTTOM_GAP = 8f
     const val DATE_BESIDE_MIN = 56f
     const val THEN_MIN_WIDTH = 280f
+
+    /**
+     * The tall circle ([tallCircle]): the words' band under it, in sp of 1.32 em lines with no
+     * rounding pixel (a figure's line and three lines of text: 108.24 dp at the default text size);
+     * its floor, a row's own; and the width under which it holds, three cells (two measure 159 dp,
+     * three 250). From three cells wide the dial grows with the room its words leave (step 8.3).
+     */
+    const val TALL_WORDS_BAND = WidgetType.HERO + 3 * WidgetType.BODY
+    const val TALL_CIRCLE_MIN = ROW_DIAL_MIN
+    const val CIRCLE_MAX_WIDTH = 230f
 
     /**
      * The next events as rows (step 8.3): one or two, each a line at the label step, the time in
