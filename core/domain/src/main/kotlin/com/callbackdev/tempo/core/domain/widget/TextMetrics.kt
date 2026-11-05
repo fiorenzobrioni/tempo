@@ -24,6 +24,16 @@ fun lineHeight(sizeSp: Float, fontScale: Float): Float = sizeSp * LINE_BOX_EM * 
  */
 fun clockLineHeight(sizeSp: Float, fontScale: Float): Float = sizeSp * CLOCK_BOX_EM * fontScale
 
+/**
+ * The height of one Glance `Text` over [lines] lines: the first as [lineHeight], each further one
+ * the face's ascent and descent alone, as a `TextClock`'s line ([clockLineHeight]). The font's
+ * padding is the first line's top and the last line's bottom, never paid between two lines:
+ * Roboto's second line takes 1.17 em, where a line of its own takes 1.33 (5 Nov 2026, the owner's
+ * two-by-two, whose title lost its second line for the 4 dp the old count asked over the real one).
+ */
+fun linesHeight(sizeSp: Float, lines: Int, fontScale: Float): Float =
+    if (lines <= 0) 0f else lineHeight(sizeSp, fontScale) + clockLineHeight(sizeSp, fontScale) * (lines - 1)
+
 /** [lineHeight] read backwards: the largest size whose line fits [room]. Never negative. */
 fun sizeForLine(room: Float, fontScale: Float): Float =
     ((room - LINE_ROUNDING) / (LINE_BOX_EM * fontScale.coerceAtLeast(MIN_SCALE))).coerceAtLeast(0f)

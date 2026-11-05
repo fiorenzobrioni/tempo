@@ -475,3 +475,18 @@ Tests: `WordsTest` (the circle at the reference height and text sizes; one dial 
 3. Passo's side, in its own PLANNING: the panel's ring is the circle (73.75 dp on the three- and four-by-two, from 56; 104 and 119.25 on three rows), the bars as they were; on the four-by-three the sentence stands under the number, beside the ring.
 
 Tests: `WordsTest` (the family's circle at the reference grants; one dial through the day at five widths and four heights; the date over the title on the two-by-three, with its note, its rows and the second clock; the words kept on the two-by-two; the dial's side at every reference grant). `WidgetFitTest` finds nothing cut at every grant and text size.
+
+### The owner's two-by-two keeps its title's second line (owner, 5 Nov 2026)
+
+**Where it comes from.** The owner, with two screenshots of the phone, before the family's circle (4 Nov, 21:19: "Prenotare / cambio gom…" over two lines) and after it (5 Nov, 08:26: "Prenotare ca…" on one): "the change is very good, but could Tempo show the event in the same room as before, for example on the two-by-two? Without changing the circle's size, and without touching the work just done."
+
+**Measured** on the screenshots (1,080 px wide): the cards 438 × 509 px, both circles 191 px after and the dial 181 before, so 2.33 px a dp: the owner's two-by-two is about 188 × 218 dp at the default text size, its circle 81.75 dp (the dial grew to 78 before). Under it, 190 dp inside: the title's first line 30.04, its time 22.12, the gap 8, the note 22.16, and 26 dp left where the title's second line was counted at 30.04.
+
+**What changed** (the circle as it was):
+
+1. **A Text's later lines are counted as they are drawn** (`linesHeight`): its first line at 1.32 em and the rounding pixel, each further one at 1.2 em, the face's ascent and descent, as a `TextClock`'s line is already counted. A Text's font padding is its first line's top and its last line's bottom, never paid between two lines: Roboto's second line takes 1.17 em. On the tall card: the title's second line, and a note over two lines or three.
+2. **The air under the tall dial is 4 dp** (it was 8). With the title's own leading over its capitals (0.35 em, 7.7 dp at 22 sp), the dial stands about 11.6 dp over the title's capitals, as the ring of «At a glance» over its number (11.7).
+
+Together they give the owner's two-by-two its title's second line, its time and its note, with 3.6 dp to spare. The reference grants show what they showed (a two-row card still budgets what follows its note at the dial's 72 dp comfort), and the README's picture is drawn byte for byte as committed.
+
+Tests: `WordsTest` (the owner's two-by-two: the circle at 81.75 dp, a title too long for one line over two, its time, its note, the date beside the dial), `WidgetFitTest` (the owner's grant and a title too long for one line added to its cards: nothing cut at 100, 115 and 130%), the gallery's `widget-words-owners.png`.

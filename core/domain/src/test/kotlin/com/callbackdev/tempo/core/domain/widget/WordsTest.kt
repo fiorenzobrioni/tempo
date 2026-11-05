@@ -324,14 +324,14 @@ class WordsTest {
                 159f to 160f,
             ).forEach { (w, h) ->
                 val plan = WordsFit.plan(spec(w, h, scale, noteLines = 2, titleLines = 2, rows = 2))
-                val words = lineHeight(plan.titleSp, scale) * plan.titleLines +
+                val words = linesHeight(plan.titleSp, plan.titleLines, scale) +
                     (if (plan.rows > 0) lineHeight(WordsFit.ROW_SP, scale) * plan.rows + WordsFit.ROWS_GAP else 0f) +
                     (if (plan.whenChoice >= 0) lineHeight(plan.whenSp, scale) else 0f) +
                     (
                         if (plan.noteLines >
                             0
                         ) {
-                            lineHeight(WordsFit.NOTE_SP, scale) * plan.noteLines + WordsFit.NOTE_GAP
+                            linesHeight(WordsFit.NOTE_SP, plan.noteLines, scale) + WordsFit.NOTE_GAP
                         } else {
                             0f
                         }
@@ -472,6 +472,22 @@ class WordsTest {
     }
 
     @Test
+    fun `the owner's two-by-two gives a long title its second line under the family's circle`() {
+        // 188 x 218 dp, measured from the phone's screenshots (5 Nov 2026): the circle at 81.75 dp,
+        // "Prenotare cambio gomme" (too long for one line at 18 sp) over two lines, its time and
+        // the note under it, as before the circle (the dial then at 78 dp). With an 8 dp gap and
+        // every line counted at 1.32 em it lost its second line for 4 dp.
+        val spec = spec(188f, 218f, titleLines = 2).copy(titleEm = 11.5f)
+        val plan = WordsFit.plan(spec)
+        assertThat(plan.dial).isEqualTo(WordsFit.tallCircle(188f, 218f, 1f))
+        assertThat(plan.dial).isEqualTo(81.75f)
+        assertThat(plan.titleLines).isEqualTo(2)
+        assertThat(plan.whenChoice).isEqualTo(0)
+        assertThat(plan.noteLines).isEqualTo(1)
+        assertThat(plan.dateOver).isFalse()
+    }
+
+    @Test
     fun `what the circle gives up is air, and the words are the ones the card held`() {
         // The 19 dp under the comfort would hold the next event as a row; the card keeps its note.
         val plan = WordsFit.plan(spec(159f, 189f, noteLines = 1, rows = 1))
@@ -596,13 +612,13 @@ class WordsTest {
             listOf(159f to 189f, 250f to 189f, 340f to 189f, 340f to 293f, 159f to 160f).forEach { (w, h) ->
                 listOf(true, false).forEach { dial ->
                     val plan = WordsFit.plan(spec(w, h, scale, dial = dial, noteLines = 2, secondEm = secondEm))
-                    val words = lineHeight(plan.titleSp, scale) * plan.titleLines +
+                    val words = linesHeight(plan.titleSp, plan.titleLines, scale) +
                         (if (plan.whenChoice >= 0) lineHeight(plan.whenSp, scale) else 0f) +
                         (
                             if (plan.noteLines >
                                 0
                             ) {
-                                lineHeight(WordsFit.NOTE_SP, scale) * plan.noteLines + WordsFit.NOTE_GAP
+                                linesHeight(WordsFit.NOTE_SP, plan.noteLines, scale) + WordsFit.NOTE_GAP
                             } else {
                                 0f
                             }

@@ -368,15 +368,17 @@ object WordsFit {
             }
         }
         // The note whole or not at all: a sentence cut off mid-phrase says less than none.
-        val noteHeight = lineHeight(NOTE_SP, scale) * spec.noteLines + NOTE_GAP
+        val noteHeight = linesHeight(NOTE_SP, spec.noteLines, scale) + NOTE_GAP
         val noteLines = if (spec.noteLines in 1..NOTE_MAX_LINES && left >= noteHeight) spec.noteLines else 0
         if (noteLines > 0) left -= noteHeight
         // The rest come where they fit with the dial at its comfort, as they did when the dial grew
         // to it first: a smaller circle leaves air, and a card keeps the words it held.
         if (dial > 0f) left -= (TALL_DIAL_COMFORT - dial).coerceIn(0f, left.coerceAtLeast(0f))
         var titleLines = 1
-        if (!oneLine && spec.titleLines >= 2 && left >= titleLine) {
-            left -= titleLine
+        // The title's second line, in the same Text as its first: the face's ascent and descent.
+        val secondTitleLine = linesHeight(titleSp, 2, scale) - titleLine
+        if (!oneLine && spec.titleLines >= 2 && left >= secondTitleLine) {
+            left -= secondTitleLine
             titleLines = 2
         }
         // The rows stand where the line of times would, each title keeping [ROW_TITLE_MIN] beside
@@ -512,7 +514,14 @@ object WordsFit {
     const val TALL_DIAL_COMFORT = 72f
     const val TALL_DIAL_CEILING = 104f
     const val TALL_DIAL_SHARE = 0.45f
-    const val DIAL_BOTTOM_GAP = 8f
+
+    /**
+     * The air under the tall dial: with the title's own leading over its capitals (0.35 em, 7.7 dp
+     * at 22 sp), the dial stands as far over the title's capitals as the ring of the family's tall
+     * card over its number (about 11.7 dp). It was 8 dp, and the owner's two-by-two lost its
+     * title's second line for it (5 Nov 2026).
+     */
+    const val DIAL_BOTTOM_GAP = 4f
     const val DATE_BESIDE_MIN = 56f
     const val THEN_MIN_WIDTH = 280f
 

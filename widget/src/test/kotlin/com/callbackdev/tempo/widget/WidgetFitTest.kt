@@ -37,7 +37,12 @@ class WidgetFitTest {
         end = WidgetSamples.at("2026-10-08T06:30").toInstant(),
     )
 
-    private val titles = (WidgetSamples.instances + nightTrain).mapNotNull { it.title }
+    /** The focus at 10:20 with a title too long for one line (the owner's two-by-two, 5 Nov 2026). */
+    private val longTitle = WidgetSamples.instances.map {
+        if (it.eventId == 3L) it.copy(title = "Book the winter tyre change at the garage") else it
+    }
+
+    private val titles = (WidgetSamples.instances + nightTrain + longTitle).mapNotNull { it.title }
 
     /** A title, or a date's all-day titles one after the other. */
     private fun isTitle(text: String) = titles.any { text.startsWith(it.take(TITLE_PREFIX)) }
@@ -52,6 +57,7 @@ class WidgetFitTest {
             instances = WidgetSamples.instances + nightTrain,
         ),
         WidgetSamples.model(now = WidgetSamples.at("2026-10-11T23:00")),
+        WidgetSamples.model(instances = longTitle),
         // The whole day left to say under the date: six events, from the run at 07:30.
         WidgetSamples.model(now = WidgetSamples.at("2026-10-07T05:00")),
         WidgetSamples.model(look = WidgetLook(clockFormat = ClockFormat.H12, dateStyle = DateStyle.NUMERIC)),
@@ -91,6 +97,7 @@ class WidgetFitTest {
         Grants.FourByTwo,
         Grants.TwoByThree,
         Grants.FourByThree,
+        Grants.OwnersTwoByTwo,
     )
 
     private fun cuts(scale: Float): List<String> {
