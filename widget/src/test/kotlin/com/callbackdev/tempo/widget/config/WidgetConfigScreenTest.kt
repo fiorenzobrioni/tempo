@@ -95,6 +95,23 @@ class WidgetConfigScreenTest {
     }
 
     @Test
+    fun `in words has the day's note's switch, on until turned off`() {
+        show(WidgetKind.WORDS)
+        scrollToTag(WidgetConfigTags.NOTE)
+        compose.onNodeWithText("The day’s note").assertExists()
+        assertThat(look.showNote).isTrue()
+        compose.onNodeWithTag(WidgetConfigTags.NOTE).performClick()
+        assertThat(look.showNote).isFalse()
+        compose.assertAccessible()
+    }
+
+    @Test
+    fun `agenda has no day's note's switch`() {
+        show(WidgetKind.AGENDA)
+        compose.onNodeWithTag(WidgetConfigTags.NOTE).assertDoesNotExist()
+    }
+
+    @Test
     fun `with no city in Tempo's settings there is no second clock's switch`() {
         show(WidgetKind.AGENDA)
         compose.onNodeWithTag(WidgetConfigTags.SECOND_ZONE).assertDoesNotExist()

@@ -50,6 +50,8 @@ enum class EventTap { TEMPO, CALENDAR }
  * @property showDaysAhead the days after today, in the room today leaves (owner, PLANNING.md §15).
  * @property showSecondZone the second clock of Tempo's settings, where the card has room for it;
  *   off by default (step 8.5).
+ * @property showNote «In words»'s note and what follows it on a tall card; off, the card says the
+ *   event alone and its dial takes the room (owner, 5 Nov 2026).
  * @property cardColor kept while another background is picked, so coming back finds it.
  */
 data class WidgetLook(
@@ -65,6 +67,7 @@ data class WidgetLook(
     val showAllDay: Boolean = true,
     val showDaysAhead: Boolean = true,
     val showSecondZone: Boolean = false,
+    val showNote: Boolean = true,
 ) {
     companion object {
         /** Solid: below [INK_TRUST_FLOOR_PCT] the ink has to ask the wallpaper, a different conversation. */
@@ -103,6 +106,7 @@ class WidgetLookStore internal constructor(private val dataStore: DataStore<Pref
             showAllDay = prefs[boolKey("all_day", id)] ?: default.showAllDay,
             showDaysAhead = prefs[boolKey("days_ahead", id)] ?: default.showDaysAhead,
             showSecondZone = prefs[boolKey("second_zone", id)] ?: default.showSecondZone,
+            showNote = prefs[boolKey("note", id)] ?: default.showNote,
         )
     }
 
@@ -121,6 +125,7 @@ class WidgetLookStore internal constructor(private val dataStore: DataStore<Pref
             prefs[boolKey("all_day", id)] = look.showAllDay
             prefs[boolKey("days_ahead", id)] = look.showDaysAhead
             prefs[boolKey("second_zone", id)] = look.showSecondZone
+            prefs[boolKey("note", id)] = look.showNote
         }
     }
 

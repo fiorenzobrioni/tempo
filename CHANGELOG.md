@@ -10,6 +10,17 @@ All notable changes to Tempo are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **«In words», the event alone.** Turn off «The day’s note» in the widget’s settings and a widget
+  two rows high or more says only what comes next and when, and its clock face takes the room.
+
+### Changed
+
+- **«In words» keeps one dial.** At every size the clock face keeps one size all day, with
+  events or without. On a widget two cells wide and three rows high it is larger, with the date
+  on its own line over the event.
+
 ## [1.1.0] - 2026-11-02
 
 **A second clock, your events' own time zones, two weeks ahead, and Today on a tablet**, with

@@ -86,6 +86,7 @@ object WidgetConfigTags {
     const val EVENT_TAP = "widget_config_event_tap"
     const val SIZES = "widget_config_sizes"
     const val SECOND_ZONE = "widget_config_second_zone"
+    const val NOTE = "widget_config_note"
 }
 
 /** The second clock's city, as Tempo's settings chose it, in the app's language; null with none. */
@@ -212,6 +213,16 @@ fun WidgetConfigScreen(
                         ),
                         checked = look.showDaysAhead,
                         onChange = { onLook(look.copy(showDaysAhead = it)) },
+                    )
+                }
+                if (kind == WidgetKind.WORDS) {
+                    GroupDivider()
+                    SwitchRow(
+                        label = stringResource(R.string.widget_config_note),
+                        note = stringResource(R.string.widget_config_note_note),
+                        checked = look.showNote,
+                        onChange = { onLook(look.copy(showNote = it)) },
+                        modifier = Modifier.testTag(WidgetConfigTags.NOTE),
                     )
                 }
                 // With no city chosen in Tempo's settings there is no second clock to show: no switch.

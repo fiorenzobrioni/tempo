@@ -77,6 +77,43 @@ class WidgetGalleryTest {
         board.draw().saveTo(out, "widget-words-tall")
     }
 
+    /**
+     * The owner's two-by-two (188 x 218 dp, from the phone's screenshots, 5 Nov 2026): a title too
+     * long for one line keeps its second line under the family's circle; a free day; the sample.
+     */
+    @Test
+    fun `in words, the owner's two-by-two`() {
+        val board = HomeBoard(context, widthDp = 420)
+        val longTitle = WidgetSamples.instances.map {
+            if (it.eventId == 3L) it.copy(title = "Book the winter tyre change at the garage") else it
+        }
+        board.row(
+            Grants.OwnersTwoByTwo to renderCard(context, Grants.OwnersTwoByTwo) {
+                WordsWidgetContent(WidgetSamples.model(instances = longTitle))
+            },
+            Grants.OwnersTwoByTwo to renderCard(context, Grants.OwnersTwoByTwo) {
+                WordsWidgetContent(WidgetSamples.model(instances = emptyList()))
+            },
+        )
+        board.row(
+            Grants.OwnersTwoByTwo to renderCard(context, Grants.OwnersTwoByTwo) {
+                WordsWidgetContent(WidgetSamples.model())
+            },
+            // The event alone: the dial at the family's ring's size without its sentence, the date
+            // over the title.
+            Grants.OwnersTwoByTwo to renderCard(context, Grants.OwnersTwoByTwo) {
+                WordsWidgetContent(WidgetSamples.model(look = WidgetLook(showNote = false), instances = longTitle))
+            },
+        )
+        val brief = WidgetSamples.model(look = WidgetLook(showNote = false))
+        board.row(
+            Grants.TwoByTwo to renderCard(context, Grants.TwoByTwo) { WordsWidgetContent(brief) },
+            Grants.TwoByThree to renderCard(context, Grants.TwoByThree) { WordsWidgetContent(brief) },
+        )
+        board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { WordsWidgetContent(brief) })
+        board.draw().saveTo(out, "widget-words-owners")
+    }
+
     @Test
     fun `the pair side by side, in every dress`() {
         val looks = listOf(
