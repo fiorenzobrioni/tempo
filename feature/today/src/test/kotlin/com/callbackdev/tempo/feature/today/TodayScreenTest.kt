@@ -365,7 +365,7 @@ class TodayScreenTest {
     fun `the clock face says what it shows`() {
         draw()
         compose.onNodeWithTag(TodayTags.DIAL)
-            .assert(hasContentDescription("Clock face at 10:20, with the next twelve hours’ events on its ring"))
+            .assert(hasContentDescription("Clock face at 10:20, with what is left of today on its ring"))
     }
 
     @Test

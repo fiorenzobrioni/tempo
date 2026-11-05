@@ -22,7 +22,7 @@
     <string name="guide_today_dial_description">An example clock face at twenty past ten, with a meeting under way until eleven and two more events later in the day</string>
     <string name="guide_today_dial_caption">An example: twenty past ten, a meeting under way until eleven in the accent, two more events later in the day, each in its calendar’s colour.</string>
     <string name="guide_today_dial_title">The dial</string>
-    <string name="guide_today_dial_body">Beside the time, a clock face with the next twelve hours on its ring: what comes next in the accent, the rest quieter, each in its calendar’s colour. The hour hand walks through a meeting as it goes. It is the face of the «In words» widget.</string>
+    <string name="guide_today_dial_body">Beside the time, a clock face with what is left of today on its ring: what comes next in the accent, the rest quieter, each in its calendar’s colour. The hour hand walks through a meeting as it goes; another day’s events are in the list, not on the face. It is the face of the «In words» widget.</string>
     <string name="guide_today_timeline_title">The day in order</string>
     <string name="guide_today_timeline_body">Today’s events one under the other, each with its calendar’s colour as a mark. The one under way says how long is left; the ones that are over grow quieter, and two or more of them fold into one line that opens. A line marks now.</string>
     <string name="guide_today_free_title">Free time</string>

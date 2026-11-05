@@ -270,9 +270,9 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
         )
     }
 
-    /** The day's arcs on the dial: the focus and what else is still to come in its twelve hours. */
+    /** The day's arcs on the dial: what is left of today in its twelve hours, the focus among it. */
     val arcs: List<DialArc> = if (agenda != null && day != null) {
-        DialArcs.of(agenda, day.focus, model.now.zone, look.showDaysAhead)
+        DialArcs.of(agenda, day.focus, model.now.zone)
     } else {
         emptyList()
     }

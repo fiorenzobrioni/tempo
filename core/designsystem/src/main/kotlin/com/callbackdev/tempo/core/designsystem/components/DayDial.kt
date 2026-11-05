@@ -36,7 +36,7 @@ import kotlin.math.sin
 
 /**
  * The «In words» card's dial, on Today (PLANNING.md §15, 9 Oct 2026): a clock face in the launcher
- * icon's ring, with the next twelve hours' events as arcs on it ([DialArcs]) and the hands at [faceMinutes]
+ * icon's ring, with what is left of today as arcs on it ([DialArcs]) and the hands at [faceMinutes]
  * (minutes from twelve o'clock, 0 until 720). The same geometry as the card's ([DialGeometry]), so
  * the home screen and the app show one clock.
  *

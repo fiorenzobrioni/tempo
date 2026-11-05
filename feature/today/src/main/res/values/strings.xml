@@ -4,7 +4,7 @@
     <string name="today_open_calendar">Open your calendar</string>
     <string name="today_open_day">Open the day in your calendar</string>
     <string name="today_open_clock">Open the clock app</string>
-    <string name="today_dial">Clock face at %1$s, with the next twelve hours’ events on its ring</string>
+    <string name="today_dial">Clock face at %1$s, with what is left of today on its ring</string>
     <string name="today_new_event">New event</string>
     <string name="today_now">Now</string>
     <string name="today_tomorrow">Tomorrow</string>
@@ -51,7 +51,7 @@
 
     <!-- The first day's tip, under the clock until it is dismissed or the guide is opened from it. -->
     <string name="today_tip_title">How to read the dial</string>
-    <string name="today_tip_body">Its ring holds the next twelve hours: what comes next in the accent, the rest in their calendars’ colours. The guide explains the rest of the page.</string>
+    <string name="today_tip_body">Its ring holds what is left of today: what comes next in the accent, the rest in their calendars’ colours. The guide explains the rest of the page.</string>
     <string name="today_tip_open">Open the guide</string>
     <string name="today_tip_dismiss">Got it</string>
 </resources>

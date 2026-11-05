@@ -61,7 +61,7 @@ launcher draws them, on a stand-in wallpaper. The command that redraws them is i
 
 For 1.1 ([VISION.md](./VISION.md) has the full scope):
 
-- 🕓 **Today**: the time large beside a clock face with the next twelve hours' events on its ring, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
+- 🕓 **Today**: the time large beside a clock face with what is left of today's events on its ring, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
 - 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and your next free hour (a touch starts an event there), then the rest of the week a card a day (or two weeks, if you like), empty days said once.
 - 📱 **On a tablet**, or a foldable open wide: the clock and a larger dial on one side, the agenda beside them, each scrolling on its own.
 - ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow. A touch opens your clock app.

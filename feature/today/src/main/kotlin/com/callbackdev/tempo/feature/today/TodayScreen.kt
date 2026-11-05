@@ -243,7 +243,7 @@ class TodayActions(
 /**
  * Today (VISION.md, Today; PLANNING.md §11 Phase 3, reviewed on 9 Oct 2026, §15): the date and
  * the page's two doors on top, the time as the hero beside the day's clock face (the «In words»
- * card's dial, with the next twelve hours' events on its ring), the next alarm and the day in one
+ * card's dial, with what is left of today on its ring), the next alarm and the day in one
  * sentence, on the glow; then today's events, with the past folded and "now"
  * drawn as a line; then the days ahead, each on its own card: tomorrow in full, the rest of the
  * week a line an event, and a run of empty days said once. The new-event button stays out of the
@@ -827,7 +827,7 @@ private fun SecondClock(state: TodayUiState, text: AgendaText) {
  */
 private fun dialArcs(content: TodayContent.Ready, showAllDay: Boolean, zone: ZoneId): List<DialArc> {
     val focus = WordsDay.of(content.agenda, showAllDay = showAllDay, showDaysAhead = true).focus
-    return DialArcs.of(content.agenda, focus, zone, showDaysAhead = true, calendars = content.calendars)
+    return DialArcs.of(content.agenda, focus, zone, calendars = content.calendars)
 }
 
 /**

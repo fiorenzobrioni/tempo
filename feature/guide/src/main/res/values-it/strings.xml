@@ -22,7 +22,7 @@
     <string name="guide_today_dial_description">Un quadrante d’esempio alle dieci e venti, con una riunione in corso fino alle undici e altri due impegni più tardi</string>
     <string name="guide_today_dial_caption">Un esempio: le dieci e venti, una riunione in corso fino alle undici nel colore d’accento, altri due impegni più tardi, ognuno nel colore del suo calendario.</string>
     <string name="guide_today_dial_title">Il quadrante</string>
-    <string name="guide_today_dial_body">Accanto all’ora, un quadrante con le prossime dodici ore sul suo anello: quello che viene dopo nel colore d’accento, il resto più tenue, ognuno nel colore del suo calendario. La lancetta delle ore attraversa una riunione mentre passa. È il quadrante del widget «In parole».</string>
+    <string name="guide_today_dial_body">Accanto all’ora, un quadrante con quello che resta di oggi sul suo anello: quello che viene dopo nel colore d’accento, il resto più tenue, ognuno nel colore del suo calendario. La lancetta delle ore attraversa una riunione mentre passa; gli impegni degli altri giorni sono nell’elenco, non sul quadrante. È il quadrante del widget «In parole».</string>
     <string name="guide_today_timeline_title">La giornata in ordine</string>
     <string name="guide_today_timeline_body">Gli impegni di oggi uno sotto l’altro, ognuno con il colore del suo calendario come segno. Quello in corso dice quanto manca; quelli finiti si fanno più tenui, e da due in su si raccolgono in una riga che si apre. Una linea segna l’adesso.</string>
     <string name="guide_today_free_title">Il tempo libero</string>

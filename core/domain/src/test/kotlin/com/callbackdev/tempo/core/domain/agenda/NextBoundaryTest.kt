@@ -33,12 +33,19 @@ class NextBoundaryTest {
     }
 
     @Test
-    fun `with the dial on a home screen, an event coming onto its face is a boundary`() {
-        // At 20:00 the face shows until 07:30: the 08:00 meeting comes onto it at 20:30, not at midnight.
+    fun `with the dial on a home screen, an event of today coming onto its face is a boundary`() {
+        // At 08:00 the face shows until 19:30: the 20:00 dinner comes onto it at 08:30, not at 20:00.
+        val dinner = timed(1, "2026-10-07T20:00", "2026-10-07T21:00")
+        val result = agenda(dinner, now = at("2026-10-07T08:00"))
+        assertThat(NextBoundary.after(result, Rome)).isEqualTo(at("2026-10-07T20:00"))
+        assertThat(NextBoundary.after(result, Rome, dial = true)).isEqualTo(at("2026-10-07T08:31"))
+    }
+
+    @Test
+    fun `tomorrow's event never comes onto the face, so it wakes no evening card`() {
         val tomorrow = timed(1, "2026-10-08T08:00", "2026-10-08T09:00")
         val result = agenda(tomorrow, now = at("2026-10-07T20:00"))
-        assertThat(NextBoundary.after(result, Rome)).isEqualTo(at("2026-10-08T00:00"))
-        assertThat(NextBoundary.after(result, Rome, dial = true)).isEqualTo(at("2026-10-07T20:31"))
+        assertThat(NextBoundary.after(result, Rome, dial = true)).isEqualTo(at("2026-10-08T00:00"))
     }
 
     @Test
@@ -51,11 +58,11 @@ class NextBoundaryTest {
 
     @Test
     fun `the face is the wall clock, the night the clocks go back too`() {
-        // 08:00 on 25 October is 12 h 29 min of real time after 20:31 the evening before, and 11 h 29 min
-        // on the face: it comes onto the face at 20:31, as on any other evening.
-        val sunday = timed(1, "2026-10-25T08:00", "2026-10-25T09:00")
-        val result = agenda(sunday, now = at("2026-10-24T20:00"))
-        assertThat(NextBoundary.after(result, Rome, dial = true)).isEqualTo(at("2026-10-24T20:31"))
+        // 13:00 on 25 October is 12 h 29 min of real time after 01:31, and 11 h 29 min on the
+        // face: it comes onto the face at 01:31, the hour before the clocks repeat theirs.
+        val lunch = timed(1, "2026-10-25T13:00", "2026-10-25T14:00")
+        val result = agenda(lunch, now = at("2026-10-25T00:00"))
+        assertThat(NextBoundary.after(result, Rome, dial = true)).isEqualTo(at("2026-10-25T01:31"))
     }
 
     @Test
