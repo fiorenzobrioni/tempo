@@ -10,6 +10,11 @@ All notable changes to Tempo are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **«In words», the event alone.** Turn off «The day’s note» in the widget’s settings and a widget
+  two rows high or more says only what comes next and when, and its clock face takes the room.
+
 ### Changed
 
 - **«In words» keeps one dial.** At every size the clock face keeps one size all day, with

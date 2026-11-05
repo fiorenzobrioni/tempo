@@ -99,7 +99,18 @@ class WidgetGalleryTest {
             Grants.OwnersTwoByTwo to renderCard(context, Grants.OwnersTwoByTwo) {
                 WordsWidgetContent(WidgetSamples.model())
             },
+            // The event alone: the dial at the family's ring's size without its sentence, the date
+            // over the title.
+            Grants.OwnersTwoByTwo to renderCard(context, Grants.OwnersTwoByTwo) {
+                WordsWidgetContent(WidgetSamples.model(look = WidgetLook(showNote = false), instances = longTitle))
+            },
         )
+        val brief = WidgetSamples.model(look = WidgetLook(showNote = false))
+        board.row(
+            Grants.TwoByTwo to renderCard(context, Grants.TwoByTwo) { WordsWidgetContent(brief) },
+            Grants.TwoByThree to renderCard(context, Grants.TwoByThree) { WordsWidgetContent(brief) },
+        )
+        board.row(Grants.FourByTwo to renderCard(context, Grants.FourByTwo) { WordsWidgetContent(brief) })
         board.draw().saveTo(out, "widget-words-owners")
     }
 

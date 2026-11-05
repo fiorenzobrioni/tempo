@@ -52,6 +52,11 @@ enum class WordsForm { CELL, ROW, TALL }
  * @property rowTimeEm the widest of those rows' times ("13:00"), in ems of the regular face.
  * @property secondEm the second clock's widest line ("New York 23:58"), in ems of the regular
  *   face; 0 where the card does not show one (step 8.5).
+ * @property note the reader's choice to show the day's note and what follows it on a tall card
+ *   (the title's second line, the next events as rows, the line of times); off, a tall card says
+ *   the event alone, its title on one line and its time, and its dial takes the band they leave
+ *   ([WordsFit.tallCircle]), the size the family's ring takes without its sentence (owner,
+ *   5 Nov 2026).
  */
 data class WordsSpec(
     val width: Float,
@@ -68,6 +73,7 @@ data class WordsSpec(
     val rows: Int = 0,
     val rowTimeEm: Float = 0f,
     val secondEm: Float = 0f,
+    val note: Boolean = true,
 )
 
 /**
@@ -292,9 +298,15 @@ object WordsFit {
         val width = spec.width - AgendaFit.CARD_PADDING * 2
         // A title a little too long for one line steps down to [TALL_TITLE_MIN_SP] to stay whole;
         // a longer one keeps its size and takes a second line where the card has one.
+        // With the event alone the title has one line: a long one at [TALL_TITLE_MIN_SP], to say more
+        // of it before its ellipsis.
         val fits = spThatFits(width, spec.titleEm, scale)
         val oneLine = fits >= TALL_TITLE_MIN_SP
-        val titleSp = if (oneLine) quarterPoint(minOf(TALL_TITLE_SP, fits)) else TALL_TITLE_SP
+        val titleSp = when {
+            oneLine -> quarterPoint(minOf(TALL_TITLE_SP, fits))
+            spec.note -> TALL_TITLE_SP
+            else -> TALL_TITLE_MIN_SP
+        }
         val titleLine = lineHeight(titleSp, scale)
         var left = inner - titleLine
         val time = whenFor(spec, width, WHEN_SIZES)
@@ -307,7 +319,7 @@ object WordsFit {
         var dateOver = false
         var second = false
         if (spec.dial && left - DIAL_BOTTOM_GAP >= TALL_CIRCLE_MIN) {
-            val most = minOf(tallCircle(spec.width, spec.height, scale), left - DIAL_BOTTOM_GAP)
+            val most = minOf(tallCircle(spec.width, spec.height, scale, spec.note), left - DIAL_BOTTOM_GAP)
             dial = most
             if (withDate) {
                 fun beside(side: Float) = if (width - side - DIAL_GAP >= DATE_BESIDE_MIN) {
@@ -320,12 +332,14 @@ object WordsFit {
                     date = besideMost
                 } else {
                     // Too wide for the date's column: the date over the title, or beside a dial
-                    // made smaller for it, whichever dial is the larger; neither, and it goes.
+                    // made smaller for it, whichever dial is the larger; neither, and it goes. With
+                    // the event alone the dial is never made smaller for the date (owner, 5 Nov
+                    // 2026): over the title where it fits under the circle, else it goes.
                     val over = date(spec, width, Float.MAX_VALUE, twoLines = false)
                     val overDial = over?.let { minOf(most, left - DIAL_BOTTOM_GAP - it.height - DATE_OVER_GAP) } ?: 0f
                     val narrower = minOf(most, width - DIAL_GAP - DATE_BESIDE_MIN)
-                    val besideNarrower = beside(narrower)?.takeIf { narrower >= TALL_CIRCLE_MIN }
-                    val overFits = over != null && overDial >= TALL_CIRCLE_MIN
+                    val besideNarrower = beside(narrower)?.takeIf { narrower >= TALL_CIRCLE_MIN && spec.note }
+                    val overFits = over != null && overDial >= TALL_CIRCLE_MIN && (spec.note || overDial >= most)
                     when {
                         over != null && overFits && (besideNarrower == null || overDial >= narrower) -> {
                             date = over
@@ -369,7 +383,8 @@ object WordsFit {
         }
         // The note whole or not at all: a sentence cut off mid-phrase says less than none.
         val noteHeight = linesHeight(NOTE_SP, spec.noteLines, scale) + NOTE_GAP
-        val noteLines = if (spec.noteLines in 1..NOTE_MAX_LINES && left >= noteHeight) spec.noteLines else 0
+        val noteLines =
+            if (spec.note && spec.noteLines in 1..NOTE_MAX_LINES && left >= noteHeight) spec.noteLines else 0
         if (noteLines > 0) left -= noteHeight
         // The rest come where they fit with the dial at its comfort, as they did when the dial grew
         // to it first: a smaller circle leaves air, and a card keeps the words it held.
@@ -377,7 +392,7 @@ object WordsFit {
         var titleLines = 1
         // The title's second line, in the same Text as its first: the face's ascent and descent.
         val secondTitleLine = linesHeight(titleSp, 2, scale) - titleLine
-        if (!oneLine && spec.titleLines >= 2 && left >= secondTitleLine) {
+        if (spec.note && !oneLine && spec.titleLines >= 2 && left >= secondTitleLine) {
             left -= secondTitleLine
             titleLines = 2
         }
@@ -385,7 +400,7 @@ object WordsFit {
         // the time column, or an ellipsis says nothing.
         val rowTime = if (spec.rows > 0) widthOf(spec.rowTimeEm, ROW_SP, scale) else 0f
         val rowsHeight = lineHeight(ROW_SP, scale) * spec.rows + ROWS_GAP
-        val rows = if (spec.rows in 1..ROWS_MAX && width - rowTime - ROW_TIME_GAP >= ROW_TITLE_MIN &&
+        val rows = if (spec.note && spec.rows in 1..ROWS_MAX && width - rowTime - ROW_TIME_GAP >= ROW_TITLE_MIN &&
             left >= rowsHeight
         ) {
             spec.rows
@@ -393,7 +408,8 @@ object WordsFit {
             0
         }
         if (rows > 0) left -= rowsHeight
-        val then = rows == 0 && spec.then && width >= THEN_MIN_WIDTH && left >= lineHeight(NOTE_SP, scale)
+        val then = spec.note && rows == 0 && spec.then && width >= THEN_MIN_WIDTH &&
+            left >= lineHeight(NOTE_SP, scale)
         return WordsPlan(
             form = WordsForm.TALL,
             dial = quarterPoint(dial),
@@ -448,14 +464,19 @@ object WordsFit {
 
     /**
      * Two rows and up: the height inside the card left over a budgeted band of words
-     * ([TALL_WORDS_BAND], [WIDE_WORDS_BAND] from [WIDE_BAND_MIN_WIDTH]), never measured, between
+     * ([TALL_WORDS_BAND], [WIDE_WORDS_BAND] from [WIDE_BAND_MIN_WIDTH]; [EVENT_WORDS_BAND] where the
+     * reader keeps the card to the event, without its [note]), never measured, between
      * [TALL_CIRCLE_MIN] and the ceiling ([tallDialCeiling]) or the card's inner width, rounded down
      * to a quarter.
      */
-    fun tallCircle(width: Float, height: Float, fontScale: Float): Float {
+    fun tallCircle(width: Float, height: Float, fontScale: Float, note: Boolean = true): Float {
         val innerHeight = height - AgendaFit.CARD_PADDING * 2
         val innerWidth = width - AgendaFit.CARD_PADDING * 2
-        val band = if (width < WIDE_BAND_MIN_WIDTH) TALL_WORDS_BAND else WIDE_WORDS_BAND
+        val band = when {
+            !note -> EVENT_WORDS_BAND
+            width < WIDE_BAND_MIN_WIDTH -> TALL_WORDS_BAND
+            else -> WIDE_WORDS_BAND
+        }
         val most = minOf(tallDialCeiling(innerHeight, innerWidth), innerWidth)
         return quarterPoint((innerHeight - band * LINE_BOX_EM * fontScale).coerceIn(TALL_CIRCLE_MIN, most))
     }
@@ -534,6 +555,12 @@ object WordsFit {
      */
     const val TALL_WORDS_BAND = WidgetType.HERO + 3 * WidgetType.BODY
     const val WIDE_WORDS_BAND = WidgetType.HERO + 2 * WidgetType.BODY
+
+    /**
+     * The band of a card kept to the event: a figure's line and one line of text (66 dp at the
+     * default text size), the family's ring's without its sentence; the title and its time.
+     */
+    const val EVENT_WORDS_BAND = WidgetType.HERO + WidgetType.BODY
     const val WIDE_BAND_MIN_WIDTH = 230f
     const val TALL_CIRCLE_MIN = ROW_DIAL_MIN
     const val DATE_OVER_GAP = TOP_GAP

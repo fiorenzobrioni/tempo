@@ -230,6 +230,7 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             rows = rows,
             rowTimeEm = rowTimes.maxOfOrNull { textEm(context, it, TextWeight.REGULAR) } ?: 0f,
             secondEm = secondEm,
+            note = look.showNote,
         ),
     )
 

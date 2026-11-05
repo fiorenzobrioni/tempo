@@ -58,6 +58,9 @@ class WidgetFitTest {
         ),
         WidgetSamples.model(now = WidgetSamples.at("2026-10-11T23:00")),
         WidgetSamples.model(instances = longTitle),
+        // The event alone (owner, 5 Nov 2026): the dial takes the band, the date where it fits.
+        WidgetSamples.model(look = WidgetLook(showNote = false)),
+        WidgetSamples.model(look = WidgetLook(showNote = false), instances = longTitle),
         // The whole day left to say under the date: six events, from the run at 07:30.
         WidgetSamples.model(now = WidgetSamples.at("2026-10-07T05:00")),
         WidgetSamples.model(look = WidgetLook(clockFormat = ClockFormat.H12, dateStyle = DateStyle.NUMERIC)),
