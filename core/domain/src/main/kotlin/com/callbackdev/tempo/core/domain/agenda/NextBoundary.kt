@@ -15,8 +15,9 @@ import java.time.ZoneId
  *
  * With [dial], for an «In words» card on a home screen, the moment an event comes onto the dial's
  * face is one too ([DialArcs.comesOnTheFace]): the face shows the next hours from the moment it is
- * drawn, and an event that reaches them between two boundaries would wait for the next one, at
- * midnight in the evening, while the card's words already name it (review of 30 Oct 2026).
+ * drawn, and an event that reaches them between two boundaries would wait for the next one
+ * (review of 30 Oct 2026). Today's events only, as the face carries no other day's (owner,
+ * 5 Nov 2026): tomorrow's morning no longer wakes an evening's card for nothing.
  */
 object NextBoundary {
     fun after(agenda: Agenda, zone: ZoneId, dial: Boolean = false): Instant {
@@ -25,7 +26,7 @@ object NextBoundary {
             day.timed.map { it.event } + day.allDay.map { it.event }.filterNot { it.allDay }
         } + agenda.underWay
         val onTheFace = if (dial) {
-            agenda.days.flatMap { day -> day.timed.map { DialArcs.comesOnTheFace(it.event.begin, zone) } }
+            DialArcs.today(agenda).map { DialArcs.comesOnTheFace(it.begin, zone) }
         } else {
             emptyList()
         }

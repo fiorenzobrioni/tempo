@@ -21,30 +21,36 @@ import java.time.ZoneId
 data class DialArc(val from: Float, val sweep: Float, val focus: Boolean, val color: Int? = null)
 
 /**
- * The events the dial carries (PLANNING.md §7): the focus and whatever else is still to come in
- * the twelve hours the face can show, as arcs on its ring. The hands are the system's
- * `AnalogClock` and move on their own; the arcs change only where an event starts or ends, which
- * are the boundaries the card is redrawn at anyway. So the hour hand walks into a meeting's arc,
- * through it and out of it with no work by Tempo, and the dial is never wrong between redraws.
+ * The events the dial carries (PLANNING.md §7): what is left of today, the focus among it, as
+ * arcs on its ring. The hands are the system's `AnalogClock` and move on their own; the arcs
+ * change only where an event starts or ends, which are the boundaries the card is redrawn at
+ * anyway. So the hour hand walks into a meeting's arc, through it and out of it with no work by
+ * Tempo, and the dial is never wrong between redraws.
+ *
+ * Today only (owner, 5 Nov 2026): a face has no date, and a later day's event on it read as
+ * today's hours. Seen at 22:37, tomorrow's 08:00 to 18:00 sat just behind the hand, cut at the
+ * window's end two hours in: it read as something just over, beside "Nothing in the calendar
+ * today". When the words name a later day's event, the face is empty, as the day is. An event of
+ * today that runs past midnight is drawn whole: it is today's.
  *
  * A face shows twelve hours, so the window is cut short of them ([SPAN]): an arc that reached all
  * the way round would meet the hand from behind and read as now. It opens at the moment drawn,
  * or at the start of the event under way (up to [LOOK_BACK] before): the hand stands inside its
- * arc. What starts beyond the window is left off, never wrapped round onto the hours before it.
+ * arc. What starts beyond the window is left off, never wrapped round onto the hours before it;
+ * only early in the day can an event of today reach past it, and only there is an arc cut.
  *
  * The face is the clock on the wall, so the window and the arcs are measured in its time, not in
  * elapsed time: the night the clocks go forward, eleven real hours fill twelve on the face, and
  * an event across the jump ends on the face where the hand will be when it ends (Europe/Rome,
  * 28 March 2027). The night they go back, the hand walks an hour twice and an arc is an hour
  * shorter than the event. Measured in elapsed time, the window reached past the hand on the
- * first night, and an event at the same hour next morning read as now.
+ * first of those nights, and an event at the same hour that morning read as now.
  */
 object DialArcs {
     fun of(
         agenda: Agenda,
         focus: WordsFocus,
         zone: ZoneId,
-        showDaysAhead: Boolean,
         calendars: Map<Long, CalendarInfo> = emptyMap(),
     ): List<DialArc> {
         val focused = when (focus) {
@@ -57,12 +63,8 @@ object DialArcs {
         } else {
             agenda.now
         }
-        val today = agenda.days.firstOrNull()
-        val events = buildList {
-            today?.timed?.filter { it.state != EntryState.PAST }?.forEach { add(it.event) }
-            if (showDaysAhead) agenda.days.drop(1).forEach { day -> day.timed.forEach { add(it.event) } }
-            focused?.let { add(it) }
-        }.distinctBy { it.eventId to it.begin }
+        // The focus is among them when it is today's: under way, or next today. A later day's is not.
+        val events = today(agenda).distinctBy { it.eventId to it.begin }
         return events.mapNotNull { event ->
             arc(
                 event,
@@ -74,6 +76,10 @@ object DialArcs {
             )
         }.sortedBy { it.focus }
     }
+
+    /** What the face may carry: today's timed events not yet over. */
+    fun today(agenda: Agenda): List<EventInstance> =
+        agenda.days.firstOrNull()?.timed.orEmpty().filter { it.state != EntryState.PAST }.map { it.event }
 
     private fun arc(event: EventInstance, opens: Instant, zone: ZoneId, focus: Boolean, color: Int?): DialArc? {
         val end = maxOf(event.end, event.begin)

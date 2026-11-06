@@ -72,13 +72,10 @@ class WordsTest {
 
     // --- The dial ---------------------------------------------------------------------------------
 
-    private fun arcs(
-        vararg events: com.callbackdev.tempo.core.model.EventInstance,
-        now: String,
-        ahead: Boolean = true,
-    ) = agenda(*events, now = at(now)).let { agenda ->
-        DialArcs.of(agenda, WordsDay.of(agenda, true, ahead).focus, Rome, ahead)
-    }
+    private fun arcs(vararg events: com.callbackdev.tempo.core.model.EventInstance, now: String) =
+        agenda(*events, now = at(now)).let { agenda ->
+            DialArcs.of(agenda, WordsDay.of(agenda, true, showDaysAhead = true).focus, Rome)
+        }
 
     @Test
     fun `the dial carries the event under way from its start, and what is still to come`() {
@@ -98,7 +95,7 @@ class WordsTest {
         val personal = calendar(1).copy(color = green)
         val tinted = dentist.copy(color = orange)
         val agenda = agenda(standup, tinted, gym, now = at("2026-10-07T10:05"), calendars = listOf(personal))
-        val result = DialArcs.of(agenda, WordsDay.of(agenda, true, true).focus, Rome, true, mapOf(1L to personal))
+        val result = DialArcs.of(agenda, WordsDay.of(agenda, true, true).focus, Rome, mapOf(1L to personal))
         // The standup (the focus, last) and the gym have no colour of their own: their calendar's.
         assertThat(result.map { it.from to it.color }).containsExactly(
             180f to orange,
@@ -114,8 +111,8 @@ class WordsTest {
         val tinted = dentist.copy(color = 0xFFF4511E.toInt())
         val agenda = agenda(standup, tinted, now = at("2026-10-07T10:05"))
         val focus = WordsDay.of(agenda, true, true).focus
-        val card = DialArcs.of(agenda, focus, Rome, true)
-        val today = DialArcs.of(agenda, focus, Rome, true, mapOf(1L to calendar(1)))
+        val card = DialArcs.of(agenda, focus, Rome)
+        val today = DialArcs.of(agenda, focus, Rome, mapOf(1L to calendar(1)))
         assertThat(card.map { it.copy(color = null) }).isEqualTo(today.map { it.copy(color = null) })
         assertThat(card.map { it.color }).containsExactly(0xFFF4511E.toInt(), null).inOrder()
     }
@@ -127,15 +124,30 @@ class WordsTest {
     }
 
     @Test
-    fun `nothing past and nothing beyond the face's hours`() {
-        // At 20:00 the dentist is over and the call is 37 hours away: an empty face.
+    fun `nothing past and no other day`() {
+        // At 20:00 the dentist is over and the call is in two days: an empty face.
         assertThat(arcs(dentist, call, now = "2026-10-07T20:00")).isEmpty()
-        // At 23:00 tomorrow morning is on the face, at its own hour, ahead of the hand.
+        // At 23:00 tomorrow's 08:00 would sit at 8 o'clock, just behind the hand, as if just over.
         val early = timed(6, "2026-10-08T08:00", "2026-10-08T09:00", title = "Early")
-        assertThat(arcs(early, now = "2026-10-07T23:00"))
-            .containsExactly(DialArc(from = 480f, sweep = 60f, focus = true))
-        // Without the days ahead, tomorrow is not drawn.
-        assertThat(arcs(early, now = "2026-10-07T23:00", ahead = false)).isEmpty()
+        assertThat(arcs(early, now = "2026-10-07T23:00")).isEmpty()
+    }
+
+    @Test
+    fun `tomorrow's event is not on the face even as the focus, nor cut short`() {
+        // The owner's evening (5 Nov 2026): nothing left today, tomorrow 08:00 to 18:00. The words
+        // name it; the face drew 8 to 10 o'clock of it, behind the hand, beside "nothing today".
+        val tyres = timed(6, "2026-10-08T08:00", "2026-10-08T18:00", title = "Tyres")
+        val agenda = agenda(tyres, now = at("2026-10-07T22:37"))
+        val focus = WordsDay.of(agenda, true, showDaysAhead = true).focus
+        assertThat(focus).isEqualTo(WordsFocus.Next(tyres, LocalDate.parse("2026-10-08"), today = false))
+        assertThat(DialArcs.of(agenda, focus, Rome)).isEmpty()
+    }
+
+    @Test
+    fun `an event of today that runs past midnight is drawn whole`() {
+        val late = timed(6, "2026-10-07T22:00", "2026-10-08T01:00", title = "Late")
+        assertThat(arcs(late, now = "2026-10-07T20:00"))
+            .containsExactly(DialArc(from = 600f, sweep = 180f, focus = true))
     }
 
     @Test
@@ -147,18 +159,23 @@ class WordsTest {
         assertThat(arc.from).isEqualTo(480f)
         assertThat(arc.sweep).isEqualTo(690f)
         assertThat(arc.sweep).isLessThan(DialArcs.FACE_MINUTES)
+        // Early in the day an event of today can reach past the window: cut there, or it would
+        // cross the hand. At 07:00, 13:00 to 20:00 stops at 18:30.
+        val afternoon = timed(8, "2026-10-07T13:00", "2026-10-07T20:00", title = "Afternoon")
+        assertThat(arcs(afternoon, now = "2026-10-07T07:00"))
+            .containsExactly(DialArc(from = 60f, sweep = 330f, focus = true))
     }
 
     @Test
     fun `the night the clocks go forward, twelve hours on the face are eleven real ones`() {
-        // Europe/Rome, 28 March 2027: 02:00 becomes 03:00. From 20:00 the evening before, 08:00
-        // is eleven hours away, but on the face it sits under the hand, twelve hours round: it is
-        // not drawn, or it would read as now.
-        val early = timed(9, "2027-03-28T08:00", "2027-03-28T09:00", title = "Early")
-        assertThat(arcs(early, now = "2027-03-27T20:00")).isEmpty()
-        // 07:30 is eleven and a half hours of the face away: at the edge of the window, still out.
-        val earlier = timed(10, "2027-03-28T07:30", "2027-03-28T09:00", title = "Earlier")
-        assertThat(arcs(earlier, now = "2027-03-27T20:00")).isEmpty()
+        // Europe/Rome, 28 March 2027: 02:00 becomes 03:00. From 00:30, noon is ten and a half real
+        // hours away, but on the face it sits under the hand, twelve hours round, less the gap: it
+        // is not drawn, or it would read as now. 11:00 is in the window.
+        val noon = timed(9, "2027-03-28T12:00", "2027-03-28T13:00", title = "Noon")
+        assertThat(arcs(noon, now = "2027-03-28T00:30")).isEmpty()
+        val eleven = timed(10, "2027-03-28T11:00", "2027-03-28T12:00", title = "Eleven")
+        assertThat(arcs(eleven, now = "2027-03-28T00:30"))
+            .containsExactly(DialArc(from = 660f, sweep = 60f, focus = true))
     }
 
     @Test
@@ -172,13 +189,13 @@ class WordsTest {
 
     @Test
     fun `the night the clocks go back, twelve hours on the face are thirteen real ones`() {
-        // America/New_York, 1 November 2026: 02:00 becomes 01:00. From 20:00 the 07:00 of the next
-        // morning is twelve real hours away and eleven on the face, ahead of the hand: it is drawn,
-        // up to the window's end half an hour short of the hand.
-        val early = timed(12, "2026-11-01T07:00", "2026-11-01T08:00", zone = NewYork, title = "Early")
-        val agenda = agenda(early, now = at("2026-10-31T20:00", NewYork), zone = NewYork)
-        val result = DialArcs.of(agenda, WordsDay.of(agenda, true, true).focus, NewYork, true)
-        assertThat(result).containsExactly(DialArc(from = 420f, sweep = 30f, focus = true))
+        // America/New_York, 1 November 2026: 02:00 becomes 01:00. From midnight 11:00 is twelve
+        // real hours away and eleven on the face, ahead of the hand: it is drawn, up to the
+        // window's end half an hour short of the hand.
+        val late = timed(12, "2026-11-01T11:00", "2026-11-01T12:00", zone = NewYork, title = "Late")
+        val agenda = agenda(late, now = at("2026-11-01T00:00", NewYork), zone = NewYork)
+        val result = DialArcs.of(agenda, WordsDay.of(agenda, true, true).focus, NewYork)
+        assertThat(result).containsExactly(DialArc(from = 660f, sweep = 30f, focus = true))
     }
 
     @Test
@@ -187,7 +204,7 @@ class WordsTest {
         val zone = java.time.ZoneId.of("Australia/Lord_Howe")
         val call = timed(13, "2026-10-04T01:45", "2026-10-04T02:45", zone = zone, title = "Call")
         val agenda = agenda(call, now = at("2026-10-04T01:00", zone), zone = zone)
-        val result = DialArcs.of(agenda, WordsDay.of(agenda, true, true).focus, zone, true)
+        val result = DialArcs.of(agenda, WordsDay.of(agenda, true, true).focus, zone)
         assertThat(result).containsExactly(DialArc(from = 105f, sweep = 60f, focus = true))
     }
 

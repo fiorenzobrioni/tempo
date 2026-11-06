@@ -20,6 +20,9 @@ All notable changes to Tempo are documented here. The format follows
 - **«In words» keeps one dial.** At every size the clock face keeps one size all day, with
   events or without. On a widget two cells wide and three rows high it is larger, with the date
   on its own line over the event.
+- **The clock face shows today only.** Today's clock face and the «In words» widget's carry what
+  is left of today. A later day's events are in the list and in the words, no longer on the
+  face, where tomorrow morning's read as tonight's hours and were cut short.
 
 ## [1.1.0] - 2026-11-02
 

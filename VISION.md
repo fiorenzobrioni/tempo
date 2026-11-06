@@ -78,9 +78,9 @@ app the reader already uses.
   wobble, each figure rolling to its next value as the minute changes), the date above it in the
   page's top row, both in the reader's format. Digital (Key decisions), beside the dial.
 - **The dial**: the «In words» card's clock face beside the time (the owner's review of 9 Oct
-  2026): the next twelve hours' events as arcs on its ring, what comes next in the accent, the
-  others quieter in their calendars' colours (as the list's marks, review of 30 Oct 2026), the
-  hands moving with the minute. When the page opens the hands wind forward to now and the arcs
+  2026): what is left of today as arcs on its ring (today only: owner, 5 Nov 2026), what comes
+  next in the accent, the others quieter in their calendars' colours (as the list's marks, review
+  of 30 Oct 2026), the hands moving with the minute. When the page opens the hands wind forward to now and the arcs
   draw themselves, in one short movement.
 - **The day's sentence**, before any list.
 - **The next alarm**: "Alarm tomorrow at 7:00", from the system's own next alarm clock, which
@@ -178,7 +178,7 @@ The family's card in words, for a reader who wants to know where the day stands 
 its list. Redesigned around a dial after the first cards on the phone (owner, 8 Oct 2026).
 
 - **A dial where Passo's card has its ring**: the system's own hands, and on the ring what comes
-  next as an arc from its start to its end, the rest of the next twelve hours quieter. The hour
+  next as an arc from its start to its end, the rest of today quieter. The hour
   hand walks into the meeting, through it and out of it by itself: a progress no other calendar
   widget shows, at no cost to the battery (the arcs change only where an event starts or ends).
 - **What comes next, in words**: its title, and when ("Until 11:00", "15:00 – 15:45",
