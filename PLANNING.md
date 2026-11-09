@@ -435,6 +435,7 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [ ] **Baseline Profile, if start-up measures slow** (Phase 5's one open box, carried from archive 01, §11, Phase 5; §1's "Baseline Profiles later"). The log records no measure of start-up; the work opens when one finds it slow.
 - [ ] **«Join», on hold** (step 8.4; owner, 30 Oct 2026: "not a priority; I want to weigh it again in the future"). A video call's link on Today's event under way or about to start, opened by a button; nothing of it is built. Its plan, to start from: `docs/planning/02-phase-8.md`, §11, Phase 8, step 8.4.
 - [x] **The new icon on the phone** (§15, 9 Nov 2026, «The new icon: the day's page and the clock»): the launcher icon in the phone's own mask, the themed icon, the «New event» shortcut. Done by the owner on 9 Nov 2026 (§15, «The new icon checked on the phone»).
+- [ ] **The «New event» shortcut as an adaptive icon, on the phone** (§15, 9 Nov 2026, «The «New event» shortcut, an adaptive icon»): long press on the icon, in the phone's own mask and with the themed icons on.
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
@@ -563,3 +564,23 @@ drawing: 0.6% of the badge's pixels differ, all at the edges (the antialiasing).
 The owner merged the icon's PR and checked the APK on the phone ("Ho mergiato anche la PR 149 e
 anche le PR degli altri repo. Ho verificato gli APK."; then "segna le caselle"). The box in §15's
 Open list is ticked; nothing else changes.
+
+### The «New event» shortcut, an adaptive icon (owner, 9 Nov 2026)
+
+**Where it comes from.** Seeing the shortcuts of Tempo and Passo on the phone, the owner found a
+circle with white around it ("ora vedo un cerchio e intorno bianco"), then asked for them to be
+adaptive ("Fai adattive per Saldo e anche gli altri due repo"). The shortcut drawn as a coral
+disc («The new icon: the day's page and the clock», above, which this entry changes) kept its
+shape only under a round mask: under any other the launcher shrank it onto a white plate, as it
+does with any icon that is not adaptive.
+
+**What it is.** `ic_shortcut_new_event` is now an `<adaptive-icon>`: the launcher icon's ground
+(`ic_launcher_background`, written by `tools/draw_launcher_icon.py`) under the page and plus in
+white (`ic_shortcut_new_event_foreground`, its 24 units at 55% of the 72 that show, the share it
+had on the disc), the glyph again as the themed layer. `NewEventShortcut` loads it by its
+resource as before. The family's rule for the launcher's shortcuts is now the white glyph on the
+app's colour, in the launcher's own shape.
+
+**Checked.** The layers drawn in a round, a rounded-square and a squircle mask and as the themed
+icon; `spotlessCheck`, `:app:checkForbiddenPermissions`, `:app:assembleDebug`, `:app:lintDebug`.
+On the phone: the Open list.
