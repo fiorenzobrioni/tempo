@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The "New event" shortcut's mark (PLANNING.md §8): TempoIcons.Plus inside the calendar page
-     (TempoIcons.Calendar) in the launcher ring's cobalt (tools/draw_launcher_icon.py, its
-     deep end, 7.6:1 on the warm white), on its warm white (ic_launcher_background).
-     Launchers draw shortcut icons as they are. -->
+     (TempoIcons.Calendar) in white, on a disc of the launcher icon's coral, lit from the upper
+     left as the icon's ground is (tools/draw_launcher_icon.py). Launchers draw shortcut icons
+     as they are. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="48dp"
     android:height="48dp"
     android:viewportWidth="48"
     android:viewportHeight="48">
-    <path
-        android:fillColor="#FFF7F4EE"
-        android:pathData="M24,24m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0" />
+    <path android:pathData="M24,24m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="48"
+                android:endY="48">
+                <item android:offset="0" android:color="#FFFF8E74" />
+                <item android:offset="1" android:color="#FFD3432F" />
+            </gradient>
+        </aapt:attr>
+    </path>
     <group
         android:scaleX="1.1"
         android:scaleY="1.1"
@@ -18,8 +29,8 @@
         android:translateY="10.8">
         <path
             android:fillColor="#00000000"
-            android:strokeColor="#FF2140C8"
-            android:strokeWidth="1.8"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="1.9"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"
             android:pathData="M6,5L18,5C19.1,5 20,5.9 20,7L20,18C20,19.1 19.1,20 18,20L6,20C4.9,20 4,19.1 4,18L4,7C4,5.9 4.9,5 6,5Z M4,9.5L20,9.5 M8,3L8,6.5 M16,3L16,6.5 M12,12L12,17.5 M9.25,14.75L14.75,14.75" />

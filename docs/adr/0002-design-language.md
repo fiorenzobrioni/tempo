@@ -55,6 +55,22 @@ shortest way to the same look, and keeps one drawing of each thing in the family
    tick at launcher size); since 18 Oct 2026 (owner, the family's icon review) both start at the
    centre and have round ends, which make the hub where they meet. The monochrome layer restates the same shapes for themed icons, and
    `ic_app_mark.xml` (`:core:designsystem`) was the ring and the clock face on no ground, for the welcome page (the whole icon cropped round until 10 Oct 2026, owner); since 18 Oct 2026 the first run shows no icon (the family's onboarding frame, PLANNING.md §15) and the drawing is gone.
+
+   **Redrawn on 9 Nov 2026, with the whole family** (owner: the four marks redrawn from scratch
+   as one series, full frame in Android's style, clean when small, flat, the light from one side,
+   one palette; PLANNING.md §15, 9 Nov 2026). The ring and its emblem are gone. The badge's ground
+   is the app's colour, **coral** (`FF8E74` to `F0604A` to `D3432F`), lit from the upper left; on
+   it **the day's page**, white with three lines in the coral's light tone, and in front of it at
+   the lower right **an amber clock** with its hands cut white (the minute hand at twelve, the
+   hour hand towards four, round ended, as before), a band of the ground between the two. The
+   family's rules, the same in the four apps: the app's colour as the ground, a white symbol with
+   one amber accent (`FFD36A` to `FDB528`), every shape a ramp from its light tone at the upper
+   left, no shadow, and the whole symbol within 28 units of the centre, a 56 dp circle on the 72
+   that show, so a round mask leaves 8 dp of air. The page is the heavier half, so the drawing
+   stands 1.6 units right of the middle of its box (owner: centred by its box it looked off to the
+   left). The ground is a drawing now, `ic_launcher_background.xml`, where it was the colour
+   `#F7F4EE`; the «New event» shortcut's page and plus are white on the same coral; the README's
+   badges take the coral's deep tone, `D3432F`.
 7. **Tests carried over**: `TypographyTest` (every Material role follows the typeface setting)
    and `ContrastTest` (every text ink at 4.5:1 on every ground, in both dresses and themes), and
    the shared UI checks of `:core:testing` (`assertAccessible`, `walkPage`).
