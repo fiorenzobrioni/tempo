@@ -18,7 +18,7 @@ All notable changes to Tempo are documented here. The format follows
 ### Changed
 
 - **A new icon**: the day's page with a clock in front of it, on coral. The «New event» shortcut
-  follows it.
+  follows it, in the same shape as your launcher's icons.
 
 - **«In words» keeps one dial.** At every size the clock face keeps one size all day, with
   events or without. On a widget two cells wide and three rows high it is larger, with the date
