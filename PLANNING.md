@@ -434,6 +434,7 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [ ] **«In words» two rows high: may the words rise beside the dial?** (30 Oct 2026, step 8.3.) The tall card budgets its height as if the dial took the card's whole width, so on the three- and four-by-two the leading side under the date, beside the dial, stays empty (about 65 dp of 161 on the four-by-two at 10:20), and the next events do not fit under the words. The words hang from the bottom; they could rise beside the dial wherever each line beside it is narrower than the room the dial leaves (on the four-by-two at 10:20 about 215 dp: the title and its time beside the dial, the note and the next two events under it, the dial kept at its 73.75 dp, the family's circle since 4 Nov 2026). Options: (a) as now, the rows on three rows and up; (b) the words rise beside the dial, the two-row cards listing the next events where their lines fit beside it. The two-by-two gains nothing either way: beside its 52.75 dp dial (the tall circle since 4 Nov 2026; it was 63) the room is 66 dp, the date's. Asked of the owner; not built.
 - [ ] **Baseline Profile, if start-up measures slow** (Phase 5's one open box, carried from archive 01, §11, Phase 5; §1's "Baseline Profiles later"). The log records no measure of start-up; the work opens when one finds it slow.
 - [ ] **«Join», on hold** (step 8.4; owner, 30 Oct 2026: "not a priority; I want to weigh it again in the future"). A video call's link on Today's event under way or about to start, opened by a button; nothing of it is built. Its plan, to start from: `docs/planning/02-phase-8.md`, §11, Phase 8, step 8.4.
+- [ ] **The new icon on the phone** (§15, 9 Nov 2026, «The new icon: the day's page and the clock»): the launcher icon in the phone's own mask, the themed icon, the «New event» shortcut.
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
@@ -521,3 +522,38 @@ Tests: `WordsTest` (the event's band at the reference grants and the owner's; on
 4. **Words**: Today's dial description ("with what is left of today on its ring"), its tip and the guide's paragraph (another day's events are in the list, not on the face), in both languages; `README.md`, `VISION.md` (Today, the dial; «In words»), `CHANGELOG.md` [Unreleased]. ADR 0003's decision 9 ("the rest of the next twelve hours") is changed by this entry for which events the window holds; the window itself stands.
 
 Tests: `WordsTest` (tomorrow never on the face, the focus included; an event of today past midnight whole; the early cut; the DST nights within one date), `NextBoundaryTest` (tomorrow's first event no longer a boundary at night; today's evening event still comes onto the face), `TodayScreenTest` (the dial's description).
+
+### The new icon: the day's page and the clock (owner, 9 Nov 2026)
+
+**Where it comes from.** The owner asked for the four apps' icons to be redrawn from scratch as
+one series: icons that say the app and recall what it does, full frame in Android's style, clean
+and readable when small, flat (at most a shade of one colour, the light from the same side for
+all), bright colours but not too much, one palette for the series. The proposals were drawn on a
+board (three symbols per app, two grounds, the home-screen check, the grid); the owner chose the
+series, asked for a margin between the drawing and the badge's edge (the first board let a symbol
+reach the edge), and, with the margins in, saw Tempo's drawing a little off to the left and asked
+for it to be centred better.
+
+**What it is.** The ring and its clock face (ADR 0002, point 6; archive 01, «The launcher mark»,
+«The launcher ring, azure to cobalt» and «The family's icons, made one suite», which this entry
+changes) give way to **the day's page and the clock**: on the app's coral (`FF8E74 · F0604A ·
+D3432F`), a white agenda page with three lines of the day, and in front of it at the lower right
+an amber clock (`FFD36A · FDB528`) with its hands cut white, a band of the ground between them.
+The family's rules: the app's colour as the ground, a white symbol with one amber accent, every
+shape a ramp from its light tone at the upper left, no shadow, the whole symbol within 28 units of
+the centre (a 56 dp circle on the 72 that show: 8 dp of air in a round mask, and no mask reaches
+it). **Centred by its weight**: centred by its box, the drawing's weight (the white page) stood
+2.3 units left of the centre, which is what the owner saw; it now stands 1.6 units right by its
+box and 0.6 left by its weight, between the two (`FIT_SHIFT`).
+
+**What changed.** `tools/draw_launcher_icon.py` is rewritten and writes three layers: the ground
+is a drawing (`ic_launcher_background.xml`) where it was the colour `#F7F4EE`, so
+`values/colors.xml`, which held only that colour, is gone and `ic_launcher.xml` points at the
+drawing; the themed icon cuts the page's lines and the clock's hands out of their shapes. Asked in
+the same review, the icons inside the app: Tempo has no notification, so no status-bar icon; the
+«New event» shortcut (`ic_shortcut_new_event`) is its page and plus in white on the coral; the
+guide and the first run show no app icon. The README's badges take the coral's deep tone,
+`D3432F`, as they took the ring's. CLAUDE.md and ADR 0002 (point 6) say it.
+
+**Checked.** The XML the script writes, drawn and compared pixel by pixel with the approved
+drawing: 0.6% of the badge's pixels differ, all at the edges (the antialiasing).
