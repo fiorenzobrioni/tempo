@@ -198,10 +198,11 @@ the wrong module.
 
 ## The family
 
-Tempo is one of four focused apps with the same look and the same rules:
+Tempo is one of five focused apps with the same look and the same rules:
 [Chiaro](https://github.com/fiorenzobrioni/chiaro) (weather),
-[Passo](https://github.com/fiorenzobrioni/passo) (step counter) and
-[Saldo](https://github.com/fiorenzobrioni/saldo) (personal finance).
+[Passo](https://github.com/fiorenzobrioni/passo) (step counter),
+[Saldo](https://github.com/fiorenzobrioni/saldo) (personal finance) and
+[Tetto](https://github.com/fiorenzobrioni/tetto) (budget).
 
 ## License
 

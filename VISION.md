@@ -1,6 +1,6 @@
 # Tempo — Product Vision
 
-> **Tempo** (Italian for "time") is the fourth of a small family of focused, single-purpose apps, alongside **Chiaro** (weather), **Passo** (step counter) and **Saldo** (personal finance).
+> **Tempo** (Italian for "time") is the fourth of a small family of focused, single-purpose apps, alongside **Chiaro** (weather), **Passo** (step counter), **Saldo** (personal finance) and, since November 2026, **Tetto** (budget).
 > Name: **Tempo**, in the launcher and on GitHub Releases (the only channel for now). Repository: `fiorenzobrioni/tempo`.
 > Package name: `com.callbackdev.tempo`, the `callbackdev` namespace shared with the sibling apps.
 >
@@ -68,7 +68,7 @@ app the reader already uses.
 - People with several calendars (work, family, shared ones, a sports club's) who want one merged
   view without signing in to yet another service.
 - Privacy-conscious readers and minimal home screens.
-- Readers of Chiaro, Passo and Saldo who want a matching set of widgets.
+- Readers of Chiaro, Passo, Saldo and Tetto who want a matching set of widgets.
 
 ## Scope for v1.0
 

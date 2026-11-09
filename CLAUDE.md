@@ -11,8 +11,9 @@ view, in the app and on a home-screen widget that never scrolls. It **reads** th
 Calendar Provider (every account the phone syncs) with `READ_CALENDAR` alone, and hands every
 change (view, create, edit) to the reader's calendar app through Android's intents. No account,
 no ads, no internet permission at all. It belongs to a small family of single-purpose apps by
-callbackdev, with **Chiaro** (weather), **Passo** (step counter) and **Saldo** (finance): same
-developer identity, same build and release setup, and the same visual language. Its build and
+callbackdev, with **Chiaro** (weather), **Passo** (step counter), **Saldo** (finance) and
+**Tetto** (budget): same developer identity, same build and release setup, and the same visual
+language. Its build and
 structure are Passo's, carried over.
 
 Source of truth:
@@ -177,7 +178,7 @@ caption in the README's table; keep the set small.
 
 ## The family in the code
 
-The sister apps (Chiaro, Passo, Saldo) are named **only** in the root `README.md` («The family»)
+The sister apps (Chiaro, Passo, Saldo, Tetto) are named **only** in the root `README.md` («The family»)
 and in the project's documents (VISION, PLANNING, the ADRs, this file): never in a string the
 app shows, its guide and onboarding included, and never in the code, comments and tests included
 (owner, 10 Oct 2026). A comment says why a value is what it is, not which sister has it too;

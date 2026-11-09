@@ -435,7 +435,7 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [ ] **Baseline Profile, if start-up measures slow** (Phase 5's one open box, carried from archive 01, §11, Phase 5; §1's "Baseline Profiles later"). The log records no measure of start-up; the work opens when one finds it slow.
 - [ ] **«Join», on hold** (step 8.4; owner, 30 Oct 2026: "not a priority; I want to weigh it again in the future"). A video call's link on Today's event under way or about to start, opened by a button; nothing of it is built. Its plan, to start from: `docs/planning/02-phase-8.md`, §11, Phase 8, step 8.4.
 - [x] **The new icon on the phone** (§15, 9 Nov 2026, «The new icon: the day's page and the clock»): the launcher icon in the phone's own mask, the themed icon, the «New event» shortcut. Done by the owner on 9 Nov 2026 (§15, «The new icon checked on the phone»).
-- [ ] **The «New event» shortcut as an adaptive icon, on the phone** (§15, 9 Nov 2026, «The «New event» shortcut, an adaptive icon»): long press on the icon, in the phone's own mask and with the themed icons on.
+- [x] **The «New event» shortcut as an adaptive icon, on the phone** (§15, 9 Nov 2026, «The «New event» shortcut, an adaptive icon»): long press on the icon, in the phone's own mask and with the themed icons on. Done by the owner on 9 Nov 2026 (§15, «The adaptive shortcut checked on the phone, and Tetto in the family»).
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
@@ -584,3 +584,13 @@ app's colour, in the launcher's own shape.
 **Checked.** The layers drawn in a round, a rounded-square and a squircle mask and as the themed
 icon; `spotlessCheck`, `:app:checkForbiddenPermissions`, `:app:assembleDebug`, `:app:lintDebug`.
 On the phone: the Open list.
+
+### The adaptive shortcut checked on the phone, and Tetto in the family (owner, 9 Nov 2026)
+
+The owner checked the adaptive shortcut on the phone ("Ho fatto tutti i test sul telefono ed è
+tutto ok. Puoi chiudere tutte le caselle."); the box in §15's Open list is ticked. Asked in the
+same message ("Hai allineato anche i documenti con il riferimento alla nuova app di famiglia
+"Tetto" nei vari repo?"): Tetto (budget) is the family's fifth app, so the README's «The family»,
+CLAUDE.md's opening and «The family in the code», and VISION's opening and its readers who want a
+matching set of widgets name it beside Chiaro, Passo and Saldo. VISION's naming table («Consistent
+with Chiaro, Passo and Saldo») is the 7 Oct 2026 decision and stays as it was written.
