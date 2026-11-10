@@ -651,3 +651,32 @@ No string was added; the guide's Today section says the page as it is now, in bo
 for the dial, both panes), every page walked at twice the text size, in the dark, on a foldable
 and a tablet, the screenshots looked at; the README's three pictures of Today redrawn. On the
 phone: the Open list.
+
+### Today on the owner's phone: broken lines, the chevron, the status bar (owner, 10 Nov 2026)
+
+**Where it comes from.** The owner's screenshot of the reviewed page, in Italian and in the dark,
+scrolled to the days ahead ("Controlla bene gli a capo involontari e le frasi spezzate male, ad
+esempio la riga "Da giovedì 12...". Anche il triangolino in quella riga è allineato/posizionato
+male rispetto alle altre righe. Analizza la schermata e vedi se c'è altro da sistemare."). It
+follows «Today reviewed», above, and corrects what that entry built.
+
+- **A day's name and its chevron.** "Da giovedì 12 novembre a sabato 14 novembre" took two lines
+  and left "novembre" alone on the second, and the chevron, a neighbour of the text in a row, went
+  to the page's far side. The chevron is now set in the line, after the name's last word
+  (`DayAhead`, inline content), and the name breaks balanced.
+- **"Tutto il giorno" in the times' column** broke in two on every all-day row of a later day
+  (56 dp on the 24-hour clock). A later day's all-day events are drawn as today's and tomorrow's,
+  a dot and a title (`AllDayRow`); the day's summary already says they are all-day, and TalkBack
+  still hears it. Their title takes two lines before it is cut ("Carlos Pineda Perez -
+  complean…").
+- **"fino alle 06:30" in the same column**, for an event begun the day before, broke the same
+  way (found reading the code, not in the screenshot): it is a note under the title now, and the
+  column is empty there (`CompactRow`, now for timed events only; its title takes two lines).
+- **The page under the status bar.** Scrolled, the sentence went up behind the system's clock and
+  icons and was read through them: with the glow gone nothing parted the two. The lists end under
+  the status bar (`statusBarsPadding` on the list, and on both panes); the reveal's arithmetic no
+  longer counts the bar.
+
+**Checked.** `TodayScreenTest`: the days ahead in Italian (no "Tutto il giorno" as a text, the
+run's name whole, the screenshot looked at), every walk again. The README's pictures redrawn.
+

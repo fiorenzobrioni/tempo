@@ -25,6 +25,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -362,6 +363,22 @@ class TodayScreenTest {
         compose.onNode(inRun and hasText("2 days with nothing planned.")).assertIsDisplayed()
         compose.onNodeWithTag(TodayTags.day(java.time.LocalDate.parse("2026-10-13"))).assertDoesNotExist()
         compose.assertAccessible()
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi")
+    fun `in Italian a long run's name keeps to itself, and a later day's all-day events need no label`() {
+        draw(dark = true)
+        val run = TodayTags.day(java.time.LocalDate.parse("2026-10-12"))
+        scrollTo(run)
+        compose.onNode(hasAnyAncestor(hasTestTag(run)) and hasText("Da lunedì 12 ottobre a martedì 13 ottobre"))
+            .assertIsDisplayed()
+        // Said by the day's summary, not beside each one, where it broke in two.
+        compose.onAllNodesWithText("Tutto il giorno").assertCountEquals(0)
+        compose.onNode(hasContentDescription("Tutto il giorno, Florence, Giorno 2 di 2", substring = true))
+            .assertExists()
+        compose.assertAccessible()
+        compose.writeScreenshot("today-days-italian")
     }
 
     @Test

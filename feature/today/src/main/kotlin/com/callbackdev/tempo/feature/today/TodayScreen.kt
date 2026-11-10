@@ -37,7 +37,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -47,6 +46,8 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -87,6 +88,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -101,6 +104,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -310,7 +314,9 @@ private fun TodayPage(
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
             state = list,
-            modifier = Modifier.fillMaxSize().testTag(TodayTags.LIST),
+            // The list ends under the status bar: scrolled, the page's words went up behind the
+            // system's clock and icons and were read through them (seen on the phone, 10 Nov 2026).
+            modifier = Modifier.fillMaxSize().statusBarsPadding().testTag(TodayTags.LIST),
             // Room for the button over the last row, whatever the list ends with.
             contentPadding = PaddingValues(bottom = navigationBar + 88.dp),
         ) {
@@ -337,12 +343,12 @@ private fun TodayPanes(
     showEarlier: Boolean,
     onToggleEarlier: () -> Unit,
 ) {
-    val statusBar = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navigationBar = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val dial = heroDial(panes.leading, text.uses24Hour)
     val leading = panes.leadingGutter
     val trailing = panes.trailingGutter
-    Row(Modifier.fillMaxSize()) {
+    // Both panes end under the status bar, as the page's one list does.
+    Row(Modifier.fillMaxSize().statusBarsPadding()) {
         LazyColumn(
             state = lists.hero,
             modifier = Modifier.width(leading.start + panes.leading).fillMaxHeight().testTag(TodayTags.HERO_PANE),
@@ -368,8 +374,8 @@ private fun TodayPanes(
             LazyColumn(
                 state = lists.agenda,
                 modifier = Modifier.fillMaxSize().testTag(TodayTags.LIST),
-                // Its first row level with the date's, and room for the button over the last.
-                contentPadding = PaddingValues(top = statusBar, bottom = navigationBar + 88.dp),
+                // Room for the button over the last row; its first is level with the date's.
+                contentPadding = PaddingValues(bottom = navigationBar + 88.dp),
             ) {
                 agendaContent(
                     state,
@@ -539,8 +545,8 @@ private fun revealNewEvent(
     val unfolded by rememberUpdatedState(showEarlier)
     val reduced = reducedMotion()
     val density = LocalDensity.current
-    // Under the status bar a row is drawn but not seen: it is brought below it, with a margin.
-    val top = WindowInsets.statusBars.getTop(density) + with(density) { REVEAL_MARGIN.roundToPx() }
+    // A row is brought a margin below the list's top, never against it.
+    val top = with(density) { REVEAL_MARGIN.roundToPx() }
     LaunchedEffect(state.reveal) {
         val reveal = state.reveal ?: return@LaunchedEffect
         revealing = reveal
@@ -557,10 +563,7 @@ private fun revealNewEvent(
             // The rows of the morning come in with the next layout.
             withTimeoutOrNull(REVEAL_MILLIS) { snapshotFlow { list.layoutInfo.totalItemsCount }.first { it > index } }
             if (!list.shows(index, top)) {
-                // A list whose own padding keeps it under the status bar (the agenda's pane) is
-                // already that far down.
-                val offset = -(top - list.layoutInfo.beforeContentPadding)
-                if (reduced) list.scrollToItem(index, offset) else list.animateScrollToItem(index, offset)
+                if (reduced) list.scrollToItem(index, -top) else list.animateScrollToItem(index, -top)
             }
             glowing = target
             delay(REVEAL_MILLIS)
@@ -641,7 +644,6 @@ private fun Hero(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .statusBarsPadding()
             .padding(gutter)
             // Room under the alarm line for its touch, which reaches past its words, clear of
             // the all-day events' under it.
@@ -1135,8 +1137,10 @@ private fun DaySection(
                 onOpen = openDay?.let { { it(day.date) } },
                 modifier = Modifier.testTag(TodayTags.day(day.date)),
             ) {
-                day.allDay.forEach { entry -> CompactRow(entry.event, null, calendars, text, openEvent) }
-                day.timed.forEach { entry -> CompactRow(entry.event, entry, calendars, text, openEvent) }
+                // As today's and tomorrow's: "All day" beside each one broke in two in the times'
+                // column ("Tutto il / giorno"), and the day's summary has said it already.
+                if (day.allDay.isNotEmpty()) AllDayRow(day.allDay, calendars, text, openEvent)
+                day.timed.forEach { entry -> CompactRow(entry, calendars, text, openEvent) }
             }
         }
 
@@ -1191,21 +1195,36 @@ private fun DayAhead(
                 .heightIn(min = 48.dp)
                 .padding(start = ROW_EDGE, end = ROW_EDGE, top = 12.dp, bottom = 6.dp),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    title,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f, fill = false).semantics { heading() },
-                )
-                if (onOpen != null) {
-                    Icon(
-                        TempoIcons.ChevronRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
-            }
+            // The chevron is set in the line, after the name's last word: beside the text it
+            // went to the page's far side as soon as a long name ("Da giovedì 12 novembre a
+            // sabato 14 novembre") took two lines. Balanced, so such a name breaks in two halves
+            // and never leaves a word alone.
+            val quiet = MaterialTheme.colorScheme.onSurfaceVariant
+            Text(
+                text = remember(title, onOpen != null) {
+                    buildAnnotatedString {
+                        append(title)
+                        if (onOpen != null) appendInlineContent(CHEVRON)
+                    }
+                },
+                style = MaterialTheme.typography.titleMedium.copy(lineBreak = LineBreak.Heading),
+                inlineContent = mapOf(
+                    CHEVRON to InlineTextContent(
+                        Placeholder(1.5.em, 1.em, PlaceholderVerticalAlign.TextCenter),
+                    ) {
+                        Icon(
+                            TempoIcons.ChevronRight,
+                            contentDescription = null,
+                            tint = quiet,
+                            modifier = Modifier.fillMaxSize().padding(start = 4.dp),
+                        )
+                    },
+                ),
+                modifier = Modifier.clearAndSetSemantics {
+                    this.text = AnnotatedString(title)
+                    heading()
+                },
+            )
             Text(
                 summary,
                 style = MaterialTheme.typography.bodyMedium,
@@ -1215,6 +1234,9 @@ private fun DayAhead(
         content()
     }
 }
+
+/** The chevron's place in a day's name ([DayAhead]). */
+private const val CHEVRON = "chevron"
 
 /**
  * The all-day events, over the timeline: a holiday is the day's frame, not one of its rows. Each
@@ -1283,7 +1305,8 @@ private fun AllDayMark(
             Text(
                 text = text.title(event),
                 style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
+                // Two lines before it is cut: a birthday's name alone filled the first.
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false),
             )
@@ -1643,23 +1666,23 @@ private fun EarlierRow(count: Int, showEarlier: Boolean, onToggle: () -> Unit) {
     }
 }
 
-/** A day after tomorrow, one line an event: the time (or "All day"), the calendar's dot, the title. */
+/**
+ * A timed event of a day after tomorrow, briefly: its start, its calendar's dot, its title. One
+ * begun the day before has no start on this date: it says when it ends under its title, where
+ * the words have room ("fino alle 06:30" broke in two in the times' column).
+ */
 @Composable
 private fun CompactRow(
-    event: EventInstance,
-    entry: TimedEntry?,
+    entry: TimedEntry,
     calendars: Map<Long, CalendarInfo>,
     text: AgendaText,
     openEvent: ((EventInstance) -> Unit)?,
 ) {
+    val event = entry.event
     val calendar = calendars[event.calendarId]
-    val time = when {
-        entry == null -> stringResource(R.string.today_all_day)
-        !entry.startsOnDate -> text.until(event.end)
-        else -> text.time(event.begin)
-    }
+    val until = if (entry.startsOnDate) null else text.until(event.end)
     val inCalendar = calendar?.let { stringResource(R.string.a11y_in_calendar, it.name) }
-    val description = listOfNotNull(time, text.title(event), inCalendar).joinToString(", ")
+    val description = listOfNotNull(until ?: text.time(event.begin), text.title(event), inCalendar).joinToString(", ")
     val openLabel = stringResource(R.string.a11y_open_event)
     RevealItem(glows(event), inset = 8.dp) {
         Row(
@@ -1674,16 +1697,17 @@ private fun CompactRow(
                         Modifier.semantics(mergeDescendants = true) { }
                     },
                 )
-                .semantics { contentDescription = description }
+                .clearAndSetSemantics { contentDescription = description }
                 .heightIn(min = 48.dp)
                 .padding(horizontal = ROW_EDGE, vertical = 4.dp),
         ) {
             Text(
-                text = time,
+                text = if (until == null) startTime(text, event.begin) else AnnotatedString(""),
                 style = MaterialTheme.typography.labelLarge.tabular(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                modifier = Modifier.width(timeColumn).clearAndSetSemantics { },
+                maxLines = 1,
+                softWrap = false,
+                modifier = Modifier.width(timeColumn),
             )
             // In the bar's place and no wider to the row, so every day's titles start on one line.
             Box(Modifier.width(BAR_WIDTH), contentAlignment = Alignment.Center) {
@@ -1694,13 +1718,21 @@ private fun CompactRow(
                     size = 8.dp,
                 )
             }
-            Text(
-                text = text.title(event),
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f).clearAndSetSemantics { },
-            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = text.title(event),
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (until != null) {
+                    Text(
+                        text = until,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }
