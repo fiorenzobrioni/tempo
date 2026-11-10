@@ -47,7 +47,8 @@ class TimelineTest {
         // the row, the others are the sentence's and the summary's.
         val day = agenda(early, standup, review, dentist, now = at("2026-10-07T08:10")).days.first()
         val items = Timeline.of(day, isToday = true)
-        assertThat(kinds(items)).containsExactly("now", "Early", "free", "Standup", "Review", "Dentist").inOrder()
+        // "Early" is under way at 08:10: it is now, and no line is drawn over it.
+        assertThat(kinds(items)).containsExactly("Early", "free", "Standup", "Review", "Dentist").inOrder()
         assertThat(items.filterIsInstance<TimelineItem.Free>().single().gap.start).isEqualTo(at("2026-10-07T08:30"))
         assertThat(day.freeRows).hasSize(3)
     }
@@ -76,9 +77,17 @@ class TimelineTest {
     }
 
     @Test
-    fun `an event under way follows the line`() {
-        val day = agenda(early, review, now = at("2026-10-07T11:10")).days.first()
-        assertThat(kinds(Timeline.of(day, isToday = true))).containsExactly("Early", "now", "Review").inOrder()
+    fun `an event under way is now itself, with no line over it`() {
+        val day = agenda(early, review, dentist, now = at("2026-10-07T11:10")).days.first()
+        assertThat(kinds(Timeline.of(day, isToday = true)))
+            .containsExactly("Early", "Review", "free", "Dentist").inOrder()
+    }
+
+    @Test
+    fun `the line is back when the event under way ends`() {
+        val day = agenda(early, review, dentist, now = at("2026-10-07T11:30")).days.first()
+        assertThat(kinds(Timeline.of(day, isToday = true)))
+            .containsExactly("earlier 2", "now", "free", "Dentist").inOrder()
     }
 
     @Test

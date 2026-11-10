@@ -37,8 +37,10 @@ import kotlin.math.sin
 /**
  * The «In words» card's dial, on Today (PLANNING.md §15, 9 Oct 2026): a clock face in the launcher
  * icon's ring, with what is left of today as arcs on it ([DialArcs]) and the hands at [faceMinutes]
- * (minutes from twelve o'clock, 0 until 720). The same geometry as the card's ([DialGeometry]), so
- * the home screen and the app show one clock.
+ * (minutes from twelve o'clock, 0 until 720). The card's face ([DialGeometry]: the same ring, the
+ * same hands' lengths), drawn finer: on a home screen the card is the only clock and is read
+ * from afar; here it stands beside the time in figures, and at the card's weight it was a second
+ * clock as loud as the first (the owner's review, PLANNING.md §15, 10 Nov 2026).
  *
  * The focus is in the accent, drawn last; the other arcs are quiet, each in its calendar's colour
  * as a mark (stepped to 3:1 on the page's surface, [markColor], and faded only as far as that
@@ -110,7 +112,7 @@ private class DialInks(val track: Color, val focus: Color, val other: Color, val
 
 private fun DrawScope.drawFace(arcs: List<DialArc>, marks: List<Color?>, progress: Float, inks: DialInks) {
     val side = size.minDimension
-    val stroke = side * DialGeometry.STROKE
+    val stroke = side * STROKE
     val inset = stroke / 2f
     val center = Offset(size.width / 2f, size.height / 2f)
     val topLeft = Offset(center.x - side / 2f + inset, center.y - side / 2f + inset)
@@ -154,10 +156,16 @@ private fun DrawScope.drawHands(hourTurns: Float, minuteTurns: Float, ink: Color
             cap = StrokeCap.Round,
         )
     }
-    hand(hourTurns, DialGeometry.HOUR_LENGTH, DialGeometry.HOUR_WIDTH)
-    hand(minuteTurns, DialGeometry.MINUTE_LENGTH, DialGeometry.MINUTE_WIDTH)
-    drawCircle(ink, radius = side * DialGeometry.CAP, center = center)
+    hand(hourTurns, DialGeometry.HOUR_LENGTH, HOUR_WIDTH)
+    hand(minuteTurns, DialGeometry.MINUTE_LENGTH, MINUTE_WIDTH)
+    drawCircle(ink, radius = side * CAP, center = center)
 }
+
+/** The page's face, as shares of its side: about two thirds of the card's ring and half its hands. */
+private const val STROKE = 0.058f
+private const val HOUR_WIDTH = 0.036f
+private const val MINUTE_WIDTH = 0.026f
+private const val CAP = 0.03f
 
 private const val ENTRANCE_MILLIS = 700
 private const val MINUTES_PER_HOUR = 60f

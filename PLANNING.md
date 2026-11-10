@@ -436,6 +436,7 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [ ] **«Join», on hold** (step 8.4; owner, 30 Oct 2026: "not a priority; I want to weigh it again in the future"). A video call's link on Today's event under way or about to start, opened by a button; nothing of it is built. Its plan, to start from: `docs/planning/02-phase-8.md`, §11, Phase 8, step 8.4.
 - [x] **The new icon on the phone** (§15, 9 Nov 2026, «The new icon: the day's page and the clock»): the launcher icon in the phone's own mask, the themed icon, the «New event» shortcut. Done by the owner on 9 Nov 2026 (§15, «The new icon checked on the phone»).
 - [x] **The «New event» shortcut as an adaptive icon, on the phone** (§15, 9 Nov 2026, «The «New event» shortcut, an adaptive icon»): long press on the icon, in the phone's own mask and with the themed icons on. Done by the owner on 9 Nov 2026 (§15, «The adaptive shortcut checked on the phone, and Tetto in the family»).
+- [ ] **Today's review on the phone** (§15, 10 Nov 2026, «Today reviewed: one clock, one "now", one ground»): the page in both dresses and both themes, morning and evening (the dial there and gone), the day markers on the 12-hour clock, the button's icon over the last rows, TalkBack on the all-day events and the button.
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
@@ -594,3 +595,120 @@ same message ("Hai allineato anche i documenti con il riferimento alla nuova app
 CLAUDE.md's opening and «The family in the code», and VISION's opening and its readers who want a
 matching set of widgets name it beside Chiaro, Passo and Saldo. VISION's naming table («Consistent
 with Chiaro, Passo and Saldo») is the 7 Oct 2026 decision and stays as it was written.
+
+### Today reviewed: one clock, one "now", one ground (owner, 10 Nov 2026)
+
+**Where it comes from.** The owner asked for a graphic review of the main screen ("Trasforma in
+app premium da PlayStore. Review grafico della schermata principale. Niente rumore, solo valore
+aggiunto."). The review was drawn on a canvas beside the README's two pictures of Today, each
+change named, with the three that reverse earlier decisions set apart; the owner approved all of
+it ("Approvo tutte le tue scelte e i punti che cambiano le decisioni già prese. Implementa.").
+The rule under every change: one thing says one thing once.
+
+**What changed, and what it changes.**
+
+- **One clock.** The figures are regular, no longer bold (`heroNumber`, −0.03em), and the page's
+  face is drawn finer than the card's (`DayDial`: ring 0.058 of its side, hands 0.036 and 0.026;
+  `DialGeometry` still gives the card its own and both their lengths). In bold beside a ring as
+  heavy, the hero was two clocks of one weight. This changes 9 Oct 2026's "the «In words» card's
+  dial" (archive 01): the same face, not the same weight. The guide's example follows, being the
+  same composable; the widgets are untouched.
+- **No face with nothing on it** (reverses "the face works without the calendar, its ring just
+  empty", 9 Oct 2026, archive 01). The dial is drawn while today has an arc for it (`heroArcs`);
+  in the evening, on an empty day and in every state without an agenda the figures stand alone.
+  It is the house rule, "a section with nothing to say is not drawn", applied to the hero. The
+  first day's tip explains the dial, so it waits for a day that shows one.
+- **The sentence, then the alarm.** The alarm line and the second clock stood between the time
+  and the sentence; they are under the sentence now. The sentence is `headlineSmall`, its first
+  clause in ink and medium, the rest quieter (`AgendaText.sentenceText`, `SentenceText`: the
+  clause before the count, or before the semicolon where today's clause ends and tomorrow's
+  starts). The words are unchanged.
+- **"Now" once** (changes `Timeline`, `:core:domain`). An event under way was said by the "now"
+  line, its ground, its bar and its words. `Timeline` gives the line only while nothing is under
+  way; the event under way is "now" itself, on the page's one ground (`surfaceContainer`, the
+  group's 24 dp corner), with a finer bar. The accent on the page now means now and nothing else:
+  the free row's plus is quiet.
+- **No other ground** (reverses the day cards of 9 Oct 2026 and the all-day chips, archive 01).
+  A day ahead is its name, its summary under it and its rows, under a hairline (`DayAhead`); an
+  all-day event is its calendar's dot and its title (`AllDayMark`), still a touch of 48 dp. A day
+  on a card with chips inside it was three grounds deep. Every row keeps one edge (20 dp) and one
+  column for titles: the free row, the "earlier" row and a later day's dot stand where the bar
+  does.
+- **Times.** A row's start sets its day marker small and quiet on the 12-hour clock (the locale's
+  own text, order and space); the times' column is 68 dp there, from 80. The free row writes no
+  time: it starts where the row above ends, and TalkBack is still told.
+- **The button is its icon** (reverses "a label at the top, its icon alone once scrolled",
+  step 8.6). The label covered the last rows of the first screen for a button learnt the first
+  day; its description is unchanged.
+- **No glow.** The hero's gradient is gone, on a phone and across the two panes (ADR 0004,
+  decision 6, amended there).
+
+**Not changed.** The engine, the sentence's words, the widgets, the two dresses, the settings.
+No string was added; the guide's Today section says the page as it is now, in both languages.
+
+**Checked.** `TimelineTest` (the line with and without an event under way), `TodayScreenTest`
+(the face there and gone, the order of the hero, the line at noon, the button, the tip waiting
+for the dial, both panes), every page walked at twice the text size, in the dark, on a foldable
+and a tablet, the screenshots looked at; the README's three pictures of Today redrawn. On the
+phone: the Open list.
+
+### Today on the owner's phone: broken lines, the chevron, the status bar (owner, 10 Nov 2026)
+
+**Where it comes from.** The owner's screenshot of the reviewed page, in Italian and in the dark,
+scrolled to the days ahead ("Controlla bene gli a capo involontari e le frasi spezzate male, ad
+esempio la riga "Da giovedì 12...". Anche il triangolino in quella riga è allineato/posizionato
+male rispetto alle altre righe. Analizza la schermata e vedi se c'è altro da sistemare."). It
+follows «Today reviewed», above, and corrects what that entry built.
+
+- **A day's name and its chevron.** "Da giovedì 12 novembre a sabato 14 novembre" took two lines
+  and left "novembre" alone on the second, and the chevron, a neighbour of the text in a row, went
+  to the page's far side. The chevron is now set in the line, after the name's last word
+  (`DayAhead`, inline content), and the name breaks balanced.
+- **"Tutto il giorno" in the times' column** broke in two on every all-day row of a later day
+  (56 dp on the 24-hour clock). A later day's all-day events are drawn as today's and tomorrow's,
+  a dot and a title (`AllDayRow`); the day's summary already says they are all-day, and TalkBack
+  still hears it. Their title takes two lines before it is cut ("Carlos Pineda Perez -
+  complean…").
+- **"fino alle 06:30" in the same column**, for an event begun the day before, broke the same
+  way (found reading the code, not in the screenshot): it is a note under the title now, and the
+  column is empty there (`CompactRow`, now for timed events only; its title takes two lines).
+- **The page under the status bar.** Scrolled, the sentence went up behind the system's clock and
+  icons and was read through them: with the glow gone nothing parted the two. The lists end under
+  the status bar (`statusBarsPadding` on the list, and on both panes); the reveal's arithmetic no
+  longer counts the bar.
+
+**Checked.** `TodayScreenTest`: the days ahead in Italian (no "Tutto il giorno" as a text, the
+run's name whole, the screenshot looked at), every walk again. The README's pictures redrawn.
+
+### Today's vertical rhythm, and the sentence's size (owner, 10 Nov 2026)
+
+**Where it comes from.** The owner, with the page right on the phone ("Ora va bene."), asked
+whether the rows' vertical spacing is right or room can be recovered within Material 3's
+guidance, keeping the page premium, and to check the sizes of the clock and the sentence.
+
+**What was measured** (411 dp wide, the tests' phone). The rows are already at or under
+Material's list heights and cannot give more without losing the 48 dp touch: a one-line row
+(all-day events, "earlier", free, a later day's event) is 48 dp where Material's is 56; a two-line
+event is 61 dp where Material's is 72; the event under way keeps 14 dp inside its ground. What
+could be recovered was between the blocks and in the sentence.
+
+**What changed.**
+
+- **The sentence is `titleLarge` again (22/28), regular, its first clause medium and in ink.**
+  «Today reviewed» (above) had set it at `headlineSmall` (24/32): with the first clause told
+  apart by weight and ink it does not need the size, and a long sentence in Italian took four
+  lines, 128 dp of the first screen; it takes three or four of 28 now, and most days two.
+- **The clock stays at 80 sp, regular**: 3.6 times the sentence, the one large thing on the page;
+  it already shrinks to fit beside the dial and is capped at 104 dp for a large text size.
+- **Gaps**: the sentence 12 dp under the clock's row (16); nothing added under it before the
+  alarm (4 dp less); the hero keeps 16 dp under the alarm line only where that line is a door (its
+  touch must stand clear of the all-day events'), 8 dp otherwise; a day ahead starts 8 dp under the
+  rows before it (12).
+
+About 20 dp recovered on the first screen on a usual day (measured: the event under way
+stands 16 dp higher, the days ahead 20), more on a long sentence; one more row of tomorrow is in
+sight.
+
+**Checked.** `TodayScreenTest` whole (touch targets at every walk), the screenshots looked at; the
+README's pictures redrawn.
+

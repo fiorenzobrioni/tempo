@@ -36,8 +36,8 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
 
 <table>
   <tr>
-    <td align="center" width="33%"><img src="docs/screenshots/today.png" width="250" alt="Today at 10:20 AM: the date on top with the calendar and settings buttons, the time large beside a clock face with the day's events on its ring in their calendars' colours, tomorrow's alarm, the sentence Design review until 11:00 AM, then 3 more today, the all-day events, the morning folded, the line for now, the meeting under way with 40 minutes left, two free hours from 11:00 AM, the rest of the day's events, and tomorrow's card with its first event"><br><sub><b>Today</b>: the time, the day on a dial, and one sentence</sub></td>
-    <td align="center" width="33%"><img src="docs/screenshots/today-evening-dark.png" width="250" alt="Today at 9:10 PM in the dark theme: nothing left today, tomorrow starts at 9:00 AM with a call, the clock face with an empty ring, then tomorrow's card in full and Friday's card"><br><sub><b>The evening</b>: tomorrow moves up</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/today.png" width="250" alt="Today at 10:20 AM: the date on top with the calendar and settings buttons, the time large beside a clock face with the day's events on its ring in their calendars' colours, the sentence Design review until 11:00 AM, then 3 more today, tomorrow's alarm, the all-day events, the morning folded, the meeting under way on its card with 40 minutes left, two free hours, the rest of the day's events, and tomorrow with its first event"><br><sub><b>Today</b>: the time, the day on a dial, and one sentence</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/today-evening-dark.png" width="250" alt="Today at 9:10 PM in the dark theme: nothing left today, tomorrow starts at 9:00 AM with a call, the time alone with no clock face, then tomorrow in full and Friday"><br><sub><b>The evening</b>: tomorrow moves up</sub></td>
     <td align="center" width="33%"><img src="docs/screenshots/settings-calendars.png" width="250" alt="Settings: the agenda's choices with the calendar button's switch, and five calendars from two accounts, each with its colour and a switch, one hidden"><br><sub><b>Your calendars</b>, each shown or hidden</sub></td>
   </tr>
   <tr>
@@ -49,7 +49,7 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
     <td align="center"><img src="docs/screenshots/guide.png" width="250" alt="The guide: what Tempo does, then where your events come from: your calendars and your choice, all-day events keeping their date, declined and cancelled events, work calendars"><br><sub><b>The guide</b>, in the app</sub></td>
   </tr>
   <tr>
-    <td align="center" colspan="3"><img src="docs/screenshots/today-tablet.png" width="760" alt="Today on a tablet held sideways, in two panes: on the left the date with the calendar and settings buttons, the time at 10:20 AM beside a large clock face with the day's events on its ring, tomorrow's alarm, the sentence Design review until 11:00 AM, then 3 more today, and the all-day events; on the right the morning folded, the line for now, the meeting under way with 40 minutes left, two free hours from 11:00 AM, the rest of the day's events, tomorrow's card in full and Friday's, and the New event button"><br><sub><b>On a tablet</b>: the time beside the day</sub></td>
+    <td align="center" colspan="3"><img src="docs/screenshots/today-tablet.png" width="760" alt="Today on a tablet held sideways, in two panes: on the left the date with the calendar and settings buttons, the time at 10:20 AM beside a large clock face with the day's events on its ring, the sentence Design review until 11:00 AM, then 3 more today, tomorrow's alarm, and the all-day events; on the right the morning folded, the meeting under way on its card with 40 minutes left, two free hours, the rest of the day's events, tomorrow in full and Friday, and the New event button"><br><sub><b>On a tablet</b>: the time beside the day</sub></td>
   </tr>
 </table>
 
@@ -62,7 +62,7 @@ launcher draws them, on a stand-in wallpaper. The command that redraws them is i
 For 1.1 ([VISION.md](./VISION.md) has the full scope):
 
 - 🕓 **Today**: the time large beside a clock face with what is left of today's events on its ring, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
-- 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and your next free hour (a touch starts an event there), then the rest of the week a card a day (or two weeks, if you like), empty days said once.
+- 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and your next free hour (a touch starts an event there), then the rest of the week day by day (or two weeks, if you like), empty days said once.
 - 📱 **On a tablet**, or a foldable open wide: the clock and a larger dial on one side, the agenda beside them, each scrolling on its own.
 - ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow. A touch opens your clock app.
 - 🌍 **Another time zone**: a second clock for a city you choose, under the alarm and on the widgets you want it on ("New York 4:20 AM"); an event written in another time zone says when it starts there too ("9:00 AM in Lisbon").

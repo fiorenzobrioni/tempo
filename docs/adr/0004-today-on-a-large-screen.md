@@ -75,3 +75,16 @@ Today in two panes on a large screen and confirmed it as planned (PLANNING.md §
   windows. The README shows the tablet (`today-tablet.png`).
 - The other pages still use `pageGutter()`; a page that wants two panes later takes `twoPanes()`
   and decides its own split, with its ADR.
+
+## Changed on 10 Nov 2026
+
+The owner's review of Today (PLANNING.md §15, 10 Nov 2026, «Today reviewed: one clock, one "now",
+one ground») changes three things written above, on every screen and so on this one:
+
+- **Decision 6 is withdrawn**: the hero has no glow, on a phone or across the two panes; the page
+  is one flat ground.
+- **The new-event button** is its icon alone, whatever the agenda's pane shows (decision 1 said
+  its label was shown while the pane was at its top).
+- **The dial** is drawn only while today has something left on its ring; with none the time
+  stands alone in the hero's pane. Today's all-day events, in the hero's pane, are a dot and a
+  title each, no longer chips.

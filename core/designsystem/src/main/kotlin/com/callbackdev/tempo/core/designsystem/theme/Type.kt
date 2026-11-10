@@ -99,9 +99,11 @@ internal fun typographyFor(family: FontFamily): Typography = Typography().run {
 /**
  * The two roles Material does not have, in the reader's family.
  *
- * @property heroNumber the time, the thing the screen is for: bold, tracked in, tabular so the
- *   minutes do not wobble as they change (64sp on a 68sp line, −0.02em). Today sets it at 80sp,
- *   grown with the reader's text size and fitted beside the dial (PLANNING.md §15, 7 and 9 Oct 2026).
+ * @property heroNumber the time, the thing the screen is for: regular, tracked in, tabular so the
+ *   minutes do not wobble as they change (64sp on a 68sp line, −0.03em). Its size is its weight:
+ *   in bold it stood against the dial beside it as a second clock (PLANNING.md §15, 10 Nov 2026).
+ *   Today sets it at 80sp, grown with the reader's text size and fitted beside the dial (§15, 7
+ *   and 9 Oct 2026).
  * @property readingValue a value in a metric tile: light, tabular, 24sp on a 32sp line.
  */
 @Immutable
@@ -110,10 +112,10 @@ data class TempoType(val heroNumber: TextStyle, val readingValue: TextStyle)
 private fun tempoTypeFor(family: FontFamily) = TempoType(
     heroNumber = TextStyle(
         fontFamily = family,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.Normal,
         fontSize = 64.sp,
         lineHeight = 68.sp,
-        letterSpacing = (-0.02).em,
+        letterSpacing = (-0.03).em,
         fontFeatureSettings = TABULAR,
     ),
     readingValue = TextStyle(

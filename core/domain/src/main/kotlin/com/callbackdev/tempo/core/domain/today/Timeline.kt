@@ -22,7 +22,10 @@ sealed interface TimelineItem {
      */
     data class Earlier(val entries: List<TimedEntry>, val open: Boolean = false) : TimelineItem
 
-    /** The line between what has been and what is ahead, on today only. */
+    /**
+     * The line between what has been and what is ahead, on today only, while nothing is under way:
+     * an event under way is "now" itself.
+     */
     data object Now : TimelineItem
 }
 
@@ -32,7 +35,9 @@ sealed interface TimelineItem {
  * - On today, the events already over come first, quieter; two or more fold into one "earlier"
  *   row unless [showEarlier] (then the row stays above them, to fold them back), so the morning
  *   never pushes what is ahead below the fold.
- * - Then "now", when anything is still ahead: the line the eye looks for.
+ * - Then "now", when anything is still ahead and nothing is under way: the line the eye looks
+ *   for. An event under way is that place itself, on its own ground with how long is left; the
+ *   line above it said "now" a second time (the owner's review, PLANNING.md §15, 10 Nov 2026).
  * - Then what is under way and ahead, by start time, with one free row among them: the first gap
  *   of an hour or more, the one open now (it starts at now, so it sits right under the line), else
  *   the next. Free time is something to act on now (a touch on the row starts a new event there);
@@ -59,7 +64,8 @@ object Timeline {
         return buildList {
             if (past.size >= EARLIER_FOLD) add(TimelineItem.Earlier(past, open = showEarlier))
             if (past.size < EARLIER_FOLD || showEarlier) past.forEach { add(TimelineItem.Event(it)) }
-            if (isToday && rest.isNotEmpty()) add(TimelineItem.Now)
+            val underWay = ahead.any { it.state == EntryState.UNDER_WAY }
+            if (isToday && rest.isNotEmpty() && !underWay) add(TimelineItem.Now)
             addAll(rest)
         }
     }
