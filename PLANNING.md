@@ -680,3 +680,35 @@ follows «Today reviewed», above, and corrects what that entry built.
 **Checked.** `TodayScreenTest`: the days ahead in Italian (no "Tutto il giorno" as a text, the
 run's name whole, the screenshot looked at), every walk again. The README's pictures redrawn.
 
+### Today's vertical rhythm, and the sentence's size (owner, 10 Nov 2026)
+
+**Where it comes from.** The owner, with the page right on the phone ("Ora va bene."), asked
+whether the rows' vertical spacing is right or room can be recovered within Material 3's
+guidance, keeping the page premium, and to check the sizes of the clock and the sentence.
+
+**What was measured** (411 dp wide, the tests' phone). The rows are already at or under
+Material's list heights and cannot give more without losing the 48 dp touch: a one-line row
+(all-day events, "earlier", free, a later day's event) is 48 dp where Material's is 56; a two-line
+event is 61 dp where Material's is 72; the event under way keeps 14 dp inside its ground. What
+could be recovered was between the blocks and in the sentence.
+
+**What changed.**
+
+- **The sentence is `titleLarge` again (22/28), regular, its first clause medium and in ink.**
+  «Today reviewed» (above) had set it at `headlineSmall` (24/32): with the first clause told
+  apart by weight and ink it does not need the size, and a long sentence in Italian took four
+  lines, 128 dp of the first screen; it takes three or four of 28 now, and most days two.
+- **The clock stays at 80 sp, regular**: 3.6 times the sentence, the one large thing on the page;
+  it already shrinks to fit beside the dial and is capped at 104 dp for a large text size.
+- **Gaps**: the sentence 12 dp under the clock's row (16); nothing added under it before the
+  alarm (4 dp less); the hero keeps 16 dp under the alarm line only where that line is a door (its
+  touch must stand clear of the all-day events'), 8 dp otherwise; a day ahead starts 8 dp under the
+  rows before it (12).
+
+About 20 dp recovered on the first screen on a usual day (measured: the event under way
+stands 16 dp higher, the days ahead 20), more on a long sentence; one more row of tomorrow is in
+sight.
+
+**Checked.** `TodayScreenTest` whole (touch targets at every walk), the screenshots looked at; the
+README's pictures redrawn.
+

@@ -646,8 +646,8 @@ private fun Hero(
             .fillMaxWidth()
             .padding(gutter)
             // Room under the alarm line for its touch, which reaches past its words, clear of
-            // the all-day events' under it.
-            .padding(bottom = 16.dp),
+            // the all-day events' under it; with no such line the list comes closer.
+            .padding(bottom = if (state.alarm != null && state.doors.clockPackage != null) 16.dp else 8.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -708,11 +708,17 @@ private fun Hero(
                         append(sentence.rest)
                     }
                 },
-                // Balanced lines: the sentence never leaves its last word alone on a line.
-                style = MaterialTheme.typography.headlineSmall.copy(lineBreak = LineBreak.Heading),
+                // Balanced lines: the sentence never leaves its last word alone on a line. At the
+                // title's size, its first clause told apart by weight and ink: a size larger, a
+                // long sentence ("Oggi non resta altro; domani si comincia alle 10:00 con…") took
+                // four lines and a sixth of the first screen (PLANNING.md §15, 10 Nov 2026).
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Normal,
+                    lineBreak = LineBreak.Heading,
+                ),
                 color = quiet,
                 modifier = Modifier
-                    .padding(start = HERO_EDGE, end = HERO_EDGE, top = 16.dp, bottom = 4.dp)
+                    .padding(start = HERO_EDGE, end = HERO_EDGE, top = 12.dp)
                     .testTag(TodayTags.SENTENCE),
             )
         }
@@ -1176,7 +1182,7 @@ private fun DayAhead(
     content: @Composable () -> Unit,
 ) {
     val openLabel = stringResource(R.string.today_open_day)
-    Column(modifier.fillMaxWidth().padding(top = 12.dp)) {
+    Column(modifier.fillMaxWidth().padding(top = 8.dp)) {
         HorizontalDivider(
             color = MaterialTheme.colorScheme.outlineVariant,
             modifier = Modifier.padding(horizontal = ROW_EDGE),
