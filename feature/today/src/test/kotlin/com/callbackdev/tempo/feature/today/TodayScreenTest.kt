@@ -26,6 +26,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -213,15 +214,27 @@ class TodayScreenTest {
     }
 
     @Test
-    fun `the morning folds, now draws the line, the event under way leads`() {
+    fun `the morning folds, and the event under way is now, with no line over it`() {
         draw()
         compose.onNodeWithText("2 events earlier today").assertIsDisplayed()
         compose.onNodeWithTag(TodayTags.event(TodaySample.run.eventId)).assertDoesNotExist()
-        compose.onNodeWithTag(TodayTags.NOW).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.NOW).assertDoesNotExist()
         compose.onNodeWithTag(TodayTags.event(TodaySample.review.eventId))
             .assert(hasContentDescription("under way, 40 min left", substring = true))
         compose.onNodeWithTag(TodayTags.EARLIER).performClick()
         compose.onNodeWithTag(TodayTags.event(TodaySample.run.eventId)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `with nothing under way, a line marks now`() {
+        // 12:00: the review is over, lunch is an hour away.
+        draw(TodaySample.state(now = TodaySample.at("2026-10-07T12:00")))
+        compose.onNodeWithTag(TodayTags.NOW).assertIsDisplayed()
+        val now = compose.onNodeWithTag(TodayTags.NOW).fetchSemanticsNode().boundsInRoot
+        val lunch = compose.onNodeWithTag(TodayTags.event(TodaySample.lunch.eventId)).fetchSemanticsNode().boundsInRoot
+        assertThat(now.bottom).isAtMost(lunch.top)
+        compose.assertAccessible()
+        compose.writeScreenshot("today-free-now")
     }
 
     @Test
@@ -387,8 +400,8 @@ class TodayScreenTest {
             actions = TodayActions(askPermission = { asked = true }),
         )
         compose.onNodeWithTag(TodayTags.TIME).assertIsDisplayed()
-        // The face is there too, its ring empty: the clock works without the calendar.
-        compose.onNodeWithTag(TodayTags.DIAL).assertIsDisplayed()
+        // No face with no calendar to put on its ring: the figures say the time alone.
+        compose.onNodeWithTag(TodayTags.DIAL).assertDoesNotExist()
         compose.onNodeWithTag(TodayTags.SENTENCE).assertDoesNotExist()
         compose.onNodeWithTag(TodayTags.LIST).performScrollToNode(hasText("Allow"))
         compose.onNodeWithText("Allow").performClick()
@@ -433,6 +446,32 @@ class TodayScreenTest {
         draw(TodaySample.state(now = TodaySample.at("2026-10-07T21:00")))
         compose.onNodeWithTag(TodayTags.SENTENCE)
             .assertTextEquals("Nothing left today; tomorrow starts at 09:00 with Call with Lisbon.")
+    }
+
+    @Test
+    fun `with nothing left today the face is not drawn, and the time stands alone`() {
+        draw(TodaySample.state(now = TodaySample.at("2026-10-07T21:00")))
+        compose.onNodeWithTag(TodayTags.TIME).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.DIAL).assertDoesNotExist()
+        compose.assertAccessible()
+        compose.writeScreenshot("today-evening")
+    }
+
+    @Test
+    fun `the sentence comes before the alarm, and the alarm before the day's events`() {
+        draw()
+        val sentence = compose.onNodeWithTag(TodayTags.SENTENCE).fetchSemanticsNode().boundsInRoot
+        val alarm = compose.onNodeWithTag(TodayTags.ALARM).fetchSemanticsNode().boundsInRoot
+        val allDay = compose.onNodeWithTag(TodayTags.ALL_DAY).fetchSemanticsNode().boundsInRoot
+        assertThat(sentence.bottom).isAtMost(alarm.top)
+        assertThat(alarm.bottom).isAtMost(allDay.top)
+    }
+
+    @Test
+    fun `the new-event button is its icon, and says what it does`() {
+        draw()
+        compose.onNodeWithText("New event").assertDoesNotExist()
+        compose.onNodeWithContentDescription("New event").assertIsDisplayed()
     }
 
     @Test
@@ -489,6 +528,13 @@ class TodayScreenTest {
     @Test
     fun `the tip is never beside a state's card`() {
         draw(TodaySample.state(settings = firstDay).copy(content = TodayContent.NoPermission))
+        compose.onNodeWithTag(TodayTags.TIP).assertDoesNotExist()
+    }
+
+    @Test
+    fun `the tip waits for the dial it explains`() {
+        draw(TodaySample.state(now = TodaySample.at("2026-10-07T21:00"), settings = firstDay))
+        compose.onNodeWithTag(TodayTags.DIAL).assertDoesNotExist()
         compose.onNodeWithTag(TodayTags.TIP).assertDoesNotExist()
     }
 
@@ -653,7 +699,6 @@ class TodayScreenTest {
         }
         compose.onNode(hasTestTag(TodayTags.ALL_DAY) and inHeroPane).assertIsDisplayed()
         compose.onNode(hasTestTag(TodayTags.ALL_DAY) and inAgendaPane).assertDoesNotExist()
-        compose.onNode(hasTestTag(TodayTags.NOW) and inAgendaPane).assertIsDisplayed()
         compose.onNode(hasTestTag(TodayTags.event(TodaySample.review.eventId)) and inAgendaPane).assertIsDisplayed()
         // Side by side, the agenda's first row level with the date's, and the button over the agenda.
         val hero = bounds(TodayTags.HERO_PANE)
@@ -669,10 +714,10 @@ class TodayScreenTest {
     fun `the two panes scroll each on its own`() {
         draw()
         val time = bounds(TodayTags.TIME)
-        compose.onNodeWithTag(TodayTags.NOW).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.EARLIER).assertIsDisplayed()
         scrollTo(TodayTags.day(java.time.LocalDate.parse("2026-10-11")))
-        // "Now" has gone up out of the agenda's pane; the clock has not moved.
-        assertThat(compose.onAllNodesWithTag(TodayTags.NOW).fetchSemanticsNodes().none { it.layoutInfo.isPlaced })
+        // The morning's row has gone up out of the agenda's pane; the clock has not moved.
+        assertThat(compose.onAllNodesWithTag(TodayTags.EARLIER).fetchSemanticsNodes().none { it.layoutInfo.isPlaced })
             .isTrue()
         assertThat(bounds(TodayTags.TIME)).isEqualTo(time)
     }
@@ -741,7 +786,8 @@ class TodayScreenTest {
             permission = CalendarPermission.ASKABLE,
             actions = TodayActions(askPermission = { asked = true }),
         )
-        compose.onNode(hasTestTag(TodayTags.DIAL) and inHeroPane).assertIsDisplayed()
+        compose.onNode(hasTestTag(TodayTags.TIME) and inHeroPane).assertIsDisplayed()
+        compose.onNode(hasTestTag(TodayTags.DIAL)).assertDoesNotExist()
         compose.onNode(hasText("Allow") and inAgendaPane).performClick()
         assertThat(asked).isTrue()
         compose.assertAccessible()

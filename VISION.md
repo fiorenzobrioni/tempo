@@ -94,8 +94,8 @@ app the reader already uses.
 - **All-day and multi-day events** in a row of their own above the timeline ("Holiday, day 2 of 5").
 - **The timeline of the day's timed events**: the time range, the title, the calendar's colour
   as a mark, the location as one line of text (no map). The event under way says how much is
-  left ("ends in 25 min"), past events are quieter, and a "now" line stands between what has
-  been and what is next. An event written in a time zone whose clock reads another time than the
+  left ("ends in 25 min") on the page's one ground, past events are quieter, and with nothing
+  under way a "now" line stands between what has been and what is next. An event written in a time zone whose clock reads another time than the
   phone's says its start there too, in one note: "09:00 in Lisbon" (step 8.5); never for an
   all-day event, and never for a zone on the phone's clock (Paris beside Rome).
 - **Free time**: said in the day's sentence ("Free until 3 pm"), and drawn on today's timeline as
@@ -104,8 +104,8 @@ app the reader already uses.
   and the ten minutes between two meetings were never a row. A touch on the row starts a new
   event there.
 - **The days ahead**: tomorrow and the rest of the week (a week by default, the reader's
-  horizon, which reaches two weeks; step 8.6), each day on its own card with its own short
-  sentence beside its name. Today stays on
+  horizon, which reaches two weeks; step 8.6), each day under its own name with its own short
+  sentence. Today stays on
   top, whole; tomorrow is drawn as today is; the days after it are compact (one line per event);
   a run of empty days is said once ("Monday 12 October – Tuesday 13 October, nothing planned"),
   so a full week stays a glance below the fold and an empty week never pushes the first real

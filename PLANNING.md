@@ -436,6 +436,7 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [ ] **«Join», on hold** (step 8.4; owner, 30 Oct 2026: "not a priority; I want to weigh it again in the future"). A video call's link on Today's event under way or about to start, opened by a button; nothing of it is built. Its plan, to start from: `docs/planning/02-phase-8.md`, §11, Phase 8, step 8.4.
 - [x] **The new icon on the phone** (§15, 9 Nov 2026, «The new icon: the day's page and the clock»): the launcher icon in the phone's own mask, the themed icon, the «New event» shortcut. Done by the owner on 9 Nov 2026 (§15, «The new icon checked on the phone»).
 - [x] **The «New event» shortcut as an adaptive icon, on the phone** (§15, 9 Nov 2026, «The «New event» shortcut, an adaptive icon»): long press on the icon, in the phone's own mask and with the themed icons on. Done by the owner on 9 Nov 2026 (§15, «The adaptive shortcut checked on the phone, and Tetto in the family»).
+- [ ] **Today's review on the phone** (§15, 10 Nov 2026, «Today reviewed: one clock, one "now", one ground»): the page in both dresses and both themes, morning and evening (the dial there and gone), the day markers on the 12-hour clock, the button's icon over the last rows, TalkBack on the all-day events and the button.
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
@@ -594,3 +595,59 @@ same message ("Hai allineato anche i documenti con il riferimento alla nuova app
 CLAUDE.md's opening and «The family in the code», and VISION's opening and its readers who want a
 matching set of widgets name it beside Chiaro, Passo and Saldo. VISION's naming table («Consistent
 with Chiaro, Passo and Saldo») is the 7 Oct 2026 decision and stays as it was written.
+
+### Today reviewed: one clock, one "now", one ground (owner, 10 Nov 2026)
+
+**Where it comes from.** The owner asked for a graphic review of the main screen ("Trasforma in
+app premium da PlayStore. Review grafico della schermata principale. Niente rumore, solo valore
+aggiunto."). The review was drawn on a canvas beside the README's two pictures of Today, each
+change named, with the three that reverse earlier decisions set apart; the owner approved all of
+it ("Approvo tutte le tue scelte e i punti che cambiano le decisioni già prese. Implementa.").
+The rule under every change: one thing says one thing once.
+
+**What changed, and what it changes.**
+
+- **One clock.** The figures are regular, no longer bold (`heroNumber`, −0.03em), and the page's
+  face is drawn finer than the card's (`DayDial`: ring 0.058 of its side, hands 0.036 and 0.026;
+  `DialGeometry` still gives the card its own and both their lengths). In bold beside a ring as
+  heavy, the hero was two clocks of one weight. This changes 9 Oct 2026's "the «In words» card's
+  dial" (archive 01): the same face, not the same weight. The guide's example follows, being the
+  same composable; the widgets are untouched.
+- **No face with nothing on it** (reverses "the face works without the calendar, its ring just
+  empty", 9 Oct 2026, archive 01). The dial is drawn while today has an arc for it (`heroArcs`);
+  in the evening, on an empty day and in every state without an agenda the figures stand alone.
+  It is the house rule, "a section with nothing to say is not drawn", applied to the hero. The
+  first day's tip explains the dial, so it waits for a day that shows one.
+- **The sentence, then the alarm.** The alarm line and the second clock stood between the time
+  and the sentence; they are under the sentence now. The sentence is `headlineSmall`, its first
+  clause in ink and medium, the rest quieter (`AgendaText.sentenceText`, `SentenceText`: the
+  clause before the count, or before the semicolon where today's clause ends and tomorrow's
+  starts). The words are unchanged.
+- **"Now" once** (changes `Timeline`, `:core:domain`). An event under way was said by the "now"
+  line, its ground, its bar and its words. `Timeline` gives the line only while nothing is under
+  way; the event under way is "now" itself, on the page's one ground (`surfaceContainer`, the
+  group's 24 dp corner), with a finer bar. The accent on the page now means now and nothing else:
+  the free row's plus is quiet.
+- **No other ground** (reverses the day cards of 9 Oct 2026 and the all-day chips, archive 01).
+  A day ahead is its name, its summary under it and its rows, under a hairline (`DayAhead`); an
+  all-day event is its calendar's dot and its title (`AllDayMark`), still a touch of 48 dp. A day
+  on a card with chips inside it was three grounds deep. Every row keeps one edge (20 dp) and one
+  column for titles: the free row, the "earlier" row and a later day's dot stand where the bar
+  does.
+- **Times.** A row's start sets its day marker small and quiet on the 12-hour clock (the locale's
+  own text, order and space); the times' column is 68 dp there, from 80. The free row writes no
+  time: it starts where the row above ends, and TalkBack is still told.
+- **The button is its icon** (reverses "a label at the top, its icon alone once scrolled",
+  step 8.6). The label covered the last rows of the first screen for a button learnt the first
+  day; its description is unchanged.
+- **No glow.** The hero's gradient is gone, on a phone and across the two panes (ADR 0004,
+  decision 6, amended there).
+
+**Not changed.** The engine, the sentence's words, the widgets, the two dresses, the settings.
+No string was added; the guide's Today section says the page as it is now, in both languages.
+
+**Checked.** `TimelineTest` (the line with and without an event under way), `TodayScreenTest`
+(the face there and gone, the order of the hero, the line at noon, the button, the tip waiting
+for the dial, both panes), every page walked at twice the text size, in the dark, on a foldable
+and a tablet, the screenshots looked at; the README's three pictures of Today redrawn. On the
+phone: the Open list.

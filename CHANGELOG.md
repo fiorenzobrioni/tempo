@@ -17,6 +17,12 @@ All notable changes to Tempo are documented here. The format follows
 
 ### Changed
 
+- **Today, quieter.** The time is lighter and its clock face finer, and the face is there only
+  while today has something left to show. The sentence comes first, with what is true now in
+  bold; the alarm is under it. The event under way is the only filled card on the page, so "now"
+  is said once; the days ahead and the all-day events lost their grounds. On the 12-hour clock
+  "AM" and "PM" are set small. The new-event button is its icon alone.
+
 - **A new icon**: the day's page with a clock in front of it, on coral. The «New event» shortcut
   follows it, in the same shape as your launcher's icons.
 

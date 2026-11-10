@@ -38,6 +38,9 @@ class AgendaText(
 ) {
     fun time(moment: Instant): String = DateTimeText.time(moment.atZone(zone), locale, uses24Hour)
 
+    /** The day marker in [time]'s text ("AM"), where the reader's clock writes one: Today sets it small. */
+    fun marker(moment: Instant): String? = DateTimeText.timeParts(moment.atZone(zone), locale, uses24Hour).marker
+
     fun title(event: EventInstance): String = event.title ?: resources.getString(R.string.event_no_title)
 
     /** "10:00 – 11:00"; a moment alone when the event has no length. */
@@ -96,47 +99,64 @@ class AgendaText(
     }
 
     /** The day in one sentence (PLANNING.md §6), ending with its full stop; [today] is the phone's date. */
-    fun sentence(sentence: TodaySentence, today: LocalDate): String = when (sentence) {
-        is TodaySentence.UnderWay ->
-            resources.getString(
+    fun sentence(sentence: TodaySentence, today: LocalDate): String = sentenceText(sentence, today).text
+
+    /**
+     * The day's sentence with its first clause told apart, so Today can set it in ink and the rest
+     * quieter: what is true now ("Design review until 11:00", "Nothing left today;"), before what
+     * comes after it. A sentence of one clause is all lead.
+     */
+    fun sentenceText(sentence: TodaySentence, today: LocalDate): SentenceText = when (sentence) {
+        is TodaySentence.UnderWay -> SentenceText(
+            lead = resources.getString(
                 R.string.sentence_under_way,
                 title(sentence.event),
                 until(sentence.event.end, today),
-            ) + more(sentence.laterToday)
+            ),
+            rest = more(sentence.laterToday),
+        )
 
-        is TodaySentence.Soon ->
-            resources.getQuantityString(
+        is TodaySentence.Soon -> SentenceText(
+            lead = resources.getQuantityString(
                 R.plurals.sentence_soon,
                 sentence.minutes,
                 title(sentence.event),
                 sentence.minutes,
-            ) +
-                more(sentence.laterToday)
+            ),
+            rest = more(sentence.laterToday),
+        )
 
-        is TodaySentence.FreeUntil ->
-            resources.getString(R.string.sentence_free_until, time(sentence.event.begin), title(sentence.event)) +
-                andMore(sentence.laterToday)
+        is TodaySentence.FreeUntil -> SentenceText(
+            lead = resources.getString(
+                R.string.sentence_free_until,
+                time(sentence.event.begin),
+                title(sentence.event),
+            ),
+            rest = andMore(sentence.laterToday),
+        )
 
         is TodaySentence.AllDone -> when (val tomorrow = sentence.tomorrow) {
-            is Tomorrow.StartsWith ->
-                resources.getString(R.string.sentence_done_tomorrow, time(tomorrow.event.begin), title(tomorrow.event))
+            is Tomorrow.StartsWith -> SentenceText.clauses(
+                resources.getString(R.string.sentence_done_tomorrow, time(tomorrow.event.begin), title(tomorrow.event)),
+            )
 
-            Tomorrow.Free -> resources.getString(R.string.sentence_done_tomorrow_free)
+            Tomorrow.Free -> SentenceText(resources.getString(R.string.sentence_done_tomorrow_free))
 
-            Tomorrow.NotShown -> resources.getString(R.string.sentence_done)
+            Tomorrow.NotShown -> SentenceText(resources.getString(R.string.sentence_done))
         }
 
         is TodaySentence.FreeDay -> when (val tomorrow = sentence.tomorrow) {
-            is Tomorrow.StartsWith ->
+            is Tomorrow.StartsWith -> SentenceText.clauses(
                 resources.getString(
                     R.string.sentence_free_day_tomorrow,
                     time(tomorrow.event.begin),
                     title(tomorrow.event),
-                )
+                ),
+            )
 
-            Tomorrow.Free -> resources.getString(R.string.sentence_free_day_tomorrow_free)
+            Tomorrow.Free -> SentenceText(resources.getString(R.string.sentence_free_day_tomorrow_free))
 
-            Tomorrow.NotShown -> resources.getString(R.string.sentence_free_day)
+            Tomorrow.NotShown -> SentenceText(resources.getString(R.string.sentence_free_day))
         }
     }
 
@@ -265,6 +285,27 @@ class AgendaText(
 
 /** A weekday's name alone says a date for six days either side; past that it needs its date. */
 private const val DAYS_A_WEEKDAY_NAMES = 7
+
+/**
+ * The day's sentence in two parts: see [AgendaText.sentenceText].
+ *
+ * @property lead its first clause, with the mark that closes it where the words carry one.
+ * @property rest what follows, to the full stop; empty for a sentence of one clause.
+ */
+data class SentenceText(val lead: String, val rest: String = "") {
+    val text: String get() = lead + rest
+
+    companion object {
+        /**
+         * [whole] parted after its first semicolon, where today's clause ends and tomorrow's
+         * starts in both languages; a translation that writes none is all lead.
+         */
+        fun clauses(whole: String): SentenceText {
+            val end = whole.indexOf(';') + 1
+            return if (end == 0) SentenceText(whole) else SentenceText(whole.substring(0, end), whole.substring(end))
+        }
+    }
+}
 
 /** The agenda's words for the current composition: its resources, its locale, the reader's clock. */
 @Composable
