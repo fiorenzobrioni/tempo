@@ -5,6 +5,7 @@
     <string name="today_open_day">Open the day in your calendar</string>
     <string name="today_open_clock">Open the clock app</string>
     <string name="today_dial">Clock face at %1$s, with what is left of today on its ring</string>
+    <string name="today_dial_later">Clock face at %1$s; today’s next event is more than eleven hours away and not yet on its ring</string>
     <string name="today_new_event">New event</string>
     <string name="today_now">Now</string>
     <string name="today_tomorrow">Tomorrow</string>

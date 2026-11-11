@@ -159,11 +159,14 @@ class WordsTest {
         assertThat(arc.from).isEqualTo(480f)
         assertThat(arc.sweep).isEqualTo(690f)
         assertThat(arc.sweep).isLessThan(DialArcs.FACE_MINUTES)
+        // It began within the six hours back, and goes on past the window: only its end is cut.
+        assertThat(arc.cutAtStart).isFalse()
+        assertThat(arc.cutAtEnd).isTrue()
         // Early in the day an event of today can reach past the window: cut there, or it would
         // cross the hand. At 07:00, 13:00 to 20:00 stops at 18:30.
         val afternoon = timed(8, "2026-10-07T13:00", "2026-10-07T20:00", title = "Afternoon")
         assertThat(arcs(afternoon, now = "2026-10-07T07:00"))
-            .containsExactly(DialArc(from = 60f, sweep = 330f, focus = true))
+            .containsExactly(DialArc(from = 60f, sweep = 330f, focus = true, cutAtEnd = true))
     }
 
     @Test
@@ -195,7 +198,7 @@ class WordsTest {
         val late = timed(12, "2026-11-01T11:00", "2026-11-01T12:00", zone = NewYork, title = "Late")
         val agenda = agenda(late, now = at("2026-11-01T00:00", NewYork), zone = NewYork)
         val result = DialArcs.of(agenda, WordsDay.of(agenda, true, true).focus, NewYork)
-        assertThat(result).containsExactly(DialArc(from = 660f, sweep = 30f, focus = true))
+        assertThat(result).containsExactly(DialArc(from = 660f, sweep = 30f, focus = true, cutAtEnd = true))
     }
 
     @Test
@@ -206,6 +209,37 @@ class WordsTest {
         val agenda = agenda(call, now = at("2026-10-04T01:00", zone), zone = zone)
         val result = DialArcs.of(agenda, WordsDay.of(agenda, true, true).focus, zone)
         assertThat(result).containsExactly(DialArc(from = 105f, sweep = 60f, focus = true))
+    }
+
+    @Test
+    fun `an arc says which of its ends the window cut`() {
+        // The owner's morning (11 Nov 2026): at 00:55, 10:00 to 22:00 is drawn to 12:25 and goes on.
+        val gift = timed(14, "2026-10-07T10:00", "2026-10-07T22:00", title = "Gift")
+        val morning = arcs(gift, now = "2026-10-07T00:55").single()
+        assertThat(morning.from).isEqualTo(600f)
+        assertThat(morning.sweep).isEqualTo(145f)
+        assertThat(morning.cutAtStart).isFalse()
+        assertThat(morning.cutAtEnd).isTrue()
+        // At 17:00 it has run seven hours: the arc opens six back, at 11:00, and reaches its end.
+        val evening = arcs(gift, now = "2026-10-07T17:00").single()
+        assertThat(evening).isEqualTo(DialArc(from = 660f, sweep = 660f, focus = true, cutAtStart = true))
+        // An event drawn whole is cut at neither end.
+        assertThat(arcs(dentist, now = "2026-10-07T10:00").single().let { it.cutAtStart || it.cutAtEnd }).isFalse()
+    }
+
+    @Test
+    fun `a cut end fades to nothing, at most an hour and a half of the face`() {
+        assertThat(DialFade.stops(90f, atStart = false, atEnd = false)).containsExactly(0f to 1f, 1f to 1f).inOrder()
+        assertThat(DialFade.stops(180f, atStart = false, atEnd = true))
+            .containsExactly(0f to 1f, 0.75f to 1f, 1f to 0f).inOrder()
+        assertThat(DialFade.stops(180f, atStart = true, atEnd = false))
+            .containsExactly(0f to 0f, 0.25f to 1f, 1f to 1f).inOrder()
+        // A short arc keeps a fifth of its length in full ink, its fades sharing the rest.
+        val short = DialFade.stops(20f, atStart = true, atEnd = true)
+        assertThat(short.map { it.second }).containsExactly(0f, 1f, 1f, 0f).inOrder()
+        assertThat(short[1].first).isWithin(1e-6f).of(0.4f)
+        assertThat(short[2].first).isWithin(1e-6f).of(0.6f)
+        assertThat(short.map { it.first }).isInOrder()
     }
 
     @Test

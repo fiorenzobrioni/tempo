@@ -23,6 +23,10 @@ All notable changes to Tempo are documented here. The format follows
   is said once; the days ahead and the all-day events lost their grounds. On the 12-hour clock
   "AM" and "PM" are set small. The new-event button is its icon alone.
 
+- **The clock face, honest early in the day.** An event that goes on past the face's twelve
+  hours fades out at that end, instead of seeming to end there. On Today the face stays while
+  today has an event left, its ring empty in the small hours until the afternoon comes onto it.
+
 - **A new icon**: the day's page with a clock in front of it, on coral. The «New event» shortcut
   follows it, in the same shape as your launcher's icons.
 

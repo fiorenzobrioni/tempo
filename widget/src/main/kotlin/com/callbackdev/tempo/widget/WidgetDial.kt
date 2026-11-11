@@ -7,12 +7,14 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.SweepGradient
 import android.widget.RemoteViews
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.createBitmap
 import com.callbackdev.tempo.core.domain.widget.DialArc
 import com.callbackdev.tempo.core.domain.widget.DialArcs
+import com.callbackdev.tempo.core.domain.widget.DialFade
 import com.callbackdev.tempo.core.domain.widget.DialGeometry
 import java.time.LocalTime
 import kotlin.math.PI
@@ -25,7 +27,7 @@ import kotlin.math.sin
  * Two layers in one small layout placed through Glance's `AndroidRemoteViews`:
  *
  * - the face, a bitmap painted here at each redraw: the ring's track, the day's arcs on it
- *   ([DialArcs]), four quarter dots;
+ *   ([DialArcs]; one the window cut fades out at that end, [DialFade]), four quarter dots;
  * - the hands, the system's `AnalogClock` over it, tinted in the card's ink. The launcher draws
  *   them and the system moves them, as it moves the `TextClock`: no repaint by Tempo, ever.
  *
@@ -81,7 +83,8 @@ internal object DialPainter {
         canvas.drawArc(oval, 0f, FULL_TURN, false, paint)
         paint.strokeCap = Paint.Cap.ROUND
         arcs.forEach { arc ->
-            paint.color = (if (arc.focus) inks.focus else inks.other).toArgb()
+            val ink = if (arc.focus) inks.focus else inks.other
+            paint.color = ink.toArgb()
             // A round cap reaches half the stroke past each end: the arc is shortened by as much,
             // so it begins and ends where the event does, down to a dot for a moment.
             val capDegrees = (inset / (center - inset)) * DEGREES_PER_RADIAN
@@ -89,7 +92,11 @@ internal object DialPainter {
             val sweep = (arc.sweep / DialArcs.FACE_MINUTES * FULL_TURN - capDegrees * 2).coerceAtLeast(
                 MIN_SWEEP_DEGREES,
             )
-            canvas.drawArc(oval, start, sweep, false, paint)
+            if (arc.cutAtStart || arc.cutAtEnd) {
+                paintFading(canvas, oval, center, arc, ink, start, sweep, capDegrees, paint)
+            } else {
+                canvas.drawArc(oval, start, sweep, false, paint)
+            }
         }
         val dot = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = inks.dots.toArgb() }
         repeat(QUARTERS) { quarter ->
@@ -103,6 +110,35 @@ internal object DialPainter {
         }
         hands?.let { paintHands(canvas, s, it, inks.hands) }
         return bitmap
+    }
+
+    /**
+     * A cut arc, its ink fading along it ([DialFade]). A sweep gradient starts at three o'clock, so
+     * the canvas is turned to put the arc's first cap just past it, clear of the gradient's seam.
+     */
+    private fun paintFading(
+        canvas: Canvas,
+        oval: RectF,
+        center: Float,
+        arc: DialArc,
+        ink: Color,
+        start: Float,
+        sweep: Float,
+        capDegrees: Float,
+        paint: Paint,
+    ) {
+        val extent = sweep + capDegrees * 2
+        val stops = DialFade.stops(extent, arc.cutAtStart, arc.cutAtEnd)
+        val colors = stops.map { (_, alpha) -> ink.copy(alpha = ink.alpha * alpha).toArgb() }.toIntArray()
+        val positions = stops.map { (share, _) -> (FADE_LEAD + share * extent) / FULL_TURN }.toFloatArray()
+        canvas.save()
+        canvas.rotate(start - capDegrees - FADE_LEAD, center, center)
+        // The shader's own alphas say the ink: the paint's is left whole, not to fade it twice.
+        paint.color = android.graphics.Color.BLACK
+        paint.shader = SweepGradient(center, center, colors, positions)
+        canvas.drawArc(oval, FADE_LEAD + capDegrees, sweep, false, paint)
+        paint.shader = null
+        canvas.restore()
     }
 
     /** The hands as the system's `AnalogClock` draws them from `widget_dial_hour` and `_minute`. */
@@ -139,6 +175,7 @@ internal object DialPainter {
     private const val QUARTER_TURN = 90f
     private const val QUARTERS = 4
     private const val MIN_SWEEP_DEGREES = 0.1f
+    private const val FADE_LEAD = 1f
     private const val DEGREES_PER_RADIAN = (180 / PI).toFloat()
     private const val RADIANS_PER_DEGREE = (PI / 180).toFloat()
     private const val HOURS = 12

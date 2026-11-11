@@ -16,10 +16,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -29,6 +31,7 @@ import com.callbackdev.tempo.core.domain.calendar.markAlpha
 import com.callbackdev.tempo.core.domain.calendar.markColor
 import com.callbackdev.tempo.core.domain.widget.DialArc
 import com.callbackdev.tempo.core.domain.widget.DialArcs
+import com.callbackdev.tempo.core.domain.widget.DialFade
 import com.callbackdev.tempo.core.domain.widget.DialGeometry
 import kotlin.math.PI
 import kotlin.math.cos
@@ -46,7 +49,8 @@ import kotlin.math.sin
  * as a mark (stepped to 3:1 on the page's surface, [markColor], and faded only as far as that
  * ratio allows, [markAlpha]), so the ring says which calendar an event is, as the list's bars do
  * under it; an arc with no colour known is the quiet ink (review of 30 Oct 2026). The cards keep
- * their own inks.
+ * their own inks. An arc the window cut fades out at that end ([DialFade]): the event goes on.
+ * With no arc the face is drawn all the same, its ring empty, while the page has a reason for it.
  *
  * When the face appears the hands wind forward from twelve to now and the arcs draw themselves,
  * together, in one short movement; after that the hands move with the page's minute ticker, on
@@ -126,7 +130,11 @@ private fun DrawScope.drawFace(arcs: List<DialArc>, marks: List<Color?>, progres
         val start = arc.from / DialArcs.FACE_MINUTES * FULL_TURN - QUARTER_TURN + capDegrees
         val sweep = (arc.sweep * progress / DialArcs.FACE_MINUTES * FULL_TURN - capDegrees * 2).coerceAtLeast(MIN_SWEEP)
         val color = if (arc.focus) inks.focus else marks[index] ?: inks.other
-        drawArc(color, start, sweep, useCenter = false, topLeft = topLeft, size = oval, style = round)
+        if (arc.cutAtStart || arc.cutAtEnd) {
+            drawFading(arc, color, start, sweep, capDegrees, center, topLeft, oval, round)
+        } else {
+            drawArc(color, start, sweep, useCenter = false, topLeft = topLeft, size = oval, style = round)
+        }
     }
     repeat(QUARTERS) { quarter ->
         val angle = quarter * QUARTER_TURN * RADIANS_PER_DEGREE
@@ -137,6 +145,39 @@ private fun DrawScope.drawFace(arcs: List<DialArc>, marks: List<Color?>, progres
                 center.x + side * DialGeometry.DOT_RADIUS * sin(angle),
                 center.y - side * DialGeometry.DOT_RADIUS * cos(angle),
             ),
+        )
+    }
+}
+
+/**
+ * A cut arc, its ink fading along it ([DialFade]). A sweep gradient starts at three o'clock, so the
+ * face is turned to put the arc's first cap just past it: the gradient then runs along the arc in
+ * one piece, wherever on the face the arc is.
+ */
+private fun DrawScope.drawFading(
+    arc: DialArc,
+    color: Color,
+    start: Float,
+    sweep: Float,
+    capDegrees: Float,
+    center: Offset,
+    topLeft: Offset,
+    oval: Size,
+    style: Stroke,
+) {
+    val extent = sweep + capDegrees * 2
+    val stops = DialFade.stops(extent, arc.cutAtStart, arc.cutAtEnd).map { (share, alpha) ->
+        (FADE_LEAD + share * extent) / FULL_TURN to color.copy(alpha = color.alpha * alpha)
+    }
+    rotate(start - capDegrees - FADE_LEAD, pivot = center) {
+        drawArc(
+            brush = Brush.sweepGradient(*stops.toTypedArray(), center = center),
+            startAngle = FADE_LEAD + capDegrees,
+            sweepAngle = sweep,
+            useCenter = false,
+            topLeft = topLeft,
+            size = oval,
+            style = style,
         )
     }
 }
@@ -176,5 +217,8 @@ private const val FULL_TURN = 360f
 private const val QUARTER_TURN = 90f
 private const val QUARTERS = 4
 private const val MIN_SWEEP = 0.1f
+
+/** Where a fading arc's first cap starts once the face is turned: clear of the gradient's seam. */
+private const val FADE_LEAD = 1f
 private const val DEGREES_PER_RADIAN = (180 / PI).toFloat()
 private const val RADIANS_PER_DEGREE = (PI / 180).toFloat()
