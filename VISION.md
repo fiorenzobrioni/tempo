@@ -80,7 +80,10 @@ app the reader already uses.
 - **The dial**: the «In words» card's clock face beside the time (the owner's review of 9 Oct
   2026): what is left of today as arcs on its ring (today only: owner, 5 Nov 2026), what comes
   next in the accent, the others quieter in their calendars' colours (as the list's marks, review
-  of 30 Oct 2026), the hands moving with the minute. When the page opens the hands wind forward to now and the arcs
+  of 30 Oct 2026), the hands moving with the minute. An event that goes on past the ring's
+  twelve hours fades out at that end (owner, 11 Nov 2026). The face stands while today has an
+  event left, its ring empty early in the day until the afternoon comes onto it; with the day
+  done the time stands alone. When the page opens the hands wind forward to now and the arcs
   draw themselves, in one short movement.
 - **The day's sentence**, before any list.
 - **The next alarm**: "Alarm tomorrow at 7:00", from the system's own next alarm clock, which

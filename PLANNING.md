@@ -304,7 +304,7 @@ With the clock and the date both hidden, the card is its list alone, on any gran
 | ROW | one row | Passo's row: the dial, Passo's ring (44 to 56 dp, keeping the words beside it 84 dp; §15, 4 Nov 2026), drawn where the words keep 72 dp; the title (20 sp, Chiaro's sentence) over when ("Until 11:00", "15:00 – 15:45", "Tomorrow · 9:00 – 9:30", 16 sp, Passo's facts); the date at the far edge over two lines ("Wednesday / 7 October") where the words keep 120 dp. A narrow row sets the words at 16 and 14 sp, a long title over two lines |
 | TALL | two rows and up | Passo's tall card: the dial in the top trailing corner, the family's circle for the card's size, whatever the day says (the height left over a budgeted band of words, up to 45% of the card's inner height and width, never held under 104 dp; Passo's ring at the same size: §15, 4 Nov 2026, "at every size") with the date beside it, or on its own line over the title where the dial leaves it no column (two cells wide, three rows high); with «The day's note» off in the card's settings, the event alone (its title on one line, its time) under a dial the size of Passo's ring without its sentence, the date where it fits without shrinking it (§15, 5 Nov 2026), and the second clock under the date where the band beside the dial holds it (without the dial, on top under the date); the title (22 sp, down to 18 to stay on one line), when, the day's note hanging from the bottom leading corner. Under them, where two more lines fit once the dial has its comfort (72 dp), the next one or two events as rows ("13:00  Lunch with Giulia", 13 sp, the time quiet and the title strong; 8.3), the note keeping its count only where they leave some out; else, on a card four cells wide with a line to spare, the rest of the day as a line of times ("Then 13:00 · 15:00 · 18:30") in place of the note's count |
 
-**The dial** (owner, 8 Oct 2026; `DialArcs`, `WidgetDial.kt`, ADR 0003): a clock face where Passo's card has its ring. The hands are the system's `AnalogClock`, drawn by the launcher and moved by the system like the `TextClock`; the face under them is a bitmap Tempo paints at each redraw: the ring's track, what is left of today as arcs (today only, owner, §15, 5 Nov 2026: a later day's events are in the words and the list, never on the face), the focus among them in the accent from its start to its end, the rest quieter, four quarter dots. The arcs change only where an event starts or ends, or comes onto the face, the boundaries the card is redrawn at (the last one since the review of 30 Oct 2026, where an «In words» card is placed, for today's events), so the hour hand walks into an arc, through it and out of it with no work by Tempo. A face shows twelve hours: the window opens now (or at the start of the event under way, six hours back at most) and closes eleven and a half hours later, so no arc ever meets the hand from behind; what lies beyond it is left off, never wrapped, and an event of today that reaches past it (only early in the day) is cut there. An event of today that runs past midnight is drawn whole. The samples paint the hands into the face at their moment.
+**The dial** (owner, 8 Oct 2026; `DialArcs`, `WidgetDial.kt`, ADR 0003): a clock face where Passo's card has its ring. The hands are the system's `AnalogClock`, drawn by the launcher and moved by the system like the `TextClock`; the face under them is a bitmap Tempo paints at each redraw: the ring's track, what is left of today as arcs (today only, owner, §15, 5 Nov 2026: a later day's events are in the words and the list, never on the face), the focus among them in the accent from its start to its end, the rest quieter, four quarter dots. The arcs change only where an event starts or ends, or comes onto the face, the boundaries the card is redrawn at (the last one since the review of 30 Oct 2026, where an «In words» card is placed, for today's events), so the hour hand walks into an arc, through it and out of it with no work by Tempo. A face shows twelve hours: the window opens now (or at the start of the event under way, six hours back at most) and closes eleven and a half hours later, so no arc ever meets the hand from behind; what lies beyond it is left off, never wrapped, and an event of today that reaches past it (only early in the day) is cut there, its arc fading out at the cut end, as at a start cut six hours back (`DialArc.cutAtEnd`, `cutAtStart`, `DialFade`; owner, §15, 11 Nov 2026). An event of today that runs past midnight is drawn whole. The samples paint the hands into the face at their moment.
 
 The focus is the event under way, else the next one today, else (with the days ahead) the first one after today under its day's name, else "Free" (`WordsDay`). The note says times and counts, never minutes from now (§15): "Then 2 more today.", "Free until then; one more after it.", "Nothing left today.", or a free day's all-day events.
 
@@ -436,7 +436,7 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [ ] **«Join», on hold** (step 8.4; owner, 30 Oct 2026: "not a priority; I want to weigh it again in the future"). A video call's link on Today's event under way or about to start, opened by a button; nothing of it is built. Its plan, to start from: `docs/planning/02-phase-8.md`, §11, Phase 8, step 8.4.
 - [x] **The new icon on the phone** (§15, 9 Nov 2026, «The new icon: the day's page and the clock»): the launcher icon in the phone's own mask, the themed icon, the «New event» shortcut. Done by the owner on 9 Nov 2026 (§15, «The new icon checked on the phone»).
 - [x] **The «New event» shortcut as an adaptive icon, on the phone** (§15, 9 Nov 2026, «The «New event» shortcut, an adaptive icon»): long press on the icon, in the phone's own mask and with the themed icons on. Done by the owner on 9 Nov 2026 (§15, «The adaptive shortcut checked on the phone, and Tetto in the family»).
-- [ ] **Today's review on the phone** (§15, 10 Nov 2026, «Today reviewed: one clock, one "now", one ground»): the page in both dresses and both themes, morning and evening (the dial there and gone), the day markers on the 12-hour clock, the button's icon over the last rows, TalkBack on the all-day events and the button.
+- [ ] **Today's review on the phone** (§15, 10 Nov 2026, «Today reviewed: one clock, one "now", one ground»; and 11 Nov 2026, «The dial: a cut arc fades, and the face stays while today has events»): the page in both dresses and both themes, early morning (the face with its ring empty, a long event fading at 12:25), morning and evening (the dial there and gone), the «In words» card early in the day, the day markers on the 12-hour clock, the button's icon over the last rows, TalkBack on the all-day events and the button.
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
@@ -712,3 +712,47 @@ sight.
 **Checked.** `TodayScreenTest` whole (touch targets at every walk), the screenshots looked at; the
 README's pictures redrawn.
 
+### The dial: a cut arc fades, and the face stays while today has events (owner, 11 Nov 2026)
+
+**Where it comes from.** The owner, at 00:55 on the phone, with today 10:00 to 22:00 («Ordinare
+regalo») and 16:00 to 17:00: the ring drew 10 o'clock to 12:25 in the accent and nothing of the
+visit. Asked whether the window could run from now to midnight, so that the day's events are
+drawn whole, and at what cost; and whether the face could always be drawn, its ring empty.
+
+**Weighed.** From now to midnight is up to 23 hours on a face of twelve: before noon an hour is
+two places at once, and the 16:00 visit would sit at 4 o'clock, three hours ahead of the hand, read
+as 04:00; the twelve-hour event would close the ring and meet the hand, read as now. These are
+the faults the window was made against (§7; «The dial shows today only», 5 Nov 2026). After
+12:30 the window already reaches midnight, as it carries today's events only: the change would
+have touched the morning alone, where it cannot work. No battery cost either way (the arcs are
+computed at redraws that happen anyway; the window's own boundary, `comesOnTheFace`, would have
+gone). A 24-hour face (the card's hands are the system's `AnalogClock`, twelve hours only: the
+app and the card would be two clocks) and two rings (too much for a cell) were set aside. The
+owner chose (A), the window kept and its cut said, and the new rule for the face.
+
+**What changed.**
+
+1. **A cut arc fades out at the cut end** (`DialArc.cutAtStart`, `cutAtEnd`; `DialFade.stops`,
+   pure and shared by `DayDial` and `WidgetDial`). Over at most 45 degrees (an hour and a half),
+   and at most 80% of the arc between its fades, so a short one keeps some ink. The end is cut
+   where the window closes first (early in the day), the start where the event under way began
+   more than six hours back: both say the event goes on, where the arc ended as if it did. The
+   gradient is a sweep gradient, the face turned so that it runs along the arc in one piece.
+2. **The face stays while today has a timed event left**, even when none is on its ring yet
+   (`heroArcs`: null, no face; empty, a face with an empty ring). This changes 10 Nov 2026's «No
+   face with nothing on it» («Today reviewed» above): the face was drawn while it had an arc, so
+   with only an afternoon event it was missing until the event came onto it (at 04:31 for a
+   16:00), and the page changed shape for no change in the day, saying "nothing" beside an agenda
+   with something in it. Once the day is done, and in every state without an agenda, the time
+   stands alone, as it did. The first day's tip still waits for an arc to explain.
+3. **Words**: the empty face says why to a screen reader (`today_dial_later`: "today's next
+   event is more than eleven hours away and not yet on its ring"); the guide's paragraph on the
+   dial says the ring's hours, the fade and the empty morning; VISION (Today, the dial),
+   `CHANGELOG.md` [Unreleased]. The «In words» card already kept its face with nothing on it;
+   only the fade reaches it.
+
+**Checked.** `WordsTest` (the owner's morning: 10:00 to 22:00 at 00:55 cut at its end, at 17:00
+at its start, an event drawn whole cut at neither; the early cut and the night the clocks go back
+now cut at the end; `DialFade`'s stops), `TodayScreenTest` (the face with an empty ring at 02:00
+and its description; the cut arc at 00:55, screenshots looked at; the tip waits for an arc). On
+the phone: the Open list.

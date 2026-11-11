@@ -475,6 +475,38 @@ class TodayScreenTest {
     }
 
     @Test
+    fun `early in the day the face stands, its ring empty until the afternoon comes onto it`() {
+        // At 02:00 the window closes at 13:30: the 15:00 dentist and the 18:30 swim are beyond it.
+        // The face stays, as the day has events left; its ring is empty and says why.
+        draw(
+            TodaySample.state(
+                now = TodaySample.at("2026-10-07T02:00"),
+                instances = listOf(TodaySample.dentist, TodaySample.swimming),
+            ),
+        )
+        compose.onNodeWithTag(TodayTags.DIAL).assert(
+            hasContentDescription(
+                "Clock face at 02:00; today’s next event is more than eleven hours away and not yet on its ring",
+            ),
+        )
+        compose.assertAccessible()
+        compose.writeScreenshot("today-early-empty-ring")
+    }
+
+    @Test
+    fun `an event cut at the window's end is drawn`() {
+        // At 00:55 an event from 10:00 to 22:00 reaches past the window: its arc fades at 12:25.
+        val long = TodaySample.dentist.copy(
+            begin = TodaySample.at("2026-10-07T10:00").toInstant(),
+            end = TodaySample.at("2026-10-07T22:00").toInstant(),
+        )
+        draw(TodaySample.state(now = TodaySample.at("2026-10-07T00:55"), instances = listOf(long)))
+        compose.onNodeWithTag(TodayTags.DIAL)
+            .assert(hasContentDescription("Clock face at 00:55, with what is left of today on its ring"))
+        compose.writeScreenshot("today-cut-arc")
+    }
+
+    @Test
     fun `the sentence comes before the alarm, and the alarm before the day's events`() {
         draw()
         val sentence = compose.onNodeWithTag(TodayTags.SENTENCE).fetchSemanticsNode().boundsInRoot
@@ -552,6 +584,19 @@ class TodayScreenTest {
     fun `the tip waits for the dial it explains`() {
         draw(TodaySample.state(now = TodaySample.at("2026-10-07T21:00"), settings = firstDay))
         compose.onNodeWithTag(TodayTags.DIAL).assertDoesNotExist()
+        compose.onNodeWithTag(TodayTags.TIP).assertDoesNotExist()
+    }
+
+    @Test
+    fun `the tip waits for an arc on the dial`() {
+        draw(
+            TodaySample.state(
+                now = TodaySample.at("2026-10-07T02:00"),
+                instances = listOf(TodaySample.dentist),
+                settings = firstDay,
+            ),
+        )
+        compose.onNodeWithTag(TodayTags.DIAL).assertIsDisplayed()
         compose.onNodeWithTag(TodayTags.TIP).assertDoesNotExist()
     }
 

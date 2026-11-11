@@ -17,8 +17,20 @@ import java.time.ZoneId
  * known). Today's face draws a quiet arc in it, as a mark, so the ring says which calendar each
  * event is, as the list's bars do; the cards keep their inks on their six grounds (PLANNING.md §15,
  * 30 Oct 2026).
+ *
+ * [cutAtStart] and [cutAtEnd] say the event goes on beyond the arc: it began before the window
+ * opened (more than [DialArcs.LOOK_BACK] ago), or it ends after the window closes. A cut end is
+ * drawn fading out ([DialFade]), so an arc from 10:00 cut at 12:25 does not read as an event that
+ * ends at 12:25 (owner, PLANNING.md §15, 11 Nov 2026).
  */
-data class DialArc(val from: Float, val sweep: Float, val focus: Boolean, val color: Int? = null)
+data class DialArc(
+    val from: Float,
+    val sweep: Float,
+    val focus: Boolean,
+    val color: Int? = null,
+    val cutAtStart: Boolean = false,
+    val cutAtEnd: Boolean = false,
+)
 
 /**
  * The events the dial carries (PLANNING.md §7): what is left of today, the focus among it, as
@@ -37,7 +49,9 @@ data class DialArc(val from: Float, val sweep: Float, val focus: Boolean, val co
  * the way round would meet the hand from behind and read as now. It opens at the moment drawn,
  * or at the start of the event under way (up to [LOOK_BACK] before): the hand stands inside its
  * arc. What starts beyond the window is left off, never wrapped round onto the hours before it;
- * only early in the day can an event of today reach past it, and only there is an arc cut.
+ * only early in the day can an event of today reach past it, and only there is an arc cut. A cut
+ * end says so ([DialArc.cutAtEnd], [DialArc.cutAtStart]): it fades out, rather than end as if the
+ * event did.
  *
  * The face is the clock on the wall, so the window and the arcs are measured in its time, not in
  * elapsed time: the night the clocks go forward, eleven real hours fill twelve on the face, and
@@ -88,8 +102,16 @@ object DialArcs {
         // In the hour the clocks repeat, a later moment can be earlier on the face: never below 0.
         val ahead = faceMinutesBetween(opens, from, zone).coerceAtLeast(0f)
         if (ahead >= SPAN_MINUTES) return null
-        val minutes = minOf(faceMinutesBetween(from, end, zone), SPAN_MINUTES - ahead)
-        return DialArc(minuteOnFace(from, zone), maxOf(minutes, MIN_SWEEP), focus, color)
+        val whole = faceMinutesBetween(from, end, zone)
+        val minutes = minOf(whole, SPAN_MINUTES - ahead)
+        return DialArc(
+            from = minuteOnFace(from, zone),
+            sweep = maxOf(minutes, MIN_SWEEP),
+            focus = focus,
+            color = color,
+            cutAtStart = event.begin < from,
+            cutAtEnd = whole > minutes,
+        )
     }
 
     /** How far the hand moves from [from] to [to]: wall-clock minutes, not elapsed ones. */
@@ -128,6 +150,44 @@ object DialArcs {
     private const val HOURS_ON_FACE = 12
     private const val MINUTES_PER_HOUR = 60f
     private const val SECONDS_PER_MINUTE = 60f
+}
+
+/**
+ * How a cut arc is drawn: its alpha along it, fading to nothing at each end the window cut, so the
+ * arc reads as an event that goes on (owner, PLANNING.md §15, 11 Nov 2026). One drawing for the
+ * card (`WidgetDial`) and for Today's face (`DayDial`).
+ */
+object DialFade {
+    /** The longest fade, in degrees of the face: an hour and a half. */
+    const val DEGREES: Float = 45f
+
+    /** The most of an arc's length its fades may take together: a short arc keeps some ink. */
+    const val MAX_SHARE: Float = 0.8f
+
+    /**
+     * The alpha stops along an arc [extent] degrees long (its round caps included), as (share of
+     * the extent from its start, 0 to 1; alpha, 0 to 1), in order. An arc cut at neither end is
+     * one stop of full ink at each end.
+     */
+    fun stops(extent: Float, atStart: Boolean, atEnd: Boolean): List<Pair<Float, Float>> {
+        val ends = listOf(atStart, atEnd).count { it }
+        if (ends == 0 || extent <= 0f) return listOf(0f to 1f, 1f to 1f)
+        val fade = minOf(DEGREES, extent * MAX_SHARE / ends) / extent
+        return buildList {
+            if (atStart) {
+                add(0f to 0f)
+                add(fade to 1f)
+            } else {
+                add(0f to 1f)
+            }
+            if (atEnd) {
+                add(1f - fade to 1f)
+                add(1f to 0f)
+            } else {
+                add(1f to 1f)
+            }
+        }
+    }
 }
 
 /**

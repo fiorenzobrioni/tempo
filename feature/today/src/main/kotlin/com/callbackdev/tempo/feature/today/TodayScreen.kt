@@ -504,9 +504,9 @@ private fun LazyListScope.row(key: String, gutter: PageGutter, content: @Composa
 /**
  * The first day's tip (step 8.6): what the dial says, and the way to the guide for the rest. Shown
  * until it is dismissed or followed ([TodayUiState.showsTip]), and only while the dial it explains
- * is on the page ([heroArcs]): on a day with nothing left it waits for the next.
+ * has an arc on it ([heroArcs]): on a day with nothing left, or with its ring still empty, it waits.
  */
-private fun showsTip(state: TodayUiState): Boolean = state.showsTip && heroArcs(state).isNotEmpty()
+private fun showsTip(state: TodayUiState): Boolean = state.showsTip && !heroArcs(state).isNullOrEmpty()
 
 /** See [showsTip]. */
 @Composable
@@ -679,21 +679,27 @@ private fun Hero(
                 Icon(TempoIcons.Settings, stringResource(R.string.today_settings), tint = quiet)
             }
         }
-        // A face with nothing on its ring says the time a second time and nothing else: it is
-        // drawn while today has something left, and the figures stand alone the rest of the day,
-        // and with no calendar to read (PLANNING.md §15, 10 Nov 2026).
+        // The face is drawn while today has an event left, even before it comes onto the ring:
+        // the hero keeps its shape through the day, and does not say "nothing" beside an agenda
+        // with an afternoon in it. The figures stand alone once the day is done, and with no
+        // calendar to read (PLANNING.md §15, 10 and 11 Nov 2026).
         val arcs = remember(content, state.settings.showAllDay, now.zone) { heroArcs(state) }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(start = HERO_EDGE, end = HERO_EDGE, top = 4.dp),
         ) {
             Box(Modifier.weight(1f)) { Clock(now, locale, text.uses24Hour, Modifier.testTag(TodayTags.TIME)) }
-            if (arcs.isNotEmpty()) {
+            if (arcs != null) {
+                val time = DateTimeText.time(now, locale, text.uses24Hour)
                 Spacer(Modifier.width(DIAL_GAP))
                 DayDial(
                     faceMinutes = DialArcs.minuteOnFace(now.toInstant(), now.zone),
                     arcs = arcs,
-                    description = stringResource(R.string.today_dial, DateTimeText.time(now, locale, text.uses24Hour)),
+                    description = if (arcs.isEmpty()) {
+                        stringResource(R.string.today_dial_later, time)
+                    } else {
+                        stringResource(R.string.today_dial, time)
+                    },
                     modifier = Modifier.size(dial).testTag(TodayTags.DIAL),
                 )
             }
@@ -797,11 +803,13 @@ private fun SecondClock(state: TodayUiState, text: AgendaText) {
 
 /**
  * The dial's arcs, as the «In words» card places them: the focus in the accent, the rest quiet, in
- * their calendars' colours, as the list's bars under it. None with nothing left today, or with no
- * agenda to read: then the hero draws no face.
+ * their calendars' colours, as the list's bars under it. Null, and no face, with no timed event
+ * left today or no agenda to read; empty, and a face with an empty ring, while today's events are
+ * all still beyond its twelve hours (early in the day, an afternoon's).
  */
-private fun heroArcs(state: TodayUiState): List<DialArc> {
-    val content = state.content as? TodayContent.Ready ?: return emptyList()
+private fun heroArcs(state: TodayUiState): List<DialArc>? {
+    val content = state.content as? TodayContent.Ready ?: return null
+    if (DialArcs.today(content.agenda).isEmpty()) return null
     val focus = WordsDay.of(content.agenda, showAllDay = state.settings.showAllDay, showDaysAhead = true).focus
     return DialArcs.of(content.agenda, focus, state.now.zone, calendars = content.calendars)
 }
