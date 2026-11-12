@@ -17,6 +17,9 @@ All notable changes to Tempo are documented here. The format follows
 
 ### Changed
 
+- **The first run's words.** Its buttons read «Get started», «Continue» and «Later», and its
+  battery promise says when a widget redraws: when your calendar changes or an event starts or ends.
+
 - **Today, quieter.** The time is lighter and its clock face finer, and the face is there only
   while today has something left to show. The sentence comes first, with what is true now in
   bold; the alarm is under it. The event under way is the only filled card on the page, so "now"

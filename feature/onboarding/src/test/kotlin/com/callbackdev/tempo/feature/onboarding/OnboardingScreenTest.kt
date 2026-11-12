@@ -121,7 +121,7 @@ class OnboardingScreenTest {
         draw(OnboardingStep.CALENDAR, CalendarPermission.GRANTED, OnboardingActions(next = { next = true }))
         compose.onNodeWithTag(OnboardingTags.GRANTED).assertIsDisplayed()
         compose.onNodeWithTag(OnboardingTags.NOT_NOW).assertDoesNotExist()
-        compose.onNodeWithText("Next").performClick()
+        compose.onNodeWithText("Continue").performClick()
         assertThat(next).isTrue()
     }
 

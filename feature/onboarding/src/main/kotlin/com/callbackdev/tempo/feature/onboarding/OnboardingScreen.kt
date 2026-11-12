@@ -204,7 +204,7 @@ private const val PAGE_MILLIS = 300
  * The buttons under every page (the family's frame, 18 Oct 2026): one wide button that moves on,
  * in the same place on every page, the line that says what it costs under it, and the quiet way
  * past. On the calendar's page the wide button asks (or, refused for good, opens the system's
- * page) until the permission is there; "Not now" is always a way through, because the clock works
+ * page) until the permission is there; "Later" is always a way through, because the clock works
  * without it. The widget's page ends the run: a card is offered, never required. The way back is
  * the system's.
  */
