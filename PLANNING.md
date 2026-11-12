@@ -786,3 +786,20 @@ the card placed or added by hand.
 **Checked.** `OnboardingScreenTest` (the calendar's page moves on with «Continue»);
 `onboarding.png` regenerated (its button reads «Get started») and looked at; the README's alt text
 follows. `CHANGELOG.md` [Unreleased].
+
+### The first run's lines balanced, in the four apps (owner, 12 Nov 2026)
+
+**Asked.** After the review above, the owner: if a word alone at the end of a line should be
+fixed in Passo too, it is fixed in all four repositories. It should: the first run's texts are
+centred and short, where «…niente da / sincronizzare.» or «…accesso / a internet.» reads as a
+slip; the budget app already broke them balanced.
+
+**What changed.** `:core:designsystem` gains `balanced()` (`LineBreak.Heading`: lines of about
+one width, never a word alone on the last), and every centred text of the first run takes it: the
+titles, the sentence, the promises, the bodies, the line under the calendar's button, the widget
+page's notes. Only the first run: the rest of the app keeps its breaks until a review of its own
+looks at it screen by screen.
+
+**Checked.** The onboarding's tests and their screenshots (Italian, twice the text size);
+`onboarding.png` regenerated and looked at.
+
