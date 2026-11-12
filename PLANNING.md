@@ -756,3 +756,50 @@ at its start, an event drawn whole cut at neither; the early cut and the night t
 now cut at the end; `DialFade`'s stops), `TodayScreenTest` (the face with an empty ring at 02:00
 and its description; the cut arc at 00:55, screenshots looked at; the tip waits for an arc). On
 the phone: the Open list.
+
+### The first run, reviewed with the family's (owner, 12 Nov 2026)
+
+**Asked.** A review of Tempo's, Tetto's and Saldo's first runs, Passo's as the model: are their
+words true to the app as it is today, and are their look, layout, type and motion one?
+
+**Found.** The frame was already Passo's (18 Oct 2026, archive 02): the same page, centred in the
+room above the buttons, the same type steps (`displaySmall`, `titleMedium`, `headlineMedium`,
+`bodyLarge`), the same 300 ms slide and fade, the 100 ms fade under reduced motion. What
+differed was in the words.
+
+**What changed.**
+
+1. **The buttons speak as Passo's**: «Get started» / «Iniziamo» on the welcome (was «Start» /
+   «Inizia»), «Continue» / «Continua» (was «Next» / «Avanti»), and the quiet way past «Later» /
+   «Più tardi» (was «Not now» / «Non ora»). Tetto and Saldo take the same three.
+2. **The step in Italian is «Passaggio 1 di 3»** (was «Passo 1 di 3»): Passo's own word, and
+   «Passo» is also a sister's name, which TalkBack would read on every heading.
+3. **The battery promise said "never on a timer" and "when your calendar changes"**: true of the
+   app, but a widget also redraws when an event starts or ends (§7, the boundary alarm). It now
+   says so: «Tempo works while you look, and a widget only when your calendar changes or an event
+   starts or ends», with "nothing on a timer" as the guide's battery chapter says it.
+
+The other words were checked against the app and hold: the calendar's page (read-only, `READ_CALENDAR`
+alone, allowed later from Today's card or from Settings), the two widgets and their system clock,
+the card placed or added by hand.
+
+**Checked.** `OnboardingScreenTest` (the calendar's page moves on with «Continue»);
+`onboarding.png` regenerated (its button reads «Get started») and looked at; the README's alt text
+follows. `CHANGELOG.md` [Unreleased].
+
+### The first run's lines balanced, in the four apps (owner, 12 Nov 2026)
+
+**Asked.** After the review above, the owner: if a word alone at the end of a line should be
+fixed in Passo too, it is fixed in all four repositories. It should: the first run's texts are
+centred and short, where «…niente da / sincronizzare.» or «…accesso / a internet.» reads as a
+slip; the budget app already broke them balanced.
+
+**What changed.** `:core:designsystem` gains `balanced()` (`LineBreak.Heading`: lines of about
+one width, never a word alone on the last), and every centred text of the first run takes it: the
+titles, the sentence, the promises, the bodies, the line under the calendar's button, the widget
+page's notes. Only the first run: the rest of the app keeps its breaks until a review of its own
+looks at it screen by screen.
+
+**Checked.** The onboarding's tests and their screenshots (Italian, twice the text size);
+`onboarding.png` regenerated and looked at.
+

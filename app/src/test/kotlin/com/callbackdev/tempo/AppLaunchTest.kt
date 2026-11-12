@@ -50,7 +50,7 @@ class AppLaunchTest {
         compose.waitForIdle()
         compose.onNodeWithTag(OnboardingTags.PRIMARY).performClick()
         compose.waitForIdle()
-        // Granted, the calendar's page says so and its button moves on; otherwise "Not now".
+        // Granted, the calendar's page says so and its button moves on; otherwise "Later".
         compose.onNodeWithTag(if (granted) OnboardingTags.PRIMARY else OnboardingTags.NOT_NOW).performClick()
         compose.waitForIdle()
         // The widgets' page, through the real graph (the launcher's pin support asked), then Done.

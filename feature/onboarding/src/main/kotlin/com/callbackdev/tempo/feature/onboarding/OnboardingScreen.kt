@@ -63,6 +63,7 @@ import com.callbackdev.tempo.core.data.widget.TempoWidget
 import com.callbackdev.tempo.core.designsystem.icons.TempoIcons
 import com.callbackdev.tempo.core.designsystem.theme.GroupShape
 import com.callbackdev.tempo.core.designsystem.theme.TempoMotion
+import com.callbackdev.tempo.core.designsystem.theme.balanced
 import com.callbackdev.tempo.core.designsystem.theme.padding
 import com.callbackdev.tempo.core.designsystem.theme.pageGutter
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
@@ -204,7 +205,7 @@ private const val PAGE_MILLIS = 300
  * The buttons under every page (the family's frame, 18 Oct 2026): one wide button that moves on,
  * in the same place on every page, the line that says what it costs under it, and the quiet way
  * past. On the calendar's page the wide button asks (or, refused for good, opens the system's
- * page) until the permission is there; "Not now" is always a way through, because the clock works
+ * page) until the permission is there; "Later" is always a way through, because the clock works
  * without it. The widget's page ends the run: a card is offered, never required. The way back is
  * the system's.
  */
@@ -237,7 +238,7 @@ private fun BottomBar(step: OnboardingStep, permission: CalendarPermission, acti
         if (asking) {
             Text(
                 text = stringResource(R.string.onboarding_calendar_later),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall.balanced(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )
@@ -265,7 +266,7 @@ private fun Modifier.stepHeading(step: OnboardingStep): Modifier {
 private fun PageTitle(text: String, step: OnboardingStep) {
     Text(
         text = text,
-        style = MaterialTheme.typography.headlineMedium,
+        style = MaterialTheme.typography.headlineMedium.balanced(),
         textAlign = TextAlign.Center,
         modifier = Modifier.stepHeading(step),
     )
@@ -276,7 +277,7 @@ private fun PageTitle(text: String, step: OnboardingStep) {
 private fun PageBody(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.bodyLarge,
+        style = MaterialTheme.typography.bodyLarge.balanced(),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,
     )
@@ -291,14 +292,14 @@ private fun PageBody(text: String) {
 private fun WelcomePage() {
     Text(
         text = stringResource(R.string.onboarding_app_name),
-        style = MaterialTheme.typography.displaySmall,
+        style = MaterialTheme.typography.displaySmall.balanced(),
         textAlign = TextAlign.Center,
         modifier = Modifier.stepHeading(OnboardingStep.WELCOME),
     )
     Spacer(Modifier.height(8.dp))
     Text(
         text = stringResource(R.string.onboarding_tagline),
-        style = MaterialTheme.typography.titleMedium,
+        style = MaterialTheme.typography.titleMedium.balanced(),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,
     )
@@ -317,10 +318,14 @@ private fun Promise(title: Int, body: Int) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Text(stringResource(title), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+        Text(
+            stringResource(title),
+            style = MaterialTheme.typography.titleMedium.balanced(),
+            textAlign = TextAlign.Center,
+        )
         Text(
             stringResource(body),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium.balanced(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
@@ -374,7 +379,7 @@ private fun WidgetPage(offer: WidgetOffer, pin: (TempoWidget) -> Unit) {
         Spacer(Modifier.height(20.dp))
         Text(
             text = stringResource(R.string.onboarding_widget_placed),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium.balanced(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.testTag(OnboardingTags.PLACED),
@@ -383,7 +388,7 @@ private fun WidgetPage(offer: WidgetOffer, pin: (TempoWidget) -> Unit) {
         Spacer(Modifier.height(20.dp))
         Text(
             text = stringResource(R.string.onboarding_widget_manual),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium.balanced(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
