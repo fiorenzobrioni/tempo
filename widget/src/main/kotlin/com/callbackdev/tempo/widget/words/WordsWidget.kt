@@ -27,6 +27,7 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -365,7 +366,7 @@ private fun Dial(parts: WordsParts, palette: WidgetPalette) {
 
 /** The date, a `TextClock` so it turns at midnight; at the far edge of a row, aligned to it. */
 @Composable
-private fun DateLine(parts: WordsParts, palette: WidgetPalette, end: Boolean) {
+private fun DateLine(parts: WordsParts, palette: WidgetPalette, end: Boolean, strong: Boolean = end) {
     val plan = parts.plan
     if (plan.dateChoice < 0) return
     // The family's ranks (owner, 14 Nov 2026): at a row's far edge the date stands where the
@@ -376,7 +377,7 @@ private fun DateLine(parts: WordsParts, palette: WidgetPalette, end: Boolean) {
         ClockFace.MEDIUM,
         parts.datePatterns[plan.dateChoice].let { if (plan.dateLines > 1) it.brokenAfterFirstWord() ?: it else it },
         plan.dateSp,
-        if (end) palette.primary else palette.secondary,
+        if (strong) palette.primary else palette.secondary,
         plan.dateLines,
         parts.headerIntent,
         parts.model.now.takeIf { parts.model.frozenClock },
@@ -578,7 +579,7 @@ private fun RowContent(parts: WordsParts, palette: WidgetPalette, messageHeight:
                 When(parts, palette)
             }
         }
-        if (parts.message == null && parts.plan.dateChoice >= 0 && !parts.plan.dateBelow) {
+        if (parts.message == null && parts.plan.dateChoice >= 0) {
             Column(
                 modifier = GlanceModifier.padding(start = WordsFit.DATE_GAP.dp),
                 horizontalAlignment = Alignment.End,
@@ -655,14 +656,28 @@ private fun PanelContent(parts: WordsParts, palette: WidgetPalette) {
         return
     }
     Column(modifier = GlanceModifier.fillMaxSize()) {
-        Box(modifier = GlanceModifier.fillMaxWidth().height(plan.header.dp)) {
-            RowContent(parts, palette)
+        // The header: the dial leading; beside it, the date on a line of its own against the far
+        // edge, the eyebrow (and the second clock under it), and at the foot the title over its
+        // time, level with the dial's foot (owner, 14 Nov 2026).
+        Row(modifier = GlanceModifier.fillMaxWidth().height(plan.header.dp), verticalAlignment = Alignment.Top) {
+            Dial(parts, palette)
+            Column(
+                modifier = GlanceModifier.padding(start = WordsFit.DIAL_GAP.dp).defaultWeight().fillMaxHeight(),
+            ) {
+                if (plan.dateChoice >= 0) {
+                    Column(modifier = GlanceModifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
+                        DateLine(parts, palette, end = true, strong = false)
+                        SecondLine(parts, palette)
+                    }
+                }
+                Spacer(modifier = GlanceModifier.defaultWeight())
+                Column(modifier = GlanceModifier.fillMaxWidth().then(focusModifier(parts))) {
+                    Title(parts, palette)
+                    When(parts, palette)
+                }
+            }
         }
         Spacer(modifier = GlanceModifier.defaultWeight())
-        if (plan.dateBelow) {
-            DateLine(parts, palette, end = false)
-            Spacer(modifier = GlanceModifier.height(WordsFit.TOP_GAP.dp))
-        }
         Note(parts, palette)
         NextRows(parts, palette)
         parts.then?.let { then ->

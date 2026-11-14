@@ -316,23 +316,36 @@ class WordsTest {
     @Test
     fun `without the dial a wide card keeps the tall form`() {
         assertThat(WordsFit.plan(spec(340f, 189f, dial = false)).form).isEqualTo(WordsForm.TALL)
-        // At twice the text size the header is the title over its time, and the rest is under it.
-        val large = WordsFit.plan(spec(340f, 189f, scale = 2f))
+        // At twice the text size the header leaves nothing under it: the tall form, which yields.
+        assertThat(WordsFit.plan(spec(340f, 189f, scale = 2f)).form).isEqualTo(WordsForm.TALL)
+        // A taller card keeps the panel there, its budget whole.
+        val large = WordsFit.plan(spec(340f, 293f, scale = 2f))
         assertThat(large.form).isEqualTo(WordsForm.PANEL)
-        assertThat(
-            large.header + WordsFit.PANEL_GAP + large.below,
-        ).isWithin(0.01f).of(189f - AgendaFit.CARD_PADDING * 2)
+        assertThat(large.header + WordsFit.PANEL_GAP + large.below)
+            .isWithin(0.01f).of(293f - AgendaFit.CARD_PADDING * 2)
     }
 
     @Test
-    fun `a panel sets the second clock under the date at its far edge, where the header holds it`() {
-        val plan = WordsFit.plan(spec(340f, 189f, secondEm = secondEm))
-        assertThat(plan.form).isEqualTo(WordsForm.PANEL)
-        assertThat(plan.second).isTrue()
+    fun `a panel sets the date on its own line over the title, the second clock under it where it fits`() {
+        val four = WordsFit.plan(spec(340f, 189f, secondEm = secondEm))
+        assertThat(four.form).isEqualTo(WordsForm.PANEL)
+        assertThat(four.dateChoice).isEqualTo(0)
+        assertThat(four.dateLines).isEqualTo(1)
+        // The reader asked for the second clock: the header grows by its line, the words under it keep one.
+        assertThat(four.second).isTrue()
         assertThat(
-            clockLineHeight(plan.dateSp, 1f) * plan.dateLines + WordsFit.SECOND_TOP +
-                clockLineHeight(WordsFit.SECOND_SP, 1f),
-        ).isAtMost(plan.header)
+            clockLineHeight(four.dateSp, 1f) + WordsFit.SECOND_TOP + clockLineHeight(WordsFit.SECOND_SP, 1f) +
+                lineHeight(four.titleSp, 1f) + lineHeight(four.whenSp, 1f),
+        ).isAtMost(four.header + 0.01f)
+        assertThat(four.below).isAtLeast(lineHeight(WordsFit.ROW_SP, 1f))
+        // Without it, the header is the dial's.
+        assertThat(WordsFit.plan(spec(340f, 189f)).header).isEqualTo(WordsFit.tallCircle(340f, 189f, 1f))
+        val tall = WordsFit.plan(spec(340f, 293f, secondEm = secondEm))
+        assertThat(tall.second).isTrue()
+        assertThat(
+            clockLineHeight(tall.dateSp, 1f) + WordsFit.SECOND_TOP + clockLineHeight(WordsFit.SECOND_SP, 1f) +
+                lineHeight(tall.titleSp, 1f) + lineHeight(tall.whenSp, 1f),
+        ).isAtMost(tall.header + 0.01f)
     }
 
     @Test

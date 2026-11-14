@@ -113,7 +113,6 @@ data class WordsPlan(
     val dateOver: Boolean = false,
     val header: Float = 0f,
     val below: Float = 0f,
-    val dateBelow: Boolean = false,
 )
 
 /** A date as drawn: which style, at which size, on how many lines, how wide and tall. */
@@ -152,16 +151,29 @@ object WordsFit {
         val scale = spec.fontScale
         val width = spec.width - AgendaFit.CARD_PADDING * 2
         val circle = tallCircle(spec.width, spec.height, scale, spec.note)
-        val header = maxOf(circle, lineHeight(TITLE_SP, scale) + lineHeight(WHEN_SP, scale))
-        val below = spec.height - AgendaFit.CARD_PADDING * 2 - header - PANEL_GAP
+        val words = width - circle - DIAL_GAP
+        // The date, the panel's eyebrow (owner, 14 Nov 2026): a line of its own at the top of the
+        // header, against the far edge, the fullest style that fits beside the dial; the tall
+        // card's eyebrow mirrored, the dial leading. The title never shares its line.
+        val date = date(spec, words, Float.MAX_VALUE, twoLines = false)
+        val dateHeight = date?.height ?: 0f
+        val block = lineHeight(TITLE_SP, scale) + lineHeight(WHEN_SP, scale)
+        val inner = spec.height - AgendaFit.CARD_PADDING * 2
+        // The second clock under the date, where the reader asked for it: the header grows by its
+        // line where the card still has a line under the header, else it goes.
+        val secondLine = SECOND_TOP + clockLineHeight(SECOND_SP, scale)
+        val second = date != null && spec.secondEm > 0f && widthOf(spec.secondEm, SECOND_SP, scale) <= words &&
+            inner - maxOf(circle, dateHeight + secondLine + block) - PANEL_GAP >= lineHeight(ROW_SP, scale)
+        val top = dateHeight + (if (second) secondLine else 0f)
+        val header = maxOf(circle, top + block)
+        val below = inner - header - PANEL_GAP
         if (below < lineHeight(ROW_SP, scale)) return null
-        val row = rowPlan(spec.copy(height = header + AgendaFit.CARD_PADDING_SNUG * 2), dialOf = circle, whole = true)
-        // The second clock under the date at the far edge, where the header's height holds it and
-        // its line is no wider than the date's column (or a one-line date's most).
-        val dateHeight = if (row.dateChoice >= 0) clockLineHeight(row.dateSp, scale) * row.dateLines else 0f
-        val second = spec.secondEm > 0f && row.dateChoice >= 0 &&
-            widthOf(spec.secondEm, SECOND_SP, scale) <= maxOf(row.dateWidth, ROW_DATE_ONE_LINE) &&
-            dateHeight + SECOND_TOP + clockLineHeight(SECOND_SP, scale) <= header
+        // The title over its time, at the foot of the header, in what the date leaves.
+        val row = rowPlan(
+            spec.copy(height = header - top + AgendaFit.CARD_PADDING_SNUG * 2),
+            dialOf = circle,
+            whole = true,
+        )
         var left = below
         // The note whole or not at all: a sentence cut off mid-phrase says less than none.
         val noteHeight = linesHeight(NOTE_SP, spec.noteLines, scale) + NOTE_GAP
@@ -181,22 +193,13 @@ object WordsFit {
         if (rows > 0) left -= rowsHeight
         val then = spec.note && rows == 0 && spec.then && width >= THEN_MIN_WIDTH &&
             left >= lineHeight(THEN_SP, scale) + ROWS_GAP
-        if (then) left -= lineHeight(THEN_SP, scale) + ROWS_GAP
-        // A title that leaves the header's far edge no column for the date: the date on a line of
-        // its own over the words below, where they leave it one (a four-by-three's air).
-        val under = if (row.dateChoice < 0) {
-            date(spec, width, Float.MAX_VALUE, twoLines = false)?.takeIf { left >= it.height + TOP_GAP }
-        } else {
-            null
-        }
         return row.copy(
-            dateChoice = under?.choice ?: row.dateChoice,
-            dateSp = under?.sp ?: row.dateSp,
-            dateLines = under?.lines ?: row.dateLines,
-            dateWidth = under?.width ?: row.dateWidth,
-            dateBelow = under != null,
             form = WordsForm.PANEL,
             snug = false,
+            dateChoice = date?.choice ?: -1,
+            dateSp = date?.sp ?: DATE_SP,
+            dateLines = date?.lines ?: 0,
+            dateWidth = date?.width ?: 0f,
             header = header,
             below = below,
             second = second,
@@ -208,9 +211,6 @@ object WordsFit {
     }
 
     const val PANEL_GAP = 12f
-
-    /** A panel's date column at its narrowest: a short date over two lines ("Wed," over "7 Oct"). */
-    const val PANEL_DATE_MIN = 40f
 
     /**
      * The date in [width] by [height]: the first style that fits on one line, no wider than
@@ -346,7 +346,8 @@ object WordsFit {
         val titleWidth = widthOf(spec.titleEm, titleSp, scale)
         val need = maxOf(timeWidth, if (whole) titleWidth else minOf(titleWidth, TITLE_KEEP))
         val dateRoom = words - need - DATE_GAP
-        val date = if (dateRoom >= (if (whole) PANEL_DATE_MIN else DATE_COLUMN_MIN)) {
+        // A panel's header ([whole]) sets its date on a line of its own (`panelPlan`).
+        val date = if (!whole && dateRoom >= DATE_COLUMN_MIN) {
             date(spec, dateRoom, inner, twoLines = true, oneLineMost = ROW_DATE_ONE_LINE)
         } else {
             null

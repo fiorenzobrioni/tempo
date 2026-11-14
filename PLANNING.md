@@ -870,8 +870,11 @@ the sisters' wide cards), and under the header stand the tall card's words, hang
 bottom: the note, the next events as rows (all or none) or the line of times (`WordsFit.panelPlan`,
 `PanelContent`). The strip of blocks is gone, with its constants. A premium pass on the header: the
 title stays whole at the word hero's size, stepping down to 18 sp rather than to a narrow row's 16
-(`rowPlan(whole = true)`), and the date takes what the whole title leaves, a short date over two
-lines from 40 dp («Wed, / 7 Oct»); where even that does not fit (a four-by-three's larger dial) the
-date stands on its own line over the words below, Medium and quiet (`WordsPlan.dateBelow`).
+(`rowPlan(whole = true)`), and the date stands on a line of its own at the top of the header, against
+the far edge, Medium and quiet: the tall card's eyebrow mirrored, the dial leading (the owner's
+proposal, the same day: "the date on its own line on top, as at the start, but aligned right";
+agreed, the title never shares its line again and the date is never shortened for it). The title
+and its time sit at the header's foot, level with the dial's; the second clock, where the reader
+asked for it, under the date, the header growing by its line while the card keeps a line under it.
 Checked: `:core:domain`, `:widget`, the gallery looked at, spotless.
 
