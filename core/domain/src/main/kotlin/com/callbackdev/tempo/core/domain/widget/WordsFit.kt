@@ -30,10 +30,16 @@ package com.callbackdev.tempo.core.domain.widget
  *   hanging from the bottom leading corner, and under them, where the card has the room, the next
  *   events as rows ("13:00  Lunch").
  *
+ * - [WordsForm.PANEL], two rows and from [WIDE_BAND_MIN_WIDTH] wide, with the dial (owner, 14 Nov
+ *   2026, the family's ring card): the row on top at the height its tallest column needs, its dial
+ *   the tall card's circle, the date at its far edge; under it the day's events on a line of 24
+ *   hours, the focus among them, as the family's ring cards draw their day under the ring. Where
+ *   the strip has no room (a large text size), or the reader hid the dial, the tall form.
+ *
  * The dial's side is the family's circle for the card's size, the one every card of the family
  * draws there, never the day's words' (owner, 4 Nov 2026).
  */
-enum class WordsForm { CELL, ROW, TALL }
+enum class WordsForm { CELL, ROW, TALL, PANEL }
 
 /**
  * What the card is asked to hold, measured.
@@ -106,6 +112,8 @@ data class WordsPlan(
     val rowTimeWidth: Float = 0f,
     val second: Boolean = false,
     val dateOver: Boolean = false,
+    val header: Float = 0f,
+    val strip: Float = 0f,
 )
 
 /** A date as drawn: which style, at which size, on how many lines, how wide and tall. */
@@ -118,6 +126,7 @@ object WordsFit {
     fun form(width: Float, height: Float): WordsForm = when {
         width < AgendaFit.CLOCK_FORM_MAX_WIDTH -> WordsForm.CELL
         height < AgendaFit.TALL_MIN_HEIGHT -> WordsForm.ROW
+        width >= WIDE_BAND_MIN_WIDTH -> WordsForm.PANEL
         else -> WordsForm.TALL
     }
 
@@ -125,7 +134,45 @@ object WordsFit {
         WordsForm.CELL -> cellPlan(spec)
         WordsForm.ROW -> rowPlan(spec)
         WordsForm.TALL -> tallPlan(spec)
+        WordsForm.PANEL -> panelPlan(spec) ?: tallPlan(spec)
     }
+
+    /**
+     * Two rows and from [WIDE_BAND_MIN_WIDTH] wide (owner, 14 Nov 2026): the row's plan at the
+     * header's height (the tall circle, [tallCircle], or the title over its time where they are
+     * taller), and under it, after [PANEL_GAP], the day's strip. None without the dial, or where the
+     * strip would be shorter than [stripMin]: the card keeps its tall form.
+     */
+    private fun panelPlan(spec: WordsSpec): WordsPlan? {
+        if (!spec.dial) return null
+        val scale = spec.fontScale
+        val circle = tallCircle(spec.width, spec.height, scale, spec.note)
+        val header = maxOf(circle, lineHeight(TITLE_SP, scale) + lineHeight(WHEN_SP, scale))
+        val strip = spec.height - AgendaFit.CARD_PADDING * 2 - header - PANEL_GAP
+        if (strip < stripMin(scale)) return null
+        val row = rowPlan(spec.copy(height = header + AgendaFit.CARD_PADDING_SNUG * 2), dialOf = circle)
+        // The second clock under the date at the far edge, where the header's height holds it and
+        // its line is no wider than the date's column (or a one-line date's most).
+        val dateHeight = if (row.dateChoice >= 0) clockLineHeight(row.dateSp, scale) * row.dateLines else 0f
+        val second = spec.secondEm > 0f && row.dateChoice >= 0 &&
+            widthOf(spec.secondEm, SECOND_SP, scale) <= maxOf(row.dateWidth, ROW_DATE_ONE_LINE) &&
+            dateHeight + SECOND_TOP + clockLineHeight(SECOND_SP, scale) <= header
+        return row.copy(form = WordsForm.PANEL, snug = false, header = header, strip = strip, second = second)
+    }
+
+    /** The strip at its floor: the events' blocks over a line of hours. */
+    fun stripMin(fontScale: Float): Float = STRIP_BLOCKS_MIN + stripLabels(fontScale)
+
+    /** The hours under the strip, and the air over them. */
+    fun stripLabels(fontScale: Float): Float = lineHeight(STRIP_LABEL_SP, fontScale) + STRIP_LABEL_GAP
+
+    const val PANEL_GAP = 12f
+    const val STRIP_BLOCKS_MIN = 28f
+
+    /** The blocks stand no taller than this; past it the air goes between the header and the strip. */
+    const val STRIP_BLOCKS_MAX = 40f
+    const val STRIP_LABEL_SP = WidgetType.CAPTION
+    const val STRIP_LABEL_GAP = 2f
 
     /**
      * The date in [width] by [height]: the first style that fits on one line, no wider than
@@ -217,11 +264,13 @@ object WordsFit {
      * the title shrinks under [TITLE_MIN_SP]. A narrow row sets the words a size smaller, and a long
      * title over two lines where the height holds them.
      */
-    private fun rowPlan(spec: WordsSpec): WordsPlan {
+    private fun rowPlan(spec: WordsSpec, dialOf: Float? = null): WordsPlan {
         val scale = spec.fontScale
         val inner = spec.height - AgendaFit.CARD_PADDING_SNUG * 2
         val width = spec.width - AgendaFit.CARD_PADDING * 2
-        val dial = if (spec.dial && width - DIAL_GAP - ROW_DIAL_MIN >= ROW_WORDS_MIN) {
+        val dial = if (dialOf != null) {
+            dialOf
+        } else if (spec.dial && width - DIAL_GAP - ROW_DIAL_MIN >= ROW_WORDS_MIN) {
             rowCircle(spec.width, spec.height)
         } else {
             0f
@@ -283,7 +332,7 @@ object WordsFit {
      * title too long for one even at [TALL_TITLE_MIN_SP], and the next events as rows, all of them
      * or none, else the line of times on a wide card. What is left is air. Without the dial, the date on top and the second clock under it.
      */
-    private fun tallPlan(spec: WordsSpec): WordsPlan {
+    internal fun tallPlan(spec: WordsSpec): WordsPlan {
         val scale = spec.fontScale
         val inner = spec.height - AgendaFit.CARD_PADDING * 2
         val width = spec.width - AgendaFit.CARD_PADDING * 2

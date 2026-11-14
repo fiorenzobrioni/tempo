@@ -15,6 +15,8 @@ All notable changes to Tempo are documented here. The format follows
 - **«In words» looks like its sisters.** One cell is the clock face alone; the face's ring is
   a little heavier; the title is larger on a row, and the day's note is the size of the time,
   stronger, on two lines at most.
+- **«In words» on a wide card** draws its clock face at the start of a row, with what comes next
+  and the date beside it, and today's events under it on a line of hours.
 
 ### Added
 

@@ -288,7 +288,40 @@ class WordsTest {
         assertThat(WordsFit.form(159f, 85f)).isEqualTo(WordsForm.ROW)
         assertThat(WordsFit.form(340f, 85f)).isEqualTo(WordsForm.ROW)
         assertThat(WordsFit.form(159f, 189f)).isEqualTo(WordsForm.TALL)
-        assertThat(WordsFit.form(340f, 189f)).isEqualTo(WordsForm.TALL)
+        // Three cells and up, two rows: the family's panel (owner, 14 Nov 2026).
+        assertThat(WordsFit.form(250f, 189f)).isEqualTo(WordsForm.PANEL)
+        assertThat(WordsFit.form(340f, 189f)).isEqualTo(WordsForm.PANEL)
+    }
+
+    @Test
+    fun `a wide card with the dial is the panel, the row on top with the tall circle and the day under it`() {
+        val plan = WordsFit.plan(spec(340f, 189f))
+        assertThat(plan.form).isEqualTo(WordsForm.PANEL)
+        assertThat(plan.dial).isEqualTo(WordsFit.tallCircle(340f, 189f, 1f))
+        assertThat(plan.header).isEqualTo(plan.dial)
+        assertThat(plan.strip).isWithin(0.01f).of(189f - AgendaFit.CARD_PADDING * 2 - plan.header - WordsFit.PANEL_GAP)
+        assertThat(plan.strip).isAtLeast(WordsFit.stripMin(1f))
+        assertThat(plan.titleSp).isEqualTo(WordsFit.TITLE_SP)
+        assertThat(plan.dateChoice).isAtLeast(0)
+        assertThat(WordsFit.plan(spec(250f, 189f)).form).isEqualTo(WordsForm.PANEL)
+        assertThat(WordsFit.plan(spec(340f, 293f)).form).isEqualTo(WordsForm.PANEL)
+    }
+
+    @Test
+    fun `without the dial, or where the strip has no room, a wide card keeps the tall form`() {
+        assertThat(WordsFit.plan(spec(340f, 189f, dial = false)).form).isEqualTo(WordsForm.TALL)
+        assertThat(WordsFit.plan(spec(340f, 189f, scale = 2f)).form).isEqualTo(WordsForm.TALL)
+    }
+
+    @Test
+    fun `a panel sets the second clock under the date at its far edge, where the header holds it`() {
+        val plan = WordsFit.plan(spec(340f, 189f, secondEm = secondEm))
+        assertThat(plan.form).isEqualTo(WordsForm.PANEL)
+        assertThat(plan.second).isTrue()
+        assertThat(
+            clockLineHeight(plan.dateSp, 1f) * plan.dateLines + WordsFit.SECOND_TOP +
+                clockLineHeight(WordsFit.SECOND_SP, 1f),
+        ).isAtMost(plan.header)
     }
 
     @Test
@@ -350,7 +383,7 @@ class WordsTest {
 
     @Test
     fun `a tall card hangs the words from the bottom, the dial and the date over them`() {
-        val tall = WordsFit.plan(spec(340f, 189f))
+        val tall = WordsFit.tallPlan(spec(340f, 189f))
         assertThat(tall.dial).isAtLeast(WordsFit.TALL_DIAL_COMFORT)
         assertThat(tall.noteLines).isEqualTo(1)
         // Beside a dial on a four-wide card, the long date on one line.
@@ -592,7 +625,7 @@ class WordsTest {
         // With the note the date keeps its place beside the dial.
         assertThat(WordsFit.plan(spec(159f, 189f)).dateChoice).isAtLeast(0)
         // Wide enough for its column, it stays beside the dial.
-        val wide = WordsFit.plan(spec(250f, 189f).copy(note = false))
+        val wide = WordsFit.tallPlan(spec(250f, 189f).copy(note = false))
         assertThat(wide.dateOver).isFalse()
         assertThat(wide.dateChoice).isAtLeast(0)
     }
@@ -618,15 +651,15 @@ class WordsTest {
 
     @Test
     fun `a four by three lists the next two events in its band`() {
-        val plan = WordsFit.plan(spec(340f, 293f, rows = 2))
+        val plan = WordsFit.tallPlan(spec(340f, 293f, rows = 2))
         assertThat(plan.rows).isEqualTo(2)
         assertThat(plan.then).isFalse()
         assertThat(plan.noteLines).isEqualTo(1)
         assertThat(plan.rowTimeWidth).isEqualTo(widthOf(2.7f, WordsFit.ROW_SP, 1f))
         // One event after the focus is one row.
-        assertThat(WordsFit.plan(spec(340f, 293f, rows = 1)).rows).isEqualTo(1)
+        assertThat(WordsFit.tallPlan(spec(340f, 293f, rows = 1)).rows).isEqualTo(1)
         // Three by three and two by three too: a row's title keeps its room beside the time.
-        assertThat(WordsFit.plan(spec(250f, 293f, rows = 2)).rows).isEqualTo(2)
+        assertThat(WordsFit.tallPlan(spec(250f, 293f, rows = 2)).rows).isEqualTo(2)
         assertThat(WordsFit.plan(spec(159f, 293f, rows = 2)).rows).isEqualTo(2)
     }
 
@@ -634,7 +667,7 @@ class WordsTest {
     fun `the rows are all or none, and the line of times stays where only it fits`() {
         // A four by two holds one line under the words at its dial's comfort, not two (under way,
         // without the note: the times say how many are left).
-        val plan = WordsFit.plan(spec(340f, 189f, noteLines = 0, rows = 2))
+        val plan = WordsFit.tallPlan(spec(340f, 189f, noteLines = 0, rows = 2))
         assertThat(plan.rows).isEqualTo(0)
         assertThat(plan.rowTimeWidth).isEqualTo(0f)
         assertThat(plan.then).isTrue()
@@ -644,7 +677,7 @@ class WordsTest {
     @Test
     fun `the note's count where neither fits`() {
         // Three by two: no room for the rows, too narrow for the line of times.
-        val plan = WordsFit.plan(spec(250f, 189f, rows = 2))
+        val plan = WordsFit.tallPlan(spec(250f, 189f, rows = 2))
         assertThat(plan.rows).isEqualTo(0)
         assertThat(plan.then).isFalse()
         assertThat(plan.noteLines).isEqualTo(1)
@@ -665,7 +698,7 @@ class WordsTest {
         val plan = WordsFit.plan(spec(159f, 293f, scale = 1.3f, rows = 2, rowTimeEm = 4.2f))
         assertThat(plan.rows).isEqualTo(0)
         // A four by four does, where its dial (the family's 140.25 dp) leaves the rows their lines.
-        assertThat(WordsFit.plan(spec(340f, 397f, scale = 1.3f, rows = 2, rowTimeEm = 4.2f)).rows).isEqualTo(2)
+        assertThat(WordsFit.tallPlan(spec(340f, 397f, scale = 1.3f, rows = 2, rowTimeEm = 4.2f)).rows).isEqualTo(2)
     }
 
     @Test
@@ -682,8 +715,8 @@ class WordsTest {
     @Test
     fun `a tall card sets the second clock under the date, beside the dial, and keeps the rest`() {
         listOf(340f to 189f, 250f to 189f, 340f to 293f).forEach { (w, h) ->
-            val without = WordsFit.plan(spec(w, h, rows = 2))
-            val with = WordsFit.plan(spec(w, h, rows = 2, secondEm = secondEm))
+            val without = WordsFit.tallPlan(spec(w, h, rows = 2))
+            val with = WordsFit.tallPlan(spec(w, h, rows = 2, secondEm = secondEm))
             assertThat(with.second).isTrue()
             assertThat(with.copy(second = false)).isEqualTo(without)
             val band = w - AgendaFit.CARD_PADDING * 2 - with.dial - WordsFit.DIAL_GAP
@@ -722,6 +755,12 @@ class WordsTest {
             listOf(159f to 189f, 250f to 189f, 340f to 189f, 340f to 293f, 159f to 160f).forEach { (w, h) ->
                 listOf(true, false).forEach { dial ->
                     val plan = WordsFit.plan(spec(w, h, scale, dial = dial, noteLines = 2, secondEm = secondEm))
+                    // A panel's budget is its header and strip, pinned by the panel's own tests.
+                    if (plan.form == WordsForm.PANEL) {
+                        assertThat(plan.header + WordsFit.PANEL_GAP + plan.strip)
+                            .isWithin(0.01f).of(h - AgendaFit.CARD_PADDING * 2)
+                        return@forEach
+                    }
                     val words = linesHeight(plan.titleSp, plan.titleLines, scale) +
                         (if (plan.whenChoice >= 0) lineHeight(plan.whenSp, scale) else 0f) +
                         (

@@ -147,6 +147,7 @@
     <string name="words_form_cell">One cell: the dial alone, the hands and what comes next on its ring.</string>
     <string name="words_form_row">One row: the dial, what comes next and when, and the date where there is room.</string>
     <string name="words_form_tall">Two rows and up: the dial and the date on top, what comes next, when, and the day in a line under them.</string>
+    <string name="words_form_panel">Two rows and three cells and up: the dial, what comes next and when, the date at the far edge; under them, today\'s events on a line of hours.</string>
     <string name="widget_dial_desc">Clock</string>
     <string name="widget_when_day">%1$s · %2$s</string>
     <string name="widget_preview_when">Until 11:00</string>

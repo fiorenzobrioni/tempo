@@ -437,7 +437,7 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [x] **The new icon on the phone** (§15, 9 Nov 2026, «The new icon: the day's page and the clock»): the launcher icon in the phone's own mask, the themed icon, the «New event» shortcut. Done by the owner on 9 Nov 2026 (§15, «The new icon checked on the phone»).
 - [x] **The «New event» shortcut as an adaptive icon, on the phone** (§15, 9 Nov 2026, «The «New event» shortcut, an adaptive icon»): long press on the icon, in the phone's own mask and with the themed icons on. Done by the owner on 9 Nov 2026 (§15, «The adaptive shortcut checked on the phone, and Tetto in the family»).
 - [ ] **Today's review on the phone** (§15, 10 Nov 2026, «Today reviewed: one clock, one "now", one ground»; and 11 Nov 2026, «The dial: a cut arc fades, and the face stays while today has events»): the page in both dresses and both themes, early morning (the face with its ring empty, a long event fading at 12:25), morning and evening (the dial there and gone), the «In words» card early in the day, the day markers on the 12-hour clock, the button's icon over the last rows, TalkBack on the all-day events and the button.
-- [ ] **«In words» four by two: a strip of the day under a one-row header?** (§15, 14 Nov 2026, «The family's ring card».) Passo's ring card draws its hours under a one-row header on a wide card, Tetto's the cap's days or other caps; Tempo's keeps its tall form, the next events as rows. Options: (a) as now; (b) a header like a row (dial, title over its time, the date at the far edge) and under it the day's events as blocks on a 24-hour line, the event's calendar as a mark, the titles lost. Asked of the owner; not built.
+- [x] **«In words» four by two: a strip of the day under a one-row header?** (§15, 14 Nov 2026, «The family's ring card».) Passo's ring card draws its hours under a one-row header on a wide card, Tetto's the cap's days or other caps; Tempo's keeps its tall form, the next events as rows. Options: (a) as now; (b) a header like a row (dial, title over its time, the date at the far edge) and under it the day's events as blocks on a 24-hour line, the event's calendar as a mark, the titles lost. Asked of the owner; not built. Answered by the owner the same day (option b; the log, «The family's panel, as on the canvas»).
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
@@ -833,3 +833,31 @@ other apps at 1×1". Drawn first on a canvas the owner approved, then built. Tem
 
 Checked: `:core:domain` and `:widget` tests, the gallery looked at, spotless; README `widgets.png`
 regenerated and looked at.
+
+### The family's panel, as on the canvas (owner, 14 Nov 2026)
+
+The owner, looking at the pictures: "the Tempo widget is not as in the artefact you made; and the
+ring is not aligned in some sizes as in the same sizes of the other apps". On the canvas, and on the
+sisters' cards, a card three cells wide and two rows high or more draws its ring at the leading edge
+of a row on top, with the day under it; Tempo's kept its tall form there, the dial in the top
+trailing corner. Built:
+
+- **`WordsForm.PANEL`** (`WordsFit.panelPlan`), from `WIDE_BAND_MIN_WIDTH` wide and two rows high,
+  with the dial: the row's plan at the header's height (the tall circle, `tallCircle`, 73.75 dp on
+  the four-by-two, or the title over its time where they are taller), the title at the row's 22 sp,
+  its time, the date at the far edge; the second clock under the date where the header holds it.
+  Under it, after 12 dp, **the day on a line of 24 hours** (`DayStrip`): each of today's timed
+  events a block from its start to its end (past faint, to come at half strength, the focus in the
+  dial's accent), its calendar's mark along its top (a colour marks, it never fills: §6), a line
+  where now is, the hours under it in the reader's clock («06», «6 AM»); the blocks 40 dp at most,
+  the air going above them. The strip's touch is the header's door. At most seven events, the
+  focus always among them (Glance's eleven children). Without the dial, or where the strip has no
+  room (twice the text size), a wide card keeps the tall form with its rows and line of times.
+- **The date takes the family's ranks**: Medium, in the strong ink at a row's far edge (where the
+  sisters' sentence stands), in the quiet ink as a tall card's eyebrow; measured in the Medium face.
+- The tall form's tests now ask `WordsFit.tallPlan` directly for the wide sizes it still draws
+  (the dial hidden); the panel has its own (`WordsTest`), and `WidgetFitTest` finds nothing cut.
+
+Checked: `:core:domain`, `:widget`, the whole suite, spotless; the gallery looked at; README
+`widgets.png` regenerated (the row's date in Medium) and looked at.
+

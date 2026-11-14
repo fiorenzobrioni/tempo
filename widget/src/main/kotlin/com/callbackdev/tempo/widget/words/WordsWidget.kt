@@ -22,11 +22,13 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
+import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -39,6 +41,8 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
+import com.callbackdev.tempo.core.domain.clock.uses24Hour
 import com.callbackdev.tempo.core.domain.widget.AgendaFit
 import com.callbackdev.tempo.core.domain.widget.DialArc
 import com.callbackdev.tempo.core.domain.widget.DialArcs
@@ -54,6 +58,7 @@ import com.callbackdev.tempo.core.domain.widget.quarterPoint
 import com.callbackdev.tempo.core.domain.widget.spThatFits
 import com.callbackdev.tempo.core.domain.widget.widthOf
 import com.callbackdev.tempo.core.model.DateStyle
+import com.callbackdev.tempo.core.model.EntryState
 import com.callbackdev.tempo.widget.CardModels
 import com.callbackdev.tempo.widget.CardText
 import com.callbackdev.tempo.widget.ClockFace
@@ -134,6 +139,7 @@ internal fun WordsWidgetContent(model: WidgetModel, appWidgetId: Int = 0) {
             WordsForm.CELL -> CellContent(parts, palette)
             WordsForm.ROW -> RowContent(parts, palette)
             WordsForm.TALL -> TallContent(parts, palette)
+            WordsForm.PANEL -> PanelContent(parts, palette)
         }
     }
 }
@@ -146,6 +152,13 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
     private val agenda = (model.content as? WidgetContent.Ready)?.agenda
     val day: WordsDay? = agenda?.let { WordsDay.of(it, look.showAllDay, look.showDaysAhead) }
     val form: WordsForm = WordsFit.form(size.width.value, size.height.value)
+
+    /**
+     * Whether the words are a tall card's (the time apart from the note, the next events as rows):
+     * a tall card, and a wide one whose reader hid the dial, which keeps the tall form. A panel's
+     * header is a row's.
+     */
+    private val tallWords = form == WordsForm.TALL || (form == WordsForm.PANEL && !look.showClock)
     private val locale = context.widgetLocale()
     val innerWidth =
         (size.width.value - (if (form == WordsForm.CELL) AgendaFit.CELL_PADDING else AgendaFit.CARD_PADDING) * 2).dp
@@ -159,7 +172,7 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
      * its own, the note stands in its place ("Nothing left today.").
      */
     val whens: List<String> = day?.let { day ->
-        text.whenOptions(day.focus).ifEmpty { if (form == WordsForm.TALL) emptyList() else listOfNotNull(fullNote) }
+        text.whenOptions(day.focus).ifEmpty { if (tallWords) emptyList() else listOfNotNull(fullNote) }
     } ?: emptyList()
 
     /**
@@ -187,17 +200,17 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
      * drawn ([ClockPatterns.brokenAfterFirstWord]); a date of one word, on its one line.
      */
     private fun twoLineEm(patterns: ClockPatterns, date: String): Float {
-        val broken = patterns.brokenAfterFirstWord() ?: return textEm(context, date, TextWeight.REGULAR)
+        val broken = patterns.brokenAfterFirstWord() ?: return textEm(context, date, TextWeight.MEDIUM)
         return DateTimeFormatter.ofPattern(broken.current(context), locale).format(model.now)
             .split('\n')
-            .maxOf { textEm(context, it, TextWeight.REGULAR) }
+            .maxOf { textEm(context, it, TextWeight.MEDIUM) }
     }
 
     /**
      * The events after the focus a tall card may list as rows, the first [WordsFit.ROWS_MAX], with
      * their starts: they are later today, so a time alone says when.
      */
-    private val rowEvents = if (form == WordsForm.TALL) day?.then?.take(WordsFit.ROWS_MAX).orEmpty() else emptyList()
+    private val rowEvents = if (tallWords) day?.then?.take(WordsFit.ROWS_MAX).orEmpty() else emptyList()
     private val rowTimes = rowEvents.map { text.agenda.time(it.begin) }
 
     /**
@@ -219,7 +232,7 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             height = size.height.value,
             fontScale = scale,
             dial = look.showClock,
-            dateEms = dateTexts.map { textEm(context, it, TextWeight.REGULAR) },
+            dateEms = dateTexts.map { textEm(context, it, TextWeight.MEDIUM) },
             dateTwoLineEms = datePatterns.zip(dateTexts) { patterns, date -> twoLineEm(patterns, date) },
             titleEm = textEm(context, title, TextWeight.MEDIUM),
             titleLines = measureWidgetLines(context, title, WordsFit.TALL_TITLE_SP, innerWidth, TextWeight.MEDIUM),
@@ -241,7 +254,7 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
     private val withRows = rowEvents.takeIf { it.isNotEmpty() }
         ?.let { planFor(noteBeforeRows, then = false, rows = it.size) }
         ?.takeIf { it.rows > 0 }
-    private val hasTimes = withRows == null && form == WordsForm.TALL && day?.then?.isNotEmpty() == true
+    private val hasTimes = withRows == null && tallWords && day?.then?.isNotEmpty() == true
     private val withTimes = if (hasTimes) planFor(noteBeforeTimes, then = true).takeIf { it.then } else null
 
     val plan: WordsPlan = withRows ?: withTimes ?: planFor(fullNote, then = false)
@@ -277,12 +290,54 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
         emptyList()
     }
 
-    val headerIntent =
-        headerTap(
-            context,
-            appWidgetId,
-            WidgetIntents.header(context, look.headerTap, model.doors, model.now.toInstant()),
+    /**
+     * Today's timed events on the panel's line of 24 hours, as fractions of the day from local
+     * midnight: what is past, what is to come, and the focus among them; at most
+     * [STRIP_EVENTS_MAX], the focus always among them (Glance drops a container's eleventh child).
+     */
+    val stripEvents: List<StripEvent> = run {
+        val today = agenda?.days?.firstOrNull { it.date == agenda.today } ?: return@run emptyList()
+        val zone = model.now.zone
+        val focus = when (val f = day?.focus) {
+            is WordsFocus.UnderWay -> f.event
+            is WordsFocus.Next -> f.event
+            else -> null
+        }
+        fun fraction(at: java.time.Instant) = at.atZone(zone).toLocalTime().toSecondOfDay() / SECONDS_A_DAY
+        val all = today.timed.map { entry ->
+            val event = entry.event
+            val isFocus = focus != null && event.eventId == focus.eventId && event.begin == focus.begin
+            StripEvent(
+                from = if (entry.startsOnDate) fraction(event.begin) else 0f,
+                to = if (entry.endsOnDate) fraction(event.end).takeIf { it > 0f } ?: 1f else 1f,
+                past = entry.state == EntryState.PAST,
+                focus = isFocus,
+                color = event.color,
+            )
+        }
+        val kept = all.filter { it.focus } + all.filterNot { it.focus }
+        kept.take(STRIP_EVENTS_MAX).sortedBy { it.from }
+    }
+
+    /** An hour on the strip's axis, as the reader's clock writes hours: «06» or «6 AM». */
+    fun axisHour(hour: Int): String {
+        val clock = look.clockFormat ?: model.settings.clockFormat
+        val skeleton = if (clock.uses24Hour(android.text.format.DateFormat.is24HourFormat(context))) "HH" else "ha"
+        return java.time.LocalTime.of(hour, 0).format(
+            DateTimeFormatter.ofPattern(
+                android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton),
+                locale,
+            ),
         )
+    }
+
+    /** Where the day is now on the strip. */
+    val nowFraction: Float = model.now.toLocalTime().toSecondOfDay() / SECONDS_A_DAY
+
+    /** The header's door as an intent: the strip's touch, which Glance takes as an intent only. */
+    val dayIntent = WidgetIntents.header(context, look.headerTap, model.doors, model.now.toInstant())
+
+    val headerIntent = headerTap(context, appWidgetId, dayIntent)
 
     /**
      * The dial's touch and its words: the reader's door for the time; where a message stands in for
@@ -333,6 +388,12 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
         }
 }
 
+/** One of today's events on the panel's strip, as fractions of the day from local midnight. */
+internal class StripEvent(val from: Float, val to: Float, val past: Boolean, val focus: Boolean, val color: Int?)
+
+private const val SECONDS_A_DAY = 86_400f
+private const val STRIP_EVENTS_MAX = 7
+
 /** One of the next events as a row of a tall card. */
 private class NextRow(val time: String, val title: String, val intent: Intent?, val description: String)
 
@@ -361,12 +422,15 @@ private fun Dial(parts: WordsParts, palette: WidgetPalette) {
 private fun DateLine(parts: WordsParts, palette: WidgetPalette, end: Boolean) {
     val plan = parts.plan
     if (plan.dateChoice < 0) return
+    // The family's ranks (owner, 14 Nov 2026): at a row's far edge the date stands where the
+    // sisters' sentence does, Medium in the strong ink; on a tall card it is the eyebrow, Medium
+    // in the quiet one.
     val views = clockViews(
         parts.context,
-        ClockFace.REGULAR,
+        ClockFace.MEDIUM,
         parts.datePatterns[plan.dateChoice].let { if (plan.dateLines > 1) it.brokenAfterFirstWord() ?: it else it },
         plan.dateSp,
-        palette.secondary,
+        if (end) palette.primary else palette.secondary,
         plan.dateLines,
         parts.headerIntent,
         parts.model.now.takeIf { parts.model.frozenClock },
@@ -539,9 +603,12 @@ private fun CellContent(parts: WordsParts, palette: WidgetPalette) {
     }
 }
 
-/** One row: the dial; the title over its time; the date at the far edge. */
+/**
+ * One row: the dial; the title over its time; the date at the far edge. A panel's header too, where
+ * a message has the whole card ([messageHeight]) and no strip stands under it.
+ */
 @Composable
-private fun RowContent(parts: WordsParts, palette: WidgetPalette) {
+private fun RowContent(parts: WordsParts, palette: WidgetPalette, messageHeight: Dp? = null) {
     val dial = parts.plan.dial > 0f
     Row(modifier = GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
         Dial(parts, palette)
@@ -558,10 +625,7 @@ private fun RowContent(parts: WordsParts, palette: WidgetPalette) {
                     message,
                     palette,
                     words,
-                    (
-                        LocalSize.current.height.value -
-                            AgendaFit.CARD_PADDING_SNUG * 2
-                        ).dp,
+                    messageHeight ?: (LocalSize.current.height.value - AgendaFit.CARD_PADDING_SNUG * 2).dp,
                 )
             } else {
                 Title(parts, palette)
@@ -574,6 +638,8 @@ private fun RowContent(parts: WordsParts, palette: WidgetPalette) {
                 horizontalAlignment = Alignment.End,
             ) {
                 DateLine(parts, palette, end = true)
+                // A panel's header: the second clock under the date, where the plan has room.
+                SecondLine(parts, palette)
             }
         }
     }
@@ -627,3 +693,116 @@ private fun TallContent(parts: WordsParts, palette: WidgetPalette) {
         }
     }
 }
+
+/**
+ * Two rows and three cells and up, with the dial (owner, 14 Nov 2026, the family's ring card): the
+ * row on top at [WordsPlan.header], its dial the tall card's circle and the date at its far edge,
+ * and under it the day ([DayStrip]), with the air between the two when the card is taller than
+ * the strip wants. A message stands in the row's place, with no strip.
+ */
+@Composable
+private fun PanelContent(parts: WordsParts, palette: WidgetPalette) {
+    val plan = parts.plan
+    if (parts.message != null) {
+        RowContent(parts, palette, (LocalSize.current.height.value - AgendaFit.CARD_PADDING * 2).dp)
+        return
+    }
+    Column(modifier = GlanceModifier.fillMaxSize()) {
+        Box(modifier = GlanceModifier.fillMaxWidth().height(plan.header.dp)) {
+            RowContent(parts, palette)
+        }
+        Spacer(modifier = GlanceModifier.defaultWeight())
+        val tallest = WordsFit.STRIP_BLOCKS_MAX + WordsFit.stripLabels(parts.scale)
+        DayStrip(parts, palette, minOf(plan.strip, tallest).dp)
+    }
+}
+
+/**
+ * The day on a line of 24 hours (owner, 14 Nov 2026), as the family's ring cards draw their day
+ * under the ring: each of today's timed events a block from its start to its end, the past ones
+ * faint, those to come at half strength, the focus in the dial's own accent, each with its
+ * calendar's mark along its top (a calendar's colour marks, it never fills: §6); a thin line where
+ * now is, over a sliver of the card's ground; the hours under it. Its touch opens the day.
+ */
+@Composable
+private fun DayStrip(parts: WordsParts, palette: WidgetPalette, height: Dp) {
+    val width = parts.innerWidth
+    val labels = WordsFit.stripLabels(parts.scale).dp
+    val blocks = height - labels
+    val gap = STRIP_GAP
+    val hour = (width - gap * (HOURS - 1)) / HOURS
+    fun x(fraction: Float): Dp = width * fraction
+    Column(
+        modifier = GlanceModifier.width(width).height(height)
+            .then(parts.dayIntent?.let { GlanceModifier.clickable(actionStartActivity(it)) } ?: GlanceModifier),
+    ) {
+        Box(modifier = GlanceModifier.width(width).height(blocks), contentAlignment = Alignment.BottomStart) {
+            // The empty hours: a dash each, the line the blocks stand on.
+            Row(verticalAlignment = Alignment.Bottom) {
+                (0 until HOURS).chunked(HOUR_CHUNK).forEach { chunk ->
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        chunk.forEach { h ->
+                            Box(
+                                modifier = GlanceModifier.width(hour + if (h > 0) gap else 0.dp).height(FLAT)
+                                    .padding(start = if (h > 0) gap else 0.dp),
+                            ) {
+                                Box(modifier = GlanceModifier.fillMaxSize().background(ColorProvider(palette.track))) {}
+                            }
+                        }
+                    }
+                }
+            }
+            parts.stripEvents.forEach { event ->
+                val ink = when {
+                    event.focus -> palette.accent
+                    event.past -> palette.track
+                    else -> palette.primary.copy(alpha = LATER_ALPHA)
+                }
+                val from = x(event.from)
+                val span = (x(event.to) - from - BLOCK_GAP).coerceAtLeast(MIN_BLOCK)
+                Row(modifier = GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.Bottom) {
+                    Spacer(modifier = GlanceModifier.width(from + BLOCK_GAP / 2))
+                    Column(modifier = GlanceModifier.width(span).height(blocks)) {
+                        Box(
+                            modifier = GlanceModifier.fillMaxWidth().height(MARK)
+                                .background(ColorProvider(palette.mark(event.color))),
+                        ) {}
+                        Box(
+                            modifier = GlanceModifier.fillMaxSize().background(ColorProvider(ink)),
+                        ) {}
+                    }
+                }
+            }
+            val now = x(parts.nowFraction).coerceIn(0.dp, width - NOW_WIDTH)
+            Row(modifier = GlanceModifier.fillMaxSize()) {
+                Spacer(modifier = GlanceModifier.width(now))
+                Box(
+                    modifier = GlanceModifier.width(NOW_WIDTH).fillMaxHeight()
+                        .background(ColorProvider(palette.primary)),
+                ) {}
+            }
+        }
+        Spacer(modifier = GlanceModifier.height(WordsFit.STRIP_LABEL_GAP.dp))
+        Row(modifier = GlanceModifier.width(width)) {
+            listOf(0, 6, 12, 18).forEach { h ->
+                Box(modifier = GlanceModifier.width(width / 4)) {
+                    Text(
+                        text = parts.axisHour(h),
+                        style = TextStyle(color = palette.secondaryInk, fontSize = WordsFit.STRIP_LABEL_SP.sp),
+                        maxLines = 1,
+                    )
+                }
+            }
+        }
+    }
+}
+
+private const val HOURS = 24
+private const val HOUR_CHUNK = 8
+private const val LATER_ALPHA = 0.5f
+private val STRIP_GAP = 3.dp
+private val FLAT = 2.dp
+private val MARK = 3.dp
+private val BLOCK_GAP = 1.dp
+private val MIN_BLOCK = 2.dp
+private val NOW_WIDTH = 2.dp
