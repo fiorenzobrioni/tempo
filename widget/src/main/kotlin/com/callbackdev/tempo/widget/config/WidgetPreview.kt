@@ -115,6 +115,7 @@ internal fun formNote(kind: WidgetKind, size: DpSize, look: WidgetLook): Int = w
         WordsForm.CELL -> R.string.words_form_cell
         WordsForm.ROW -> R.string.words_form_row
         WordsForm.TALL -> R.string.words_form_tall
+        WordsForm.PANEL -> R.string.words_form_panel
     }
 }
 

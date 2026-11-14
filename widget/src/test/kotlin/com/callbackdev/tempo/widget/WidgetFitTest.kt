@@ -190,26 +190,33 @@ class WidgetFitTest {
     @Test
     @Config(qualifiers = "en-rGB-w411dp-h891dp-xhdpi")
     fun `a tall in words lists the next events where it has the room`() {
-        val morning = shownTexts(context, Grants.FourByThree) { WordsWidgetContent(WidgetSamples.model()) }
+        // A wide card with the dial is the panel since 14 Nov 2026: the rows and the line of times
+        // are the tall form's, which a wide card keeps where the reader hid the dial.
+        val noDial = WidgetLook(showClock = false)
+        val morning = shownTexts(context, Grants.FourByThree) { WordsWidgetContent(WidgetSamples.model(look = noDial)) }
         assertThat(morning).containsAtLeast("Then 3 more today.", "13:00", "Lunch with Giulia", "15:00", "Dentist")
             .inOrder()
         assertThat(morning).doesNotContain("Swimming lesson")
         assertThat(morning.filter { it.startsWith("Then 13:00") }).isEmpty()
 
-        val afternoon = WidgetSamples.model(now = WidgetSamples.at("2026-10-07T14:20"))
+        val afternoon = WidgetSamples.model(look = noDial, now = WidgetSamples.at("2026-10-07T14:20"))
         val one = shownTexts(context, Grants.FourByThree) { WordsWidgetContent(afternoon) }
         assertThat(one).containsAtLeast("Free until then.", "18:30", "Swimming lesson").inOrder()
 
-        val read = describedViews(context, Grants.FourByThree) { WordsWidgetContent(WidgetSamples.model()) }
+        val read =
+            describedViews(context, Grants.FourByThree) { WordsWidgetContent(WidgetSamples.model(look = noDial)) }
         assertThat(read).containsAtLeast(
             "Design review, Until 11:00",
             "13:00 to 14:00, Lunch with Giulia, Trattoria da Mario, in Personal",
             "15:00 to 15:45, Dentist, Via Roma 3, in Personal",
         ).inOrder()
 
-        val short = shownTexts(context, Grants.FourByTwo) { WordsWidgetContent(WidgetSamples.model()) }
-        assertThat(short).contains("Then 13:00 · 15:00 · 18:30")
-        assertThat(short).doesNotContain("Lunch with Giulia")
+        // Without the dial a four-by-two has the room the dial took: the rows, not the line of times.
+        val short = shownTexts(context, Grants.FourByTwo) { WordsWidgetContent(WidgetSamples.model(look = noDial)) }
+        assertThat(short).contains("Lunch with Giulia")
+        // With it, the panel: the dial leading the header, and under it the same words.
+        val panel = shownTexts(context, Grants.FourByThree) { WordsWidgetContent(WidgetSamples.model()) }
+        assertThat(panel).containsAtLeast("Design review", "Until 11:00", "Lunch with Giulia", "Dentist").inOrder()
     }
 
     /**
