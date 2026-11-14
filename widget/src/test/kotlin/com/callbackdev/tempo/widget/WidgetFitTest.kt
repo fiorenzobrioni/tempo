@@ -214,9 +214,9 @@ class WidgetFitTest {
         // Without the dial a four-by-two has the room the dial took: the rows, not the line of times.
         val short = shownTexts(context, Grants.FourByTwo) { WordsWidgetContent(WidgetSamples.model(look = noDial)) }
         assertThat(short).contains("Lunch with Giulia")
-        // With it, the panel: the header and the day's hours under it.
-        val panel = shownTexts(context, Grants.FourByTwo) { WordsWidgetContent(WidgetSamples.model()) }
-        assertThat(panel).containsAtLeast("Design review", "Until 11:00", "00", "06", "12", "18")
+        // With it, the panel: the dial leading the header, and under it the same words.
+        val panel = shownTexts(context, Grants.FourByThree) { WordsWidgetContent(WidgetSamples.model()) }
+        assertThat(panel).containsAtLeast("Design review", "Until 11:00", "Lunch with Giulia", "Dentist").inOrder()
     }
 
     /**

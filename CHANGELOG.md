@@ -16,7 +16,7 @@ All notable changes to Tempo are documented here. The format follows
   a little heavier; the title is larger on a row, and the day's note is the size of the time,
   stronger, on two lines at most.
 - **«In words» on a wide card** draws its clock face at the start of a row, with what comes next
-  and the date beside it, and today's events under it on a line of hours.
+  and the date beside it, and the day's note and the next events under it.
 
 ### Added
 

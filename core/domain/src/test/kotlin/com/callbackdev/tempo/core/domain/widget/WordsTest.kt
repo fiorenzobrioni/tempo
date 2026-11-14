@@ -299,8 +299,14 @@ class WordsTest {
         assertThat(plan.form).isEqualTo(WordsForm.PANEL)
         assertThat(plan.dial).isEqualTo(WordsFit.tallCircle(340f, 189f, 1f))
         assertThat(plan.header).isEqualTo(plan.dial)
-        assertThat(plan.strip).isWithin(0.01f).of(189f - AgendaFit.CARD_PADDING * 2 - plan.header - WordsFit.PANEL_GAP)
-        assertThat(plan.strip).isAtLeast(WordsFit.stripMin(1f))
+        assertThat(plan.below).isWithin(0.01f).of(189f - AgendaFit.CARD_PADDING * 2 - plan.header - WordsFit.PANEL_GAP)
+        // Under the header, the tall card's words: the note, and the rows where they fit.
+        assertThat(plan.noteLines).isEqualTo(1)
+        val withRows = WordsFit.plan(spec(340f, 189f, noteLines = 1, rows = 2))
+        assertThat(withRows.rows).isEqualTo(2)
+        val words = linesHeight(WordsFit.NOTE_SP, withRows.noteLines, 1f) + WordsFit.NOTE_GAP +
+            lineHeight(WordsFit.ROW_SP, 1f) * withRows.rows + WordsFit.ROWS_GAP
+        assertThat(words).isAtMost(withRows.below)
         assertThat(plan.titleSp).isEqualTo(WordsFit.TITLE_SP)
         assertThat(plan.dateChoice).isAtLeast(0)
         assertThat(WordsFit.plan(spec(250f, 189f)).form).isEqualTo(WordsForm.PANEL)
@@ -308,9 +314,14 @@ class WordsTest {
     }
 
     @Test
-    fun `without the dial, or where the strip has no room, a wide card keeps the tall form`() {
+    fun `without the dial a wide card keeps the tall form`() {
         assertThat(WordsFit.plan(spec(340f, 189f, dial = false)).form).isEqualTo(WordsForm.TALL)
-        assertThat(WordsFit.plan(spec(340f, 189f, scale = 2f)).form).isEqualTo(WordsForm.TALL)
+        // At twice the text size the header is the title over its time, and the rest is under it.
+        val large = WordsFit.plan(spec(340f, 189f, scale = 2f))
+        assertThat(large.form).isEqualTo(WordsForm.PANEL)
+        assertThat(
+            large.header + WordsFit.PANEL_GAP + large.below,
+        ).isWithin(0.01f).of(189f - AgendaFit.CARD_PADDING * 2)
     }
 
     @Test
@@ -409,6 +420,35 @@ class WordsTest {
                 159f to 160f,
             ).forEach { (w, h) ->
                 val plan = WordsFit.plan(spec(w, h, scale, noteLines = 2, titleLines = 2, rows = 2))
+                if (plan.form == WordsForm.PANEL) {
+                    // The header holds the title over its time; under it, the tall card's words.
+                    val head = linesHeight(plan.titleSp, plan.titleLines, scale) +
+                        (if (plan.whenChoice >= 0) lineHeight(plan.whenSp, scale) else 0f)
+                    assertThat(head).isAtMost(plan.header + 0.01f)
+                    val under = (
+                        if (plan.noteLines >
+                            0
+                        ) {
+                            linesHeight(WordsFit.NOTE_SP, plan.noteLines, scale) + WordsFit.NOTE_GAP
+                        } else {
+                            0f
+                        }
+                        ) +
+                        (
+                            if (plan.rows >
+                                0
+                            ) {
+                                lineHeight(WordsFit.ROW_SP, scale) * plan.rows + WordsFit.ROWS_GAP
+                            } else {
+                                0f
+                            }
+                            ) +
+                        (if (plan.then) lineHeight(WordsFit.THEN_SP, scale) + WordsFit.ROWS_GAP else 0f)
+                    assertThat(under).isAtMost(plan.below + 0.01f)
+                    assertThat(plan.header + WordsFit.PANEL_GAP + plan.below)
+                        .isWithin(0.01f).of(h - AgendaFit.CARD_PADDING * 2)
+                    return@forEach
+                }
                 val words = linesHeight(plan.titleSp, plan.titleLines, scale) +
                     (if (plan.rows > 0) lineHeight(WordsFit.ROW_SP, scale) * plan.rows + WordsFit.ROWS_GAP else 0f) +
                     (if (plan.whenChoice >= 0) lineHeight(plan.whenSp, scale) else 0f) +
@@ -757,7 +797,7 @@ class WordsTest {
                     val plan = WordsFit.plan(spec(w, h, scale, dial = dial, noteLines = 2, secondEm = secondEm))
                     // A panel's budget is its header and strip, pinned by the panel's own tests.
                     if (plan.form == WordsForm.PANEL) {
-                        assertThat(plan.header + WordsFit.PANEL_GAP + plan.strip)
+                        assertThat(plan.header + WordsFit.PANEL_GAP + plan.below)
                             .isWithin(0.01f).of(h - AgendaFit.CARD_PADDING * 2)
                         return@forEach
                     }

@@ -145,7 +145,7 @@
     <string name="words_form_cell">Una cella: il quadrante da solo, le lancette e quello che viene sul suo anello.</string>
     <string name="words_form_row">Una riga: il quadrante, quello che viene dopo e quando, e la data dove c’è spazio.</string>
     <string name="words_form_tall">Due righe e più: il quadrante e la data in alto, sotto quello che viene dopo, quando, e la giornata in una riga.</string>
-    <string name="words_form_panel">Due righe e tre celle e più: il quadrante, quello che viene dopo e quando, la data al bordo; sotto, gli eventi di oggi su una riga di ore.</string>
+    <string name="words_form_panel">Due righe e tre celle e più: il quadrante, quello che viene dopo e quando, la data al bordo; sotto, la nota del giorno e i prossimi eventi.</string>
     <string name="widget_dial_desc">Orologio</string>
     <string name="widget_when_day">%1$s · %2$s</string>
     <string name="widget_preview_when">Fino alle 11:00</string>

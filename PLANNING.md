@@ -861,3 +861,17 @@ trailing corner. Built:
 Checked: `:core:domain`, `:widget`, the whole suite, spotless; the gallery looked at; README
 `widgets.png` regenerated (the row's date in Medium) and looked at.
 
+### The panel keeps Tempo's words (owner, 14 Nov 2026)
+
+The owner, on the panel's strip of blocks: "I prefer to show the note and the list again" (and
+asked whether it was my preferred choice too: it was, the strip lost the titles that make the card
+useful). The panel keeps the family's geometry (the dial at the leading edge of the header, as on
+the sisters' wide cards), and under the header stand the tall card's words, hanging from the
+bottom: the note, the next events as rows (all or none) or the line of times (`WordsFit.panelPlan`,
+`PanelContent`). The strip of blocks is gone, with its constants. A premium pass on the header: the
+title stays whole at the word hero's size, stepping down to 18 sp rather than to a narrow row's 16
+(`rowPlan(whole = true)`), and the date takes what the whole title leaves, a short date over two
+lines from 40 dp («Wed, / 7 Oct»); where even that does not fit (a four-by-three's larger dial) the
+date stands on its own line over the words below, Medium and quiet (`WordsPlan.dateBelow`).
+Checked: `:core:domain`, `:widget`, the gallery looked at, spotless.
+
