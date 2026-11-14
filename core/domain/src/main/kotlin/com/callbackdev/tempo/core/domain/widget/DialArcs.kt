@@ -196,8 +196,15 @@ object DialFade {
  * drawn in Compose), so the two read as the same clock.
  */
 object DialGeometry {
-    const val STROKE: Float = 0.085f
-    const val DOT_RADIUS: Float = 0.38f
+    /**
+     * The ring's stroke on the card: the family's ring (owner, 14 Nov 2026, PLANNING.md §15 «The
+     * family's ring card»), 11% of the side, as every ring card of the family draws it, so the
+     * dial and its sisters' rings weigh the same on one home screen. It was 8.5%.
+     */
+    const val STROKE: Float = 0.11f
+
+    /** The quarter dots, inside the heavier ring's inner edge (0.39 of the side). */
+    const val DOT_RADIUS: Float = 0.335f
     const val DOT_SIZE: Float = 0.016f
     const val HOUR_LENGTH: Float = 0.24f
     const val HOUR_WIDTH: Float = 0.07f

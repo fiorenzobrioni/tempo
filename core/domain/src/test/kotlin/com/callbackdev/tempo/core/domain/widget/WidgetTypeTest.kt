@@ -31,6 +31,8 @@ class WidgetTypeTest {
     @Test
     fun `a list's row is one size, title and time alike`() {
         assertThat(AgendaFit.TITLE_SP).isEqualTo(AgendaFit.TIME_SP)
-        assertThat(WordsFit.NOTE_SP).isEqualTo(AgendaFit.NOTE_SP)
+        // «In words»'s line of times is a list's line; its note is the family's sentence, a body.
+        assertThat(WordsFit.THEN_SP).isEqualTo(AgendaFit.NOTE_SP)
+        assertThat(WordsFit.NOTE_SP).isEqualTo(WidgetType.BODY)
     }
 }

@@ -225,7 +225,7 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
             titleLines = measureWidgetLines(context, title, WordsFit.TALL_TITLE_SP, innerWidth, TextWeight.MEDIUM),
             whenEms = whens.map { textEm(context, it, TextWeight.REGULAR) },
             noteLines =
-            note?.let { measureWidgetLines(context, it, WordsFit.NOTE_SP, innerWidth, TextWeight.REGULAR) } ?: 0,
+            note?.let { measureWidgetLines(context, it, WordsFit.NOTE_SP, innerWidth, TextWeight.MEDIUM) } ?: 0,
             then = then,
             rows = rows,
             rowTimeEm = rowTimes.maxOfOrNull { textEm(context, it, TextWeight.REGULAR) } ?: 0f,
@@ -256,7 +256,7 @@ private class WordsParts(val context: Context, val model: WidgetModel, private v
     val then: String? = day?.then?.takeIf { plan.then && it.isNotEmpty() }?.let { events ->
         (events.size downTo 1).map { text.then(events, it) }
             .firstOrNull {
-                widthOf(textEm(context, it, TextWeight.REGULAR), WordsFit.NOTE_SP, scale) <= innerWidth.value
+                widthOf(textEm(context, it, TextWeight.REGULAR), WordsFit.THEN_SP, scale) <= innerWidth.value
             }
     }
 
@@ -447,7 +447,7 @@ private fun Note(parts: WordsParts, palette: WidgetPalette) {
     if (parts.plan.noteLines <= 0) return
     Text(
         text = note,
-        style = TextStyle(color = palette.secondaryInk, fontSize = WordsFit.NOTE_SP.sp, fontWeight = FontWeight.Normal),
+        style = TextStyle(color = palette.primaryInk, fontSize = WordsFit.NOTE_SP.sp, fontWeight = FontWeight.Medium),
         maxLines = parts.plan.noteLines,
         modifier = GlanceModifier.padding(top = WordsFit.NOTE_GAP.dp),
     )
@@ -498,7 +498,7 @@ private fun focusModifier(parts: WordsParts): GlanceModifier = GlanceModifier
 // --- The forms ---------------------------------------------------------------------------------
 
 /**
- * One cell: the dial, and the focus's time under it where the cell is tall; without the dial, the
+ * One cell: the dial alone (owner, 14 Nov 2026, the family's ring card); without the dial, the
  * time large in its place. Where a message stands in for the day the dial stays, empty, as the
  * clock stays on «Agenda»'s cell: the time works without the calendar (VISION.md); a message's one
  * word only where the reader hid the dial.
@@ -618,7 +618,7 @@ private fun TallContent(parts: WordsParts, palette: WidgetPalette) {
                     text = then,
                     style = TextStyle(
                         color = palette.secondaryInk,
-                        fontSize = WordsFit.NOTE_SP.sp,
+                        fontSize = WordsFit.THEN_SP.sp,
                         fontWeight = FontWeight.Normal,
                     ),
                     maxLines = 1,

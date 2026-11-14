@@ -10,6 +10,12 @@ All notable changes to Tempo are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- **«In words» looks like its sisters.** One cell is the clock face alone; the face's ring is
+  a little heavier; the title is larger on a row, and the day's note is the size of the time,
+  stronger, on two lines at most.
+
 ### Added
 
 - **«In words», the event alone.** Turn off «The day’s note» in the widget’s settings and a widget

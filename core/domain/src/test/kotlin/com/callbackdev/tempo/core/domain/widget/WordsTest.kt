@@ -330,13 +330,14 @@ class WordsTest {
     }
 
     @Test
-    fun `one cell is the dial alone, and a tall cell says the time under it`() {
+    fun `one cell is the dial alone, a tall cell too, as the family's ring cards draw one cell`() {
         val cell = WordsFit.plan(spec(85f, 85f))
         assertThat(cell.dial).isEqualTo(85f - AgendaFit.CELL_PADDING * 2)
         assertThat(cell.whenChoice).isEqualTo(-1)
         val tall = WordsFit.plan(spec(85f, 189f))
         assertThat(tall.dial).isEqualTo(WordsFit.cellCircle(85f, 189f))
-        assertThat(tall.whenChoice).isAtLeast(0)
+        assertThat(tall.whenChoice).isEqualTo(-1)
+        assertThat(tall.titleLines).isEqualTo(0)
     }
 
     @Test
@@ -534,8 +535,12 @@ class WordsTest {
         assertThat(plan.dial).isEqualTo(81.75f)
         assertThat(plan.titleLines).isEqualTo(2)
         assertThat(plan.whenChoice).isEqualTo(0)
-        assertThat(plan.noteLines).isEqualTo(1)
+        // The note is the family's sentence since 14 Nov 2026, 16 sp Medium: under a title of two
+        // lines it yields, as a ring card's sentence yields to its hero.
+        assertThat(plan.noteLines).isEqualTo(0)
         assertThat(plan.dateOver).isFalse()
+        val short = WordsFit.plan(spec(188f, 218f))
+        assertThat(short.noteLines).isEqualTo(1)
     }
 
     @Test
