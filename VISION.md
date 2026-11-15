@@ -77,7 +77,7 @@ app the reader already uses.
 - **The clock**: the time large (the family's hero type, tabular figures so the minutes do not
   wobble, each figure rolling to its next value as the minute changes), the date above it in the
   page's top row, both in the reader's format. Digital (Key decisions), beside the dial.
-- **The dial**: the «In words» card's clock face beside the time (the owner's review of 9 Oct
+- **The dial**: the «At a glance» card's clock face beside the time (the owner's review of 9 Oct
   2026): what is left of today as arcs on its ring (today only: owner, 5 Nov 2026), what comes
   next in the accent, the others quieter in their calendars' colours (as the list's marks, review
   of 30 Oct 2026), the hands moving with the minute. An event that goes on past the ring's
@@ -137,9 +137,11 @@ app the reader already uses.
 
 ### The widgets (Jetpack Glance)
 
-Two cards, the family's pair (owner, 7 Oct 2026), as Chiaro's «Colpo d'occhio» and «In parole»
-and Passo's «At a glance» and «In words»: the same sizes for both, the same card, the same
-settings screen.
+Two cards, the family's pair (owner, 7 Oct 2026): the same card and the same settings screen.
+The dial card is «At a glance» («A colpo d'occhio») since 15 Nov 2026 (owner), the name the
+family gives the card with a picture (Chiaro's glyph card, Passo's ring); it was «In words»
+(«In parole») until then, and it comes first in the launcher's list and opens at 4×1, where
+«Agenda» opens at 4×2. A new card wears the app's own colour, the family's terracotta.
 
 #### «Agenda»
 
@@ -166,7 +168,8 @@ The concept's widget, in the family's dress.
   - *Touching the header*: opens Tempo, the calendar app at today, or the phone's clock app,
     where the alarms are (owner, 8 Oct 2026).
   - *Touching an event*: opens Tempo, or opens that event in the calendar app.
-  - *The card*: light, dark, following the phone, or one of Chiaro's six colours, at any
+  - *The card*: light, dark, following the phone, or one of the family's seven colours (the
+    app's terracotta by default), at any
     opacity, with a live preview: the family's widget settings.
   - *Content*: all-day events shown or not; the days ahead when today is done; the second
     clock, once a city is chosen in Tempo's settings (off by default).
@@ -175,9 +178,9 @@ The concept's widget, in the family's dress.
   agenda would have.
 - **Updates without polling**: when the calendar changes, when the next event starts or ends,
   at midnight, and when the clock, the time zone or the language changes. Never on a timer.
-#### «In words» («In parole»)
+#### «At a glance» («A colpo d'occhio»)
 
-The family's card in words, for a reader who wants to know where the day stands rather than read
+The family's card with a picture, for a reader who wants to know where the day stands rather than read
 its list. Redesigned around a dial after the first cards on the phone (owner, 8 Oct 2026).
 
 - **A dial where Passo's card has its ring**: the system's own hands, and on the ring what comes

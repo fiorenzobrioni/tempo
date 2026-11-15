@@ -5,7 +5,7 @@ enum class TempoWidget {
     /** «Agenda»: the clock and the date over the rest of the day. */
     AGENDA,
 
-    /** «In words»: what comes next, large, and the day in a line. */
+    /** «At a glance»: what comes next, large, and the day in a line. */
     WORDS,
 }
 

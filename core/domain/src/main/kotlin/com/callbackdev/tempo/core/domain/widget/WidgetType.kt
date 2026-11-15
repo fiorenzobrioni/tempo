@@ -9,11 +9,11 @@ package com.callbackdev.tempo.core.domain.widget
  * - [LABEL]: a list's row (the event's title over its time, both at this size, sorted by weight
  *   and ink), a section's heading, the list's footer, a note under the words.
  * - [BODY]: the second thing read: the date beside a clock, the time in words, a card's message.
- * - [TITLE]: the words of a card whose hero is a drawing («In words»'s title on a tall card).
+ * - [TITLE]: the words of a card whose hero is a drawing («At a glance»'s title on a tall card).
  * - [DISPLAY]: a hero wider than a figure.
  * - [HERO]: the clock on a one-row card.
  *
- * The clocks and «In words»'s title are sized to the grant and step down to fit (the
+ * The clocks and «At a glance»'s title are sized to the grant and step down to fit (the
  * [AgendaFit] and [WordsFit] ladders), so their sizes are where a ladder starts or lands, not
  * steps; a ladder's first choice is a step wherever one exists. `WidgetTypeTest` holds every
  * fixed size to the scale.

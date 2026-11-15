@@ -182,14 +182,14 @@ class WidgetFitTest {
     }
 
     /**
-     * «In words» three rows high: the next two events as rows under the note, which keeps the count
+     * «At a glance» three rows high: the next two events as rows under the note, which keeps the count
      * where they leave one out; one row and the note without its count where one is left; each
      * row read as one sentence, as «Agenda»'s. Two rows high, the line of times stays: the
      * dial's comfort leaves it one line (step 8.3).
      */
     @Test
     @Config(qualifiers = "en-rGB-w411dp-h891dp-xhdpi")
-    fun `a tall in words lists the next events where it has the room`() {
+    fun `a tall at a glance lists the next events where it has the room`() {
         val morning = shownTexts(context, Grants.FourByThree) { WordsWidgetContent(WidgetSamples.model()) }
         assertThat(morning).containsAtLeast("Then 3 more today.", "13:00", "Lunch with Giulia", "15:00", "Dentist")
             .inOrder()
@@ -214,7 +214,7 @@ class WidgetFitTest {
 
     /**
      * The second clock (step 8.5): the city and its time, frozen at the sample's 10:20 in Rome,
-     * under the date in «Agenda»'s side column and beside «In words»' dial; at the far edge of the
+     * under the date in «Agenda»'s side column and beside «At a glance»'s dial; at the far edge of the
      * date's line on «Agenda»'s header on top; nowhere on a row or where the card has no room.
      */
     @Test

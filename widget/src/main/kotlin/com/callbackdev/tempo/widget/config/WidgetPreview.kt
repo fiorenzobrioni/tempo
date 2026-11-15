@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
+import com.callbackdev.tempo.core.data.widget.TempoWidget
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
 import com.callbackdev.tempo.core.domain.widget.AgendaFit
 import com.callbackdev.tempo.core.domain.widget.AgendaForm
@@ -61,6 +62,7 @@ import com.callbackdev.tempo.widget.WidgetKind
 import com.callbackdev.tempo.widget.WidgetLook
 import com.callbackdev.tempo.widget.WidgetModel
 import com.callbackdev.tempo.widget.agenda.AgendaWidgetContent
+import com.callbackdev.tempo.widget.widgetEntryPoint
 import com.callbackdev.tempo.widget.words.WordsWidgetContent
 
 /**
@@ -79,8 +81,14 @@ internal enum class PreviewSize(val label: String, val size: DpSize) {
     FOUR_BY_THREE("4×3", DpSize(340.dp, 293.dp)),
 }
 
-/** Where a card lands when first placed: its provider's `targetCell*`. */
-internal val DefaultPreviewSize = PreviewSize.FOUR_BY_TWO
+/**
+ * Where a card lands when first placed: its provider's `targetCell*`, «Agenda» at 4×2 and «At a
+ * glance» at 4×1 since 15 Nov 2026 (`WidgetProviderTest` pins the providers).
+ */
+internal fun defaultPreviewSize(kind: WidgetKind): PreviewSize = when (kind) {
+    WidgetKind.AGENDA -> PreviewSize.FOUR_BY_TWO
+    WidgetKind.WORDS -> PreviewSize.FOUR_BY_ONE
+}
 
 /**
  * The size this widget really has on the home screen in portrait (the launcher's
@@ -142,8 +150,7 @@ private fun agendaForm(size: DpSize): AgendaForm = AgendaFit.plan(
  */
 @Composable
 internal fun WidgetPreviewSection(kind: WidgetKind, model: WidgetModel?, placed: DpSize?) {
-    var size by remember { mutableStateOf(placed ?: DefaultPreviewSize.size) }
-    val colors = MaterialTheme.colorScheme
+    var size by remember { mutableStateOf(placed ?: defaultPreviewSize(kind).size) }
     val chips = rememberScrollState()
     val reduced = reducedMotion()
     val edge = with(LocalDensity.current) { ChipRowEdge.roundToPx() }
@@ -160,17 +167,7 @@ internal fun WidgetPreviewSection(kind: WidgetKind, model: WidgetModel?, placed:
             ?.coerceIn(0, chips.maxValue) ?: return@LaunchedEffect
         if (reduced) chips.scrollTo(target) else chips.animateScrollTo(target)
     }
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clip(RoundedCornerShape(28.dp))
-            .background(Brush.linearGradient(listOf(colors.primaryContainer, colors.tertiaryContainer)))
-            .padding(horizontal = 16.dp, vertical = 24.dp),
-    ) {
-        WidgetPreview(kind, model, size)
-    }
+    PreviewStage { WidgetPreview(kind, model, size) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -212,6 +209,51 @@ internal fun WidgetPreviewSection(kind: WidgetKind, model: WidgetModel?, placed:
     )
 }
 
+/** The ground a preview stands on: the theme's containers, standing in for a wallpaper. */
+@Composable
+internal fun PreviewStage(content: @Composable () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .background(Brush.linearGradient(listOf(colors.primaryContainer, colors.tertiaryContainer)))
+            .padding(horizontal = 16.dp, vertical = 24.dp),
+    ) {
+        content()
+    }
+}
+
+/**
+ * [widget] as the reader's own day will stand on it once placed, on the default look (the app's
+ * colour), at the size it is placed at: the first run's widget page (PLANNING.md §8). The card
+ * itself, as [WidgetPreview] draws it, read once by a loader that arms nothing; its room is held
+ * at once and the card fills it when the calendar has been read. On no stage: the default card
+ * is solid, so no wallpaper shows through it, and a stage inside the page's choice group was a
+ * third ground whose containers' colours argued with the card's (owner, 15 Nov 2026).
+ */
+@Composable
+fun HomeWidgetPreview(widget: TempoWidget) {
+    val context = LocalContext.current
+    val kind = when (widget) {
+        TempoWidget.AGENDA -> WidgetKind.AGENDA
+        TempoWidget.WORDS -> WidgetKind.WORDS
+    }
+    var model by remember { mutableStateOf<WidgetModel?>(null) }
+    LaunchedEffect(Unit) {
+        model = runCatching { context.widgetEntryPoint().loader() }.getOrNull()?.loadUnplaced()
+    }
+    HomeWidgetPreviewOf(kind, model)
+}
+
+/** [HomeWidgetPreview] for a [model] already read: the card at its default size. */
+@Composable
+internal fun HomeWidgetPreviewOf(kind: WidgetKind, model: WidgetModel?) {
+    WidgetPreview(kind, model, defaultPreviewSize(kind).size, Modifier.padding(vertical = 8.dp))
+}
+
 /**
  * The card itself, not a lookalike: Glance composes the same
  * content function the receiver runs into `RemoteViews` for the chosen size, and
@@ -221,7 +263,7 @@ internal fun WidgetPreviewSection(kind: WidgetKind, model: WidgetModel?, placed:
  */
 @OptIn(ExperimentalGlanceRemoteViewsApi::class)
 @Composable
-private fun WidgetPreview(kind: WidgetKind, model: WidgetModel?, size: DpSize) {
+internal fun WidgetPreview(kind: WidgetKind, model: WidgetModel?, size: DpSize, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     var views by remember { mutableStateOf<RemoteViews?>(null) }
     LaunchedEffect(kind, model, size) {
@@ -236,7 +278,7 @@ private fun WidgetPreview(kind: WidgetKind, model: WidgetModel?, size: DpSize) {
         }.getOrNull()
     }
     val description = stringResource(R.string.widget_config_preview_desc)
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth().semantics { contentDescription = description }) {
+    BoxWithConstraints(modifier = modifier.fillMaxWidth().semantics { contentDescription = description }) {
         val scale = minOf(1f, maxWidth / size.width)
         Box(modifier = Modifier.fillMaxWidth().height(size.height * scale), contentAlignment = Alignment.Center) {
             Box(

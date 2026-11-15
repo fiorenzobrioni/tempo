@@ -85,8 +85,15 @@ enum class OnboardingStep {
  */
 data class WidgetOffer(val canPin: Boolean = false, val placed: Boolean = false)
 
+/**
+ * The first run. [widgetPreview] draws a card as the reader's day will stand on it, for the widget
+ * page: the app passes the widgets' own drawing, which this module cannot see.
+ */
 @Composable
-fun OnboardingRoute(viewModel: OnboardingViewModel = hiltViewModel()) {
+fun OnboardingRoute(
+    viewModel: OnboardingViewModel = hiltViewModel(),
+    widgetPreview: @Composable (TempoWidget) -> Unit = {},
+) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val activity = LocalActivity.current
     val context = LocalContext.current
@@ -116,6 +123,7 @@ fun OnboardingRoute(viewModel: OnboardingViewModel = hiltViewModel()) {
         step = step,
         permission = permission,
         widgets = offer,
+        widgetPreview = widgetPreview,
         actions = OnboardingActions(
             next = { OnboardingStep.entries.getOrNull(step.ordinal + 1)?.let { step = it } },
             back = { OnboardingStep.entries.getOrNull(step.ordinal - 1)?.let { step = it } },
@@ -148,6 +156,7 @@ fun OnboardingScreen(
     actions: OnboardingActions,
     modifier: Modifier = Modifier,
     widgets: WidgetOffer = WidgetOffer(),
+    widgetPreview: @Composable (TempoWidget) -> Unit = {},
 ) {
     val reduced = reducedMotion()
     val gutter = pageGutter()
@@ -189,7 +198,7 @@ fun OnboardingScreen(
                         when (page) {
                             OnboardingStep.WELCOME -> WelcomePage()
                             OnboardingStep.CALENDAR -> CalendarPage(permission)
-                            OnboardingStep.WIDGET -> WidgetPage(widgets, actions.pin)
+                            OnboardingStep.WIDGET -> WidgetPage(widgets, actions.pin, widgetPreview)
                         }
                     }
                 }
@@ -362,19 +371,28 @@ private fun Granted(text: String, tag: String) {
  * change it.
  */
 @Composable
-private fun WidgetPage(offer: WidgetOffer, pin: (TempoWidget) -> Unit) {
+private fun WidgetPage(offer: WidgetOffer, pin: (TempoWidget) -> Unit, preview: @Composable (TempoWidget) -> Unit) {
     PageTitle(stringResource(R.string.onboarding_widget_title), OnboardingStep.WIDGET)
     PageBody(stringResource(R.string.onboarding_widget_body))
     Spacer(Modifier.height(24.dp))
+    // «At a glance» first, as in the launcher's list (owner, 15 Nov 2026).
+    WidgetChoice(
+        TempoWidget.WORDS,
+        R.string.onboarding_widget_words,
+        R.string.onboarding_widget_words_body,
+        offer,
+        pin,
+        preview,
+    )
+    Spacer(Modifier.height(12.dp))
     WidgetChoice(
         TempoWidget.AGENDA,
         R.string.onboarding_widget_agenda,
         R.string.onboarding_widget_agenda_body,
         offer,
         pin,
+        preview,
     )
-    Spacer(Modifier.height(12.dp))
-    WidgetChoice(TempoWidget.WORDS, R.string.onboarding_widget_words, R.string.onboarding_widget_words_body, offer, pin)
     if (offer.placed) {
         Spacer(Modifier.height(20.dp))
         Text(
@@ -397,7 +415,14 @@ private fun WidgetPage(offer: WidgetOffer, pin: (TempoWidget) -> Unit) {
 
 /** One card of the pair, on the family's card: the 24dp group ground, as the days on Today. */
 @Composable
-private fun WidgetChoice(widget: TempoWidget, title: Int, body: Int, offer: WidgetOffer, pin: (TempoWidget) -> Unit) {
+private fun WidgetChoice(
+    widget: TempoWidget,
+    title: Int,
+    body: Int,
+    offer: WidgetOffer,
+    pin: (TempoWidget) -> Unit,
+    preview: @Composable (TempoWidget) -> Unit,
+) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = GroupShape,
@@ -413,6 +438,8 @@ private fun WidgetChoice(widget: TempoWidget, title: Int, body: Int, offer: Widg
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            // The card as the reader's day will stand on it, once placed (owner, 15 Nov 2026).
+            Box(Modifier.padding(top = 6.dp).testTag(OnboardingTags.preview(widget))) { preview(widget) }
             if (offer.canPin) {
                 val label = stringResource(R.string.onboarding_widget_add_a11y, stringResource(title))
                 FilledTonalButton(
@@ -439,4 +466,6 @@ object OnboardingTags {
     const val PLACED = "onboarding_widget_placed"
 
     fun pin(widget: TempoWidget) = "onboarding_pin_${widget.name.lowercase()}"
+
+    fun preview(widget: TempoWidget) = "onboarding_preview_${widget.name.lowercase()}"
 }

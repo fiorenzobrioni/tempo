@@ -89,7 +89,7 @@ import com.callbackdev.tempo.widget.widgetLocale
 import java.time.format.DateTimeFormatter
 
 /**
- * «In words» (PLANNING.md §7): a dial and the day in a few words. The dial: the system's hands over the focus's arc
+ * «At a glance» (PLANNING.md §7): a dial and the day in a few words. The dial: the system's hands over the focus's arc
  * (`WidgetDial.kt`); beside or under it, what comes next and when, the date, the day's note.
  * [WordsFit] holds the ranks, the forms and every number's reason.
  */

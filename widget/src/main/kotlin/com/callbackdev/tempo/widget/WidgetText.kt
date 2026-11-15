@@ -57,7 +57,7 @@ internal class CardText(private val context: Context, model: WidgetModel) {
 
     /**
      * The same in fewer letters where there are fewer: "→ 11:00" for "Until 11:00", "→ Tomorrow ·
-     * 06:30" for an end on a later date, as «In words» says them; any other time as it is. An
+     * 06:30" for an end on a later date, as «At a glance» says them; any other time as it is. An
      * inline row prints it where the full form would widen the time column for every title
      * (`AgendaFit.timeColumn`).
      */
@@ -143,7 +143,7 @@ internal class CardText(private val context: Context, model: WidgetModel) {
         ).joinToString(", ")
     }
 
-    // --- «In words» -------------------------------------------------------------------------------
+    // --- «At a glance» -------------------------------------------------------------------------------
 
     fun focusTitle(focus: WordsFocus): String? = when (focus) {
         is WordsFocus.UnderWay -> title(focus.event)

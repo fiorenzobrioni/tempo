@@ -158,6 +158,18 @@ have, and Tempo needs, is a clock and a refresh driven by a calendar instead of 
     the date's place under a clock without one. «In words»: under the date beside the dial.
     Never on a row or a cell, never where it does not fit whole, never by shortening the date.
 
+**Amended 15 Nov 2026** (owner, for the whole family): the dial card is «At a glance» / «A colpo
+d'occhio», the name the family gives the card with a picture (the weather app's glyph card, the
+step counter's ring); it was «In words» / «In parole», and above the names are the ones of the
+time. It is declared first and opens at 4×1 (`minHeight` 40 dp, its static preview redrawn as
+the one-row form), where «Agenda» keeps 4×2: the two share their minimum and their lack of a
+maximum, no longer their default. The launcher's list sorts an app's cards by name, so in
+Italian «A colpo d'occhio» comes before «Agenda»; in English «Agenda» still sorts before «At a
+glance», which the owner accepted rather than rename «Agenda». A new card wears the app's colour,
+the family's terracotta (nearest to the icon's coral), and so does a card never configured; the
+colours are seven, with the family's ochre. The code keeps `WordsWidget`, `WidgetKind.WORDS` and
+`widget_words_*`: a placed card is bound to its receiver's class name.
+
 ## Consequences
 
 - Nothing of Tempo runs for the widgets while nothing changes; a calendar change reaches a card

@@ -23,7 +23,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /*
- * The «In words» dial (PLANNING.md §7, `docs/adr/0003-widgets.md`): a ring, become a clock.
+ * The «At a glance» dial (PLANNING.md §7, `docs/adr/0003-widgets.md`): a ring, become a clock.
  * Two layers in one small layout placed through Glance's `AndroidRemoteViews`:
  *
  * - the face, a bitmap painted here at each redraw: the ring's track, the day's arcs on it

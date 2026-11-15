@@ -13,7 +13,7 @@ import java.time.ZoneId
  * All-day events need no boundary of their own: their dates turn over at the phone's midnight,
  * which is always a candidate.
  *
- * With [dial], for an «In words» card on a home screen, the moment an event comes onto the dial's
+ * With [dial], for an «At a glance» card on a home screen, the moment an event comes onto the dial's
  * face is one too ([DialArcs.comesOnTheFace]): the face shows the next hours from the moment it is
  * drawn, and an event that reaches them between two boundaries would wait for the next one
  * (review of 30 Oct 2026). Today's events only, as the face carries no other day's (owner,

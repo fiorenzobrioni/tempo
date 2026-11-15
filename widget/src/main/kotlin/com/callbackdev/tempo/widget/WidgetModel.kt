@@ -96,9 +96,18 @@ constructor(
     private val looks: WidgetLookStore,
     private val arming: WidgetRefreshArming,
 ) {
-    suspend fun load(appWidgetId: Int): WidgetModel {
+    suspend fun load(appWidgetId: Int): WidgetModel = load(looks.lookFor(appWidgetId), arm = true)
+
+    /**
+     * A card that is not placed yet, on the default look, for the first run's widget page: the
+     * reader's own day as the card will draw it once placed. It arms nothing, the boundary alarm
+     * being a placed card's (PLANNING.md §9).
+     */
+    suspend fun loadUnplaced(): WidgetModel =
+        guardedLoad(LOAD_TIMEOUT_MILLIS, "unplaced card") { load(WidgetLook(), arm = false) }
+
+    private suspend fun load(look: WidgetLook, arm: Boolean): WidgetModel {
         val settings = settings.settings.first()
-        val look = looks.lookFor(appWidgetId)
         val now = ZonedDateTime.now()
         val read = source.read(AgendaWindow.of(now.toInstant(), now.zone, settings.horizonDays))
         val content = when (read) {
@@ -122,7 +131,7 @@ constructor(
                 )
             }
         }
-        arming.afterRender((content as? WidgetContent.Ready)?.agenda, now.zone)
+        if (arm) arming.afterRender((content as? WidgetContent.Ready)?.agenda, now.zone)
         return WidgetModel(look, settings, now, content, doors(now.toInstant()))
     }
 

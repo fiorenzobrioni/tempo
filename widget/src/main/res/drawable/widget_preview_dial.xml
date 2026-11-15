@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The «In words» dial as the launcher's picker draws it where it asks for a static layout: the
+  The «At a glance» dial as the launcher's picker draws it where it asks for a static layout: the
   sample's moment (10:20) with the design review (10:00 to 11:00) on the ring, in WidgetDial.kt's
   proportions. Sample data only: a preview is a drawing of the product, never a reading.
 -->

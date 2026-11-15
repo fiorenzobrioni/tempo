@@ -41,21 +41,25 @@ class ReadmeScreenshots {
     @Before
     fun onlyOnRequest() = assumeTrue("Run with -PupdateScreenshots", output != null)
 
-    /** The pair on a home screen: «Agenda» at its default 4×2, «In words» beside a small clock, a one-row «In words». */
+    /**
+     * The pair on a home screen, in the app's terracotta: a one-row «At a glance» at its default
+     * 4×1 first, as in the launcher's list, then «At a glance» beside a small clock in the ochre a
+     * reader can pick, then «Agenda» at its default 4×2.
+     */
     @Test
     fun widgets() {
         val panel = DpSize(361.dp, 189.dp)
         val half = DpSize(172.dp, 189.dp)
         val row = DpSize(361.dp, 85.dp)
-        val clay = WidgetLook(cardColor = WidgetCardColor.CLAY)
-        val afternoon = WidgetSamples.model(look = clay, now = WidgetSamples.at("2026-10-07T14:20"))
+        val ochre = WidgetLook(cardColor = WidgetCardColor.OCHRE)
+        val afternoon = WidgetSamples.model(look = ochre, now = WidgetSamples.at("2026-10-07T14:20"))
         val board = HomeBoard(context, widthDp = 393)
-            .row(panel to renderCard(context, panel) { AgendaWidgetContent(WidgetSamples.model()) })
+            .row(row to renderCard(context, row) { WordsWidgetContent(WidgetSamples.model()) })
             .row(
                 half to renderCard(context, half) { WordsWidgetContent(afternoon) },
                 half to renderCard(context, half) { AgendaWidgetContent(afternoon) },
             )
-            .row(row to renderCard(context, row) { WordsWidgetContent(WidgetSamples.model()) })
+            .row(panel to renderCard(context, panel) { AgendaWidgetContent(WidgetSamples.model()) })
         board.draw().saveTo(File(checkNotNull(output)), "widgets")
     }
 

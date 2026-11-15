@@ -93,7 +93,7 @@
     <string name="settings_group_widgets">Widget</string>
     <string name="settings_widget_agenda">Aggiungi «Agenda» alla schermata Home</string>
     <string name="settings_widget_agenda_note">L’ora e la data sopra il resto della giornata</string>
-    <string name="settings_widget_words">Aggiungi «In parole» alla schermata Home</string>
+    <string name="settings_widget_words">Aggiungi «A colpo d’occhio» alla schermata Home</string>
     <string name="settings_widget_words_note">Un quadrante con quello che viene dopo sull’anello, e la giornata in poche parole</string>
     <string name="settings_widget_add">Aggiungere un widget</string>
     <string name="settings_widget_manual">Tieni premuto un punto vuoto della schermata Home, scegli Widget, poi Tempo.</string>

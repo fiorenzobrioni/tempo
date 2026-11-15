@@ -59,7 +59,7 @@ import javax.inject.Singleton
 class WidgetRefreshArming @Inject constructor(@ApplicationContext private val context: Context) {
     /**
      * After a card is drawn: the calendar's trigger, and the alarm at [agenda]'s next boundary,
-     * counting the moments events come onto the dial where an «In words» card is placed.
+     * counting the moments events come onto the dial where an «At a glance» card is placed.
      */
     fun afterRender(agenda: Agenda?, zone: ZoneId) {
         Arming.launch { armCalendarTrigger(context) }

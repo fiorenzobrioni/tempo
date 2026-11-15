@@ -39,7 +39,7 @@ class WidgetLookStoreTest {
         val look = store.lookFor(7)
         assertThat(look).isEqualTo(WidgetLook())
         assertThat(look.background).isEqualTo(WidgetBackground.COLOR)
-        assertThat(look.cardColor).isEqualTo(WidgetCardColor.BLUE)
+        assertThat(look.cardColor).isEqualTo(WidgetCardColor.CLAY)
         assertThat(look.clockFormat).isNull()
         assertThat(look.dateStyle).isNull()
         assertThat(look.headerTap).isEqualTo(HeaderTap.TEMPO)
@@ -51,7 +51,7 @@ class WidgetLookStoreTest {
     @Test
     fun `each card keeps its own look, its clock app included`() = runTest {
         val clay = WidgetLook(
-            cardColor = WidgetCardColor.CLAY,
+            cardColor = WidgetCardColor.OCHRE,
             opacityPct = 40,
             clockFormat = ClockFormat.H12,
             headerTap = HeaderTap.CLOCK,

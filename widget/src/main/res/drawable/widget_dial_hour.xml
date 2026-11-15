@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The «In words» dial's hour hand, for the system's AnalogClock (WidgetDial.kt): DialGeometry's
+  The «At a glance» dial's hour hand, for the system's AnalogClock (WidgetDial.kt): DialGeometry's
   HOUR_LENGTH (0.24) and HOUR_WIDTH (0.07) on a 100-unit square, drawn at HAND_DRAWABLE_DP so the
   clock only ever scales it down. White, tinted in the card's ink through RemoteViews.
 -->

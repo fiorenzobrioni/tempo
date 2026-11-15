@@ -24,6 +24,7 @@ import com.callbackdev.tempo.feature.guide.GuideRoute
 import com.callbackdev.tempo.feature.onboarding.OnboardingRoute
 import com.callbackdev.tempo.feature.settings.SettingsRoute
 import com.callbackdev.tempo.feature.today.TodayRoute
+import com.callbackdev.tempo.widget.config.HomeWidgetPreview
 import kotlinx.serialization.Serializable
 
 /*
@@ -51,7 +52,7 @@ data object GuideKey : NavKey
 @Composable
 fun TempoRoot(settings: UserSettings) {
     if (!settings.onboardingCompleted) {
-        OnboardingRoute()
+        OnboardingRoute(widgetPreview = { widget -> HomeWidgetPreview(widget) })
         return
     }
     MainPages()

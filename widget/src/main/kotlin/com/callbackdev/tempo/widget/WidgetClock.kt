@@ -49,7 +49,7 @@ internal data class ClockPatterns(val twelve: String, val twentyFour: String) {
         return ClockPatterns(twelve, twentyFour)
     }
 
-    /** The time, then [date]: the «In words» card's small line, one `TextClock` for both. */
+    /** The time, then [date]: the «At a glance» card's small line, one `TextClock` for both. */
     fun withDate(date: String): ClockPatterns = ClockPatterns("$twelve$SEPARATOR$date", "$twentyFour$SEPARATOR$date")
 
     /**

@@ -14,11 +14,11 @@ class WidgetTypeTest {
         "agenda: footer" to AgendaFit.FOOTER_SP,
         "agenda: date by a clock" to AgendaFit.LINE_DATE_SP,
         "agenda: date over a list" to AgendaFit.DATE_SP,
-        "in words: tall title" to WordsFit.TALL_TITLE_SP,
-        "in words: when" to WordsFit.WHEN_SP,
-        "in words: date" to WordsFit.DATE_SP,
-        "in words: note" to WordsFit.NOTE_SP,
-        "in words: a cell's when" to WordsFit.CELL_WHEN_SP,
+        "at a glance: tall title" to WordsFit.TALL_TITLE_SP,
+        "at a glance: when" to WordsFit.WHEN_SP,
+        "at a glance: date" to WordsFit.DATE_SP,
+        "at a glance: note" to WordsFit.NOTE_SP,
+        "at a glance: a cell's when" to WordsFit.CELL_WHEN_SP,
     )
 
     @Test

@@ -11,7 +11,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import java.time.LocalDate
 
-/** «In words»: what it puts large, what it says under it, and its forms at the reference grants. */
+/** «At a glance»: what it puts large, what it says under it, and its forms at the reference grants. */
 class WordsTest {
     private val standup = timed(1, "2026-10-07T09:30", "2026-10-07T10:30", title = "Standup")
     private val review = timed(2, "2026-10-07T10:00", "2026-10-07T10:15", title = "Review")
@@ -438,7 +438,7 @@ class WordsTest {
         assertThat(WordsFit.plan(spec(340f, 189f)).titleSp).isEqualTo(WordsFit.TALL_TITLE_SP)
     }
 
-    // --- «In words» uses its room (step 8.3) ------------------------------------------------------
+    // --- «At a glance» uses its room (step 8.3) ------------------------------------------------------
 
     @Test
     fun `the dial's side at the reference grants`() {

@@ -12,10 +12,21 @@ All notable changes to Tempo are documented here. The format follows
 
 ### Added
 
-- **«In words», the event alone.** Turn off «The day’s note» in the widget’s settings and a widget
+- **«At a glance», the event alone.** Turn off «The day’s note» in the widget’s settings and a widget
   two rows high or more says only what comes next and when, and its clock face takes the room.
 
 ### Changed
+
+- **«In words» is now «At a glance»**, the name of the clock-face widget in all the apps of the
+  family, and it comes first in the widget list (in Italian; in English «Agenda» still sorts
+  first). A new one is placed one row high, four cells wide; widgets already on your home screen
+  stay as they are, with their settings.
+
+- **The first run shows the two widgets** as your own day will stand on them, before you add one.
+
+- **The widgets wear terracotta**, the app's own colour, until you choose another; a widget you
+  never set up turns terracotta too. There is a seventh colour to choose, **ochre**, and on most
+  phones the colours stand in one row.
 
 - **The first run's words.** Its buttons read «Get started», «Continue» and «Later», and its
   battery promise says when a widget redraws: when your calendar changes or an event starts or ends.
@@ -33,10 +44,10 @@ All notable changes to Tempo are documented here. The format follows
 - **A new icon**: the day's page with a clock in front of it, on coral. The «New event» shortcut
   follows it, in the same shape as your launcher's icons.
 
-- **«In words» keeps one dial.** At every size the clock face keeps one size all day, with
+- **«At a glance» keeps one dial.** At every size the clock face keeps one size all day, with
   events or without. On a widget two cells wide and three rows high it is larger, with the date
   on its own line over the event.
-- **The clock face shows today only.** Today's clock face and the «In words» widget's carry what
+- **The clock face shows today only.** Today's clock face and the «At a glance» widget's carry what
   is left of today. A later day's events are in the list and in the words, no longer on the
   face, where tomorrow morning's read as tonight's hours and were cut short.
 

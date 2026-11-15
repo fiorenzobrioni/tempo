@@ -7,7 +7,7 @@ import com.callbackdev.tempo.core.model.EventInstance
 import java.time.LocalDate
 
 /**
- * What the «In words» card puts large (PLANNING.md §7, VISION.md): the event under way while one
+ * What the «At a glance» card puts large (PLANNING.md §7, VISION.md): the event under way while one
  * is, else the next one today, else (where the reader wants the days ahead) the first one after
  * today, else the day's freedom.
  */
@@ -42,7 +42,7 @@ sealed interface WordsNote {
 }
 
 /**
- * The «In words» card's day, from the agenda alone.
+ * The «At a glance» card's day, from the agenda alone.
  *
  * @property then the starts after the focus, today, for the line of times on a wide card
  *   ("Then 16:30 · 18:00").
