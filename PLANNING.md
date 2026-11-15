@@ -863,8 +863,7 @@ the reader's own caps: "bring the previews to Tempo too, so the two match".
 
 1. **Each choice draws its card**, between its line and «Add»: the card as the reader's own day
    will stand on it, at its default size (the dial card at 4×1, «Agenda» at 4×2), on the default
-   look (the app's terracotta), on the stage the widget settings use, without side room inside
-   the group. The onboarding module cannot see `:widget`, so the page takes the drawing as a
+   look (the app's terracotta), on the group itself (see below). The onboarding module cannot see `:widget`, so the page takes the drawing as a
    slot (`OnboardingRoute(widgetPreview)`), and `TempoRoot` passes `HomeWidgetPreview`.
 2. **Read without arming.** `WidgetModelLoader.loadUnplaced()` reads the day as a placed card
    would, guarded by the cards' timeout, on `WidgetLook()`, and arms no boundary alarm: that
@@ -877,3 +876,8 @@ the reader's own caps: "bring the previews to Tempo too, so the two match".
 stand-in card), `WidgetConfigScreenTest` (4×1 chosen on «At a glance», the two previews drawn from
 a sample day, `first-run-previews.png` looked at), the app's tests, spotless.
 
+**Then, the same day: no stage under the cards** (owner: the ground round the cards, a wallpaper
+in the containers' colours, sat badly with the card's colour). On the first run the card stands
+on the choice group itself: the default card is solid, so nothing shows through it, and the stage
+was a third ground between the page and the card. The widget settings keep their stage, where
+the opacity slider makes it the wallpaper the card thins over.
