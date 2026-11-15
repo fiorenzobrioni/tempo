@@ -379,6 +379,91 @@ Each phase ends with a merged PR, green CI and its acceptance criteria met. Phas
 
 **Phase 8, the 1.1: closed.** The review of 30 Oct 2026 and the 1.1.0 (30 Oct to 2 Nov 2026): its plan and its steps 8.0 to 8.8 are in `docs/planning/02-phase-8.md`, §11. Its step 8.4 («Join», on hold) and 8.8's battery check are boxes in §15's Open.
 
+### Phase 10 — «In pictures», the day in blocks (owner, 15 Nov 2026)
+
+A third card beside «Agenda» and «In words» (the dial): **«In immagini» / «In pictures»**, the
+family's new drawn card (§15, 15 Nov 2026). Where «In words» says what is happening now, this one
+lays the day out from 8 to 22: every event a block in its calendar's mark, what is left empty the
+free time, seen without counting it. **The approved design** is the canvas
+https://claude.ai/artifact/VFwVjbxyAyWcWRLcRW9uhY, page «Tempo»; its sources are in
+`docs/design/in-immagini/` (frozen, with a README on how to read them).
+
+**The fidelity rule** (owner, 15 Nov 2026: "the layouts and the graphics of the new widgets must be
+faithful, as far as possible, to the canvases made here"; an implementation once drifted from its
+design and did not come out well). Fidelity is an acceptance criterion:
+
+1. **The numbers below are the contract**: dp, sp, inks, radii, positions. The pure layout
+   functions reproduce them and the tests pin them at the family's reference grants (heights 85,
+   189, 293, 397 dp; widths 159, 250, 340). Where this plan writes no measure, the source's is the
+   measure.
+2. **A deviation is allowed only where the platform forces it** (Glance and `RemoteViews`: no
+   absolute positions, the launcher's system face, eleven children per container, bitmap memory)
+   **or a measured rule of this repository does** (`markColor`'s 3:1, `markAlpha`, contrast, the
+   ink rule). Each is written in the §15 log by the step that makes it, with its reason and the
+   closest solution. "It looked better" is not a reason: ask the owner first.
+3. **The last step compares by eye**: the gallery test's screenshot of each form beside the canvas
+   board at the same scale, and the list of what differs, each difference logged or fixed. The
+   phase does not close on an unlogged difference.
+
+**What the card never draws: a line for "now".** The card is redrawn at boundaries, not each minute
+(§7, §9): a fixed line would be wrong between two of them. The time is the system's `TextClock`
+(the hero, as «Agenda»'s), and the blocks' states change exactly at the boundaries the card is
+redrawn at, so they are always true: **ended** faded (0.35 in the canvas; never fainter than
+`markAlpha` lets the mark be on the plate's real ground), **under way** with a 2 dp ring in the
+card's ink, **to come** in its full mark. The marks are `markColor` against the plate's real ground
+(3:1), never a text's colour or a ground (§6).
+
+**The card** (the family's: the launcher's corner, Chiaro's six colours, opacity, the ink rule).
+Insets 14 dp (12 on the narrow 2×2 and 2×3; 10/12 on 2×1; 12/16 on 4×1). **The plate**: the
+launcher's inner radius (16 dp), a veil of `rgba(30,4,0,0.28)` on the app's ground
+(`rgba(0,0,0,0.20)` on the six colours, 5% of the dress's dark on light and dark), a 1 dp inner
+hairline at 12%. **The app's ground**, new and the card's default (decision 1 below):
+`linear-gradient(150°, #9A3625 0%, #86301F 55%, #6E2618 100%)`, the launcher icon's coral darkened
+until the ink holds: white 7.17:1, the quiet ink 4.76:1 at its lightest stop. On the plate over it
+the calendar marks measured 3.24 (tangerine), 3.26 (lavender), 3.66 (peacock), 4.35 (sage), 6.65
+(banana): all over 3:1, `markColor` keeps it so for any calendar colour. Inks: white, quiet 75%,
+track 12%.
+
+**The window**: 8 to 22, widened to whole hours as far as the day's first and last timed events
+need, never the night's 24 hours. Two events at once split the lane in two lanes of 12 dp, never one
+block over another. The all-day events share one row over the blocks (as «Agenda»'s).
+
+| Form | Size | What it carries |
+|---|---|---|
+| 2×1 | 159 × 85 | The clock (30 sp Bold) and «3 left» (13 quiet) on one baseline; the focus (13 Medium, one line); the day as a 6 dp thread of blocks (radius 3, track 12%) |
+| 4×1 | 340 × 85 | The clock (36 sp); the focus (16 Medium) and «until 14:30» (13 quiet) on one line; the lane (10 dp, radius 4); the hours every four (11 sp) |
+| 2×2 | 159 × 189 | The clock (38 sp), the focus (13 Medium), «until 14:30» (13 quiet); the plate 135 × 66: the lane at 14 (20 dp, radius 6), the hours 8, 15, 22 at 42 |
+| 3×2 | 250 × 189 | The header (60 dp): clock 40 sp, the focus 16 Medium, «until 14:30»; no date; the plate 226 × 95, the hours every four |
+| 4×2 | 340 × 189 | **The reference form**: header 60 dp (clock 46 sp on a 48 line; the focus 16 Medium, one line; «until 14:30 · then 3 more» and the date, 13 quiet), 8 dp, then the plate 312 × 95: the all-day row at 9 (an 8 dp mark, «All day» quiet, the title 13 Medium), the lane at 36 (26 dp, radius 7, inside 6 dp margins, 1.5 dp between blocks, a block at least 3 dp), the hours every two at 71 (11 sp quiet) |
+| 2×3 | 159 × 293 | The 2×2, the focus at 16, and the next three, 28 dp each: a 4 × 16 dp mark, the start (13 Semibold, 38 dp), the title (13, one line) |
+| 4×3 | 340 × 293 | The 4×2, and the next three, 28 dp each: a 4 × 18 mark, the range (13 Semibold, 92 dp), the title |
+| 4×4 | 340 × 397 | The 4×2, and **the next four days** (decision 4) on the same window: «The next days» / «from 8 to 22» (13 quiet), rows of 40 dp with a hairline: the day (13 Medium, 48 dp), its lane (14 dp, radius 5), its count (13 quiet) |
+
+**The settings** (the family's screen): the real card first on the `primaryContainer` →
+`tertiaryContainer` wallpaper, the size chips (4×2 «as it is», 2×2, 4×1, 4×4) with a line per form
+and the resize hint; **Calendars** (the choice Today makes, or the card's own); **On the card**: the
+all-day events, the date, each with its note; **Touching an event**: segments «The calendar» /
+«Tempo's Today»; **Background**: «Tempo's coral» (default), light, dark, the phone's, a colour;
+**Transparency**; reset. A door that is not on the phone is not offered (§7, «Taps»).
+
+- [ ] **10.1 — The measures and the engine.** The pure layout of the eight forms in `:core:domain`
+  (`InPicturesFit`, as `AgendaFit` and `WordsFit`), the window and the blocks' geometry (lanes,
+  overlaps, states, ticks), the next days from `AgendaWindow`; their tests at the reference grants,
+  at 100, 115 and 130% text, and across both midnights and a zone change (§4.6). The canvas and its
+  numbers read before a line is written.
+- [ ] **10.2 — The drawing.** The plate's painter (a bitmap at the exact size), the clock as a
+  `TextClock`, the card in Glance in every form (events in groups of at most five, counted), the
+  app's ground with its `ContrastTest` and ink rows, the marks' `markColor`/`markAlpha` on the
+  plate's ground, TalkBack's reading (the focus, «then 3 more», the free stretches).
+- [ ] **10.3 — The widget.** The receiver and its provider (default 4×2, one cell, no maximum), the
+  refresh as the other two (content-URI work, the boundary alarm, the exempt broadcasts: nothing
+  new), the previews, the settings screen, the doors.
+- [ ] **10.4 — The comparison and the close.** The gallery draws every form on every ground; each
+  beside the canvas, the differences listed (the fidelity rule, point 3); `WidgetFitTest` at 5%
+  wider; the strings in English and Italian, the guide's widgets chapter, the README (one figure
+  more), the CHANGELOG's Unreleased, ADR 0003 amended (the default ground of this card) or a new
+  ADR; the screenshots regenerated and looked at.
+
 ### Phase 7 — Google Play (optional, later)
 
 - [ ] As Passo's Phase 9: the same key, the store listing, the data safety form ("no data collected, no data shared").
@@ -438,6 +523,9 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [x] **The «New event» shortcut as an adaptive icon, on the phone** (§15, 9 Nov 2026, «The «New event» shortcut, an adaptive icon»): long press on the icon, in the phone's own mask and with the themed icons on. Done by the owner on 9 Nov 2026 (§15, «The adaptive shortcut checked on the phone, and Tetto in the family»).
 - [ ] **Today's review on the phone** (§15, 10 Nov 2026, «Today reviewed: one clock, one "now", one ground»; and 11 Nov 2026, «The dial: a cut arc fades, and the face stays while today has events»): the page in both dresses and both themes, early morning (the face with its ring empty, a long event fading at 12:25), morning and evening (the dial there and gone), the «In words» card early in the day, the day markers on the 12-hour clock, the button's icon over the last rows, TalkBack on the all-day events and the button.
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
+
+- [ ] **«In pictures» on the phone** (§11 Phase 10; §15, 15 Nov 2026): the eight forms resized on the owner's launcher beside «In words» of the same size; a full day and a free one; an event under way; two at once; the six colours and Tempo's coral; 130% text; TalkBack on the plate; a boundary passing with the card in view.
+- [ ] **Tempo's coral for the other two cards?** (§15, 15 Nov 2026, decision 1): «In pictures» opens on the app's colour; «Agenda» and «In words» keep the blue until the owner says.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
 
@@ -802,4 +890,28 @@ looks at it screen by screen.
 
 **Checked.** The onboarding's tests and their screenshots (Italian, twice the text size);
 `onboarding.png` regenerated and looked at.
+
+### «In pictures», a third card: the family's drawn widget (owner, 15 Nov 2026)
+
+**Asked.** The owner, in the design sessions of the family's new series: a new graphic widget to
+comment the text one, premium and clean, with useful facts, resizable and adaptive, with a settings
+screen; Chiaro first, then the sisters in the same style. Then: "the layouts and the graphics of the
+new widgets must be faithful, as far as possible, to the canvases made here".
+
+**What was decided.** The canvas https://claude.ai/artifact/VFwVjbxyAyWcWRLcRW9uhY holds the
+approved design of the four apps; Tempo's page is built as §11 Phase 10, with **the fidelity rule**
+written there, and its sources are in `docs/design/in-immagini/`. The owner accepted the review's
+five proposals:
+
+1. **The card's default ground is the app's colour**, not the solid blue of the family's card
+   (Passo's ADR 0005, decision 3, through ADR 0003): a seventh ground, «Tempo's coral», for «In
+   pictures» (the six colours, light, dark and the phone's stay). Whether «Agenda» and «In words»
+   take it too is a question of its own (Open).
+2. (Tetto's: its columns are a picture of the open period, not a chart.)
+3. (Passo's: «In pictures» and the ring card do not draw the same thing.)
+4. **The next days on the 4×4**: four rows of blocks on the day's window, which no card of Tempo's
+   shows today; approved.
+5. (Tetto's: on light and dark the shape says «ahead», not the colour.)
+
+Not built yet: Phase 10 is its plan, one step per session.
 
