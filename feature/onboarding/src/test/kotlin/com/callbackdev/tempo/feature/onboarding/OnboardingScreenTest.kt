@@ -1,15 +1,23 @@
 package com.callbackdev.tempo.feature.onboarding
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.data.widget.TempoWidget
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
@@ -37,7 +45,18 @@ class OnboardingScreenTest {
         actions: OnboardingActions = OnboardingActions(),
         widgets: WidgetOffer = WidgetOffer(),
     ) {
-        compose.setContent { TempoTheme { OnboardingScreen(step, permission, actions, widgets = widgets) } }
+        compose.setContent {
+            TempoTheme {
+                OnboardingScreen(step, permission, actions, widgets = widgets, widgetPreview = { StandInCard(it) })
+            }
+        }
+    }
+
+    /** A card's stand-in, at a one-row and a two-row card's height: the widgets' module draws the real one. */
+    @Composable
+    private fun StandInCard(widget: TempoWidget) {
+        val height = if (widget == TempoWidget.WORDS) 85.dp else 189.dp
+        Box(Modifier.fillMaxWidth().height(height)) { Text("The card ${widget.name}") }
     }
 
     @Test
@@ -135,6 +154,11 @@ class OnboardingScreenTest {
             OnboardingActions(pin = { pinned = it }, finish = { finished = true }),
             WidgetOffer(canPin = true),
         )
+        // Each card with its picture, «At a glance» first (owner, 15 Nov 2026).
+        val words = compose.onNodeWithTag(OnboardingTags.preview(TempoWidget.WORDS)).getUnclippedBoundsInRoot()
+        val agenda = compose.onNodeWithTag(OnboardingTags.preview(TempoWidget.AGENDA)).getUnclippedBoundsInRoot()
+        assertThat(words.top).isLessThan(agenda.top)
+        compose.onNodeWithText("The card WORDS").assertExists()
         compose.onNodeWithTag(OnboardingTags.pin(TempoWidget.WORDS)).performClick()
         assertThat(pinned).isEqualTo(TempoWidget.WORDS)
         compose.onNodeWithTag(OnboardingTags.NOT_NOW).assertDoesNotExist()

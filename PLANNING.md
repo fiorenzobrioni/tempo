@@ -340,7 +340,7 @@ The focus is the event under way, else the next one today, else (with the days a
 
 - **No notification channel in v1**, and so no `POST_NOTIFICATIONS` (VISION, System surfaces).
 - **Launcher shortcut** (dynamic, `NewEventShortcut`: a static one names its package, and the debug build's is another): "New event", the `ACTION_INSERT` of §4.7 (owner, §15). Published again when its words are not the app's any more (the reader changed the app's language, review of 30 Oct 2026).
-- **Pin request**: onboarding and Settings offer "Add the widget to the home screen" through `AppWidgetManager.requestPinAppWidget`, where the launcher supports it.
+- **Pin request**: onboarding and Settings offer "Add the widget to the home screen" through `AppWidgetManager.requestPinAppWidget`, where the launcher supports it. The first run's widget page shows each card as the reader's day will stand on it, at its default size on the default look (`HomeWidgetPreview`, passed in by `:app`; read by `WidgetModelLoader.loadUnplaced`, which arms nothing; owner, 15 Nov 2026).
 
 ---
 
@@ -853,3 +853,27 @@ Then a seventh card colour, one that stands apart from the six, in their style, 
 384 dp, the gallery), the onboarding's and Settings' tests, spotless. `widgets.png` (now the
 one-row «At a glance» on top, a pair in ochre, «Agenda» at the bottom) and `widget-settings.png`
 regenerated and looked at.
+
+### The first run's widget page shows the cards (owner, 15 Nov 2026)
+
+**Where it comes from.** The owner, after the budget app's first run gained both cards drawn from
+the reader's own caps: "bring the previews to Tempo too, so the two match".
+
+**Decided and built.**
+
+1. **Each choice draws its card**, between its line and «Add»: the card as the reader's own day
+   will stand on it, at its default size (the dial card at 4×1, «Agenda» at 4×2), on the default
+   look (the app's terracotta), on the stage the widget settings use, without side room inside
+   the group. The onboarding module cannot see `:widget`, so the page takes the drawing as a
+   slot (`OnboardingRoute(widgetPreview)`), and `TempoRoot` passes `HomeWidgetPreview`.
+2. **Read without arming.** `WidgetModelLoader.loadUnplaced()` reads the day as a placed card
+   would, guarded by the cards' timeout, on `WidgetLook()`, and arms no boundary alarm: that
+   alarm is a placed card's (§9). A permission refused or no calendar shown is drawn as the card
+   would say it.
+3. **The widget settings open on the card's own default size**: `defaultPreviewSize(kind)`, 4×1
+   for «At a glance» since its provider moved there today (it opened on 4×2 for both).
+
+**Checked.** `OnboardingScreenTest` (each choice holds its picture, «At a glance» above, with a
+stand-in card), `WidgetConfigScreenTest` (4×1 chosen on «At a glance», the two previews drawn from
+a sample day, `first-run-previews.png` looked at), the app's tests, spotless.
+

@@ -1,9 +1,13 @@
 package com.callbackdev.tempo.widget.config
 
 import android.graphics.Bitmap
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.captureToImage
@@ -229,6 +233,29 @@ class WidgetConfigScreenTest {
         assertThat(chip.left).isAtLeast(screen.left)
         assertThat(chip.right).isAtMost(screen.right)
         save("widget-config-sizes")
+    }
+
+    @Test
+    fun `a new at a glance opens on four by one, a new agenda on four by two`() {
+        show(WidgetKind.WORDS)
+        compose.onNodeWithText("4×1").assertIsSelected()
+        assertThat(defaultPreviewSize(WidgetKind.AGENDA)).isEqualTo(PreviewSize.FOUR_BY_TWO)
+    }
+
+    /** The first run's two pictures (owner, 15 Nov 2026), from a sample day: each card at its default size. */
+    @Test
+    fun `the first run's previews, at a glance and agenda`() {
+        val model = WidgetSamples.model()
+        compose.setContent {
+            TempoTheme {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    HomeWidgetPreviewOf(WidgetKind.WORDS, model)
+                    HomeWidgetPreviewOf(WidgetKind.AGENDA, model)
+                }
+            }
+        }
+        compose.waitForIdle()
+        save("first-run-previews")
     }
 
     @Test

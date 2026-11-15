@@ -22,6 +22,8 @@ All notable changes to Tempo are documented here. The format follows
   first). A new one is placed one row high, four cells wide; widgets already on your home screen
   stay as they are, with their settings.
 
+- **The first run shows the two widgets** as your own day will stand on them, before you add one.
+
 - **The widgets wear terracotta**, the app's own colour, until you choose another; a widget you
   never set up turns terracotta too. There is a seventh colour to choose, **ochre**, and on most
   phones the colours stand in one row.
