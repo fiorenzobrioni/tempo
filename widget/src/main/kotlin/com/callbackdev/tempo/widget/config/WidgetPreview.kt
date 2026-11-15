@@ -44,7 +44,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -210,18 +209,15 @@ internal fun WidgetPreviewSection(kind: WidgetKind, model: WidgetModel?, placed:
     )
 }
 
-/**
- * The ground a preview stands on: the theme's containers, standing in for a wallpaper. [inset] is
- * the room left at its sides: none where a group already gives it (the first run's choices).
- */
+/** The ground a preview stands on: the theme's containers, standing in for a wallpaper. */
 @Composable
-internal fun PreviewStage(inset: Dp = 16.dp, content: @Composable () -> Unit) {
+internal fun PreviewStage(content: @Composable () -> Unit) {
     val colors = MaterialTheme.colorScheme
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = inset, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .clip(RoundedCornerShape(28.dp))
             .background(Brush.linearGradient(listOf(colors.primaryContainer, colors.tertiaryContainer)))
             .padding(horizontal = 16.dp, vertical = 24.dp),
@@ -233,11 +229,13 @@ internal fun PreviewStage(inset: Dp = 16.dp, content: @Composable () -> Unit) {
 /**
  * [widget] as the reader's own day will stand on it once placed, on the default look (the app's
  * colour), at the size it is placed at: the first run's widget page (PLANNING.md §8). The card
- * itself, as [WidgetPreview] draws it, read once by a loader that arms nothing; the stage is
- * drawn at once and the card fills it when the calendar has been read.
+ * itself, as [WidgetPreview] draws it, read once by a loader that arms nothing; its room is held
+ * at once and the card fills it when the calendar has been read. On no stage: the default card
+ * is solid, so no wallpaper shows through it, and a stage inside the page's choice group was a
+ * third ground whose containers' colours argued with the card's (owner, 15 Nov 2026).
  */
 @Composable
-fun HomeWidgetPreview(widget: TempoWidget, inset: Dp = 0.dp) {
+fun HomeWidgetPreview(widget: TempoWidget) {
     val context = LocalContext.current
     val kind = when (widget) {
         TempoWidget.AGENDA -> WidgetKind.AGENDA
@@ -247,13 +245,13 @@ fun HomeWidgetPreview(widget: TempoWidget, inset: Dp = 0.dp) {
     LaunchedEffect(Unit) {
         model = runCatching { context.widgetEntryPoint().loader() }.getOrNull()?.loadUnplaced()
     }
-    HomeWidgetPreviewOf(kind, model, inset)
+    HomeWidgetPreviewOf(kind, model)
 }
 
-/** [HomeWidgetPreview] for a [model] already read: the stage, and the card at its default size. */
+/** [HomeWidgetPreview] for a [model] already read: the card at its default size. */
 @Composable
-internal fun HomeWidgetPreviewOf(kind: WidgetKind, model: WidgetModel?, inset: Dp = 0.dp) {
-    PreviewStage(inset) { WidgetPreview(kind, model, defaultPreviewSize(kind).size) }
+internal fun HomeWidgetPreviewOf(kind: WidgetKind, model: WidgetModel?) {
+    WidgetPreview(kind, model, defaultPreviewSize(kind).size, Modifier.padding(vertical = 8.dp))
 }
 
 /**
@@ -265,7 +263,7 @@ internal fun HomeWidgetPreviewOf(kind: WidgetKind, model: WidgetModel?, inset: D
  */
 @OptIn(ExperimentalGlanceRemoteViewsApi::class)
 @Composable
-internal fun WidgetPreview(kind: WidgetKind, model: WidgetModel?, size: DpSize) {
+internal fun WidgetPreview(kind: WidgetKind, model: WidgetModel?, size: DpSize, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     var views by remember { mutableStateOf<RemoteViews?>(null) }
     LaunchedEffect(kind, model, size) {
@@ -280,7 +278,7 @@ internal fun WidgetPreview(kind: WidgetKind, model: WidgetModel?, size: DpSize) 
         }.getOrNull()
     }
     val description = stringResource(R.string.widget_config_preview_desc)
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth().semantics { contentDescription = description }) {
+    BoxWithConstraints(modifier = modifier.fillMaxWidth().semantics { contentDescription = description }) {
         val scale = minOf(1f, maxWidth / size.width)
         Box(modifier = Modifier.fillMaxWidth().height(size.height * scale), contentAlignment = Alignment.Center) {
             Box(
