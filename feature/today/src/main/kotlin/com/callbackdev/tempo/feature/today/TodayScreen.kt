@@ -802,7 +802,7 @@ private fun SecondClock(state: TodayUiState, text: AgendaText) {
 }
 
 /**
- * The dial's arcs, as the «In words» card places them: the focus in the accent, the rest quiet, in
+ * The dial's arcs, as the «At a glance» card places them: the focus in the accent, the rest quiet, in
  * their calendars' colours, as the list's bars under it. Null, and no face, with no timed event
  * left today or no agenda to read; empty, and a face with an empty ring, while today's events are
  * all still beyond its twelve hours (early in the day, an afternoon's).
@@ -954,7 +954,7 @@ private const val CLOCK_LINE = 1.05f
 private val CLOCK_SLACK = 4.dp
 private val MARKER_GAP = 8.dp
 
-/** The dial's side: the «In words» card's dial on a 2×2. */
+/** The dial's side: the «At a glance» card's dial on a 2×2. */
 private val DIAL_SIZE = 112.dp
 
 /** The dial's largest, in the hero's pane on a large screen (step 8.7). */

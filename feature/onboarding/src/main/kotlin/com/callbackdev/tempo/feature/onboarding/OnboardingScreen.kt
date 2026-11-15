@@ -366,6 +366,9 @@ private fun WidgetPage(offer: WidgetOffer, pin: (TempoWidget) -> Unit) {
     PageTitle(stringResource(R.string.onboarding_widget_title), OnboardingStep.WIDGET)
     PageBody(stringResource(R.string.onboarding_widget_body))
     Spacer(Modifier.height(24.dp))
+    // «At a glance» first, as in the launcher's list (owner, 15 Nov 2026).
+    WidgetChoice(TempoWidget.WORDS, R.string.onboarding_widget_words, R.string.onboarding_widget_words_body, offer, pin)
+    Spacer(Modifier.height(12.dp))
     WidgetChoice(
         TempoWidget.AGENDA,
         R.string.onboarding_widget_agenda,
@@ -373,8 +376,6 @@ private fun WidgetPage(offer: WidgetOffer, pin: (TempoWidget) -> Unit) {
         offer,
         pin,
     )
-    Spacer(Modifier.height(12.dp))
-    WidgetChoice(TempoWidget.WORDS, R.string.onboarding_widget_words, R.string.onboarding_widget_words_body, offer, pin)
     if (offer.placed) {
         Spacer(Modifier.height(20.dp))
         Text(

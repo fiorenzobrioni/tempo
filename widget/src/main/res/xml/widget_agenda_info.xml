@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  «Agenda» (PLANNING.md §7). The two cards share one size spec on purpose, so they sit
-  side by side and trade places on a home screen: the same default placement (four cells by two,
-  where «Agenda» has the clock beside a list), the same minimum (one cell: 40 dp by the platform's
-  70 × n − 30), and no maximum (Launcher3 turns a dp maximum into the smallest
-  cell count across its grids). Every form has a layout for any grant (AgendaFit, WordsFit).
+  «Agenda» (PLANNING.md §7). The two cards share their minimum (one cell: 40 dp by the
+  platform's 70 × n − 30) and have no maximum (Launcher3 turns a dp maximum into the smallest
+  cell count across its grids), so either fits wherever the other does. «Agenda» opens at four
+  cells by two, where it has the clock beside a list; «At a glance» at four by one, the family's
+  default for that card (owner, 15 Nov 2026). Every form has a layout for any grant (AgendaFit,
+  WordsFit).
 
   updatePeriodMillis is 0: the cards are pushed (the calendar's trigger, the boundary alarm, the
   exempt broadcasts), never polled, and their clock is the system's TextClock. The configure

@@ -1,7 +1,7 @@
 package com.callbackdev.tempo.core.domain.widget
 
 /*
- * «In words» (PLANNING.md §7): a dial and the day in a few words (owner, 8 Oct 2026, after the
+ * «At a glance» (PLANNING.md §7): a dial and the day in a few words (owner, 8 Oct 2026, after the
  * first cards on the phone). The dial is the picture a card is read by across a room: the system's
  * own hands over what is left of today, the focus drawn on its ring ([DialArcs]). The words say
  * what the dial cannot: what it is, and when, in clock times.

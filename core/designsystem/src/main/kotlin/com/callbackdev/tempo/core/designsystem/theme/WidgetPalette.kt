@@ -5,8 +5,8 @@ import androidx.compose.ui.graphics.Color
 import com.callbackdev.tempo.core.model.AppPalette
 
 /**
- * The card colours a home-screen widget can wear: **six, hex for hex** the table of
- * `docs/adr/0003-widgets.md` (PLANNING.md §7), measured against the inks they carry: every one of the six is a dark ground under
+ * The card colours a home-screen widget can wear: **seven, hex for hex** the table of
+ * `docs/adr/0003-widgets.md` (PLANNING.md §7), measured against the inks they carry: every one of the seven is a dark ground under
  * white ink, white never under 7.8:1, the 75% quiet ink never under 5.2:1, the 85% one never
  * under 6.1:1.
  *
@@ -14,7 +14,7 @@ import com.callbackdev.tempo.core.model.AppPalette
  * card on their wallpaper is, which is a different act from the app's own colour. So this is a
  * table of hexes, and it lives in `theme/`, the one place hexes are allowed to.
  */
-enum class WidgetCardColor { BLUE, AZURE, GREEN, TEAL, PLUM, CLAY }
+enum class WidgetCardColor { BLUE, AZURE, GREEN, TEAL, PLUM, CLAY, OCHRE }
 
 /** The ground each colour paints, at full solidity; the reader's opacity thins it. */
 fun widgetCardContainer(color: WidgetCardColor): Color = when (color) {
@@ -24,6 +24,7 @@ fun widgetCardContainer(color: WidgetCardColor): Color = when (color) {
     WidgetCardColor.TEAL -> Color(0xFF0F5B5B)
     WidgetCardColor.PLUM -> Color(0xFF4A2C63)
     WidgetCardColor.CLAY -> Color(0xFF7A3320)
+    WidgetCardColor.OCHRE -> Color(0xFF5C4A0E)
 }
 
 /**

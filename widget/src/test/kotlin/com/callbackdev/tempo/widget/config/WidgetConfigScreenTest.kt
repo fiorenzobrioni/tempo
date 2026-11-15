@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -19,6 +20,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
 import com.callbackdev.tempo.core.designsystem.theme.WidgetCardColor
@@ -95,7 +97,7 @@ class WidgetConfigScreenTest {
     }
 
     @Test
-    fun `in words has the day's note's switch, on until turned off`() {
+    fun `at a glance has the day's note's switch, on until turned off`() {
         show(WidgetKind.WORDS)
         scrollToTag(WidgetConfigTags.NOTE)
         compose.onNodeWithText("The day’s note").assertExists()
@@ -155,12 +157,36 @@ class WidgetConfigScreenTest {
         look = WidgetLook(background = WidgetBackground.LIGHT)
         show(WidgetKind.WORDS)
         compose.onNodeWithTag(WidgetConfigTags.LIST).performScrollToNode(hasText("A colour"))
-        compose.onNodeWithContentDescription("Terracotta").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Ochre").assertDoesNotExist()
         compose.onNodeWithText("A colour").performClick()
-        compose.onNodeWithContentDescription("Terracotta").performClick()
+        compose.onNodeWithContentDescription("Ochre").performClick()
         assertThat(look.background).isEqualTo(WidgetBackground.COLOR)
-        assertThat(look.cardColor).isEqualTo(WidgetCardColor.CLAY)
+        assertThat(look.cardColor).isEqualTo(WidgetCardColor.OCHRE)
         save("widget-config-words")
+    }
+
+    /**
+     * The seventh colour (owner, 15 Nov 2026): from a 384dp phone the seven swatches stand in one
+     * row; on a 360dp phone, the narrowest in use, they break into four over three, never one alone.
+     */
+    @Test
+    @Config(qualifiers = "en-rGB-w384dp-h1600dp-xhdpi")
+    fun `the seven colours stand in one row from a 384dp phone`() {
+        show(WidgetKind.WORDS)
+        compose.onNodeWithTag(WidgetConfigTags.LIST).performScrollToNode(hasText("A colour"))
+        val names = listOf("Blue", "Light blue", "Green", "Sea green", "Violet", "Terracotta", "Ochre")
+        val tops = names.map { compose.onNodeWithContentDescription(it).getUnclippedBoundsInRoot().top }
+        assertThat(tops.toSet()).hasSize(1)
+        save("widget-config-colours-384")
+    }
+
+    @Test
+    fun `a strip too narrow for seven is balanced, never one colour alone`() {
+        // The strip on a 384dp and a 360dp phone: the screen less the group's margins and its own.
+        assertThat(swatchesPerRow(7, 384.dp - 32.dp - 12.dp)).isEqualTo(7)
+        assertThat(swatchesPerRow(7, 360.dp - 32.dp - 12.dp)).isEqualTo(4)
+        assertThat(swatchesPerRow(7, 150.dp)).isEqualTo(3)
+        assertThat(swatchesPerRow(7, 10.dp)).isEqualTo(1)
     }
 
     @Test

@@ -48,7 +48,7 @@ class WidgetGalleryTest {
     }
 
     @Test
-    fun `in words, every size`() {
+    fun `at a glance, every size`() {
         val board = HomeBoard(context, widthDp = 380)
         sizes.forEach { size ->
             board.row(size to renderCard(context, size) { WordsWidgetContent(WidgetSamples.model()) })
@@ -57,11 +57,11 @@ class WidgetGalleryTest {
     }
 
     /**
-     * «In words» three rows high through the day: the dial past 104 dp, the next events as rows
+     * «At a glance» three rows high through the day: the dial past 104 dp, the next events as rows
      * under the note where the card has the room for them (step 8.3).
      */
     @Test
-    fun `in words, tall, through the day`() {
+    fun `at a glance, tall, through the day`() {
         val board = HomeBoard(context, widthDp = 380)
         listOf("2026-10-07T07:00", "2026-10-07T10:20", "2026-10-07T14:20", "2026-10-07T21:10").forEach { time ->
             val model = WidgetSamples.model(now = WidgetSamples.at(time))
@@ -82,7 +82,7 @@ class WidgetGalleryTest {
      * long for one line keeps its second line under the family's circle; a free day; the sample.
      */
     @Test
-    fun `in words, the owner's two-by-two`() {
+    fun `at a glance, the owner's two-by-two`() {
         val board = HomeBoard(context, widthDp = 420)
         val longTitle = WidgetSamples.instances.map {
             if (it.eventId == 3L) it.copy(title = "Book the winter tyre change at the garage") else it
@@ -227,7 +227,7 @@ class WidgetGalleryTest {
     }
 
     /**
-     * The second clock (step 8.5): «Agenda» in its side column and on top, «In words» beside its
+     * The second clock (step 8.5): «Agenda» in its side column and on top, «At a glance» beside its
      * dial and, without it, on top; a two-by-two whose date leaves it no room; the twelve-hour clock.
      */
     @Test

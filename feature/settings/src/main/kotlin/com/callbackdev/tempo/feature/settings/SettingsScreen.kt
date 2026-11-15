@@ -178,7 +178,7 @@ fun SettingsScreen(
 }
 
 /**
- * The widgets (PLANNING.md §8): the pair, each handed to the launcher's own dialog where it takes a
+ * The widgets (PLANNING.md §8): the pair, «At a glance» first as in the launcher's list, each handed to the launcher's own dialog where it takes a
  * pin request, and otherwise the way to add one by hand; then where a card's own settings are
  * (its long press), because nothing here changes a placed card's look.
  */
@@ -187,19 +187,19 @@ private fun WidgetsSection(widgets: WidgetsInfo, pin: (TempoWidget) -> Unit) {
     SettingsGroup {
         if (widgets.canPin) {
             ValueRow(
-                label = stringResource(R.string.settings_widget_agenda),
-                value = stringResource(R.string.settings_widget_agenda_note),
-                onClick = { pin(TempoWidget.AGENDA) },
-                icon = TempoIcons.Widgets,
-                modifier = Modifier.testTag(SettingsTags.PIN_AGENDA),
-            )
-            GroupDivider()
-            ValueRow(
                 label = stringResource(R.string.settings_widget_words),
                 value = stringResource(R.string.settings_widget_words_note),
                 onClick = { pin(TempoWidget.WORDS) },
                 icon = TempoIcons.Widgets,
                 modifier = Modifier.testTag(SettingsTags.PIN_WORDS),
+            )
+            GroupDivider()
+            ValueRow(
+                label = stringResource(R.string.settings_widget_agenda),
+                value = stringResource(R.string.settings_widget_agenda_note),
+                onClick = { pin(TempoWidget.AGENDA) },
+                icon = TempoIcons.Widgets,
+                modifier = Modifier.testTag(SettingsTags.PIN_AGENDA),
             )
             GroupDivider()
         } else {

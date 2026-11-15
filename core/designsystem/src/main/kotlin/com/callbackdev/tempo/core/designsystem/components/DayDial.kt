@@ -38,7 +38,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * The «In words» card's dial, on Today (PLANNING.md §15, 9 Oct 2026): a clock face in the launcher
+ * The «At a glance» card's dial, on Today (PLANNING.md §15, 9 Oct 2026): a clock face in the launcher
  * icon's ring, with what is left of today as arcs on it ([DialArcs]) and the hands at [faceMinutes]
  * (minutes from twelve o'clock, 0 until 720). The card's face ([DialGeometry]: the same ring, the
  * same hands' lengths), drawn finer: on a home screen the card is the only clock and is read

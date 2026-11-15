@@ -1,48 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  «In words» as the launcher's picker draws it where it asks for a static layout: sample values in
-  the default dress, the tall form of the default 4×2 placement, with the card's ranks: the date
-  at 16 sp beside the dial in the top trailing corner; at the bottom what comes next at 22 sp
-  Medium, when at 16 sp, the day's note at 14 sp.
+  «At a glance» as the launcher's picker draws it where it asks for a static layout: sample values
+  in the default dress, the one-row form of the default 4×1 placement (owner, 15 Nov 2026), with
+  the card's ranks: the dial at 56 dp on the leading side, 12 dp from the words; what comes next at
+  20 sp Medium over when at 16 sp; the date at 16 sp against the far edge, over two lines.
+  14 dp at the sides and 6 above and below, as a one-row card.
   Sample data only: a preview is a drawing of the product, never a reading.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_preview_card"
-    android:padding="14dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:includeFontPadding="false"
-        android:singleLine="true"
-        android:text="@string/widget_preview_top"
-        android:textColor="@color/widget_preview_ink_dim"
-        android:textSize="16sp" />
+    android:baselineAligned="false"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="14dp"
+    android:paddingTop="6dp"
+    android:paddingEnd="14dp"
+    android:paddingBottom="6dp">
 
     <ImageView
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_gravity="top|end"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:importantForAccessibility="no"
         android:src="@drawable/widget_preview_dial" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:fontFamily="sans-serif-medium"
             android:singleLine="true"
             android:text="@string/widget_preview_row1_title"
             android:textColor="@color/widget_preview_ink"
-            android:textSize="22sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -51,14 +49,15 @@
             android:text="@string/widget_preview_when"
             android:textColor="@color/widget_preview_ink_dim"
             android:textSize="16sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:singleLine="true"
-            android:text="@string/widget_preview_note"
-            android:textColor="@color/widget_preview_ink_dim"
-            android:textSize="14sp" />
     </LinearLayout>
-</FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:gravity="end"
+        android:maxLines="2"
+        android:text="@string/widget_preview_top"
+        android:textColor="@color/widget_preview_ink_dim"
+        android:textSize="16sp" />
+</LinearLayout>

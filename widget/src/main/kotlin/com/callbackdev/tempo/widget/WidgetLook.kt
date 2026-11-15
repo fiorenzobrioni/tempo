@@ -41,7 +41,8 @@ enum class EventTap { TEMPO, CALENDAR }
 /**
  * One card's look and content, chosen from the launcher's reconfigure flow and kept per widget,
  * so the same card can sit on a home screen twice, dressed twice. The dress default is a
- * solid blue card (`docs/adr/0003-widgets.md`), worn before anybody configures anything.
+ * solid card in the app's own colour, the family's terracotta, the nearest to the icon's coral
+ * (`docs/adr/0003-widgets.md`, owner, 15 Nov 2026), worn before anybody configures anything.
  *
  * @property clockFormat the card's own clock format; null follows Tempo's setting.
  * @property dateStyle the card's own date style; null follows Tempo's setting.
@@ -50,14 +51,14 @@ enum class EventTap { TEMPO, CALENDAR }
  * @property showDaysAhead the days after today, in the room today leaves (owner, PLANNING.md §15).
  * @property showSecondZone the second clock of Tempo's settings, where the card has room for it;
  *   off by default (step 8.5).
- * @property showNote «In words»'s note and what follows it on a tall card; off, the card says the
+ * @property showNote «At a glance»'s note and what follows it on a tall card; off, the card says the
  *   event alone and its dial takes the room (owner, 5 Nov 2026).
  * @property cardColor kept while another background is picked, so coming back finds it.
  */
 data class WidgetLook(
     val background: WidgetBackground = WidgetBackground.COLOR,
     val opacityPct: Int = DEFAULT_OPACITY,
-    val cardColor: WidgetCardColor = WidgetCardColor.BLUE,
+    val cardColor: WidgetCardColor = WidgetCardColor.CLAY,
     val showClock: Boolean = true,
     val clockFormat: ClockFormat? = null,
     val showDate: Boolean = true,

@@ -28,7 +28,7 @@ enum class WidgetKind {
     /** «Agenda»: the clock and the date over the rest of the day. */
     AGENDA,
 
-    /** «In words»: a clock face with what comes next on its ring, and the day in a few words. */
+    /** «At a glance»: a clock face with what comes next on its ring, and the day in a few words. */
     WORDS,
 }
 

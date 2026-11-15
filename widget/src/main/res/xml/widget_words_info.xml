@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  «In words» (PLANNING.md §7). The two cards share one size spec on purpose, so they sit
-  side by side and trade places on a home screen: the same default placement (four cells by two,
-  where «Agenda» has the clock beside a list), the same minimum (one cell: 40 dp by the platform's
-  70 × n − 30), and no maximum (Launcher3 turns a dp maximum into the smallest
-  cell count across its grids). Every form has a layout for any grant (AgendaFit, WordsFit).
+  «At a glance» (PLANNING.md §7). The two cards share their minimum (one cell: 40 dp by the
+  platform's 70 × n − 30) and have no maximum (Launcher3 turns a dp maximum into the smallest
+  cell count across its grids), so either fits wherever the other does. «At a glance» opens at
+  four cells by one, the family's default for that card (owner, 15 Nov 2026): the dial, what comes
+  next and the date in a row; «Agenda» at four by two. Every form has a layout for any grant
+  (AgendaFit, WordsFit).
 
   updatePeriodMillis is 0: the cards are pushed (the calendar's trigger, the boundary alarm, the
   exempt broadcasts), never polled, and their clock is the system's TextClock. The configure
@@ -18,13 +19,13 @@
     android:description="@string/widget_words_desc"
     android:initialLayout="@layout/glance_default_loading_layout"
     android:minWidth="250dp"
-    android:minHeight="110dp"
+    android:minHeight="40dp"
     android:minResizeWidth="40dp"
     android:minResizeHeight="40dp"
     android:previewLayout="@layout/widget_words_preview"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="4"
-    android:targetCellHeight="2"
+    android:targetCellHeight="1"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen"
     android:widgetFeatures="reconfigurable|configuration_optional" />

@@ -9,7 +9,7 @@ import java.time.Instant
 import java.time.ZoneId
 
 /**
- * One event on the «In words» dial: where it starts on a twelve-hour face, in minutes from twelve
+ * One event on the «At a glance» dial: where it starts on a twelve-hour face, in minutes from twelve
  * o'clock (0 until 720), and how long it is there, in minutes. [focus] is the event the card's words
  * are about, drawn in the accent; the others are drawn quiet.
  *

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The «In words» dial (WidgetDial.kt): the face painted by Tempo at each redraw (the ring, the day's
+  The «At a glance» dial (WidgetDial.kt): the face painted by Tempo at each redraw (the ring, the day's
   arcs), and over it the system's AnalogClock, whose hands the launcher draws and the system moves
   every minute at no cost to Tempo. Placed in the card through Glance's AndroidRemoteViews at the
   dial's exact side.

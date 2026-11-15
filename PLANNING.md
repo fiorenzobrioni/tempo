@@ -255,7 +255,7 @@ Tempo has no database. The Calendar Provider is the only truth for events; Tempo
 
 ### DataStore, file `widgets` (not backed up)
 
-One `WidgetLook` per `appWidgetId`: show clock, clock format, show date, date style, header action, event action, card ground (light, dark, system, one of six colours), opacity, show all-day, show the days ahead, show the second clock (off by default, step 8.5), show «In words»'s note (on by default; off, the event alone: §15, 5 Nov 2026). Removed in `onDeleted`.
+One `WidgetLook` per `appWidgetId`: show clock, clock format, show date, date style, header action, event action, card ground (light, dark, system, one of seven colours; terracotta by default), opacity, show all-day, show the days ahead, show the second clock (off by default, step 8.5), show «At a glance»'s note (on by default; off, the event alone: §15, 5 Nov 2026). Removed in `onDeleted`.
 
 ### Backup
 
@@ -268,7 +268,7 @@ One `WidgetLook` per `appWidgetId`: show clock, clock format, show date, date st
 - **`AgendaBuilder`**: instances + calendars + settings + now + zone → `Agenda`. Applies §4.2–§4.4. Pure, the most tested class of the app.
 - **`DaySentence`**: the day in one sentence, from the agenda alone: the count of what is left, the next event and when, the free time before it, the end of the day ("Nothing left today; tomorrow starts at 9"). Returns a structure (kind + values), never a string: the words are resources, in both languages, with plurals (`:feature:today` and `:widget` format it).
 - **`FreeTime`**: the gaps between a date's busy timed events (overlaps merged; free-availability and declined events do not take the time; all-day ones neither), and on today the time from now to the next busy one. Never the evening after the last event or the morning before the first, which are not "free time" any more than the night is (§15). Every gap feeds the sentence; the first gap of an hour or more still ahead today is also a row of the timeline (owner, §15, 7 and 30 Oct 2026).
-- **`NextBoundary`**: the next moment the agenda changes by itself: the nearest `BEGIN` or `END` after now, or the next midnight, whichever is first; with an «In words» card placed, also the moment one of today's events comes onto the dial's face (`DialArcs.comesOnTheFace`, review of 30 Oct 2026; today's only since §15, 5 Nov 2026). The widget arms its alarm on it.
+- **`NextBoundary`**: the next moment the agenda changes by itself: the nearest `BEGIN` or `END` after now, or the next midnight, whichever is first; with an «At a glance» card placed, also the moment one of today's events comes onto the dial's face (`DialArcs.comesOnTheFace`, review of 30 Oct 2026; today's only since §15, 5 Nov 2026). The widget arms its alarm on it.
 - **`EventZone`** and **`SecondZone`** (step 8.5): whether an event's own zone reads another clock than the phone's at its start, and which zone the second clock shows (none where it would repeat the phone's own) and on which day there. The cities' names are the presentation's (`ZoneCities`, `:core:designsystem`, from ICU).
 - **`AgendaSections`**: the agenda's days as Today lays them out: today, tomorrow in full, the days after it compact, and every run of empty days folded into one row (§15, 9 Oct 2026).
 - **`AgendaFit`** (pure arithmetic, as Passo's `GlanceLayout`): given a card's granted size in dp, the header's choice and the text sizes measured in the system face, how many event rows fit, which form the card takes, and what the "N more" line says. Pinned by tests at the family's reference grants (one row ≈ 85 dp tall, two ≈ 189; widths 2 cells ≈ 159 dp, 3 ≈ 250, 4 ≈ 340).
@@ -278,19 +278,19 @@ One `WidgetLook` per `appWidgetId`: show clock, clock format, show date, date st
 
 ## 7. Widget (Glance)
 
-Two cards in v1, the family's pair (owner, §15): «Agenda» (`AgendaWidget`, the concept's) and «In words» (`WordsWidget`, Chiaro's «In parole», Passo's «In words»). The same size spec, the same settings screen, the same refresh. The family's card (Passo's ADR 0005, from Chiaro): its corner, insets, grounds, Chiaro's six colours, opacity, and Chiaro's ink rule.
+Two cards in v1, the family's pair (owner, §15): «At a glance» / «A colpo d'occhio» (`WordsWidget`, the dial: the family's card with a picture, Chiaro's glyph card and Passo's ring card; «In words» / «In parole» until 15 Nov 2026, owner, §15) and «Agenda» (`AgendaWidget`, the concept's). «At a glance» is declared first and opens at 4×1, «Agenda» at 4×2; both from one cell, with no maximum; the same settings screen, the same refresh. The family's card (Passo's ADR 0005, from Chiaro): its corner, insets, grounds, the family's seven colours (the app's terracotta by default, owner, 15 Nov 2026), opacity, and Chiaro's ink rule.
 
 ### Configuration
 
 - `SizeMode.Exact`: every form is read off the size the launcher really granted. Glance does the work the concept gave to `onAppWidgetOptionsChanged`, and recomposes on every resize.
-- Default placement 4×2 (`targetCellWidth` 4, `targetCellHeight` 2), minimum one cell, `resizeMode="horizontal|vertical"`, **no maximum** (Passo's ADR 0005: Launcher3 turns a dp maximum into the smallest cell count across its grids). Each form has a layout for any grant (`AgendaFit`, `WordsFit`, `:core:domain`; ADR 0003).
+- Default placement «At a glance» 4×1 (`targetCellHeight` 1, `minHeight` 40 dp; owner, 15 Nov 2026), «Agenda» 4×2 (`targetCellWidth` 4, `targetCellHeight` 2), minimum one cell, `resizeMode="horizontal|vertical"`, **no maximum** (Passo's ADR 0005: Launcher3 turns a dp maximum into the smallest cell count across its grids). Each form has a layout for any grant (`AgendaFit`, `WordsFit`, `:core:domain`; ADR 0003).
 - `updatePeriodMillis = 0`. `configure` is the per-widget settings screen, `reconfigurable|configuration_optional`.
 - `widgetCategory="home_screen"` in v1; `keyguard` is a later idea.
 
 | Form | When | Content |
 |---|---|---|
 | CLOCK | one cell, or a row too narrow for a list beside the clock (two cells) | The time, as large as the cell holds; the date under it where it still reads (else none) |
-| LINE | one row, three cells and up | The time and, under it at 16 sp (Passo's facts, «In words»'s line on top), the date (shortened before it is shrunk) on the leading side; the next events beside them, and "N more" |
+| LINE | one row, three cells and up | The time and, under it at 16 sp (Passo's facts, «At a glance»'s line on top), the date (shortened before it is shrunk) on the leading side; the next events beside them, and "N more" |
 | AGENDA | two rows and up | The header (clock and date at 16 sp, each optional; the second clock at the far edge of the date's line where both fit whole, or in the date's place under a clock without one), then the events that fit, then "N more today" |
 | SIDE | two rows and up, four cells, where a header on top would leave fewer than five rows (the default 4×2) | The clock and the date (over two even lines if need be: "Wednesday, / October 7") in a column on the leading side, the second clock under the date where it is on and fits ("New York 04:20"), the rest of the day in a few words under them ("4 left today", "until 19:30"); the events beside them |
 
@@ -298,13 +298,13 @@ With the clock and the date both hidden, the card is its list alone, on any gran
 
 **The rest of the day in a few words** (8.2, ADR 0003 decision 12): under the date in «Agenda»'s side column, at the label step in the secondary ink, how many timed events are left today, the one under way among them, and when the last one ends ("4 left today" / "until 19:30", "Ancora 4 oggi" / "fino alle 19:30"; `CardSummary`), each line where it fits whole; nothing once today's timed events are over. Counts and clock times the card is redrawn at anyway, so they never go stale. It stands where the next alarm was planned: the alarm's change did not reach a card in the background reliably on the owner's phone, so the alarm stays on Today alone (§15, 30 Oct 2026, Phase 8.2).
 
-| «In words» form | When | Content |
+| «At a glance» form | When | Content |
 |---|---|---|
 | CELL | one cell wide | The dial, the family's circle (the cell's shorter side less 8 dp each side, as Passo's ring; §15, 4 Nov 2026); under it the focus's time ("11:00") where the cell is taller than wide. Without the dial, that time bold in its place, the title under it |
 | ROW | one row | Passo's row: the dial, Passo's ring (44 to 56 dp, keeping the words beside it 84 dp; §15, 4 Nov 2026), drawn where the words keep 72 dp; the title (20 sp, Chiaro's sentence) over when ("Until 11:00", "15:00 – 15:45", "Tomorrow · 9:00 – 9:30", 16 sp, Passo's facts); the date at the far edge over two lines ("Wednesday / 7 October") where the words keep 120 dp. A narrow row sets the words at 16 and 14 sp, a long title over two lines |
 | TALL | two rows and up | Passo's tall card: the dial in the top trailing corner, the family's circle for the card's size, whatever the day says (the height left over a budgeted band of words, up to 45% of the card's inner height and width, never held under 104 dp; Passo's ring at the same size: §15, 4 Nov 2026, "at every size") with the date beside it, or on its own line over the title where the dial leaves it no column (two cells wide, three rows high); with «The day's note» off in the card's settings, the event alone (its title on one line, its time) under a dial the size of Passo's ring without its sentence, the date where it fits without shrinking it (§15, 5 Nov 2026), and the second clock under the date where the band beside the dial holds it (without the dial, on top under the date); the title (22 sp, down to 18 to stay on one line), when, the day's note hanging from the bottom leading corner. Under them, where two more lines fit once the dial has its comfort (72 dp), the next one or two events as rows ("13:00  Lunch with Giulia", 13 sp, the time quiet and the title strong; 8.3), the note keeping its count only where they leave some out; else, on a card four cells wide with a line to spare, the rest of the day as a line of times ("Then 13:00 · 15:00 · 18:30") in place of the note's count |
 
-**The dial** (owner, 8 Oct 2026; `DialArcs`, `WidgetDial.kt`, ADR 0003): a clock face where Passo's card has its ring. The hands are the system's `AnalogClock`, drawn by the launcher and moved by the system like the `TextClock`; the face under them is a bitmap Tempo paints at each redraw: the ring's track, what is left of today as arcs (today only, owner, §15, 5 Nov 2026: a later day's events are in the words and the list, never on the face), the focus among them in the accent from its start to its end, the rest quieter, four quarter dots. The arcs change only where an event starts or ends, or comes onto the face, the boundaries the card is redrawn at (the last one since the review of 30 Oct 2026, where an «In words» card is placed, for today's events), so the hour hand walks into an arc, through it and out of it with no work by Tempo. A face shows twelve hours: the window opens now (or at the start of the event under way, six hours back at most) and closes eleven and a half hours later, so no arc ever meets the hand from behind; what lies beyond it is left off, never wrapped, and an event of today that reaches past it (only early in the day) is cut there, its arc fading out at the cut end, as at a start cut six hours back (`DialArc.cutAtEnd`, `cutAtStart`, `DialFade`; owner, §15, 11 Nov 2026). An event of today that runs past midnight is drawn whole. The samples paint the hands into the face at their moment.
+**The dial** (owner, 8 Oct 2026; `DialArcs`, `WidgetDial.kt`, ADR 0003): a clock face where Passo's card has its ring. The hands are the system's `AnalogClock`, drawn by the launcher and moved by the system like the `TextClock`; the face under them is a bitmap Tempo paints at each redraw: the ring's track, what is left of today as arcs (today only, owner, §15, 5 Nov 2026: a later day's events are in the words and the list, never on the face), the focus among them in the accent from its start to its end, the rest quieter, four quarter dots. The arcs change only where an event starts or ends, or comes onto the face, the boundaries the card is redrawn at (the last one since the review of 30 Oct 2026, where an «At a glance» card is placed, for today's events), so the hour hand walks into an arc, through it and out of it with no work by Tempo. A face shows twelve hours: the window opens now (or at the start of the event under way, six hours back at most) and closes eleven and a half hours later, so no arc ever meets the hand from behind; what lies beyond it is left off, never wrapped, and an event of today that reaches past it (only early in the day) is cut there, its arc fading out at the cut end, as at a start cut six hours back (`DialArc.cutAtEnd`, `cutAtStart`, `DialFade`; owner, §15, 11 Nov 2026). An event of today that runs past midnight is drawn whole. The samples paint the hands into the face at their moment.
 
 The focus is the event under way, else the next one today, else (with the days ahead) the first one after today under its day's name, else "Free" (`WordsDay`). The note says times and counts, never minutes from now (§15): "Then 2 more today.", "Free until then; one more after it.", "Nothing left today.", or a free day's all-day events.
 
@@ -803,3 +803,53 @@ looks at it screen by screen.
 **Checked.** The onboarding's tests and their screenshots (Italian, twice the text size);
 `onboarding.png` regenerated and looked at.
 
+
+### The family's widgets in order: «At a glance», 4×1, the app's colour, a seventh colour (owner, 15 Nov 2026)
+
+**Where it comes from.** The owner, putting the family's widgets in order: in the four apps the
+card called «A colpo d'occhio» / «At a glance» is the one with a picture (the weather app's glyph
+card, Passo's ring, here the dial), and «In parole» / «In words» the one in type alone; Tempo's
+«In parole» is the dial card, so it is renamed. Every «A colpo d'occhio» comes first in the
+launcher's list and opens at 4×1. Every widget of every app wears its app's colour by default.
+Then a seventh card colour, one that stands apart from the six, in their style, no shade of violet.
+
+**Decided and built.**
+
+1. **«In words» is «At a glance» / «A colpo d'occhio».** The labels, the onboarding's and
+   Settings' rows (now «At a glance» first, as in the launcher's list), the guide (its «Two
+   widgets» names the dial first; Today's dial paragraph), the comments, the test names, README,
+   VISION, CLAUDE.md, §5-§7 and ADR 0003 (amended). §15's entries above keep the names of their
+   time. The code keeps `WordsWidget`, `WidgetKind.WORDS`, `widget_words_*` and the `words/`
+   package: a placed card is bound to its receiver's class name.
+2. **First in the list.** Launcher3 sorts an app's cards by label (`WidgetItemComparator`, the
+   collator), so a manifest order alone does not decide it; the receiver is declared first anyway
+   (`WidgetProviderTest`, «at a glance is declared first»), for the launchers that keep it. In
+   Italian «A colpo d'occhio» sorts before «Agenda»; in English «Agenda» sorts before «At a
+   glance», and the owner chose to accept that rather than rename «Agenda» (the question's option
+   (c), with (a): the Italian label «A colpo d'occhio» in the whole family).
+3. **4×1.** `widget_words_info.xml`: `targetCellHeight` 1 and `minHeight` 40 dp (it was 4×2, 110
+   dp). «Agenda» keeps 4×2. The two share their minimum and no maximum, no longer their default:
+   `WidgetProviderTest` says so. The static preview (`widget_words_preview.xml`) is redrawn as the
+   one-row form (the dial at 56 dp, the title at 20 sp over when at 16 sp, the date at the far
+   edge over two lines); its tall form's note string went with it. The generated previews already
+   offered 4×1.
+4. **Terracotta by default** (`WidgetLook.cardColor = CLAY`): the family's six have no coral, and
+   the terracotta (`#7A3320`) is the icon's coral darkened to carry white ink, the same hue. A card
+   placed before and never configured takes it too, its colour having been the default and not a
+   choice. `widget_preview_card` follows, and `WidgetProviderTest` reads it from the default look.
+5. **The ochre** (`#5C4A0E`, `WidgetCardColor.OCHRE`, «Ochre» / «Ocra»): the family's seventh,
+   30 ΔE from its nearest (the terracotta), white ink 8.6:1, the 75% ink 5.7:1, the 85% one 6.8:1
+   (the weather app's DESIGN §2.6 is the family's table). Seven is where the list stops: the owner
+   asked whether a bright series or a scrolling strip would be better, and both were declined (a
+   bright ground needs a dark ink measured on every mark the cards draw; a strip that scrolls hides
+   colours).
+6. **The strip of colours starts under the radio buttons** (10 dp from the edge, the first disc on
+   the buttons' line; it started under their labels at 50 dp): seven 48 dp targets want 336 dp: in the settings group (16 dp margins), less the strip's
+   own 12, a 384 dp phone leaves 340 and holds them in one row; a 360 dp phone leaves 316, and
+   `swatchesPerRow` breaks them into four over three, never one alone (with six, the strip under
+   the labels already broke there, five over one). Tested at 384 dp (one row) and in arithmetic.
+
+**Checked.** The widget module's tests (the provider's, the look store's, the config screen's at
+384 dp, the gallery), the onboarding's and Settings' tests, spotless. `widgets.png` (now the
+one-row «At a glance» on top, a pair in ochre, «Agenda» at the bottom) and `widget-settings.png`
+regenerated and looked at.
