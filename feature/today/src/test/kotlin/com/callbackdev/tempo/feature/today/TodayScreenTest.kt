@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -18,6 +19,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
@@ -285,6 +287,21 @@ class TodayScreenTest {
         compose.onNodeWithTag(TodayTags.LIST).performScrollToNode(hasTestTag(TodayTags.DATE))
         compose.onNodeWithTag(TodayTags.DATE).performClick()
         assertThat(day).isEqualTo(TodaySample.at("2026-10-07T10:20").toInstant())
+    }
+
+    @Test
+    @Config(qualifiers = "en-rUS-w393dp-h852dp-xhdpi")
+    fun `beside the dial the day marker is whole, on a narrower phone too`() {
+        draw(TodaySample.state(settings = TodaySample.settings.copy(clockFormat = ClockFormat.H12)))
+        compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertTextEquals("10:20\u202FAM")
+        // The marker keeps 4 dp of air after it. Cut short for want of room, its last letter
+        // ends in ink at the very edge of its own box; whole, it ends in the page's ground.
+        val clock = compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).captureToImage().asAndroidBitmap()
+        val ground = clock.getPixel(0, 0)
+        val air = (4 * compose.density.density).toInt()
+        val lastOfMarker = clock.width - 1 - air
+        val edge = (0 until clock.height).map { clock.getPixel(lastOfMarker, it) }
+        assertThat(edge.all { it == ground }).isTrue()
     }
 
     @Test

@@ -1005,3 +1005,15 @@ row), set two calendar pictures side by side, and brought back the duplicate. Bu
 (`AgendaRows.kt`), which `DayHeading` now uses too; a screen reader still hears the date alone.
 No chevron where no calendar app takes the day. `today.png`, `today-evening-dark.png` and
 `today-tablet.png` regenerated.
+
+**Then, the same day: the day marker cut beside the dial** (owner: "fix the cut AM in this branch
+too"). Found while looking at the regenerated `today.png`, and already on `main`: on the 12-hour
+clock, on a phone 393 dp wide, "AM" lost its second letter beside the dial. The clock's figures
+are drawn one by one, each in its own place so that only the one that changed rolls, and were
+measured whole: a text's tracking is not applied at the two ends of a line, so five figures apart
+keep none of the hero's −0.03 em and stand about 10 dp wider at the clock's size than "10:20"
+measured as one text. The fit was reckoned on the narrower figure, and the row took the marker's
+room. `clockWidths` now measures the figures as they are drawn, one by one; the dial's size on a
+large screen, reckoned by the same function, is unchanged (200 dp on the tablet). A test at the
+README's size looks at the marker's last column of pixels: ink there is a letter cut. It failed
+before the change. `today.png` and `today-tablet.png` regenerated and looked at.

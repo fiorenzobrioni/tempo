@@ -69,6 +69,11 @@ All notable changes to Tempo are documented here. The format follows
   is left of today. A later day's events are in the list and in the words, no longer on the
   face, where tomorrow morning's read as tonight's hours and were cut short.
 
+### Fixed
+
+- **«AM» and «PM» whole beside the clock face.** On the 12-hour clock, on a narrower phone, the
+  day marker lost its last letter beside the clock face on Today.
+
 ## [1.1.0] - 2026-11-02
 
 **A second clock, your events' own time zones, two weeks ahead, and Today on a tablet**, with

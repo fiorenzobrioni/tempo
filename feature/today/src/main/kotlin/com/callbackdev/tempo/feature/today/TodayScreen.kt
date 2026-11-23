@@ -935,10 +935,15 @@ private fun TextMeasurer.clockWidths(parts: TimeParts, styles: ClockStyles, dens
         measure(AnnotatedString(it), styles.marker, maxLines = 1, softWrap = false).size.width +
             with(density) { MARKER_GAP.roundToPx() }
     } ?: 0
-    // Each figure is laid out on its own and rounded up to a whole pixel, so the row is a
-    // little wider than the string measured whole: counted, or the marker lost its last pixels.
-    val figures = measure(AnnotatedString(parts.figures), styles.figures, maxLines = 1, softWrap = false).size.width +
-        parts.figures.length + with(density) { CLOCK_SLACK.roundToPx() }
+    // The figures are drawn one by one, each in its own place so that only the one that changed
+    // rolls ([RollingFigures]), and so they are measured: a text's tracking is not applied at the
+    // two ends of a line, so five figures apart keep none of the hero's (−0.03 em), and stand
+    // wider than "10:20" measured whole by four times that, about 10 dp at the clock's size. The
+    // row then took the day marker's room, and "AM" was cut beside the dial (seen in the README's
+    // own picture, 23 Nov 2026).
+    val figures = parts.figures.sumOf { figure ->
+        measure(AnnotatedString(figure.toString()), styles.figures, maxLines = 1, softWrap = false).size.width
+    } + with(density) { CLOCK_SLACK.roundToPx() }
     return ClockWidths(figures, marker)
 }
 
