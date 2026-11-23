@@ -57,6 +57,7 @@ class GuideScreenTest {
         listOf(
             "Work calendars",
             "Free time",
+            "Marks, not titles",
             "Your calendar app does the writing",
             "Alarms and reminders",
             "Never a list to scroll",

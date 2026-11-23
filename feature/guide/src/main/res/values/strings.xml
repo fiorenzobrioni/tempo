@@ -2,7 +2,7 @@
 <resources>
     <string name="guide_title">The guide</string>
     <string name="guide_back">Back</string>
-    <string name="guide_intro">Tempo shows the time, the date and your day in one view, read from the calendars your phone already has. This guide walks through Today and the widgets, says what each part answers, and points out the things worth knowing that a screen cannot say out loud.</string>
+    <string name="guide_intro">Tempo shows the time, the date and your day in one view, read from the calendars your phone already has. This guide walks through Today, the month and the widgets, says what each part answers, and points out the things worth knowing that a screen cannot say out loud.</string>
 
     <!-- Where the events come from -->
     <string name="guide_source_title">Where your events come from</string>
@@ -23,6 +23,8 @@
     <string name="guide_today_dial_caption">An example: twenty past ten, a meeting under way until eleven in the accent, two more events later in the day, each in its calendar’s colour.</string>
     <string name="guide_today_dial_title">The dial</string>
     <string name="guide_today_dial_body">Beside the time, while today has something left, a clock face with it on its ring: what comes next in the accent, the rest quieter, each in its calendar’s colour. The hour hand walks through a meeting as it goes. The ring holds the next twelve hours, less half an hour: an event that goes on beyond them fades out at that end, and early in the day an afternoon’s events wait off the ring until they are within reach. Another day’s events are in the list, not on the face, and with nothing left today the face is not drawn. It is the face of the «At a glance» widget.</string>
+    <string name="guide_today_doors_title">The date and the time</string>
+    <string name="guide_today_doors_body">Each opens the app it belongs to: a touch on the date, your calendar app on today; a touch on the time, its figures or its clock face, the phone’s Clock app, where the alarms and the timers are. A switch in the settings turns the time’s touch off.</string>
     <string name="guide_today_timeline_title">The day in order</string>
     <string name="guide_today_timeline_body">Today’s events one under the other, each with its calendar’s colour as a mark. The one under way stands out on its own ground and says how long is left; with nothing under way, a line marks now. The ones that are over grow quieter, and two or more of them fold into one line that opens.</string>
     <string name="guide_today_free_title">Free time</string>
@@ -36,15 +38,27 @@
     <string name="guide_today_live_title">Live while you look</string>
     <string name="guide_today_live_body">While Today is open the clock moves at each minute, and an event made or changed in your calendar app is there when you come back. Once you leave, nothing runs.</string>
 
+    <!-- The month -->
+    <string name="guide_month_title">The month</string>
+    <string name="guide_month_p1">From the button beside the settings on Today: a whole month at a glance, to see which days are taken and to plan one. It reads the same calendars as Today, with the same choices.</string>
+    <string name="guide_month_marks_title">Marks, not titles</string>
+    <string name="guide_month_marks_body">Under each date, what it holds. A dot is an event with a time, in its calendar’s colour: up to three, and a small plus when there are more. A bar is an event that takes whole days, a birthday, a holiday, a trip: it runs across the days it covers, so a week away reads as a week. Days gone by are drawn quieter, and so are the few days of the months beside that complete a week.</string>
+    <string name="guide_month_day_title">The day under the month</string>
+    <string name="guide_month_day_body">A touch on a date lists that day under the month, as Today would: its all-day events, then its events in order, each a touch from your calendar app. The button at the bottom starts a new event on that day; so does a long touch on a date.</string>
+    <string name="guide_month_far_title">Near and far</string>
+    <string name="guide_month_far_body">The months turn under your finger. A touch on the month’s name goes to any month of any year; “Today” brings you back, and is there only while you are somewhere else.</string>
+    <string name="guide_month_only_title">A month, and nothing else</string>
+    <string name="guide_month_only_body">There is no week view and no day view here: Today is the day, and the rest is your calendar app’s to draw.</string>
+
     <!-- Who does what -->
     <string name="guide_handover_title">Your calendar app does the writing</string>
     <string name="guide_handover_p1">Tempo reads your calendar and never writes it. Whatever changes an event happens in your calendar app, which Tempo opens at the right place.</string>
     <string name="guide_handover_event_title">An event</string>
     <string name="guide_handover_event_body">Your calendar app opens it, that very occurrence of it, and changing or deleting it is one step away there.</string>
     <string name="guide_handover_new_title">A new event</string>
-    <string name="guide_handover_new_body">From the button at the bottom of Today, from a free row, or from “New event” on a long press on Tempo’s icon: your calendar app’s new event, its start already set, at the next half hour or where the free time begins. Made from Today, it is brought into view when you are back, its row glowing for a moment.</string>
+    <string name="guide_handover_new_body">From the button at the bottom of Today, from a free row, from the month on the day you chose, or from “New event” on a long press on Tempo’s icon: your calendar app’s new event, its start already set, at the next half hour or where the free time begins. Back in Tempo, it is brought into view, its row glowing for a moment.</string>
     <string name="guide_handover_day_title">A day</string>
-    <string name="guide_handover_day_body">The date at the top, the calendar button beside it and a day’s name open your calendar app on that day: for the week or the month, which are your calendar app’s to draw.</string>
+    <string name="guide_handover_day_body">The date at the top of Today and a day’s name, on Today and under the month, open your calendar app on that day: for the week, and for whatever else is your calendar app’s to draw.</string>
     <string name="guide_handover_reminders_title">Alarms and reminders</string>
     <string name="guide_handover_reminders_body">Alarms are the Clock app’s and reminders your calendar app’s. Tempo sends no notification of its own, so nothing reminds you twice.</string>
 

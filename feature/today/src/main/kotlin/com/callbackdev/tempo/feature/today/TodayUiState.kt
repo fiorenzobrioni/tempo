@@ -1,5 +1,6 @@
 package com.callbackdev.tempo.feature.today
 
+import com.callbackdev.tempo.core.calendar.CalendarDoors
 import com.callbackdev.tempo.core.domain.today.EventKey
 import com.callbackdev.tempo.core.domain.today.TodaySentence
 import com.callbackdev.tempo.core.model.Agenda
@@ -47,21 +48,4 @@ sealed interface TodayContent {
 
     data class Ready(val agenda: Agenda, val sentence: TodaySentence, val calendars: Map<Long, CalendarInfo>) :
         TodayContent
-}
-
-/**
- * Which doors are there (PLANNING.md §4.7): the calendar app's, and the clock app's for the alarm
- * line. A button whose intent nothing takes is not drawn (CLAUDE.md, Read-only).
- *
- * @property clockPackage the phone's clock app (`ClockApp`), or null when there is none.
- */
-data class CalendarDoors(
-    val canCreate: Boolean,
-    val canOpenEvent: Boolean,
-    val canOpenDay: Boolean,
-    val clockPackage: String?,
-) {
-    companion object {
-        val None = CalendarDoors(canCreate = false, canOpenEvent = false, canOpenDay = false, clockPackage = null)
-    }
 }

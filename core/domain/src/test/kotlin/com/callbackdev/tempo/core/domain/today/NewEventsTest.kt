@@ -1,12 +1,17 @@
 package com.callbackdev.tempo.core.domain.today
 
+import com.callbackdev.tempo.core.domain.agenda.AgendaBuilder
 import com.callbackdev.tempo.core.domain.agenda.AgendaFilter
+import com.callbackdev.tempo.core.domain.agenda.Rome
 import com.callbackdev.tempo.core.domain.agenda.agenda
 import com.callbackdev.tempo.core.domain.agenda.allDay
 import com.callbackdev.tempo.core.domain.agenda.at
+import com.callbackdev.tempo.core.domain.agenda.calendar
 import com.callbackdev.tempo.core.domain.agenda.timed
+import com.callbackdev.tempo.core.model.EventInstance
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
+import java.time.LocalDate
 
 class NewEventsTest {
     private val now = at("2026-10-07T10:20")
@@ -77,5 +82,23 @@ class NewEventsTest {
             filter = AgendaFilter(hiddenCalendars = setOf(2)),
         )
         assertThat(NewEvents.first(after, known)).isNull()
+    }
+
+    @Test
+    fun `over a run of dates, the event made comes with its first date`() {
+        fun days(vararg events: EventInstance) = AgendaBuilder.days(
+            instances = events.toList(),
+            calendars = listOf(calendar(1)),
+            filter = AgendaFilter(),
+            now = now,
+            zone = Rome,
+            from = LocalDate.parse("2026-10-01"),
+            to = LocalDate.parse("2026-10-31"),
+        )
+        val held = NewEvents.keys(days(review, dentist, call))
+        assertThat(NewEvents.first(days(review, dentist, call), held)).isNull()
+        val trip = allDay(11, "2026-10-20", dates = 3)
+        assertThat(NewEvents.first(days(review, dentist, call, trip), held))
+            .isEqualTo(NewEvent(EventKey.of(trip), LocalDate.parse("2026-10-20")))
     }
 }

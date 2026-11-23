@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -18,6 +19,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
@@ -34,6 +36,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.callbackdev.tempo.core.calendar.CalendarDoors
 import com.callbackdev.tempo.core.designsystem.theme.LocalReducedMotion
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
 import com.callbackdev.tempo.core.domain.today.EventKey
@@ -76,7 +79,7 @@ class TodayScreenTest {
     @Test
     fun `the clock, the date, the alarm and the day in one sentence`() {
         draw()
-        compose.onNodeWithTag(TodayTags.TIME).assertTextEquals("10:20")
+        compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertTextEquals("10:20")
         compose.onNodeWithTag(TodayTags.DATE).assertTextEquals("Wednesday 7 October")
         compose.onNodeWithText("Alarm tomorrow at 07:00").assertIsDisplayed()
         compose.onNodeWithTag(TodayTags.SENTENCE).assertTextEquals("Design review until 11:00, then 3 more today.")
@@ -90,7 +93,7 @@ class TodayScreenTest {
                 settings = TodaySample.settings.copy(clockFormat = ClockFormat.H12, dateStyle = DateStyle.MEDIUM),
             ),
         )
-        compose.onNodeWithTag(TodayTags.TIME).assertTextEquals("10:20 am")
+        compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertTextEquals("10:20 am")
         compose.onNodeWithTag(TodayTags.DATE).assertTextEquals("Wed, 7 Oct")
     }
 
@@ -262,7 +265,7 @@ class TodayScreenTest {
     }
 
     @Test
-    fun `touching an event, a free gap, the date and the button hand them to the calendar app`() {
+    fun `touching an event, a free gap and the date hand them to the calendar app`() {
         var opened: EventInstance? = null
         var created: Instant? = null
         var day: Instant? = null
@@ -284,9 +287,94 @@ class TodayScreenTest {
         compose.onNodeWithTag(TodayTags.LIST).performScrollToNode(hasTestTag(TodayTags.DATE))
         compose.onNodeWithTag(TodayTags.DATE).performClick()
         assertThat(day).isEqualTo(TodaySample.at("2026-10-07T10:20").toInstant())
-        day = null
-        compose.onNodeWithTag(TodayTags.CALENDAR).performClick()
-        assertThat(day).isEqualTo(TodaySample.at("2026-10-07T10:20").toInstant())
+    }
+
+    @Test
+    @Config(qualifiers = "en-rUS-w393dp-h852dp-xhdpi")
+    fun `beside the dial the day marker is whole, on a narrower phone too`() {
+        draw(TodaySample.state(settings = TodaySample.settings.copy(clockFormat = ClockFormat.H12)))
+        compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertTextEquals("10:20\u202FAM")
+        // The marker keeps 4 dp of air after it. Cut short for want of room, its last letter
+        // ends in ink at the very edge of its own box; whole, it ends in the page's ground.
+        val clock = compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).captureToImage().asAndroidBitmap()
+        val ground = clock.getPixel(0, 0)
+        val air = (4 * compose.density.density).toInt()
+        val lastOfMarker = clock.width - 1 - air
+        val edge = (0 until clock.height).map { clock.getPixel(lastOfMarker, it) }
+        assertThat(edge.all { it == ground }).isTrue()
+    }
+
+    @Test
+    fun `the date is read as the date alone, its chevron a sign for the eye`() {
+        draw()
+        // The chevron stands in the line: a screen reader hears the date, and what a touch opens.
+        compose.onNodeWithTag(TodayTags.DATE).assertTextEquals("Wednesday 7 October").assertHasClickAction()
+        compose.assertAccessible()
+        compose.writeScreenshot("today-date-door")
+    }
+
+    @Test
+    fun `the button beside the settings opens the month`() {
+        var opened = false
+        draw(actions = TodayActions(openMonth = { opened = true }))
+        compose.onNodeWithContentDescription("Open the month").assertHasClickAction()
+        compose.onNodeWithTag(TodayTags.MONTH).performClick()
+        assertThat(opened).isTrue()
+    }
+
+    @Test
+    fun `the time is one door to the clock app, its figures and its face together`() {
+        var opened = 0
+        draw(actions = TodayActions(openClock = { opened++ }))
+        compose.onNodeWithTag(TodayTags.TIME_ROW)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assert(
+                SemanticsMatcher("opens the clock app") {
+                    it.config.getOrNull(SemanticsActions.OnClick)?.label == "Open the clock app"
+                },
+            )
+            // Read once: the time, then what the face shows.
+            .assert(hasText("10:20"))
+            .assert(hasContentDescription("Clock face at 10:20", substring = true))
+            .performClick()
+        assertThat(opened).isEqualTo(1)
+        compose.assertAccessible()
+    }
+
+    @Test
+    fun `the time stays a door in the evening, when the face is gone`() {
+        var opened = false
+        draw(
+            TodaySample.state(now = TodaySample.at("2026-10-07T21:10")),
+            actions = TodayActions(openClock = { opened = true }),
+        )
+        compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag(TodayTags.TIME_ROW).performClick()
+        assertThat(opened).isTrue()
+    }
+
+    @Test
+    fun `the time is no door when the reader turned it off, or the phone has no clock app`() {
+        draw(TodaySample.state(settings = TodaySample.settings.copy(timeOpensClock = false)))
+        compose.onNodeWithTag(TodayTags.TIME_ROW).assertHasNoClickAction()
+        compose.onNodeWithTag(TodayTags.TIME).assertTextEquals("10:20")
+    }
+
+    @Test
+    fun `with no clock app, the time is no door`() {
+        draw(TodaySample.state(doors = TodaySample.allDoors.copy(clockPackage = null)))
+        compose.onNodeWithTag(TodayTags.TIME_ROW).assertHasNoClickAction()
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi")
+    fun `the time's door in Italian`() {
+        draw()
+        compose.onNodeWithTag(TodayTags.TIME_ROW).assert(
+            SemanticsMatcher("apre l'orologio") {
+                it.config.getOrNull(SemanticsActions.OnClick)?.label == "Apri l’orologio"
+            },
+        )
     }
 
     @Test
@@ -329,17 +417,9 @@ class TodayScreenTest {
     }
 
     @Test
-    fun `the calendar button goes when the reader hides it`() {
-        draw(TodaySample.state(settings = TodaySample.settings.copy(showCalendarButton = false)))
-        compose.onNodeWithTag(TodayTags.CALENDAR).assertDoesNotExist()
-        // The date stays a door to the calendar, as it always was.
-        compose.onNodeWithTag(TodayTags.DATE).assertHasClickAction()
-    }
-
-    @Test
-    fun `with no app to take it, neither the button nor the date is a door`() {
+    fun `with no calendar app the date is no door, and the month is still Tempo's own`() {
         draw(TodaySample.state(doors = CalendarDoors.None))
-        compose.onNodeWithTag(TodayTags.CALENDAR).assertDoesNotExist()
+        compose.onNodeWithTag(TodayTags.MONTH).assertHasClickAction()
         compose.onNodeWithTag(TodayTags.DATE).assertIsNotEnabled()
     }
 
@@ -394,7 +474,7 @@ class TodayScreenTest {
     @Test
     fun `the clock face says what it shows`() {
         draw()
-        compose.onNodeWithTag(TodayTags.DIAL)
+        compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true)
             .assert(hasContentDescription("Clock face at 10:20, with what is left of today on its ring"))
     }
 
@@ -416,9 +496,9 @@ class TodayScreenTest {
             permission = CalendarPermission.ASKABLE,
             actions = TodayActions(askPermission = { asked = true }),
         )
-        compose.onNodeWithTag(TodayTags.TIME).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertIsDisplayed()
         // No face with no calendar to put on its ring: the figures say the time alone.
-        compose.onNodeWithTag(TodayTags.DIAL).assertDoesNotExist()
+        compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithTag(TodayTags.SENTENCE).assertDoesNotExist()
         compose.onNodeWithTag(TodayTags.LIST).performScrollToNode(hasText("Allow"))
         compose.onNodeWithText("Allow").performClick()
@@ -468,8 +548,8 @@ class TodayScreenTest {
     @Test
     fun `with nothing left today the face is not drawn, and the time stands alone`() {
         draw(TodaySample.state(now = TodaySample.at("2026-10-07T21:00")))
-        compose.onNodeWithTag(TodayTags.TIME).assertIsDisplayed()
-        compose.onNodeWithTag(TodayTags.DIAL).assertDoesNotExist()
+        compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true).assertDoesNotExist()
         compose.assertAccessible()
         compose.writeScreenshot("today-evening")
     }
@@ -484,7 +564,7 @@ class TodayScreenTest {
                 instances = listOf(TodaySample.dentist, TodaySample.swimming),
             ),
         )
-        compose.onNodeWithTag(TodayTags.DIAL).assert(
+        compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true).assert(
             hasContentDescription(
                 "Clock face at 02:00; today’s next event is more than eleven hours away and not yet on its ring",
             ),
@@ -501,7 +581,7 @@ class TodayScreenTest {
             end = TodaySample.at("2026-10-07T22:00").toInstant(),
         )
         draw(TodaySample.state(now = TodaySample.at("2026-10-07T00:55"), instances = listOf(long)))
-        compose.onNodeWithTag(TodayTags.DIAL)
+        compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true)
             .assert(hasContentDescription("Clock face at 00:55, with what is left of today on its ring"))
         compose.writeScreenshot("today-cut-arc")
     }
@@ -583,7 +663,7 @@ class TodayScreenTest {
     @Test
     fun `the tip waits for the dial it explains`() {
         draw(TodaySample.state(now = TodaySample.at("2026-10-07T21:00"), settings = firstDay))
-        compose.onNodeWithTag(TodayTags.DIAL).assertDoesNotExist()
+        compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithTag(TodayTags.TIP).assertDoesNotExist()
     }
 
@@ -596,7 +676,7 @@ class TodayScreenTest {
                 settings = firstDay,
             ),
         )
-        compose.onNodeWithTag(TodayTags.DIAL).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithTag(TodayTags.TIP).assertDoesNotExist()
     }
 
@@ -676,7 +756,7 @@ class TodayScreenTest {
         val coffee = event(31, "2026-10-07T11:00", "2026-10-07T11:30", "Coffee with Marta")
         leftForNewEvent()(coffee)
         compose.waitForIdle()
-        compose.onNodeWithTag(TodayTags.TIME).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithTag(TodayTags.event(coffee.eventId)).assertIsDisplayed()
     }
 
@@ -704,7 +784,7 @@ class TodayScreenTest {
         val synced = event(33, "2026-10-11T16:00", "2026-10-11T17:00", "Synced")
         state = TodaySample.state(instances = TodaySample.instances + synced)
         compose.waitForIdle()
-        compose.onNodeWithTag(TodayTags.TIME).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -731,7 +811,11 @@ class TodayScreenTest {
     fun `the whole page reads on a foldable open under 840 dp, in its one column`() {
         draw()
         compose.onNodeWithTag(TodayTags.HERO_PANE).assertDoesNotExist()
-        compose.onNode(hasTestTag(TodayTags.TIME) and hasAnyAncestor(hasTestTag(TodayTags.LIST))).assertExists()
+        compose.onNode(
+            hasTestTag(TodayTags.TIME) and hasAnyAncestor(hasTestTag(TodayTags.LIST)),
+            useUnmergedTree = true,
+        )
+            .assertExists()
         compose.walkPage(hasTestTag(TodayTags.LIST), "today-foldable")
     }
 
@@ -740,7 +824,8 @@ class TodayScreenTest {
     private val inHeroPane = hasAnyAncestor(hasTestTag(TodayTags.HERO_PANE))
     private val inAgendaPane = hasAnyAncestor(hasTestTag(TodayTags.LIST))
 
-    private fun bounds(tag: String) = compose.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot
+    private fun bounds(tag: String) =
+        compose.onNodeWithTag(tag, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
     /** Both panes walked, each from its top to its bottom. */
     private fun walkPanes(name: String) {
@@ -753,11 +838,11 @@ class TodayScreenTest {
     fun `a tablet on its side, the hero beside the agenda and the dial at its largest`() {
         draw()
         compose.onNodeWithTag(TodayTags.HERO_PANE).assertWidthIsEqualTo(512.dp)
-        compose.onNodeWithTag(TodayTags.DIAL).assertWidthIsEqualTo(200.dp)
+        compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true).assertWidthIsEqualTo(200.dp)
         // The clock is never shrunk for the face.
-        compose.onNodeWithTag(TodayTags.TIME).assertTextEquals("10:20")
+        compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertTextEquals("10:20")
         for (tag in listOf(TodayTags.DATE, TodayTags.TIME, TodayTags.DIAL, TodayTags.ALARM, TodayTags.SENTENCE)) {
-            compose.onNode(hasTestTag(tag) and inHeroPane).assertIsDisplayed()
+            compose.onNode(hasTestTag(tag) and inHeroPane, useUnmergedTree = true).assertIsDisplayed()
         }
         compose.onNode(hasTestTag(TodayTags.ALL_DAY) and inHeroPane).assertIsDisplayed()
         compose.onNode(hasTestTag(TodayTags.ALL_DAY) and inAgendaPane).assertDoesNotExist()
@@ -789,7 +874,7 @@ class TodayScreenTest {
     fun `a large tablet upright in two panes, the hero a phone's width at least`() {
         draw()
         compose.onNodeWithTag(TodayTags.HERO_PANE).assertWidthIsEqualTo(400.dp)
-        compose.onNodeWithTag(TodayTags.TIME).assertTextEquals("10:20")
+        compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertTextEquals("10:20")
         val dial = bounds(TodayTags.DIAL).width / compose.density.density
         assertThat(dial).isAtLeast(112f)
         assertThat(dial).isLessThan(200f)
@@ -809,7 +894,7 @@ class TodayScreenTest {
     fun `a phone on its side keeps its one column`() {
         draw()
         compose.onNodeWithTag(TodayTags.HERO_PANE).assertDoesNotExist()
-        compose.onNodeWithTag(TodayTags.DIAL).assertWidthIsEqualTo(112.dp)
+        compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true).assertWidthIsEqualTo(112.dp)
         compose.walkPage(hasTestTag(TodayTags.LIST), "today-phone-sideways", maxScreens = 3)
     }
 
@@ -824,7 +909,7 @@ class TodayScreenTest {
     @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
     fun `two panes in the dark, on the twelve-hour clock`() {
         draw(TodaySample.state(settings = TodaySample.settings.copy(clockFormat = ClockFormat.H12)), dark = true)
-        compose.onNodeWithTag(TodayTags.TIME).assertTextEquals("10:20\u202Fam")
+        compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertTextEquals("10:20\u202Fam")
         compose.assertAccessible()
         compose.writeScreenshot("today-tablet-dark")
     }
@@ -848,8 +933,8 @@ class TodayScreenTest {
             permission = CalendarPermission.ASKABLE,
             actions = TodayActions(askPermission = { asked = true }),
         )
-        compose.onNode(hasTestTag(TodayTags.TIME) and inHeroPane).assertIsDisplayed()
-        compose.onNode(hasTestTag(TodayTags.DIAL)).assertDoesNotExist()
+        compose.onNode(hasTestTag(TodayTags.TIME) and inHeroPane, useUnmergedTree = true).assertIsDisplayed()
+        compose.onNode(hasTestTag(TodayTags.DIAL), useUnmergedTree = true).assertDoesNotExist()
         compose.onNode(hasText("Allow") and inAgendaPane).performClick()
         assertThat(asked).isTrue()
         compose.assertAccessible()

@@ -77,4 +77,34 @@
     <string name="second_clock_day">%1$s %2$s · %3$s</string>
     <string name="zone_city_country">%1$s, %2$s</string>
     <string name="zone_offset">UTC%1$s</string>
+
+    <string name="agenda_open_day">Apri il giorno nel tuo calendario</string>
+    <string name="agenda_new_event">Nuovo evento</string>
+    <string name="agenda_all_day">Tutto il giorno</string>
+    <string name="agenda_day_of">Giorno %1$d di %2$d</string>
+    <string name="agenda_left">Ancora %1$s</string>
+    <string name="agenda_started_before">Iniziato il giorno prima</string>
+    <string name="agenda_ends_after">Finisce il giorno dopo</string>
+    <string name="agenda_started_on">Iniziato %1$s</string>
+    <string name="agenda_ends_on">Finisce %1$s</string>
+    <string name="agenda_declined">Rifiutato</string>
+    <string name="agenda_maybe">Forse</string>
+    <string name="agenda_not_answered">Da rispondere</string>
+
+    <string name="a11y_range">dalle %1$s alle %2$s</string>
+    <string name="a11y_in_calendar">in %1$s</string>
+    <string name="a11y_under_way">in corso, ancora %1$s</string>
+    <string name="a11y_over">finito</string>
+    <string name="a11y_declined">rifiutato</string>
+    <string name="a11y_maybe">forse</string>
+    <string name="a11y_not_answered">ancora senza risposta</string>
+    <string name="a11y_open_event">Apri nel tuo calendario</string>
+
+    <string name="state_no_calendars_title">Sul telefono non c’è ancora nessun calendario</string>
+    <string name="state_no_calendars_body">Aggiungine uno nella tua app calendario, o aggiungi nelle impostazioni del telefono un account che ne ha uno: i suoi impegni compariranno qui.</string>
+    <string name="state_all_hidden_title">Tutti i calendari sono nascosti</string>
+    <string name="state_all_hidden_body">Tempo mostra solo i calendari che scegli, e adesso non ne è scelto nessuno.</string>
+    <string name="state_all_hidden_action">Scegli i calendari</string>
+    <string name="state_no_app_title">Sul telefono non c’è un’app calendario</string>
+    <string name="state_no_app_body">Tempo mostra i tuoi impegni, ma aprirne o crearne uno avviene in un’app calendario, come Google Calendar o Etar.</string>
 </resources>

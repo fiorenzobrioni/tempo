@@ -13,8 +13,8 @@
 ## One-liner
 
 The time, the date and the day ahead in one calm view: a clock and the day's agenda, read from
-the calendar already on the phone, in an app and in a home-screen widget that never scrolls.
-Tempo reads; your calendar app writes.
+the calendar already on the phone, in an app and in a home-screen widget that never scrolls; and,
+a touch away, the month at a glance. Tempo reads; your calendar app writes.
 
 ## Why this app
 
@@ -72,7 +72,7 @@ app the reader already uses.
 
 ## Scope for v1.0
 
-### Today (the app's one main screen)
+### Today (the app's main screen)
 
 - **The clock**: the time large (the family's hero type, tabular figures so the minutes do not
   wobble, each figure rolling to its next value as the minute changes), the date above it in the
@@ -119,8 +119,15 @@ app the reader already uses.
   page, with the start already set to the next half hour. Back on Today, the event the reader
   made is brought into view and its row glows once (step 8.6): Tempo tells it from the events
   the page held when they left, in memory, and stores nothing.
-- **Touch the date, or the calendar button beside the gear**: the calendar app opens on today
-  (the button has a switch in Settings). Touch a day's name: it opens on that day.
+- **Touch the date**: the calendar app opens on today. Touch a day's name: it opens on that day.
+  The date wears the chevron the days' names wear (owner, 23 Nov 2026): one sign for one door,
+  and the calendar app's only one in the top row since the button beside it opens the month.
+- **Touch the time**, its figures or its clock face (owner, 23 Nov 2026): the phone's Clock app
+  opens, as from the alarm's line. The date opens the calendar, the time opens the clock. On by
+  default, one switch turns it off; no door where the phone has no clock app.
+- **The button beside the gear** opens the month (below). It opened the calendar app at today
+  until 23 Nov 2026, as the date beside it still does. Always drawn: it had a switch while it
+  doubled the date's touch, and has none now that it is the month's only door.
 - **Live while visible**: the clock moves on each minute's start, and a change made in the
   calendar app is on screen the moment the reader comes back. Nothing runs once the page is gone.
 - **States that say what is true**: no permission (the clock works; one card explains why the
@@ -134,6 +141,34 @@ app the reader already uses.
   page; the agenda beside them, each pane scrolling on its own, the new-event button over the
   agenda. A phone, upright or on its side, and a foldable open under 840 dp keep the one column.
   Settings, the guide and the first run keep the centred column everywhere (ADR 0004).
+
+### The month (a page opened from Today)
+
+Added on 23 Nov 2026 (owner; PLANNING §11 Phase 9, ADR 0005): the one question Today cannot
+answer, "which days are taken", and from it the way to plan one. A month and nothing else: no
+week view, no day view. Today is the day.
+
+- **A whole month at a glance**, in whole weeks from the reader's first day of the week, the few
+  dates of the months beside that complete a week drawn quieter. Today's number stands on the
+  accent, which means now here too.
+- **Marks, never titles.** Under each date what it holds: a dot for an event with a time, in its
+  calendar's colour, up to three and a small plus for more; a bar for an event that takes whole
+  days, one line across the days it covers, so a week away reads as a week. Dates gone by are
+  quieter. A title in a cell would make it a calendar app's month, and a worse one.
+- **The chosen day under the month**, in the page: a touch on a date lists it as Today would
+  (its name and the day in a few words, its all-day events, its events in order, the one under
+  way with what is left), each event a touch from the calendar app, the day's name a touch from
+  the calendar app on that day. Today is chosen when the page opens.
+- **A new event on the chosen day**: the button at the bottom corner, or a long touch on a date.
+  The calendar app's new-event page, on that date, at the time of day the next half hour has now.
+  Back in Tempo, the event made is brought forward, its date chosen and its row glowing once.
+- **Near and far**: the months turn under the finger (and by two arrows where the top row has
+  room for them). A touch on the month's name goes to any month of any year in two or three
+  touches. "Today" brings the page back, and is drawn only while the page is elsewhere.
+- **Live while visible**, as Today; the same calendars, the same choices; the same states (no
+  permission, no calendar, every calendar hidden, no calendar app), with the month drawn all the
+  same: a month is a month without a calendar.
+- **On a large screen** the month stands beside the day, its cells grown to the pane's height.
 
 ### The widgets (Jetpack Glance)
 
@@ -209,7 +244,8 @@ its list. Redesigned around a dial after the first cards on the phone (owner, 8 
 ### Settings and personalization
 
 - **Clock**: the phone's format (default), 24-hour or 12-hour; a second time zone, off by
-  default or a city chosen from a searchable list of the phone's own time-zone data.
+  default or a city chosen from a searchable list of the phone's own time-zone data; whether a
+  touch on Today's time opens the Clock app (on by default).
 - **Date**: long ("Tuesday 7 October"), medium ("Tue 7 Oct") or numeric, in the words and order
   of the reader's language.
 - **Appearance**, the family's: theme (system, light, dark), palette (Vivid, Paper), typeface
@@ -248,10 +284,14 @@ its list. Redesigned around a dial after the first cards on the phone (owner, 8 
   needs the network.
 - **Event reminders and notifications**: the calendar app's job.
 - **Alarms, timers, a stopwatch, a world clock**: the system Clock app's job. Tempo shows the
-  next alarm, read-only, and nothing else of it; Today's alarm line and a widget's time open the
-  Clock app.
+  next alarm, read-only, and nothing else of it; Today's time, its alarm line and a widget's time
+  open the Clock app.
 - **Tasks and to-dos**: they are not in the Calendar Provider (Google Tasks is a separate service).
-- **Week and month grids**: the calendar app's job. Tempo is the day, and the few days after it.
+- **A week view, a day in hours, a year, a month with titles to edit in**: the calendar app's job.
+  Tempo is the day, the few days after it, and the month at a glance: marks that say which days
+  are taken, never a grid of titles (rewritten on 23 Nov 2026, when the owner asked for the month;
+  until then "week and month grids" were both left out. ADR 0005 says why the month came in and
+  where it stops).
 - **Weather on the agenda**: Chiaro's job, and each app of the family stands alone.
 - **The work profile's calendars from the personal one**: Android keeps the two profiles apart on
   purpose. Tempo installed inside the work profile reads the work calendars there.

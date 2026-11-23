@@ -2,6 +2,7 @@ package com.callbackdev.tempo.core.domain.agenda
 
 import com.callbackdev.tempo.core.model.AttendeeStatus
 import com.callbackdev.tempo.core.model.EntryState
+import com.callbackdev.tempo.core.model.EventInstance
 import com.callbackdev.tempo.core.model.EventStatus
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -315,5 +316,55 @@ class AgendaBuilderTest {
         val result = agenda(now = at("2026-10-07T09:00"), days = 7)
         assertThat(result.days.map { it.date }.first()).isEqualTo(LocalDate.parse("2026-10-07"))
         assertThat(result.days.map { it.date }.last()).isEqualTo(LocalDate.parse("2026-10-13"))
+    }
+
+    // The month's dates: any span of them, by the same rules.
+
+    private fun span(vararg events: EventInstance, now: String, from: String, to: String) = AgendaBuilder.days(
+        instances = events.toList(),
+        calendars = listOf(calendar(1)),
+        filter = AgendaFilter(),
+        now = at(now),
+        zone = Rome,
+        from = LocalDate.parse(from),
+        to = LocalDate.parse(to),
+    )
+
+    @Test
+    fun `a span of dates is every date of it, before today and after`() {
+        val days = span(now = "2026-10-15T09:00", from = "2026-09-28", to = "2026-11-08")
+        assertThat(days).hasSize(42)
+        assertThat(days.first().date).isEqualTo(LocalDate.parse("2026-09-28"))
+        assertThat(days.last().date).isEqualTo(LocalDate.parse("2026-11-08"))
+        assertThat(days.all { it.isEmpty }).isTrue()
+    }
+
+    @Test
+    fun `a span's dates are built as the agenda's own`() {
+        val holiday = allDay(1, "2026-10-07", dates = 2)
+        val party = timed(2, "2026-10-07T23:00", "2026-10-08T01:30")
+        val days = span(holiday, party, now = "2026-10-07T09:00", from = "2026-10-06", to = "2026-10-09")
+        val built = agenda(holiday, party, now = at("2026-10-07T09:00"), days = 3)
+        assertThat(days.drop(1)).isEqualTo(built.days)
+        assertThat(days.first().isEmpty).isTrue()
+    }
+
+    @Test
+    fun `a date before today has its events over, and one after has them ahead`() {
+        val days = span(
+            timed(1, "2026-10-05T10:00", "2026-10-05T11:00"),
+            timed(2, "2026-10-09T10:00", "2026-10-09T11:00"),
+            now = "2026-10-07T09:00",
+            from = "2026-10-05",
+            to = "2026-10-09",
+        )
+        assertThat(days.first().timed.single().state).isEqualTo(EntryState.PAST)
+        assertThat(days.last().timed.single().state).isEqualTo(EntryState.UPCOMING)
+    }
+
+    @Test
+    fun `a span of one date is that date`() {
+        val days = span(now = "2026-10-07T09:00", from = "2026-10-07", to = "2026-10-07")
+        assertThat(days.single().date).isEqualTo(LocalDate.parse("2026-10-07"))
     }
 }

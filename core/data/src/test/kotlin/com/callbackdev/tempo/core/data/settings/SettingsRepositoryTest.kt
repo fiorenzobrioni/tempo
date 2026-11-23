@@ -48,6 +48,25 @@ class SettingsRepositoryTest {
     }
 
     @Test
+    fun `a setting that is gone leaves the file at the next write`() = runTest {
+        val retired = booleanPreferencesKey("show_calendar_button")
+        if (!::file.isInitialized) file = File(folder.root, "settings.preferences_pb")
+        val job = Job()
+        val store = PreferenceDataStoreFactory.create(
+            scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler) + job),
+            produceFile = { file },
+        )
+        // A reader of an earlier version had turned Today's calendar button off.
+        store.edit { it[retired] = false }
+        val repository = SettingsRepository(store)
+        assertThat(repository.settings.first()).isEqualTo(UserSettings())
+        repository.update { it.copy(showDeclined = true) }
+        assertThat(store.data.first().contains(retired)).isFalse()
+        assertThat(repository.settings.first().showDeclined).isTrue()
+        job.cancelAndJoin()
+    }
+
+    @Test
     fun `every setting survives a restart`() = runTest {
         val choice = CalendarChoice(7, "com.google", "reader@example.com", "Family | home", shown = false)
         val chosen = UserSettings(
@@ -61,7 +80,7 @@ class SettingsRepositoryTest {
             showDeclined = true,
             showAllDay = false,
             showNextAlarm = false,
-            showCalendarButton = false,
+            timeOpensClock = false,
             secondZone = "America/New_York",
             onboardingCompleted = true,
             todayTipSeen = true,

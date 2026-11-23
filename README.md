@@ -36,9 +36,9 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
 
 <table>
   <tr>
-    <td align="center" width="33%"><img src="docs/screenshots/today.png" width="250" alt="Today at 10:20 AM: the date on top with the calendar and settings buttons, the time large beside a clock face with the day's events on its ring in their calendars' colours, the sentence Design review until 11:00 AM, then 3 more today, tomorrow's alarm, the all-day events, the morning folded, the meeting under way on its card with 40 minutes left, two free hours, the rest of the day's events, and tomorrow with its first event"><br><sub><b>Today</b>: the time, the day on a dial, and one sentence</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/today.png" width="250" alt="Today at 10:20 AM: the date on top with the month and settings buttons, the time large beside a clock face with the day's events on its ring in their calendars' colours, the sentence Design review until 11:00 AM, then 3 more today, tomorrow's alarm, the all-day events, the morning folded, the meeting under way on its card with 40 minutes left, two free hours, the rest of the day's events, and tomorrow with its first event"><br><sub><b>Today</b>: the time, the day on a dial, and one sentence</sub></td>
     <td align="center" width="33%"><img src="docs/screenshots/today-evening-dark.png" width="250" alt="Today at 9:10 PM in the dark theme: nothing left today, tomorrow starts at 9:00 AM with a call, the time alone with no clock face, then tomorrow in full and Friday"><br><sub><b>The evening</b>: tomorrow moves up</sub></td>
-    <td align="center" width="33%"><img src="docs/screenshots/settings-calendars.png" width="250" alt="Settings: the agenda's choices with the calendar button's switch, and five calendars from two accounts, each with its colour and a switch, one hidden"><br><sub><b>Your calendars</b>, each shown or hidden</sub></td>
+    <td align="center" width="33%"><img src="docs/screenshots/settings-calendars.png" width="250" alt="Settings: the agenda's choices with the next alarm's switch, and five calendars from two accounts, each with its colour and a switch, one hidden"><br><sub><b>Your calendars</b>, each shown or hidden</sub></td>
   </tr>
   <tr>
     <td align="center"><img src="docs/screenshots/widgets.png" width="250" alt="The widgets on a home screen, in terracotta: a one-row At a glance with its dial, Design review until 11:00 AM, and the date at the far edge; At a glance in ochre, a clock face at 2:20 PM with the dentist drawn on its ring, Dentist from 3:00 PM to 3:45 PM, free until then; a small Agenda in ochre; Agenda at four by two with the time, the date and 4 left today until 7:30 PM beside the rest of the day and 2 more today"><br><sub><b>The widgets</b>: never a list to scroll</sub></td>
@@ -47,9 +47,10 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
   </tr>
   <tr>
     <td align="center"><img src="docs/screenshots/guide.png" width="250" alt="The guide: what Tempo does, then where your events come from: your calendars and your choice, all-day events keeping their date, declined and cancelled events, work calendars"><br><sub><b>The guide</b>, in the app</sub></td>
+    <td align="center"><img src="docs/screenshots/month.png" width="250" alt="The month: November 2026 in whole weeks, today the 12th on the accent, under the dates a dot for each event with a time in its calendar's colour and a bar across the days of a conference, a birthday and a weekend away; under the month Thursday 12 November with its five events, the meeting under way with 40 minutes left, and the New event button"><br><sub><b>The month</b>: which days are taken, at a glance</sub></td>
   </tr>
   <tr>
-    <td align="center" colspan="3"><img src="docs/screenshots/today-tablet.png" width="760" alt="Today on a tablet held sideways, in two panes: on the left the date with the calendar and settings buttons, the time at 10:20 AM beside a large clock face with the day's events on its ring, the sentence Design review until 11:00 AM, then 3 more today, tomorrow's alarm, and the all-day events; on the right the morning folded, the meeting under way on its card with 40 minutes left, two free hours, the rest of the day's events, tomorrow in full and Friday, and the New event button"><br><sub><b>On a tablet</b>: the time beside the day</sub></td>
+    <td align="center" colspan="3"><img src="docs/screenshots/today-tablet.png" width="760" alt="Today on a tablet held sideways, in two panes: on the left the date with the month and settings buttons, the time at 10:20 AM beside a large clock face with the day's events on its ring, the sentence Design review until 11:00 AM, then 3 more today, tomorrow's alarm, and the all-day events; on the right the morning folded, the meeting under way on its card with 40 minutes left, two free hours, the rest of the day's events, tomorrow in full and Friday, and the New event button"><br><sub><b>On a tablet</b>: the time beside the day</sub></td>
   </tr>
 </table>
 
@@ -64,16 +65,17 @@ For 1.1 ([VISION.md](./VISION.md) has the full scope):
 - 🕓 **Today**: the time large beside a clock face with what is left of today's events on its ring, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
 - 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and your next free hour (a touch starts an event there), then the rest of the week day by day (or two weeks, if you like), empty days said once.
 - 📱 **On a tablet**, or a foldable open wide: the clock and a larger dial on one side, the agenda beside them, each scrolling on its own.
-- ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow. A touch opens your clock app.
+- 🗓️ **The month at a glance**: a touch from Today, a whole month with a dot for each event and a bar across the days of a trip or a holiday. Touch a date to see that day under the month; a long touch, or the button, starts a new event on it. A touch on the month's name goes to any month of any year.
+- ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow. A touch on it, or on the time itself, opens your clock app.
 - 🌍 **Another time zone**: a second clock for a city you choose, under the alarm and on the widgets you want it on ("New York 4:20 AM"); an event written in another time zone says when it starts there too ("9:00 AM in Lisbon").
-- ✏️ **Your calendar app does the writing**: touch an event to open it there; the calendar button, the date and a day's name open it on that day; the new-event button opens its new-event page, the start already set.
+- ✏️ **Your calendar app does the writing**: touch an event to open it there; the date and a day's name open it on that day; the new-event button opens its new-event page, the start already set.
 - 🏠 **Two widgets that never scroll**: «At a glance», a clock face with the next event drawn on its ring (the hour hand walks through it by itself) and the day in a few words; «Agenda», the clock and the date (each optional, in your format) over as many events as the card's size allows, and how many more.
 - 🪶 **A clock that costs nothing**: the widget's time is drawn by Android itself, right to the minute, with no work by the app.
 - 🎛️ **Each widget its own**: the time and the date shown or not and in their own format, the background and its opacity, all-day events, the days ahead, and what a touch opens (the time: Tempo, your calendar or your clock app; an event: your calendar app or Tempo).
 - ➕ **New event** from the launcher icon's long press, straight to your calendar app.
 - 🗂️ **Your calendars, your choice**: every account's calendars with their colours, each shown or hidden; declined invitations kept out.
 - 🎨 **Appearance**: light or dark, two palettes, three typefaces, the same as Chiaro's and Passo's.
-- 📖 **The guide**: what Today and the widgets answer, who does what, and what a screen cannot say out loud.
+- 📖 **The guide**: what Today, the month and the widgets answer, who does what, and what a screen cannot say out loud.
 - 🇮🇹 🇬🇧 **Italian and English**, through the system per-app language picker.
 
 ## Principles
@@ -175,7 +177,7 @@ tempo/
 │   ├── calendar/           # the Calendar Provider, the change observer, the intents
 │   ├── designsystem/       # theme, components, icons
 │   └── testing/            # shared UI test helpers (accessibility, page walks)
-├── feature/                # today, settings, onboarding, guide
+├── feature/                # today, month, settings, onboarding, guide
 ├── widget/                 # the two Glance widgets and their settings
 ├── build-logic/            # convention plugins, the forbidden-permission check
 ├── tools/                  # the launcher icon script

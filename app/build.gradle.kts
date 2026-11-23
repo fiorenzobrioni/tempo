@@ -106,6 +106,7 @@ dependencies {
     implementation(project(":core:calendar"))
     implementation(project(":core:designsystem"))
     implementation(project(":feature:today"))
+    implementation(project(":feature:month"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:onboarding"))
     implementation(project(":feature:guide"))
