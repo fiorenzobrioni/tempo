@@ -121,6 +121,7 @@ import com.callbackdev.tempo.core.designsystem.components.CalendarDot
 import com.callbackdev.tempo.core.designsystem.components.CalendarPermissionCard
 import com.callbackdev.tempo.core.designsystem.components.DayDial
 import com.callbackdev.tempo.core.designsystem.components.DayHeading
+import com.callbackdev.tempo.core.designsystem.components.DayName
 import com.callbackdev.tempo.core.designsystem.components.LocalGlowingEvent
 import com.callbackdev.tempo.core.designsystem.components.LocalTimeColumn24
 import com.callbackdev.tempo.core.designsystem.components.REVEAL_MILLIS
@@ -630,7 +631,7 @@ private fun LazyListState.shows(index: Int, top: Int): Boolean {
 private val REVEAL_MARGIN = 24.dp
 
 /**
- * The top of the page: the date (a touch opens the calendar app on it) with the month's and the
+ * The top of the page: the date (a touch opens the calendar app on it, and its chevron says so) with the month's and the
  * settings' buttons; the time, large, and beside it the day's clock face while it has something
  * to show, the two one door to the phone's clock app ([TimeRow]); the day's sentence, its first
  * clause in ink and the rest quieter; then the next alarm and the second clock, under the two
@@ -665,10 +666,14 @@ private fun Hero(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(start = HERO_EDGE, end = 4.dp),
         ) {
-            Text(
-                text = DateTimeText.date(now, locale, state.settings.dateStyle),
+            // The date wears the chevron a day's name wears down the page: the same door, to the
+            // calendar app on that day. Since the button beside it opens the month, the date is
+            // the calendar app's one door up here, and has to say so (owner, PLANNING.md §15,
+            // 23 Nov 2026).
+            DayName(
+                name = DateTimeText.date(now, locale, state.settings.dateStyle),
+                opens = openDay != null,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .weight(1f)
                     .clickable(
@@ -679,8 +684,7 @@ private fun Hero(
                     .heightIn(min = 48.dp)
                     .wrapContentHeight(Alignment.CenterVertically)
                     .padding(end = 8.dp)
-                    .testTag(TodayTags.DATE)
-                    .semantics { heading() },
+                    .testTag(TodayTags.DATE),
             )
             // The month is Tempo's own page: there with or without a calendar app to hand a day to.
             if (state.settings.showCalendarButton) {

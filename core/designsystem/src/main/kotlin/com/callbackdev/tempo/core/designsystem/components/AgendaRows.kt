@@ -45,6 +45,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
@@ -146,35 +147,12 @@ fun DayHeading(
                 .heightIn(min = 48.dp)
                 .padding(start = AgendaRowEdge, end = AgendaRowEdge, top = 12.dp, bottom = 6.dp),
         ) {
-            // The chevron is set in the line, after the name's last word: beside the text it
-            // went to the page's far side as soon as a long name ("Da giovedì 12 novembre a
-            // sabato 14 novembre") took two lines. Balanced, so such a name breaks in two halves
-            // and never leaves a word alone.
-            val quiet = MaterialTheme.colorScheme.onSurfaceVariant
-            Text(
-                text = remember(title, onOpen != null) {
-                    buildAnnotatedString {
-                        append(title)
-                        if (onOpen != null) appendInlineContent(CHEVRON)
-                    }
-                },
+            // Balanced, so a long name ("Da giovedì 12 novembre a sabato 14 novembre") breaks in
+            // two halves and never leaves a word alone.
+            DayName(
+                name = title,
+                opens = onOpen != null,
                 style = MaterialTheme.typography.titleMedium.copy(lineBreak = LineBreak.Heading),
-                inlineContent = mapOf(
-                    CHEVRON to InlineTextContent(
-                        Placeholder(1.5.em, 1.em, PlaceholderVerticalAlign.TextCenter),
-                    ) {
-                        Icon(
-                            TempoIcons.ChevronRight,
-                            contentDescription = null,
-                            tint = quiet,
-                            modifier = Modifier.fillMaxSize().padding(start = 4.dp),
-                        )
-                    },
-                ),
-                modifier = Modifier.clearAndSetSemantics {
-                    this.text = AnnotatedString(title)
-                    heading()
-                },
             )
             Text(
                 summary,
@@ -186,7 +164,46 @@ fun DayHeading(
     }
 }
 
-/** The chevron's place in a day's name ([DayHeading]). */
+/**
+ * A day's name, a heading, with the chevron that says a touch on it opens the calendar app on that
+ * day: one sign for one door, on a day of the agenda, on the month's chosen day, and on Today's
+ * own date (owner, PLANNING.md §15, 23 Nov 2026). No chevron where no app takes the day.
+ *
+ * The chevron is set in the line, after the name's last word: beside the text it went to the
+ * page's far side as soon as a long name took two lines. A screen reader hears the name alone;
+ * the touch, and what it opens, are the caller's ([modifier]).
+ */
+@Composable
+fun DayName(name: String, opens: Boolean, style: TextStyle, modifier: Modifier = Modifier) {
+    val quiet = MaterialTheme.colorScheme.onSurfaceVariant
+    Text(
+        text = remember(name, opens) {
+            buildAnnotatedString {
+                append(name)
+                if (opens) appendInlineContent(CHEVRON)
+            }
+        },
+        style = style,
+        inlineContent = mapOf(
+            CHEVRON to InlineTextContent(
+                Placeholder(1.5.em, 1.em, PlaceholderVerticalAlign.TextCenter),
+            ) {
+                Icon(
+                    TempoIcons.ChevronRight,
+                    contentDescription = null,
+                    tint = quiet,
+                    modifier = Modifier.fillMaxSize().padding(start = 4.dp),
+                )
+            },
+        ),
+        modifier = modifier.clearAndSetSemantics {
+            this.text = AnnotatedString(name)
+            heading()
+        },
+    )
+}
+
+/** The chevron's place in a day's name ([DayName]). */
 private const val CHEVRON = "chevron"
 
 /**

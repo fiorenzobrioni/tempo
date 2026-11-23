@@ -288,6 +288,15 @@ class TodayScreenTest {
     }
 
     @Test
+    fun `the date is read as the date alone, its chevron a sign for the eye`() {
+        draw()
+        // The chevron stands in the line: a screen reader hears the date, and what a touch opens.
+        compose.onNodeWithTag(TodayTags.DATE).assertTextEquals("Wednesday 7 October").assertHasClickAction()
+        compose.assertAccessible()
+        compose.writeScreenshot("today-date-door")
+    }
+
+    @Test
     fun `the button beside the settings opens the month`() {
         var opened = false
         draw(actions = TodayActions(openMonth = { opened = true }))

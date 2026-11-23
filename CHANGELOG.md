@@ -30,7 +30,8 @@ All notable changes to Tempo are documented here. The format follows
 ### Changed
 
 - **The button beside the settings opens the month** instead of your calendar app. A touch on
-  the date still opens your calendar app on today, and a day's name opens it on that day. The
+  the date still opens your calendar app on today, and the date now shows it, with the small
+  arrow the days' names have; a day's name opens it on that day. The
   button's switch in the settings is now «Month button»: if you had turned it off, turn it on to
   reach the month.
 

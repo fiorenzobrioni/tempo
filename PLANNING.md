@@ -992,3 +992,16 @@ then the whole build's `spotlessCheck`, `test`, `:app:lintDebug`,
 and `guide.png` regenerated. **Not checked: the phone.** No device was on adb: the calendar apps'
 answer to a new event on another date, the pager under a real finger, the long touch's haptic and
 the Clock app from the time row are the Open box's.
+
+**Then, the same day: the date says it is a door** (owner, on reading the change: "did you remove
+the calendar button? I still want a point that opens the calendar app; tell me honestly what you
+suggest, a premium solution"). The button was not removed but given to the month, and the calendar
+app's doors left were the date, a day's name and the month's chosen day: none of them a button,
+and the date the only one with no sign of being one. Proposed, with the alternatives drawn (a
+third button in the top row; both), and chosen by the owner: **the date wears the chevron the
+days' names wear**, so one sign means one thing on every page, a day that opens the calendar app
+on itself. A third icon would have narrowed the date (three buttons take 144 dp of a phone's
+row), set two calendar pictures side by side, and brought back the duplicate. Built as `DayName`
+(`AgendaRows.kt`), which `DayHeading` now uses too; a screen reader still hears the date alone.
+No chevron where no calendar app takes the day. `today.png`, `today-evening-dark.png` and
+`today-tablet.png` regenerated.

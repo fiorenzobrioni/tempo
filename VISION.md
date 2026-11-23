@@ -120,6 +120,8 @@ app the reader already uses.
   made is brought into view and its row glows once (step 8.6): Tempo tells it from the events
   the page held when they left, in memory, and stores nothing.
 - **Touch the date**: the calendar app opens on today. Touch a day's name: it opens on that day.
+  The date wears the chevron the days' names wear (owner, 23 Nov 2026): one sign for one door,
+  and the calendar app's only one in the top row since the button beside it opens the month.
 - **Touch the time**, its figures or its clock face (owner, 23 Nov 2026): the phone's Clock app
   opens, as from the alarm's line. The date opens the calendar, the time opens the clock. On by
   default, one switch turns it off; no door where the phone has no clock app.
