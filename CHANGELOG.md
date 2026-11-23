@@ -31,9 +31,8 @@ All notable changes to Tempo are documented here. The format follows
 
 - **The button beside the settings opens the month** instead of your calendar app. A touch on
   the date still opens your calendar app on today, and the date now shows it, with the small
-  arrow the days' names have; a day's name opens it on that day. The
-  button's switch in the settings is now «Month button»: if you had turned it off, turn it on to
-  reach the month.
+  arrow the days' names have; a day's name opens it on that day. The button is always there: its
+  switch in the settings is gone, and if you had turned it off, it is back.
 
 - **«In words» is now «At a glance»**, the name of the clock-face widget in all the apps of the
   family, and it comes first in the widget list (in Italian; in English «Agenda» still sorts

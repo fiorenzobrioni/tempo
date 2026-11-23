@@ -18,7 +18,7 @@
 
 - **Released**: 1.1.0 (2 Nov 2026, `v1.1.0`). What came in after is in `CHANGELOG.md`'s `[Unreleased]` section.
 - **Closed**: Phases 0 to 6 (the 1.0.0, 10 Oct 2026) and the 1.0.1 after them: their steps, their acceptance and their log are in `docs/planning/01-phases-0-8.md`. Phase 8, the 1.1.0 (30 Oct to 2 Nov 2026): its plan, its steps and the log from 2 Nov 2026 are in `docs/planning/02-phase-8.md`, the entries of its steps 8.0 to 8.7 in archive 01.
-- **In progress**: nothing. Phase 9, the month and the time's door (§11; owner, 23 Nov 2026), is built and was checked on the owner's phone the same day (PR #35); it is in `CHANGELOG.md`'s `[Unreleased]`. Open, in §15: one question on the month button's switch, 8.4 («Join», on hold), 1.1's battery check on the phone, and two boxes carried from before.
+- **In progress**: nothing. Phase 9, the month and the time's door (§11; owner, 23 Nov 2026), is built and was checked on the owner's phone the same day (PR #35); it is in `CHANGELOG.md`'s `[Unreleased]`. Open, in §15: 8.4 («Join», on hold), 1.1's battery check on the phone, and two boxes carried from before.
 - **Later, and optional**: Phase 7, Google Play (§11).
 
 ---
@@ -248,7 +248,6 @@ Tempo has no database. The Calendar Provider is the only truth for events; Tempo
 | `show_declined` | false | Declined invitations |
 | `show_all_day` | true | All-day events |
 | `show_next_alarm` | true | The next alarm line |
-| `show_calendar_button` | true | Today's button beside the gear: the month's door since Phase 9 (§15, 23 Nov 2026); the calendar app at today until then (§15, 9 Oct 2026), as a touch on the date still is |
 | `time_opens_clock` | true | Whether a touch on Today's time, its figures or its face, opens the phone's clock app (Phase 9; §15, 23 Nov 2026) |
 | `second_zone` | none | The second clock's city, as a time-zone id ("America/New_York"; ICU's canonical name, "Asia/Calcutta", which `java.time` knows too). An id this phone's time-zone data does not know reads as none (step 8.5) |
 | `onboarding_completed` | false | |
@@ -469,7 +468,7 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [x] **The «New event» shortcut as an adaptive icon, on the phone** (§15, 9 Nov 2026, «The «New event» shortcut, an adaptive icon»): long press on the icon, in the phone's own mask and with the themed icons on. Done by the owner on 9 Nov 2026 (§15, «The adaptive shortcut checked on the phone, and Tetto in the family»).
 - [ ] **Today's review on the phone** (§15, 10 Nov 2026, «Today reviewed: one clock, one "now", one ground»; and 11 Nov 2026, «The dial: a cut arc fades, and the face stays while today has events»): the page in both dresses and both themes, early morning (the face with its ring empty, a long event fading at 12:25), morning and evening (the dial there and gone), the «In words» card early in the day, the day markers on the 12-hour clock, the button's icon over the last rows, TalkBack on the all-day events and the button.
 - [x] **Phase 9 on the phone, before the merge** (§11, step 9.6; §15, 23 Nov 2026, «The month, and the time's door»). (1) A touch on Today's time opens the Clock app, on its figures and on the face, morning and evening; off with the switch. (2) The month from Today's button, and back with the gesture, previewed under the finger. (3) The months under a real finger: the grid's height following it between a five-week and a six-week month, the day under it sliding. (4) The marks against the calendar app's own month, with the owner's real calendars: a holiday of several days as one bar, two at once on two lanes, a day of more than three events with its plus. (5) A new event from the button and from a long touch on a date: does the calendar app open on **that date**, at the time proposed (Google Calendar and Samsung Calendar both; §4.7's intent was measured for today's dates only, `docs/device-checks/calendar-intents.md`)? Back in Tempo, the event made is chosen and glows. (6) The way to a far month, and "Today" back. (7) TalkBack on a date ("Thursday 26 November, 3 events"), on the month's name, on the time row. (8) The Tab S8+: the month beside the day. (9) §9.6's `dumpsys alarm` and `dumpsys jobscheduler` unchanged with the month open and closed. Done by the owner on 23 Nov 2026 (§15, «Phase 9 checked on the phone»): "everything works, the new event on a date other than today too". The owner's word is on the whole; (9), which needs adb, rides with 1.1's battery check below.
-- [ ] **The month button's switch: keep it, or let it go?** (§15, 23 Nov 2026.) `show_calendar_button` was a switch for a button that doubled the touch on the date (owner, 9 Oct 2026). The button is now the month's only door: turned off, the month cannot be reached, and a reader who had it off before the update does not find the month until they turn it on. Options: (a) as built: the switch stays, renamed «Month button», its note saying what it opens; (b) the switch goes, the button always there, the stored choice ignored. Asked of the owner; (a) is built.
+- [x] **The month button's switch: keep it, or let it go?** (§15, 23 Nov 2026.) `show_calendar_button` was a switch for a button that doubled the touch on the date (owner, 9 Oct 2026). The button is now the month's only door: turned off, the month cannot be reached, and a reader who had it off before the update does not find the month until they turn it on. Options: (a) as built: the switch stays, renamed «Month button», its note saying what it opens; (b) the switch goes, the button always there, the stored choice ignored. Asked of the owner; (a) was built. Answered on 23 Nov 2026: (b), the switch goes (§15, «The month's button has no switch, and nothing is logged to a file»).
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
@@ -1030,3 +1029,38 @@ the nine checks were not answered one by one, and the ninth (`dumpsys alarm`, `d
 jobscheduler`), which needs adb, stays with 1.1's battery check in Open; the month adds no alarm,
 no job and no service, so there is nothing new of its own to find there. Still open: whether the
 month button keeps its switch.
+
+### The month's button has no switch, and nothing is logged to a file (owner, 23 Nov 2026)
+
+**The switch goes.** The owner, on the question left in Open: "maybe better to remove it; leaving
+the button always on the main page is fine". Agreed, and for the reason the question gave: the
+switch was made for a button that doubled the touch on the date (9 Oct 2026), and the button is
+now the month's only door. Turned off it would leave the month out of reach, and a reader who
+had it off before the update would not find the month at all. Built: Today's button is always
+drawn; `UserSettings.showCalendarButton`, its row in Settings and its words are gone; the stored
+key `show_calendar_button` leaves the settings file at the next write (`Keys.RETIRED`, with its
+test), so the file holds only what is read. §5's table loses the row; ADR 0005's consequence and
+VISION are rewritten. This changes the entry of 23 Nov 2026 above, decision 6.
+
+**Logs, asked by the owner** ("I cannot do the adb check for now; what matters is that the app
+does not log too much, and that no log grows without end: it must stay as a production app").
+Looked at, nothing to change:
+
+- **Tempo writes no log file.** No file is opened for writing anywhere in the shipped code but
+  the two DataStore files: `settings` (only what differs from a default) and `widgets` (one look
+  per placed card, removed when the card is). No database of Tempo's, no cache of events. Neither
+  file grows with use.
+- **What is logged goes to Android's own log**, a ring of fixed size the system keeps in memory
+  and overwrites: it cannot grow, and it is not in Tempo's storage. Eight lines in all, in
+  `:widget` alone (tag `TempoWidget`): a card's refresh (what asked, how long the read took), a
+  resize, and the failures (a read timed out, an alarm or a trigger not armed). A few lines per
+  calendar change, none while nothing changes, none from Today, the month, Settings or the guide.
+  They carry widget ids and milliseconds, never an event's title, place or time.
+- **WorkManager's own database** (Glance's sessions and the calendar's trigger run on it) prunes
+  its finished work by itself; Tempo keeps one waiting trigger at a time (§4.5).
+- **The crash page** keeps nothing either: the trace travels in the intent that shows it, capped,
+  and the page is in debug builds and the debug-signed release only, never in a release signed
+  with the release key.
+
+The adb check of §9.6 (`dumpsys alarm`, `dumpsys jobscheduler`) stays in Open with 1.1's battery
+check: it measures alarms and jobs, which Phase 9 did not touch.

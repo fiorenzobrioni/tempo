@@ -65,7 +65,6 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
             showDeclined = prefs[Keys.SHOW_DECLINED] ?: defaults.showDeclined,
             showAllDay = prefs[Keys.SHOW_ALL_DAY] ?: defaults.showAllDay,
             showNextAlarm = prefs[Keys.SHOW_NEXT_ALARM] ?: defaults.showNextAlarm,
-            showCalendarButton = prefs[Keys.SHOW_CALENDAR_BUTTON] ?: defaults.showCalendarButton,
             timeOpensClock = prefs[Keys.TIME_OPENS_CLOCK] ?: defaults.timeOpensClock,
             secondZone = prefs[Keys.SECOND_ZONE],
             onboardingCompleted = prefs[Keys.ONBOARDING_COMPLETED] ?: defaults.onboardingCompleted,
@@ -76,6 +75,8 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
 
     private fun write(prefs: MutablePreferences, old: UserSettings, new: UserSettings) {
         val d = UserSettings()
+        // A key no setting reads any more goes with the next write: the file holds what is used.
+        Keys.RETIRED.forEach(prefs::remove)
         prefs.write(Keys.THEME, old.theme.name, new.theme.name, d.theme.name)
         prefs.write(Keys.PALETTE, old.palette.name, new.palette.name, d.palette.name)
         prefs.write(Keys.FONT, old.font.name, new.font.name, d.font.name)
@@ -92,7 +93,6 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
         prefs.write(Keys.SHOW_DECLINED, old.showDeclined, new.showDeclined, d.showDeclined)
         prefs.write(Keys.SHOW_ALL_DAY, old.showAllDay, new.showAllDay, d.showAllDay)
         prefs.write(Keys.SHOW_NEXT_ALARM, old.showNextAlarm, new.showNextAlarm, d.showNextAlarm)
-        prefs.write(Keys.SHOW_CALENDAR_BUTTON, old.showCalendarButton, new.showCalendarButton, d.showCalendarButton)
         prefs.write(Keys.TIME_OPENS_CLOCK, old.timeOpensClock, new.timeOpensClock, d.timeOpensClock)
         prefs.write(Keys.SECOND_ZONE, old.secondZone.orEmpty(), new.secondZone.orEmpty(), "")
         prefs.write(Keys.ONBOARDING_COMPLETED, old.onboardingCompleted, new.onboardingCompleted, d.onboardingCompleted)
@@ -123,12 +123,18 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
         val SHOW_DECLINED = booleanPreferencesKey("show_declined")
         val SHOW_ALL_DAY = booleanPreferencesKey("show_all_day")
         val SHOW_NEXT_ALARM = booleanPreferencesKey("show_next_alarm")
-        val SHOW_CALENDAR_BUTTON = booleanPreferencesKey("show_calendar_button")
         val TIME_OPENS_CLOCK = booleanPreferencesKey("time_opens_clock")
         val SECOND_ZONE = stringPreferencesKey("second_zone")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val TODAY_TIP_SEEN = booleanPreferencesKey("today_tip_seen")
         val ASKED_CALENDAR_PERMISSION = booleanPreferencesKey("asked_calendar_permission")
+
+        /**
+         * Settings that are gone. `show_calendar_button` hid Today's button beside the gear while
+         * it doubled the touch on the date; since that button is the month's only door it is
+         * always drawn (owner, PLANNING.md §15, 23 Nov 2026).
+         */
+        val RETIRED = listOf(booleanPreferencesKey("show_calendar_button"))
     }
 
     companion object {

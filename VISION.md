@@ -126,7 +126,8 @@ app the reader already uses.
   opens, as from the alarm's line. The date opens the calendar, the time opens the clock. On by
   default, one switch turns it off; no door where the phone has no clock app.
 - **The button beside the gear** opens the month (below). It opened the calendar app at today
-  until 23 Nov 2026, as the date beside it still does; its switch in Settings stays.
+  until 23 Nov 2026, as the date beside it still does. Always drawn: it had a switch while it
+  doubled the date's touch, and has none now that it is the month's only door.
 - **Live while visible**: the clock moves on each minute's start, and a change made in the
   calendar app is on screen the moment the reader comes back. Nothing runs once the page is gone.
 - **States that say what is true**: no permission (the clock works; one card explains why the

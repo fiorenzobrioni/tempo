@@ -305,14 +305,6 @@ private fun SettingsList(
                     checked = settings.showNextAlarm,
                     onChange = { on -> actions.update { it.copy(showNextAlarm = on) } },
                 )
-                GroupDivider()
-                SwitchRow(
-                    label = stringResource(R.string.settings_calendar_button),
-                    note = stringResource(R.string.settings_calendar_button_note),
-                    checked = settings.showCalendarButton,
-                    onChange = { on -> actions.update { it.copy(showCalendarButton = on) } },
-                    modifier = Modifier.testTag(SettingsTags.CALENDAR_BUTTON),
-                )
             }
         }
 
@@ -767,7 +759,6 @@ object SettingsTags {
     const val DATE = "settings_date"
     const val HORIZON = "settings_horizon"
     const val DECLINED = "settings_declined"
-    const val CALENDAR_BUTTON = "settings_calendar_button"
     const val TIME_DOOR = "settings_time_door"
     const val PERMISSION = "settings_permission"
     const val CALENDARS_SUMMARY = "settings_calendars_summary"

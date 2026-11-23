@@ -417,14 +417,6 @@ class TodayScreenTest {
     }
 
     @Test
-    fun `the month's button goes when the reader hides it`() {
-        draw(TodaySample.state(settings = TodaySample.settings.copy(showCalendarButton = false)))
-        compose.onNodeWithTag(TodayTags.MONTH).assertDoesNotExist()
-        // The date stays a door to the calendar, as it always was.
-        compose.onNodeWithTag(TodayTags.DATE).assertHasClickAction()
-    }
-
-    @Test
     fun `with no calendar app the date is no door, and the month is still Tempo's own`() {
         draw(TodaySample.state(doors = CalendarDoors.None))
         compose.onNodeWithTag(TodayTags.MONTH).assertHasClickAction()

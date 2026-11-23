@@ -686,11 +686,10 @@ private fun Hero(
                     .padding(end = 8.dp)
                     .testTag(TodayTags.DATE),
             )
-            // The month is Tempo's own page: there with or without a calendar app to hand a day to.
-            if (state.settings.showCalendarButton) {
-                IconButton(onClick = actions.openMonth, modifier = Modifier.testTag(TodayTags.MONTH)) {
-                    Icon(TempoIcons.Calendar, stringResource(R.string.today_open_month), tint = quiet)
-                }
+            // The month is Tempo's own page: there with or without a calendar app to hand a day
+            // to, and always, since this button is its only door.
+            IconButton(onClick = actions.openMonth, modifier = Modifier.testTag(TodayTags.MONTH)) {
+                Icon(TempoIcons.Calendar, stringResource(R.string.today_open_month), tint = quiet)
             }
             IconButton(onClick = actions.openSettings, modifier = Modifier.testTag(TodayTags.SETTINGS)) {
                 Icon(TempoIcons.Settings, stringResource(R.string.today_settings), tint = quiet)

@@ -97,9 +97,11 @@ all-day events), and without writing anything.
 
 - VISION's non-goal is rewritten: what Tempo leaves to the calendar app is the week, the day in
   hours, the year, and a month with titles to edit in.
-- `show_calendar_button` keeps its key and now hides the month's door. A reader who had hidden the
-  button does not see the month until they turn it back on; the switch's note says what it opens.
-  Whether the switch should go is asked of the owner (PLANNING.md §15, Open).
+- `show_calendar_button` is gone, and Today's button is always drawn. It was a switch for a button
+  that doubled the touch on the date; as the month's only door, turned off it would have left the
+  month out of reach, and a reader who had it off before the update would never have found it.
+  The owner's call, the same day (PLANNING.md §15). The stored key leaves the file at the next
+  write.
 - A new module, `:feature:month`. No new dependency: the pager, the sheet and the long touch are
   Compose Foundation's and Material 3's, already in the build.
 - The cost of the page is a read of about three months of instances when it opens and when a page
