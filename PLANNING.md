@@ -18,7 +18,7 @@
 
 - **Released**: 1.1.0 (2 Nov 2026, `v1.1.0`). What came in after is in `CHANGELOG.md`'s `[Unreleased]` section.
 - **Closed**: Phases 0 to 6 (the 1.0.0, 10 Oct 2026) and the 1.0.1 after them: their steps, their acceptance and their log are in `docs/planning/01-phases-0-8.md`. Phase 8, the 1.1.0 (30 Oct to 2 Nov 2026): its plan, its steps and the log from 2 Nov 2026 are in `docs/planning/02-phase-8.md`, the entries of its steps 8.0 to 8.7 in archive 01.
-- **In progress**: Phase 9, the month and the time's door (§11; owner, 23 Nov 2026): built on its branch, its check on the phone before the merge. Open, in §15: Phase 9's checks and one question on the month button's switch, 8.4 («Join», on hold), 1.1's battery check on the phone, and two boxes carried from before.
+- **In progress**: nothing. Phase 9, the month and the time's door (§11; owner, 23 Nov 2026), is built and was checked on the owner's phone the same day (PR #35); it is in `CHANGELOG.md`'s `[Unreleased]`. Open, in §15: one question on the month button's switch, 8.4 («Join», on hold), 1.1's battery check on the phone, and two boxes carried from before.
 - **Later, and optional**: Phase 7, Google Play (§11).
 
 ---
@@ -403,7 +403,7 @@ reasons are in §15's entry of 23 Nov 2026 and in `docs/adr/0005-the-month.md`.
   an open foldable and a phone on its side, a tablet in two panes, both languages, both themes.
 - [x] **9.5 The door.** Today's button beside the gear opens the month (`MonthKey` on the one back
   stack); the date keeps opening the calendar app. The guide's chapter, the README's picture.
-- [ ] **9.6 On the phone**, before the merge (§15, Open): the checks listed there.
+- [x] **9.6 On the phone**, before the merge (§15, Open): the checks listed there. Done by the owner on 23 Nov 2026, on the CI's APK of the branch (§15, «Phase 9 checked on the phone»).
 
 **Acceptance.** The month shows the right marks on the right dates in every zone (the engine's
 tests, run on the month's dates); a touch on a date lists it as Today would; a new event lands on
@@ -468,7 +468,7 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [x] **The new icon on the phone** (§15, 9 Nov 2026, «The new icon: the day's page and the clock»): the launcher icon in the phone's own mask, the themed icon, the «New event» shortcut. Done by the owner on 9 Nov 2026 (§15, «The new icon checked on the phone»).
 - [x] **The «New event» shortcut as an adaptive icon, on the phone** (§15, 9 Nov 2026, «The «New event» shortcut, an adaptive icon»): long press on the icon, in the phone's own mask and with the themed icons on. Done by the owner on 9 Nov 2026 (§15, «The adaptive shortcut checked on the phone, and Tetto in the family»).
 - [ ] **Today's review on the phone** (§15, 10 Nov 2026, «Today reviewed: one clock, one "now", one ground»; and 11 Nov 2026, «The dial: a cut arc fades, and the face stays while today has events»): the page in both dresses and both themes, early morning (the face with its ring empty, a long event fading at 12:25), morning and evening (the dial there and gone), the «In words» card early in the day, the day markers on the 12-hour clock, the button's icon over the last rows, TalkBack on the all-day events and the button.
-- [ ] **Phase 9 on the phone, before the merge** (§11, step 9.6; §15, 23 Nov 2026, «The month, and the time's door»). (1) A touch on Today's time opens the Clock app, on its figures and on the face, morning and evening; off with the switch. (2) The month from Today's button, and back with the gesture, previewed under the finger. (3) The months under a real finger: the grid's height following it between a five-week and a six-week month, the day under it sliding. (4) The marks against the calendar app's own month, with the owner's real calendars: a holiday of several days as one bar, two at once on two lanes, a day of more than three events with its plus. (5) A new event from the button and from a long touch on a date: does the calendar app open on **that date**, at the time proposed (Google Calendar and Samsung Calendar both; §4.7's intent was measured for today's dates only, `docs/device-checks/calendar-intents.md`)? Back in Tempo, the event made is chosen and glows. (6) The way to a far month, and "Today" back. (7) TalkBack on a date ("Thursday 26 November, 3 events"), on the month's name, on the time row. (8) The Tab S8+: the month beside the day. (9) §9.6's `dumpsys alarm` and `dumpsys jobscheduler` unchanged with the month open and closed.
+- [x] **Phase 9 on the phone, before the merge** (§11, step 9.6; §15, 23 Nov 2026, «The month, and the time's door»). (1) A touch on Today's time opens the Clock app, on its figures and on the face, morning and evening; off with the switch. (2) The month from Today's button, and back with the gesture, previewed under the finger. (3) The months under a real finger: the grid's height following it between a five-week and a six-week month, the day under it sliding. (4) The marks against the calendar app's own month, with the owner's real calendars: a holiday of several days as one bar, two at once on two lanes, a day of more than three events with its plus. (5) A new event from the button and from a long touch on a date: does the calendar app open on **that date**, at the time proposed (Google Calendar and Samsung Calendar both; §4.7's intent was measured for today's dates only, `docs/device-checks/calendar-intents.md`)? Back in Tempo, the event made is chosen and glows. (6) The way to a far month, and "Today" back. (7) TalkBack on a date ("Thursday 26 November, 3 events"), on the month's name, on the time row. (8) The Tab S8+: the month beside the day. (9) §9.6's `dumpsys alarm` and `dumpsys jobscheduler` unchanged with the month open and closed. Done by the owner on 23 Nov 2026 (§15, «Phase 9 checked on the phone»): "everything works, the new event on a date other than today too". The owner's word is on the whole; (9), which needs adb, rides with 1.1's battery check below.
 - [ ] **The month button's switch: keep it, or let it go?** (§15, 23 Nov 2026.) `show_calendar_button` was a switch for a button that doubled the touch on the date (owner, 9 Oct 2026). The button is now the month's only door: turned off, the month cannot be reached, and a reader who had it off before the update does not find the month until they turn it on. Options: (a) as built: the switch stays, renamed «Month button», its note saying what it opens; (b) the switch goes, the button always there, the stored choice ignored. Asked of the owner; (a) is built.
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
 
@@ -1017,3 +1017,16 @@ room. `clockWidths` now measures the figures as they are drawn, one by one; the 
 large screen, reckoned by the same function, is unchanged (200 dp on the tablet). A test at the
 README's size looks at the marker's last column of pixels: ink there is a letter cut. It failed
 before the change. `today.png` and `today-tablet.png` regenerated and looked at.
+
+### Phase 9 checked on the phone (owner, 23 Nov 2026)
+
+The owner installed the APK the CI built from the branch (`claude/month-and-clock-door`, commit
+`453841a`: the month, the time's door, the date's chevron, the day marker whole) and reported:
+"everything works, the new event on a date other than today too". That last was the one answer
+only a phone could give: §4.7's `ACTION_INSERT` had been measured with today's dates alone
+(`docs/device-checks/calendar-intents.md`), and the month hands the calendar app another date
+(`newEventOn`). Step 9.6 and its box in Open are closed on that word. It is a word on the whole:
+the nine checks were not answered one by one, and the ninth (`dumpsys alarm`, `dumpsys
+jobscheduler`), which needs adb, stays with 1.1's battery check in Open; the month adds no alarm,
+no job and no service, so there is nothing new of its own to find there. Still open: whether the
+month button keeps its switch.
