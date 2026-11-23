@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.callbackdev.tempo.core.calendar.CalendarChanges
+import com.callbackdev.tempo.core.calendar.CalendarDoors
 import com.callbackdev.tempo.core.calendar.CalendarIntents
 import com.callbackdev.tempo.core.calendar.CalendarRead
 import com.callbackdev.tempo.core.calendar.CalendarSource
@@ -99,7 +100,10 @@ class TodayViewModel @Inject constructor(
     ) { day, days, _ -> day to days }
         .mapLatest { (day, days) ->
             val now = ZonedDateTime.now(day.second)
-            Snapshot(source.read(AgendaWindow.of(now.toInstant(), now.zone, days)), doors(now.toInstant()))
+            Snapshot(
+                source.read(AgendaWindow.of(now.toInstant(), now.zone, days)),
+                CalendarDoors.of(context, now.toInstant()),
+            )
         }
 
     val state: StateFlow<TodayUiState?> = combine(ticks, settings, snapshots, awaiting, ::build)
@@ -195,28 +199,9 @@ class TodayViewModel @Inject constructor(
      */
     private fun nextAlarm(): Instant? = ClockApp.nextAlarm(context)
 
-    private fun doors(now: Instant): CalendarDoors = CalendarDoors(
-        canCreate = CalendarIntents.canOpen(context, CalendarIntents.insert(now)),
-        canOpenEvent = CalendarIntents.canOpen(context, CalendarIntents.view(ProbeEvent)),
-        canOpenDay = CalendarIntents.canOpen(context, CalendarIntents.openDay(now)),
-        clockPackage = ClockApp.packageName(context),
-    )
-
     private companion object {
         const val STOP_TIMEOUT_MILLIS = 5_000L
 
         val REVEAL_WINDOW: Duration = Duration.ofMinutes(1)
-
-        /** Any event: only the kind of intent matters to whether an app takes it. */
-        val ProbeEvent = EventInstance(
-            eventId = 1,
-            calendarId = 1,
-            title = null,
-            location = null,
-            begin = Instant.EPOCH,
-            end = Instant.EPOCH,
-            allDay = false,
-            color = null,
-        )
     }
 }

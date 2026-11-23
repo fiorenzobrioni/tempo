@@ -80,4 +80,39 @@
     <!-- A city in the list of time zones, and its offset from UTC ("+1", "−3", "+5:30"). -->
     <string name="zone_city_country">%1$s, %2$s</string>
     <string name="zone_offset">UTC%1$s</string>
+
+    <!-- A day's rows, on every page that lists a day (Today, the month). -->
+    <string name="agenda_open_day">Open the day in your calendar</string>
+    <string name="agenda_new_event">New event</string>
+    <string name="agenda_all_day">All day</string>
+    <string name="agenda_day_of">Day %1$d of %2$d</string>
+    <string name="agenda_left">%1$s left</string>
+    <string name="agenda_started_before">Started the day before</string>
+    <string name="agenda_ends_after">Ends the next day</string>
+    <!-- %1$s a weekday ("Monday") or, further away, a date ("Monday 5 October"). -->
+    <string name="agenda_started_on">Started %1$s</string>
+    <string name="agenda_ends_on">Ends %1$s</string>
+    <string name="agenda_declined">Declined</string>
+    <string name="agenda_maybe">Maybe</string>
+    <!-- An invitation the reader has not answered yet. -->
+    <string name="agenda_not_answered">Not answered</string>
+
+    <!-- What TalkBack reads for a row: one sentence. -->
+    <string name="a11y_range">%1$s to %2$s</string>
+    <string name="a11y_in_calendar">in %1$s</string>
+    <string name="a11y_under_way">under way, %1$s left</string>
+    <string name="a11y_over">over</string>
+    <string name="a11y_declined">declined</string>
+    <string name="a11y_maybe">maybe</string>
+    <string name="a11y_not_answered">not answered yet</string>
+    <string name="a11y_open_event">Open in your calendar</string>
+
+    <!-- The states an agenda's place says in a card, before any event. -->
+    <string name="state_no_calendars_title">There is no calendar on this phone yet</string>
+    <string name="state_no_calendars_body">Add one in your calendar app, or add an account that has one in the phone’s settings: its events appear here.</string>
+    <string name="state_all_hidden_title">Every calendar is hidden</string>
+    <string name="state_all_hidden_body">Tempo shows only the calendars you choose, and right now none is chosen.</string>
+    <string name="state_all_hidden_action">Choose calendars</string>
+    <string name="state_no_app_title">No calendar app on this phone</string>
+    <string name="state_no_app_body">Tempo shows your events, but opening or creating one happens in a calendar app, such as Google Calendar or Etar.</string>
 </resources>

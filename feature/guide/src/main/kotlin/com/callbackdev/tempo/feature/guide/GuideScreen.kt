@@ -45,7 +45,7 @@ fun GuideRoute(onBack: () -> Unit) {
 
 /**
  * The guide (VISION.md, Settings): where the events come from, what
- * Today and the widgets answer, who does the writing, and the things a screen cannot say out loud
+ * Today, the month and the widgets answer, who does the writing, and the things a screen cannot say out loud
  * (that an all-day event keeps its date in every zone, that a card says clock times because it is
  * redrawn at boundaries, that Tempo does nothing with the screen off). Re-openable from Settings:
  * a definition offered before the reader has met the thing does not stick.
@@ -104,12 +104,20 @@ private fun GuideContent(modifier: Modifier) {
         DialSample()
         Caption(stringResource(R.string.guide_today_dial_caption))
         Feature(R.string.guide_today_dial_title, R.string.guide_today_dial_body)
+        Feature(R.string.guide_today_doors_title, R.string.guide_today_doors_body)
         Feature(R.string.guide_today_timeline_title, R.string.guide_today_timeline_body)
         Feature(R.string.guide_today_free_title, R.string.guide_today_free_body)
         Feature(R.string.guide_today_ahead_title, R.string.guide_today_ahead_body)
         Feature(R.string.guide_today_alarm_title, R.string.guide_today_alarm_body)
         Feature(R.string.guide_today_zones_title, R.string.guide_today_zones_body)
         Feature(R.string.guide_today_live_title, R.string.guide_today_live_body)
+
+        Chapter(TempoIcons.Calendar, stringResource(R.string.guide_month_title))
+        Paragraph(stringResource(R.string.guide_month_p1))
+        Feature(R.string.guide_month_marks_title, R.string.guide_month_marks_body)
+        Feature(R.string.guide_month_day_title, R.string.guide_month_day_body)
+        Feature(R.string.guide_month_far_title, R.string.guide_month_far_body)
+        Feature(R.string.guide_month_only_title, R.string.guide_month_only_body)
 
         Chapter(TempoIcons.Plus, stringResource(R.string.guide_handover_title))
         Paragraph(stringResource(R.string.guide_handover_p1))

@@ -248,7 +248,32 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun `Today's calendar button is on by default and one switch away`() {
+    fun `the touch on Today's time is on by default and one switch away`() {
+        var saved = UserSettings()
+        draw(actions = SettingsActions(update = { saved = it(saved) }))
+        scrollTo(SettingsTags.TIME_DOOR)
+        compose.onNodeWithText("Touch the time").assertIsDisplayed()
+        compose.onNodeWithTag(SettingsTags.TIME_DOOR).performClick()
+        assertThat(saved.timeOpensClock).isFalse()
+    }
+
+    @Test
+    fun `with no clock app on the phone, the time's switch is not drawn`() {
+        compose.setContent {
+            TempoTheme {
+                SettingsScreen(
+                    state = SettingsUiState(UserSettings(), null, "0.1.0", hasClockApp = false),
+                    permission = CalendarPermission.GRANTED,
+                    onBack = { },
+                    actions = SettingsActions(),
+                )
+            }
+        }
+        compose.onNodeWithTag(SettingsTags.TIME_DOOR).assertDoesNotExist()
+    }
+
+    @Test
+    fun `Today's month button is on by default and one switch away`() {
         var saved = UserSettings()
         draw(actions = SettingsActions(update = { saved = it(saved) }))
         scrollTo(SettingsTags.CALENDAR_BUTTON)

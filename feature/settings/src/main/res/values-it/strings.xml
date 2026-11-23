@@ -16,6 +16,8 @@
     <string name="settings_second_zone_on">%1$s, %2$s</string>
     <string name="settings_second_zone_note">L’ora di una città sotto l’orologio su Oggi, e sui widget in cui la attivi.</string>
     <string name="settings_second_zone_none">Nessun secondo orologio</string>
+    <string name="settings_time_door">Tocco sull’ora</string>
+    <string name="settings_time_door_note">Su Oggi, un tocco sull’ora o sul suo quadrante apre l’app orologio del telefono.</string>
     <string name="settings_zone_search">Cerca una città o un paese</string>
     <string name="settings_zone_not_found">Nessuna città corrisponde a «%1$s».</string>
 
@@ -32,14 +34,14 @@
     <string name="settings_declined_note">Gli inviti a cui hai detto di no. Non occupano mai il tuo tempo libero.</string>
     <string name="settings_next_alarm">Prossima sveglia</string>
     <string name="settings_next_alarm_note">Accanto all’orologio su Oggi, quando sul telefono c’è una sveglia impostata.</string>
-    <string name="settings_calendar_button">Pulsante calendario</string>
-    <string name="settings_calendar_button_note">In cima a Oggi, accanto alle impostazioni: apre la tua app calendario su oggi. Un tocco sulla data fa lo stesso.</string>
+    <string name="settings_calendar_button">Pulsante del mese</string>
+    <string name="settings_calendar_button_note">In cima a Oggi, accanto alle impostazioni: apre il mese. Un tocco sulla data apre la tua app calendario.</string>
 
     <string name="settings_group_calendars">Calendari</string>
     <plurals name="settings_calendars_summary">
-        <item quantity="one">%1$d calendario sul telefono, %2$d mostrati. Quelli nascosti restano fuori da Oggi e dai widget.</item>
-        <item quantity="many">%1$d calendari sul telefono, %2$d mostrati. Quelli nascosti restano fuori da Oggi e dai widget.</item>
-        <item quantity="other">%1$d calendari sul telefono, %2$d mostrati. Quelli nascosti restano fuori da Oggi e dai widget.</item>
+        <item quantity="one">%1$d calendario sul telefono, %2$d mostrati. Quelli nascosti restano fuori da Oggi, dal mese e dai widget.</item>
+        <item quantity="many">%1$d calendari sul telefono, %2$d mostrati. Quelli nascosti restano fuori da Oggi, dal mese e dai widget.</item>
+        <item quantity="other">%1$d calendari sul telefono, %2$d mostrati. Quelli nascosti restano fuori da Oggi, dal mese e dai widget.</item>
     </plurals>
     <string name="settings_calendars_none">Sul telefono non c’è ancora nessun calendario. Uno aggiunto nella tua app calendario, o con un account, comparirà qui.</string>
     <string name="settings_calendar_phone">Su questo telefono</string>

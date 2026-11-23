@@ -260,6 +260,17 @@ private fun SettingsList(
                     onClick = { dialog = Dialog.SECOND_ZONE },
                     modifier = Modifier.testTag(SettingsTags.SECOND_ZONE),
                 )
+                // A switch for a touch that has nowhere to go would switch nothing.
+                if (state.hasClockApp) {
+                    GroupDivider()
+                    SwitchRow(
+                        label = stringResource(R.string.settings_time_door),
+                        note = stringResource(R.string.settings_time_door_note),
+                        checked = settings.timeOpensClock,
+                        onChange = { on -> actions.update { it.copy(timeOpensClock = on) } },
+                        modifier = Modifier.testTag(SettingsTags.TIME_DOOR),
+                    )
+                }
             }
         }
 
@@ -757,6 +768,7 @@ object SettingsTags {
     const val HORIZON = "settings_horizon"
     const val DECLINED = "settings_declined"
     const val CALENDAR_BUTTON = "settings_calendar_button"
+    const val TIME_DOOR = "settings_time_door"
     const val PERMISSION = "settings_permission"
     const val CALENDARS_SUMMARY = "settings_calendars_summary"
     const val PIN_AGENDA = "settings_pin_agenda"

@@ -1,12 +1,17 @@
 package com.callbackdev.tempo.core.designsystem.format
 
+import android.icu.util.Calendar
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.callbackdev.tempo.core.domain.clock.uses24Hour
 import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.DateStyle
+import java.time.DayOfWeek
+import java.time.Month
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.time.temporal.TemporalAccessor
 import java.util.Locale
 
@@ -73,6 +78,28 @@ object DateTimeText {
         return if (style == DateStyle.NUMERIC || !startsLine) text else text.replaceFirstChar { it.titlecase(locale) }
     }
 
+    /** A month with its year, as it heads the month's page: "November 2026", "Novembre 2026". */
+    fun month(month: YearMonth, locale: Locale): String =
+        formatter(locale, "yMMMM").format(month.atDay(1)).replaceFirstChar { it.titlecase(locale) }
+
+    /** A month's name alone, short, as one of twelve to choose from: "Nov", "Set". */
+    fun monthShort(month: Month, locale: Locale): String =
+        month.getDisplayName(TextStyle.SHORT_STANDALONE, locale).trimEnd('.').replaceFirstChar { it.titlecase(locale) }
+
+    /** A weekday as the head of the month's column: its narrow name, "M", "T", "W". */
+    fun weekdayNarrow(day: DayOfWeek, locale: Locale): String =
+        day.getDisplayName(TextStyle.NARROW_STANDALONE, locale).uppercase(locale)
+
+    /**
+     * The day the reader's week starts on: the locale's own, or the one chosen in the phone's
+     * regional preferences, which Android carries in the locale and ICU reads there.
+     */
+    fun firstDayOfWeek(locale: Locale): DayOfWeek {
+        val first = Calendar.getInstance(locale).firstDayOfWeek
+        // ICU counts from Sunday as 1; java.time from Monday as 1.
+        return DayOfWeek.of((first + DAYS_FROM_SUNDAY) % DAYS_A_WEEK + 1)
+    }
+
     /** The pattern a `TextClock` needs for [style] (Phase 4's widgets), the same as the app's. */
     fun datePattern(locale: Locale, style: DateStyle): String =
         DateFormat.getBestDateTimePattern(locale, skeleton(style))
@@ -90,6 +117,9 @@ object DateTimeText {
 
     /** The no-break spaces CLDR sets before a day marker ("10:20 AM" with U+202F since CLDR 42). */
     private const val NARROW_NO_BREAK_SPACE = '\u202F'
+
+    private const val DAYS_A_WEEK = 7
+    private const val DAYS_FROM_SUNDAY = 5
 
     private const val PATTERN_SPACES = "  "
 }

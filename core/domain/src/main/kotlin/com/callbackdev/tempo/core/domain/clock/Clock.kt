@@ -4,6 +4,8 @@ import com.callbackdev.tempo.core.model.ClockFormat
 import com.callbackdev.tempo.core.model.FreeGap
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
@@ -55,3 +57,22 @@ fun newEventIn(gap: FreeGap, now: Instant, zone: ZoneId, length: Duration): Free
     }
     return FreeGap(start, minOf(start.plus(length), gap.end))
 }
+
+/**
+ * Where a new event starts on [date], chosen on the month (PLANNING.md §4.7). Today, the next half
+ * hour, as the new-event button's. On another date the same time of day, as calendar apps propose
+ * it: the reader planning at ten in the morning is thinking of a morning. Late in the evening that
+ * time falls on the date after (23:40 gives 00:00): then [DEFAULT_START], and so where the date has
+ * no such time (the hour a clock skips in spring).
+ */
+fun newEventOn(date: LocalDate, now: Instant, zone: ZoneId): Instant {
+    val today = now.atZone(zone).toLocalDate()
+    val next = nextHalfHour(now, zone).atZone(zone)
+    if (date == today) return next.toInstant()
+    val time = if (next.toLocalDate() == today) next.toLocalTime() else DEFAULT_START
+    val start = date.atTime(time).atZone(zone)
+    return (if (start.toLocalTime() == time) start else date.atTime(DEFAULT_START).atZone(zone)).toInstant()
+}
+
+/** A new event's start on a date with no better one to offer: the morning. */
+val DEFAULT_START: LocalTime = LocalTime.of(9, 0)

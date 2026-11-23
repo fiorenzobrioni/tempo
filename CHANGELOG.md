@@ -12,10 +12,27 @@ All notable changes to Tempo are documented here. The format follows
 
 ### Added
 
+- **The month.** The button beside the settings on Today opens a whole month at a glance: under
+  each date a dot for every event with a time, in its calendar's colour, and a bar across the
+  days of an event that takes whole days, so a week away reads as a week. Touch a date and that
+  day is listed under the month, each event a touch from your calendar app; the button at the
+  bottom, or a long touch on a date, starts a new event on that day. The months turn under your
+  finger; a touch on the month's name goes to any month of any year, and «Today» brings you back.
+  On a tablet the month stands beside the day. Tempo still only reads: no new permission.
+
+- **The time opens your clock app.** On Today, a touch on the time, its figures or its clock
+  face, opens the phone's Clock app, as a touch on the date opens your calendar. A switch in the
+  settings, «Touch the time», turns it off.
+
 - **«At a glance», the event alone.** Turn off «The day’s note» in the widget’s settings and a widget
   two rows high or more says only what comes next and when, and its clock face takes the room.
 
 ### Changed
+
+- **The button beside the settings opens the month** instead of your calendar app. A touch on
+  the date still opens your calendar app on today, and a day's name opens it on that day. The
+  button's switch in the settings is now «Month button»: if you had turned it off, turn it on to
+  reach the month.
 
 - **«In words» is now «At a glance»**, the name of the clock-face widget in all the apps of the
   family, and it comes first in the widget list (in Italian; in English «Agenda» still sorts

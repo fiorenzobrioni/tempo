@@ -26,7 +26,7 @@ object CalendarChoices {
 
     /**
      * What the agenda's place says about the calendars before any event: none on the phone, all
-     * of them hidden, or some shown. One rule for Today and the widgets.
+     * of them hidden, or some shown. One rule for Today, the month and the widgets.
      */
     fun standing(calendars: List<CalendarInfo>, choices: List<CalendarChoice>): CalendarStanding {
         val onPhone = onPhone(calendars)

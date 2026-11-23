@@ -62,6 +62,7 @@ class SettingsRepositoryTest {
             showAllDay = false,
             showNextAlarm = false,
             showCalendarButton = false,
+            timeOpensClock = false,
             secondZone = "America/New_York",
             onboardingCompleted = true,
             todayTipSeen = true,

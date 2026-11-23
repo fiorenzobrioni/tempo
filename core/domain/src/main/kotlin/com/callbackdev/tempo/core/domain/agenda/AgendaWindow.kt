@@ -18,5 +18,11 @@ data class AgendaWindow(val start: Instant, val end: Instant) {
                 end = today.plusDays(days.toLong() + 1).atStartOfDay(zone).toInstant(),
             )
         }
+
+        /** The span for the dates from [from] to [to], both included (the month), widened the same way. */
+        fun of(from: LocalDate, to: LocalDate, zone: ZoneId): AgendaWindow = AgendaWindow(
+            start = from.minusDays(1).atStartOfDay(zone).toInstant(),
+            end = to.plusDays(2).atStartOfDay(zone).toInstant(),
+        )
     }
 }

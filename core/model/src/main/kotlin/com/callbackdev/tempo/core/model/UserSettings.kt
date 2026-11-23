@@ -8,8 +8,11 @@ package com.callbackdev.tempo.core.model
  *   a week by default (owner, PLANNING.md §15).
  * @property calendarChoices the calendars the reader turned on or off in Tempo; a calendar with no
  *   choice follows the calendar app ([CalendarInfo.visibleInProvider]).
- * @property showCalendarButton whether Today draws the button that opens the reader's calendar
- *   app at today, beside the settings' gear (owner, PLANNING.md §15, 9 Oct 2026).
+ * @property showCalendarButton whether Today draws the button beside the settings' gear: the
+ *   month's door since Phase 9 (it opened the reader's calendar app at today until then, as a
+ *   touch on the date still does; owner, PLANNING.md §15, 9 Oct and 23 Nov 2026).
+ * @property timeOpensClock whether a touch on Today's time, its figures or its clock face, opens
+ *   the phone's clock app (owner, PLANNING.md §15, 23 Nov 2026).
  * @property secondZone the second clock's city, as a time-zone id ("America/New_York"); null when
  *   the reader has none, the default. An id this phone does not know reads as none (`SecondZone`).
  * @property todayTipSeen whether the reader dismissed Today's first tip ("How to read the dial") or
@@ -30,6 +33,7 @@ data class UserSettings(
     val showAllDay: Boolean = true,
     val showNextAlarm: Boolean = true,
     val showCalendarButton: Boolean = true,
+    val timeOpensClock: Boolean = true,
     val secondZone: String? = null,
     val onboardingCompleted: Boolean = false,
     val todayTipSeen: Boolean = false,

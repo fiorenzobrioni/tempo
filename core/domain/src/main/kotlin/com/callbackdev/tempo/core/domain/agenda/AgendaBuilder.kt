@@ -36,8 +36,7 @@ object AgendaBuilder {
         days: Int,
     ): Agenda {
         require(days >= 1) { "An agenda has at least today" }
-        val byId = calendars.associateBy { it.id }
-        val shown = instances.filter { filter.shows(it, byId) }
+        val shown = shown(instances, calendars, filter)
         val today = LocalDate.ofInstant(now, zone)
         val horizonEnd = startOf(today.plusDays(days.toLong()), zone)
         val timed = shown.filterNot { it.allDay }
@@ -48,6 +47,36 @@ object AgendaBuilder {
             underWay = timed.filter { it.begin <= now && now < it.end }.sortedWith(Order),
             next = timed.filter { it.begin > now && it.begin < horizonEnd }.minWithOrNull(Order),
         )
+    }
+
+    /**
+     * The dates from [from] to [to], both included, each as the agenda's own days are: for a page
+     * that shows other dates than today and the ones after it (the month). The same rules, by the
+     * same code; a date before today has its events over, and its free time whole.
+     */
+    fun days(
+        instances: List<EventInstance>,
+        calendars: List<CalendarInfo>,
+        filter: AgendaFilter,
+        now: Instant,
+        zone: ZoneId,
+        from: LocalDate,
+        to: LocalDate,
+    ): List<AgendaDay> {
+        require(!to.isBefore(from)) { "A span of dates ends on or after its start" }
+        val shown = shown(instances, calendars, filter)
+        val today = LocalDate.ofInstant(now, zone)
+        val count = ChronoUnit.DAYS.between(from, to) + 1
+        return (0 until count).map { day(from.plusDays(it), shown, now, zone, today) }
+    }
+
+    private fun shown(
+        instances: List<EventInstance>,
+        calendars: List<CalendarInfo>,
+        filter: AgendaFilter,
+    ): List<EventInstance> {
+        val byId = calendars.associateBy { it.id }
+        return instances.filter { filter.shows(it, byId) }
     }
 
     private fun day(

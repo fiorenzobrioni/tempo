@@ -2,6 +2,7 @@ package com.callbackdev.tempo.core.domain.agenda
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
+import java.time.LocalDate
 
 class AgendaWindowTest {
     @Test
@@ -18,5 +19,12 @@ class AgendaWindowTest {
         val holiday = allDay(1, "2026-10-07")
         assertThat(holiday.begin).isAtLeast(window.start)
         assertThat(holiday.end).isAtMost(window.end)
+    }
+
+    @Test
+    fun `a span of dates is widened by a day on each side too`() {
+        val window = AgendaWindow.of(LocalDate.parse("2026-10-26"), LocalDate.parse("2026-12-06"), Rome)
+        assertThat(window.start).isEqualTo(at("2026-10-25T00:00"))
+        assertThat(window.end).isEqualTo(at("2026-12-08T00:00"))
     }
 }

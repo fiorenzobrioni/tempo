@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.callbackdev.tempo.core.calendar.CalendarChanges
 import com.callbackdev.tempo.core.calendar.CalendarSource
+import com.callbackdev.tempo.core.calendar.ClockApp
 import com.callbackdev.tempo.core.data.settings.SettingsRepository
 import com.callbackdev.tempo.core.data.widget.HomeScreenWidgets
 import com.callbackdev.tempo.core.data.widget.TempoWidget
@@ -34,12 +35,18 @@ sealed interface CalendarsState {
     data object NoPermission : CalendarsState
 }
 
-/** What Settings shows. [calendars] is null until the first read: the section waits for it. */
+/**
+ * What Settings shows. [calendars] is null until the first read: the section waits for it.
+ *
+ * @property hasClockApp whether the phone has a clock app for Today's time to open: without one
+ *   the switch for that touch would switch nothing, and is not drawn.
+ */
 data class SettingsUiState(
     val settings: UserSettings,
     val calendars: CalendarsState?,
     val version: String,
     val widgets: WidgetsInfo = WidgetsInfo(),
+    val hasClockApp: Boolean = true,
 )
 
 /** Whether the launcher places a widget on request (Android's pin request). */
@@ -52,7 +59,7 @@ data class WidgetsInfo(val canPin: Boolean = false)
  */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    @ApplicationContext context: Context,
+    @ApplicationContext private val context: Context,
     private val repository: SettingsRepository,
     private val source: CalendarSource,
     changes: CalendarChanges,
@@ -70,7 +77,13 @@ class SettingsViewModel @Inject constructor(
 
     val state: StateFlow<SettingsUiState?> =
         combine(repository.settings, merge(flowOf(null), calendars)) { settings, calendars ->
-            SettingsUiState(settings, calendars, version, WidgetsInfo(canPin = widgets.canPin()))
+            SettingsUiState(
+                settings = settings,
+                calendars = calendars,
+                version = version,
+                widgets = WidgetsInfo(canPin = widgets.canPin()),
+                hasClockApp = ClockApp.packageName(context) != null,
+            )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), null)
 
     fun update(transform: (UserSettings) -> UserSettings) {

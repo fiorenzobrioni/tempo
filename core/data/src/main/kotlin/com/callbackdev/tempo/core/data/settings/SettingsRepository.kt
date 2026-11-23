@@ -66,6 +66,7 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
             showAllDay = prefs[Keys.SHOW_ALL_DAY] ?: defaults.showAllDay,
             showNextAlarm = prefs[Keys.SHOW_NEXT_ALARM] ?: defaults.showNextAlarm,
             showCalendarButton = prefs[Keys.SHOW_CALENDAR_BUTTON] ?: defaults.showCalendarButton,
+            timeOpensClock = prefs[Keys.TIME_OPENS_CLOCK] ?: defaults.timeOpensClock,
             secondZone = prefs[Keys.SECOND_ZONE],
             onboardingCompleted = prefs[Keys.ONBOARDING_COMPLETED] ?: defaults.onboardingCompleted,
             todayTipSeen = prefs[Keys.TODAY_TIP_SEEN] ?: defaults.todayTipSeen,
@@ -92,6 +93,7 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
         prefs.write(Keys.SHOW_ALL_DAY, old.showAllDay, new.showAllDay, d.showAllDay)
         prefs.write(Keys.SHOW_NEXT_ALARM, old.showNextAlarm, new.showNextAlarm, d.showNextAlarm)
         prefs.write(Keys.SHOW_CALENDAR_BUTTON, old.showCalendarButton, new.showCalendarButton, d.showCalendarButton)
+        prefs.write(Keys.TIME_OPENS_CLOCK, old.timeOpensClock, new.timeOpensClock, d.timeOpensClock)
         prefs.write(Keys.SECOND_ZONE, old.secondZone.orEmpty(), new.secondZone.orEmpty(), "")
         prefs.write(Keys.ONBOARDING_COMPLETED, old.onboardingCompleted, new.onboardingCompleted, d.onboardingCompleted)
         prefs.write(Keys.TODAY_TIP_SEEN, old.todayTipSeen, new.todayTipSeen, d.todayTipSeen)
@@ -122,6 +124,7 @@ class SettingsRepository @Inject constructor(private val dataStore: DataStore<Pr
         val SHOW_ALL_DAY = booleanPreferencesKey("show_all_day")
         val SHOW_NEXT_ALARM = booleanPreferencesKey("show_next_alarm")
         val SHOW_CALENDAR_BUTTON = booleanPreferencesKey("show_calendar_button")
+        val TIME_OPENS_CLOCK = booleanPreferencesKey("time_opens_clock")
         val SECOND_ZONE = stringPreferencesKey("second_zone")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val TODAY_TIP_SEEN = booleanPreferencesKey("today_tip_seen")

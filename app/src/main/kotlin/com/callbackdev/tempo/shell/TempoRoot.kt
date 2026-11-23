@@ -21,6 +21,7 @@ import com.callbackdev.tempo.core.designsystem.theme.TempoMotion
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
 import com.callbackdev.tempo.core.model.UserSettings
 import com.callbackdev.tempo.feature.guide.GuideRoute
+import com.callbackdev.tempo.feature.month.MonthRoute
 import com.callbackdev.tempo.feature.onboarding.OnboardingRoute
 import com.callbackdev.tempo.feature.settings.SettingsRoute
 import com.callbackdev.tempo.feature.today.TodayRoute
@@ -36,7 +37,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object TodayKey : NavKey
 
-/** Settings, from Today's gear. */
+/** The month, from the button beside Today's gear (Phase 9). */
+@Serializable
+data object MonthKey : NavKey
+
+/** Settings, from Today's gear, and from the month where every calendar is hidden. */
 @Serializable
 data object SettingsKey : NavKey
 
@@ -45,7 +50,10 @@ data object SettingsKey : NavKey
 data object GuideKey : NavKey
 
 /**
- * The shell (PLANNING.md §11 Phases 2 and 3): the first run until it is done, then the pages.
+ * The shell (PLANNING.md §11 Phases 2, 3 and 9): the first run until it is done, then the pages.
+ * Today is the app's one main page; the month, Settings and the guide are opened over it, and
+ * back returns to it. No bar of destinations: with two it would take a row and a half of events
+ * from Today's first screen for a page opened now and then (owner, §15, 23 Nov 2026).
  * The transitions: a short slide with a fade, the 300 ms that predictive back seeks,
  * and a plain fade under reduced motion.
  */
@@ -76,8 +84,10 @@ private fun MainPages() {
                     TodayRoute(
                         onOpenSettings = { backStack.add(SettingsKey) },
                         onOpenGuide = { backStack.add(GuideKey) },
+                        onOpenMonth = { backStack.add(MonthKey) },
                     )
                 }
+                entry<MonthKey> { MonthRoute(onBack = goBack, onOpenSettings = { backStack.add(SettingsKey) }) }
                 entry<SettingsKey> { SettingsRoute(onBack = goBack, onOpenGuide = { backStack.add(GuideKey) }) }
                 entry<GuideKey> { GuideRoute(onBack = goBack) }
             },
