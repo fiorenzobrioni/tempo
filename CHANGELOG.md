@@ -28,6 +28,11 @@ All notable changes to Tempo are documented here. The format follows
   date, the time and the month's and the settings' buttons at the top, on the clock's ground; the
   date and the time still open your calendar and your clock. It fades away as you come back up.
 
+- **On a tablet, the month under the clock.** On a large screen (a tablet, or a foldable open
+  wide) Today shows the current month under the time: its dots and bars as on the month's page,
+  today marked, so the days that are taken are there at a glance beside the day itself. A touch
+  on a date opens the month on that day; a touch on the month's name opens it on today.
+
 - **«At a glance», the event alone.** Turn off «The day’s note» in the widget’s settings and a widget
   two rows high or more says only what comes next and when, and its clock face takes the room.
 

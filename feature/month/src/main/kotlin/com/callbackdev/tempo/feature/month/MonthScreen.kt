@@ -128,8 +128,17 @@ import java.time.YearMonth
 import kotlin.math.abs
 import com.callbackdev.tempo.core.designsystem.R as DesignR
 
+/**
+ * @param openOn the date the page opens on, chosen and its month shown: from a date of the month
+ *   under Today's clock, on a large screen (step 10.5). Null for today.
+ */
 @Composable
-fun MonthRoute(onBack: () -> Unit, onOpenSettings: () -> Unit, viewModel: MonthViewModel = hiltViewModel()) {
+fun MonthRoute(
+    onBack: () -> Unit,
+    onOpenSettings: () -> Unit,
+    openOn: LocalDate? = null,
+    viewModel: MonthViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val activity = LocalActivity.current
     val context = LocalContext.current
@@ -156,9 +165,12 @@ fun MonthRoute(onBack: () -> Unit, onOpenSettings: () -> Unit, viewModel: MonthV
         Surface(Modifier.fillMaxSize()) { }
         return
     }
+    val day = openOn ?: current.today
     MonthScreen(
         state = current,
         permission = permission,
+        initialMonth = YearMonth.from(day),
+        initialDay = day,
         actions = MonthActions(
             back = onBack,
             showMonth = viewModel::show,
@@ -211,7 +223,8 @@ class MonthActions(
  * On a large screen the month stands beside the day, each in its pane. Without the permission, or
  * a calendar, the month is drawn all the same and the day's place says why it is empty.
  *
- * @param initialMonth the month the page opens on: today's, save in a test.
+ * @param initialMonth the month the page opens on, and [initialDay] the day chosen in it: today
+ *   and its month, or the date touched in the month under Today's clock (step 10.5).
  */
 @Composable
 fun MonthScreen(

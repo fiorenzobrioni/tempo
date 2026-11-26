@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.calendar.CalendarDoors
 import com.callbackdev.tempo.core.designsystem.components.COVER_TAG
+import com.callbackdev.tempo.core.designsystem.components.MonthCellTags
 import com.callbackdev.tempo.core.designsystem.theme.LocalReducedMotion
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
 import com.callbackdev.tempo.core.domain.today.EventKey
@@ -966,7 +967,7 @@ class TodayScreenTest {
     @Test
     @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
     fun `on a large screen the whole hero's pane is the clock's ground, the agenda's the page`() {
-        val scheme = drawn(dark = false, TodaySample.state(settings = firstDay))
+        val scheme = drawn(dark = false, TodaySample.large(settings = firstDay))
         val page = compose.onRoot().captureToImage().asAndroidBitmap()
         val hero = dp(TodayTags.HERO_PANE)
         val agenda = dp(TodayTags.LIST)
@@ -1238,6 +1239,12 @@ class TodayScreenTest {
     private fun bounds(tag: String) =
         compose.onNodeWithTag(tag, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
+    /** Whether all of a node is on screen: a node's bounds are what is drawn of it, cut where its pane ends. */
+    private fun isWhole(tag: String): Boolean {
+        val node = compose.onNodeWithTag(tag, useUnmergedTree = true).fetchSemanticsNode()
+        return node.boundsInRoot.height == node.size.height.toFloat()
+    }
+
     /** Both panes walked, each from its top to its bottom. */
     private fun walkPanes(name: String) {
         compose.walkPage(hasTestTag(TodayTags.HERO_PANE), "$name-hero")
@@ -1247,7 +1254,7 @@ class TodayScreenTest {
     @Test
     @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
     fun `a tablet on its side, the hero beside the agenda and the dial at its largest`() {
-        draw()
+        draw(TodaySample.large())
         compose.onNodeWithTag(TodayTags.HERO_PANE).assertWidthIsEqualTo(512.dp)
         compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true).assertWidthIsEqualTo(200.dp)
         // The clock is never shrunk for the face.
@@ -1270,7 +1277,7 @@ class TodayScreenTest {
     @Test
     @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
     fun `the two panes scroll each on its own`() {
-        draw()
+        draw(TodaySample.large())
         val time = bounds(TodayTags.TIME)
         compose.onNodeWithTag(TodayTags.EARLIER).assertIsDisplayed()
         scrollTo(TodayTags.day(java.time.LocalDate.parse("2026-10-11")))
@@ -1285,21 +1292,34 @@ class TodayScreenTest {
     @Test
     @Config(qualifiers = "en-rGB-w900dp-h1200dp-xhdpi")
     fun `a large tablet upright in two panes, the hero a phone's width at least`() {
-        draw()
+        draw(TodaySample.large())
         compose.onNodeWithTag(TodayTags.HERO_PANE).assertWidthIsEqualTo(400.dp)
         compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertTextEquals("10:20")
         val dial = bounds(TodayTags.DIAL).width / compose.density.density
         assertThat(dial).isAtLeast(112f)
         assertThat(dial).isLessThan(200f)
+        // The pane is tall: the month stands whole under the clock, with nothing to scroll.
+        assertThat(bounds(TodayTags.MONTH_CARD).top).isAtLeast(bounds(TodayTags.ALL_DAY).bottom)
+        assertThat(isWhole(TodayTags.MONTH_CARD)).isTrue()
         walkPanes("today-tablet-upright")
     }
 
     @Test
     @Config(qualifiers = "en-rGB-w841dp-h701dp-xxhdpi")
     fun `the whole page reads on an open foldable 840 dp wide, in two panes`() {
-        draw()
+        draw(TodaySample.large())
         compose.onNodeWithTag(TodayTags.HERO_PANE).assertWidthIsEqualTo(400.dp)
+        // The pane is short here and scrolls. The month comes after the hero: the clock, the
+        // sentence and the alarm keep the first screen, whole, and the month is scrolled to.
+        for (tag in listOf(TodayTags.TIME, TodayTags.SENTENCE, TodayTags.ALARM)) {
+            compose.onNode(hasTestTag(tag) and inHeroPane, useUnmergedTree = true).assertIsDisplayed()
+            assertWithMessage(tag).that(isWhole(tag)).isTrue()
+        }
+        assertThat(bounds(TodayTags.MONTH_CARD).top).isAtLeast(bounds(TodayTags.ALL_DAY).bottom)
+        assertThat(isWhole(TodayTags.MONTH_CARD)).isFalse()
         walkPanes("today-foldable-panes")
+        // The walk ends at the pane's foot: the month's last week is there.
+        cell("2026-10-31").assertIsDisplayed()
     }
 
     @Test
@@ -1318,14 +1338,14 @@ class TodayScreenTest {
     @Test
     @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi", fontScale = 2f)
     fun `two panes at twice the text size`() {
-        draw()
+        draw(TodaySample.large())
         walkPanes("today-tablet-large-text")
     }
 
     @Test
     @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
     fun `two panes in the dark, on the twelve-hour clock`() {
-        draw(TodaySample.state(settings = TodaySample.settings.copy(clockFormat = ClockFormat.H12)), dark = true)
+        draw(TodaySample.large(settings = TodaySample.settings.copy(clockFormat = ClockFormat.H12)), dark = true)
         compose.onNodeWithTag(TodayTags.TIME, useUnmergedTree = true).assertTextEquals("10:20\u202Fam")
         compose.assertAccessible()
         compose.writeScreenshot("today-tablet-dark")
@@ -1334,9 +1354,11 @@ class TodayScreenTest {
     @Test
     @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
     fun `on a large screen the first day's tip stands in the hero's pane`() {
-        draw(TodaySample.state(settings = firstDay))
+        draw(TodaySample.large(settings = firstDay))
         compose.onNode(hasTestTag(TodayTags.TIP) and inHeroPane).assertIsDisplayed()
         assertThat(bounds(TodayTags.TIP).top).isAtLeast(bounds(TodayTags.ALL_DAY).bottom)
+        // The tip explains the dial and stays by it: the month comes after.
+        assertThat(bounds(TodayTags.MONTH_CARD).top).isAtLeast(bounds(TodayTags.TIP).bottom)
         compose.assertAccessible()
         compose.writeScreenshot("today-tablet-tip")
     }
@@ -1354,6 +1376,9 @@ class TodayScreenTest {
         compose.onNode(hasTestTag(TodayTags.DIAL), useUnmergedTree = true).assertDoesNotExist()
         compose.onNode(hasText("Allow") and inAgendaPane).performClick()
         assertThat(asked).isTrue()
+        // A month is a month: under the clock all the same, its dates with nothing to say.
+        compose.onNodeWithTag(TodayTags.MONTH_NAME).assertTextEquals("October 2026")
+        cell("2026-10-07").assert(description("Wednesday 7 October, today"))
         compose.assertAccessible()
         compose.writeScreenshot("today-tablet-permission")
     }
@@ -1390,6 +1415,103 @@ class TodayScreenTest {
         compose.mainClock.autoAdvance = true
         compose.waitForIdle()
         compose.onNode(hasContentDescription("Day off", substring = true) and inHeroPane).assertIsDisplayed()
+    }
+
+    // --- The month under the clock, on a large screen (step 10.5) -------------------------------
+
+    private fun date(iso: String) = java.time.LocalDate.parse(iso)
+
+    /** A date of the month under the clock, in its own month's weeks. */
+    private fun cell(iso: String) = compose.onNodeWithTag(MonthCellTags.day(date(iso)))
+
+    private fun description(text: String) =
+        SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf(text))
+
+    private fun opens(label: String) = SemanticsMatcher("a touch says «$label»") {
+        it.config.getOrNull(SemanticsActions.OnClick)?.label == label
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `on a large screen the current month stands under the clock, today marked and no day chosen`() {
+        val scheme = drawn(dark = false, TodaySample.large())
+        compose.onNode(hasTestTag(TodayTags.MONTH_CARD) and inHeroPane).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.MONTH_NAME)
+            .assertTextEquals("October 2026")
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+        // Under today's all-day events, and whole on a tablet's first screen.
+        val card = dp(TodayTags.MONTH_CARD)
+        assertThat(card.top).isAtLeast(dp(TodayTags.ALL_DAY).bottom)
+        assertThat(isWhole(TodayTags.MONTH_CARD)).isTrue()
+        // A date says what it holds, as on the month's page.
+        cell("2026-10-07").assert(description("Wednesday 7 October, today, 8 events"))
+        cell("2026-10-08").assert(description("Thursday 8 October, 4 events"))
+        cell("2026-10-13").assert(description("Tuesday 13 October, nothing planned"))
+        // No day is chosen here: a screen reader is told of none, not "not selected" thirty times.
+        val dates = (1..31).map { cell("2026-10-%02d".format(it)).fetchSemanticsNode() }
+        assertThat(dates.filter { SemanticsProperties.Selected in it.config }).isEmpty()
+        // On the page's surface, a plate on the clock's ground; today's number on the accent.
+        val page = compose.onRoot().captureToImage().asAndroidBitmap()
+        val today = dp(MonthCellTags.day(date("2026-10-07")))
+        assertGround("beside the month", page.at(card.left - 4f, card.center.y), scheme.surfaceContainer)
+        assertGround("the month's plate", page.at(card.left + 4f, card.center.y), scheme.surface)
+        assertGround("today's disc", page.at(today.center.x - 11f, today.top + 19f), scheme.primary)
+        compose.assertAccessible()
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `a touch on a date opens the month on it, a touch on the month's name on today`() {
+        val opened = mutableListOf<java.time.LocalDate?>()
+        draw(TodaySample.large(), actions = TodayActions(openMonth = { opened += it }))
+        cell("2026-10-15").assert(opens("Open the month on this day")).performClick()
+        // A date of the month beside, which completes October's last week: the month's page
+        // opens on November.
+        compose.onNodeWithTag(MonthCellTags.beside(date("2026-11-01"))).performClick()
+        compose.onNodeWithTag(TodayTags.MONTH_NAME).assert(opens("Open the month")).performClick()
+        assertThat(opened).containsExactly(date("2026-10-15"), date("2026-11-01"), null).inOrder()
+        // A way in, not a second month: no long touch for a new event, as the month's page has.
+        assertThat(SemanticsActions.OnLongClick in cell("2026-10-15").fetchSemanticsNode().config).isFalse()
+    }
+
+    @Test
+    fun `on a phone no month stands under the clock`() {
+        draw(TodaySample.large())
+        compose.onNodeWithTag(TodayTags.MONTH_CARD).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `until its dates are read the month is today's, with no marks`() {
+        // The window has just become two panes: the agenda is there, the month's read is not.
+        draw(TodaySample.state())
+        compose.onNodeWithTag(TodayTags.MONTH_NAME).assertTextEquals("October 2026")
+        cell("2026-10-07").assert(description("Wednesday 7 October, today"))
+        compose.assertAccessible()
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `after a month's last midnight the marks drawn are still of the month they were read for`() {
+        val october = (TodaySample.large().content as TodayContent.Ready).month
+        val midnight = TodaySample.state(now = TodaySample.at("2026-11-01T00:00"))
+        draw(midnight.copy(content = (midnight.content as TodayContent.Ready).copy(month = october)))
+        // Until the new read lands: October, with today in the week it shares with November.
+        compose.onNodeWithTag(TodayTags.MONTH_NAME).assertTextEquals("October 2026")
+        compose.onNodeWithTag(MonthCellTags.beside(date("2026-11-01")))
+            .assert(hasContentDescription("Sunday 1 November, today", substring = true))
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w1280dp-h800dp-xhdpi")
+    fun `the month under the clock in Italian`() {
+        draw(TodaySample.large())
+        compose.onNodeWithTag(TodayTags.MONTH_NAME).assertTextEquals("Ottobre 2026").assert(opens("Apri il mese"))
+        cell("2026-10-07")
+            .assert(hasContentDescription("Mercoledì 7 ottobre, oggi", substring = true))
+            .assert(opens("Apri il mese su questo giorno"))
+        compose.assertAccessible()
+        compose.writeScreenshot("today-tablet-it")
     }
 
     /** An event of the Personal calendar, from and to local times in Rome. */

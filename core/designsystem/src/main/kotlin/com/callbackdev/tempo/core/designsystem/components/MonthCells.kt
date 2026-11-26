@@ -89,6 +89,8 @@ fun MonthWeekdays(firstDay: DayOfWeek, modifier: Modifier = Modifier) {
  *
  * @property marks null where the calendar gives none (no permission, no calendar): the grid is
  *   drawn all the same, a month is a month.
+ * @property selected the chosen date; null on a page that chooses none, where a touch on a date
+ *   leaves the page: no date is then drawn or read as chosen.
  * @property chooseLabel what a touch on a date does on this page, as a screen reader says it.
  * @property onNew a new event on a date, from a long touch on it; null where the page has none,
  *   or no app takes it.
@@ -96,7 +98,7 @@ fun MonthWeekdays(firstDay: DayOfWeek, modifier: Modifier = Modifier) {
 class MonthDays(
     val marks: Map<LocalDate, DayMarks>?,
     val today: LocalDate,
-    val selected: LocalDate,
+    val selected: LocalDate?,
     val onChoose: (LocalDate) -> Unit,
     val chooseLabel: String,
     val onNew: ((LocalDate) -> Unit)?,
@@ -130,7 +132,7 @@ fun MonthWeeks(
                         look = DayLook(
                             inMonth = inMonth,
                             today = date == days.today,
-                            selected = date == days.selected,
+                            selected = days.selected?.let { date == it },
                             faded = !inMonth || date < days.today,
                         ),
                         marks = days.marks?.get(date),
@@ -152,8 +154,11 @@ fun MonthWeeks(
 /**
  * How a date stands in its cell: whether it is of the month on its page, today, the chosen one, and
  * whether its marks are drawn quieter (a date already gone, or of the month beside).
+ *
+ * @property selected null where the page chooses no date: a screen reader is then told nothing of
+ *   a choice, rather than "not selected" on every date.
  */
-private data class DayLook(val inMonth: Boolean, val today: Boolean, val selected: Boolean, val faded: Boolean)
+private data class DayLook(val inMonth: Boolean, val today: Boolean, val selected: Boolean?, val faded: Boolean)
 
 /**
  * One date: its number, and under it what it holds, as marks (`MonthMarks`): a dot an event with a
@@ -177,8 +182,9 @@ private fun DayCell(
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val isChosen = look.selected == true
     val chosen by animateFloatAsState(
-        targetValue = if (look.selected) 1f else 0f,
+        targetValue = if (isChosen) 1f else 0f,
         animationSpec = TempoMotion.spatialFast(reducedMotion()),
         label = "chosen",
     )
@@ -189,7 +195,7 @@ private fun DayCell(
     val haptics = LocalHapticFeedback.current
     val number = when {
         look.today -> scheme.onPrimary
-        look.selected -> scheme.onSecondaryContainer
+        isChosen -> scheme.onSecondaryContainer
         look.inMonth -> scheme.onSurface
         else -> quiet
     }
@@ -230,7 +236,7 @@ private fun DayCell(
             )
             .clearAndSetSemantics {
                 contentDescription = labels.of(date, look.today, marks)
-                selected = look.selected
+                look.selected?.let { selected = it }
             },
     ) {
         Text(

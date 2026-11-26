@@ -113,4 +113,35 @@ The graphic review (PLANNING.md §15, 26 Nov 2026, «Today has two grounds: the 
   In two panes there is none: the hero's pane scrolls on its own and the clock never leaves, which
   is what decision 2 gave a large screen.
 
-Step 10.5 adds the month under the clock to this pane, and amends this ADR again.
+## Changed on 26 Nov 2026: the month under the clock
+
+The graphic review's eighth point (PLANNING.md §11 step 10.5; §15, 26 Nov 2026, «Step 10.5
+built»): the leading pane was half empty on a tablet, and the current month fills it with
+something the page is for. This adds to decision 3, which listed what the pane holds.
+
+- **What.** The leading pane's last item, after the hero, today's all-day events and the first
+  day's tip: the current month. Its name with its year, a heading with the chevron a day's name
+  wears; the week's days; its weeks of dates with their marks, drawn by the grid the month's page
+  draws (`MonthWeekdays`, `MonthWeeks`, `:core:designsystem`), today on the accent. It stands on
+  a plate of the page's `surface`, as the dial's face does, so the marks are stepped against the
+  ground the month's page steps them against.
+- **A way in, not a second month.** A touch on a date opens the month's page on that date, its
+  month shown and the date chosen (`MonthKey` carries it); a touch on the name opens it on
+  today. Nothing turns under the finger, no day is chosen, and a long touch does nothing: each
+  of those is the month's page's, a touch away. A screen reader hears a date and what it holds,
+  and is told of no choice.
+- **Where it stands in the pane.** Last, so that where the pane is short and scrolls (an open
+  foldable at 841 × 701 dp) the clock, the sentence and the alarm keep the first screen and the
+  month is what is scrolled to. At 1280 × 800 dp a month of five weeks stands whole under the
+  hero with nothing scrolled (the card ends about 30 dp over the pane's foot, the sample's day);
+  a month of six weeks, or a longer hero, scrolls by a row.
+- **A date's height is its least** (`monthCellHeight()`), whatever the pane's: the month's page
+  grows its cells to fill its pane, because the month is that pane's one subject; here it is
+  the third thing in a list, and its height does not depend on what stands over it. In a tall
+  pane (900 × 1200 dp) the ground under the month stays empty.
+- **What is read.** The month's dates come with the agenda's, in one query, in two panes only
+  (step 10.4): a phone reads what it read. Until that read lands, and where there is no calendar
+  to read, the month is today's and its dates have no marks.
+- **Not in the page's one column**: a phone, a phone on its side, a foldable open under 840 dp.
+  There the month would take the first screen from the agenda; the button beside the settings'
+  is its door.

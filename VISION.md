@@ -139,7 +139,11 @@ app the reader already uses.
   2026): on a tablet, or a foldable open at 840 dp and up, the hero (with a larger dial, up to
   200 dp), today's all-day events and the tip stand on the leading side, about two fifths of the
   page; the agenda beside them, each pane scrolling on its own, the new-event button over the
-  agenda. A phone, upright or on its side, and a foldable open under 840 dp keep the one column.
+  agenda. Under the clock, in the leading pane, the current month (step 10.5; owner, 26 Nov
+  2026): its dates with their marks as the month's page draws them, today on the accent; a touch
+  on a date opens the month on that date, a touch on its name on today. A way in, not a second
+  month: nothing turns and no day is chosen there. A phone, upright or on its side, and a
+  foldable open under 840 dp keep the one column, and show no month on Today.
   Settings, the guide and the first run keep the centred column everywhere (ADR 0004).
 
 ### The month (a page opened from Today)

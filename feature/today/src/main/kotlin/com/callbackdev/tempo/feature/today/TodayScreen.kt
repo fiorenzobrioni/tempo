@@ -140,6 +140,10 @@ import com.callbackdev.tempo.core.designsystem.components.DayHeading
 import com.callbackdev.tempo.core.designsystem.components.DayName
 import com.callbackdev.tempo.core.designsystem.components.LocalGlowingEvent
 import com.callbackdev.tempo.core.designsystem.components.LocalTimeColumn24
+import com.callbackdev.tempo.core.designsystem.components.MonthDays
+import com.callbackdev.tempo.core.designsystem.components.MonthGridEdge
+import com.callbackdev.tempo.core.designsystem.components.MonthWeekdays
+import com.callbackdev.tempo.core.designsystem.components.MonthWeeks
 import com.callbackdev.tempo.core.designsystem.components.REVEAL_MILLIS
 import com.callbackdev.tempo.core.designsystem.components.RevealItem
 import com.callbackdev.tempo.core.designsystem.components.StatusCard
@@ -166,6 +170,7 @@ import com.callbackdev.tempo.core.designsystem.theme.twoPanes
 import com.callbackdev.tempo.core.domain.clock.SecondZone
 import com.callbackdev.tempo.core.domain.clock.newEventIn
 import com.callbackdev.tempo.core.domain.clock.nextHalfHour
+import com.callbackdev.tempo.core.domain.month.MonthGrid
 import com.callbackdev.tempo.core.domain.today.AgendaSection
 import com.callbackdev.tempo.core.domain.today.AgendaSections
 import com.callbackdev.tempo.core.domain.today.AlarmDay
@@ -194,6 +199,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.YearMonth
 import java.time.ZonedDateTime
 import java.util.Locale
 import com.callbackdev.tempo.core.designsystem.R as DesignR
@@ -202,7 +208,7 @@ import com.callbackdev.tempo.core.designsystem.R as DesignR
 fun TodayRoute(
     onOpenSettings: () -> Unit,
     onOpenGuide: () -> Unit,
-    onOpenMonth: () -> Unit,
+    onOpenMonth: (LocalDate?) -> Unit,
     viewModel: TodayViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -266,8 +272,11 @@ fun TodayRoute(
 /** What the page can ask for, as functions: the screen is a plain composable a test can draw. */
 class TodayActions(
     val openSettings: () -> Unit = {},
-    /** The month, Tempo's own page: from the button beside the settings'. */
-    val openMonth: () -> Unit = {},
+    /**
+     * The month, Tempo's own page, on a date: from a date of the month under the clock, on a large
+     * screen. On today (null) from the button beside the settings', and from that month's name.
+     */
+    val openMonth: (LocalDate?) -> Unit = {},
     val askPermission: () -> Unit = {},
     val openAppSettings: () -> Unit = {},
     val openEvent: (EventInstance) -> Unit = {},
@@ -300,7 +309,8 @@ class TodayActions(
  *
  * On a large screen (a tablet, a foldable open at 840 dp and up; step 8.7) the page stands in two
  * panes, each scrolling on its own: the hero, with a larger dial, today's all-day events and the
- * tip on the leading side, the whole pane the clock's ground; the agenda on the trailing one, the
+ * tip on the leading side, the whole pane the clock's ground, and under them the current month, a
+ * way in to the month's page (step 10.5, [MonthCard]); the agenda on the trailing one, the
  * new-event button over it.
  *
  * Every state says what is true: no permission, no calendar, every calendar hidden, no calendar
@@ -362,7 +372,8 @@ fun TodayScreen(
 
 /**
  * The page's lists: on a phone one, [hero] and [agenda] the same, the hero and the tip before the
- * agenda; on a large screen the two panes', today's all-day events in the hero's.
+ * agenda; on a large screen the two panes', today's all-day events, and the month after them, in
+ * the hero's.
  */
 private class TodayLists(val hero: LazyListState, val agenda: LazyListState, val twoPanes: Boolean)
 
@@ -565,7 +576,8 @@ private val HERO_GAP = 4.dp
 
 /**
  * Today on a large screen (step 8.7): the hero's pane, about two fifths of the page, and the
- * agenda's beside it, each scrolling on its own.
+ * agenda's beside it, each scrolling on its own. The hero's pane ends with the current month
+ * (step 10.5).
  */
 @Composable
 private fun TodayPanes(
@@ -611,6 +623,9 @@ private fun TodayPanes(
                     }
                 }
                 if (showsTip(state)) card("tip", leading) { TipCard(actions, onGround = true) }
+                // Last in the pane: where the pane is short and scrolls, the clock and the
+                // sentence keep the first screen and the month is what is scrolled to.
+                card("month", leading) { MonthCard(state, actions) }
             }
         }
         Box(Modifier.weight(1f).fillMaxHeight().statusBarsPadding()) {
@@ -635,6 +650,66 @@ private fun TodayPanes(
         }
     }
 }
+
+/**
+ * The current month under the clock, on a large screen (step 10.5, PLANNING.md §15, 26 Nov 2026):
+ * the hero's pane was half empty there, and the month fills it with something the page is for.
+ * Its name, its weeks of dates with their marks as the month's page draws them, today on the
+ * accent. On the page's `surface`, a plate on the clock's ground as the dial's face is: the marks
+ * are stepped against it.
+ *
+ * A way in, not a second month: a touch on a date opens the month's page on that date, a touch on
+ * the name opens it on today. No months to turn, no chosen day, no long touch here.
+ *
+ * The month is the one the marks were read for ([TodayContent.Ready.month]); with none (the read
+ * not landed yet, or no calendar to read) it is today's, its dates with no marks: a month is a
+ * month, and the way in is there all the same.
+ */
+@Composable
+private fun MonthCard(state: TodayUiState, actions: TodayActions) {
+    val locale = LocalLocale.current.platformLocale
+    val today = state.now.toLocalDate()
+    val read = (state.content as? TodayContent.Ready)?.month
+    val month = read?.month ?: YearMonth.from(today)
+    val firstDay = remember(locale) { DateTimeText.firstDayOfWeek(locale) }
+    val grid = remember(month, firstDay) { MonthGrid.of(month, firstDay) }
+    val days = MonthDays(
+        marks = read?.marks,
+        today = today,
+        selected = null,
+        onChoose = { date -> actions.openMonth(date) },
+        chooseLabel = stringResource(R.string.today_month_open_day),
+        onNew = null,
+    )
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        shape = GroupShape,
+        modifier = Modifier.fillMaxWidth().testTag(TodayTags.MONTH_CARD),
+    ) {
+        Column(Modifier.padding(top = 4.dp, bottom = 8.dp)) {
+            // The chevron a day's name wears: one sign for a name that is a door.
+            DayName(
+                name = DateTimeText.month(month, locale),
+                opens = true,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClickLabel = stringResource(R.string.today_open_month), role = Role.Button) {
+                        actions.openMonth(null)
+                    }
+                    .heightIn(min = 48.dp)
+                    .wrapContentHeight(Alignment.CenterVertically)
+                    .padding(horizontal = MONTH_NAME_EDGE)
+                    .testTag(TodayTags.MONTH_NAME),
+            )
+            MonthWeekdays(firstDay)
+            MonthWeeks(grid, days, Modifier.padding(horizontal = MonthGridEdge))
+        }
+    }
+}
+
+/** The month's name from its card's side: over the first column's dates, not at the card's edge. */
+private val MONTH_NAME_EDGE = 20.dp
 
 /**
  * The agenda's place on the page: what the calendar says, or the state's card that says why it
@@ -1031,7 +1106,7 @@ private fun DateDoor(name: String, state: TodayUiState, actions: TodayActions, m
 @Composable
 private fun PageButtons(actions: TodayActions, month: String, settings: String) {
     val quiet = MaterialTheme.colorScheme.onSurfaceVariant
-    IconButton(onClick = actions.openMonth, modifier = Modifier.testTag(month)) {
+    IconButton(onClick = { actions.openMonth(null) }, modifier = Modifier.testTag(month)) {
         Icon(TempoIcons.Calendar, stringResource(R.string.today_open_month), tint = quiet)
     }
     IconButton(onClick = actions.openSettings, modifier = Modifier.testTag(settings)) {
@@ -1726,6 +1801,13 @@ object TodayTags {
     const val SENTENCE = "today_sentence"
     const val SETTINGS = "today_settings"
     const val MONTH = "today_month"
+
+    /**
+     * The current month under the clock, on a large screen only, and its name; a date in it is
+     * `MonthCellTags`'.
+     */
+    const val MONTH_CARD = "today_month_card"
+    const val MONTH_NAME = "today_month_name"
 
     /** The compact bar, in the page's one column once the hero has gone up, and what it holds. */
     const val BAR = "today_bar"

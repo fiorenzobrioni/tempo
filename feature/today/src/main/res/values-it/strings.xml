@@ -2,6 +2,7 @@
 <resources>
     <string name="today_settings">Impostazioni</string>
     <string name="today_open_month">Apri il mese</string>
+    <string name="today_month_open_day">Apri il mese su questo giorno</string>
     <string name="today_open_clock">Apri l’orologio</string>
     <string name="today_dial">Quadrante alle %1$s, con gli impegni rimasti di oggi sul suo anello</string>
     <string name="today_dial_later">Quadrante alle %1$s; il prossimo impegno di oggi è tra più di undici ore e non è ancora sul suo anello</string>

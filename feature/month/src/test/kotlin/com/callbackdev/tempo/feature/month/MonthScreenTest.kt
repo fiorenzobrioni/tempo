@@ -333,6 +333,31 @@ class MonthScreenTest {
         day("2026-09-03").performClick()
     }
 
+    /** From a date of the month under Today's clock, on a large screen (step 10.5). */
+    @Test
+    fun `opened on a date, the page shows that date's month, the date chosen and its dates read`() {
+        val december = YearMonth.of(2026, 12)
+        val read = mutableListOf<YearMonth>()
+        compose.setContent {
+            TempoTheme {
+                MonthScreen(
+                    state = MonthSample.state(shown = december),
+                    permission = CalendarPermission.GRANTED,
+                    actions = MonthActions(showMonth = { read += it }),
+                    initialMonth = december,
+                    initialDay = MonthSample.date("2026-12-03"),
+                )
+            }
+        }
+        compose.onNodeWithTag(MonthTags.TITLE).assert(hasText("December 2026"))
+        day("2026-12-03").assertIsSelected()
+        compose.onNode(hasText("Thursday 3 December") and hasClickAction()).assertIsDisplayed()
+        // The page is somewhere else than today: the way back is there.
+        compose.onNodeWithTag(MonthTags.TODAY).assertIsDisplayed()
+        assertThat(read).containsExactly(december)
+        compose.assertAccessible()
+    }
+
     /** [name] is laid out on one line with nothing cut: no ellipsis, its last letter within the room it was given. */
     private fun assertWhole(name: String) {
         val node = compose.onNode(hasText(name) and hasAnyAncestor(hasTestTag(MonthTags.TITLE)), useUnmergedTree = true)
