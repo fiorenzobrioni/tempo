@@ -1,5 +1,6 @@
 package com.callbackdev.tempo.feature.month
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
@@ -23,6 +24,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.calendar.CalendarDoors
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
@@ -287,8 +289,60 @@ class MonthScreenTest {
         compose.onNodeWithText("5 impegni, dalle 09:30 alle 19:30.").assertIsDisplayed()
         compose.onNodeWithContentDescription("Nuovo evento giovedì 12 novembre").assertIsDisplayed()
         day("2026-11-03").performClick()
-        compose.onNodeWithTag(MonthTags.TODAY).assert(hasText("Oggi"))
+        compose.onNodeWithTag(MonthTags.TODAY).assert(hasContentDescription("Oggi"))
         compose.writeScreenshot("month-italian")
+    }
+
+    @Test
+    fun `away from today the month's name is whole, beside the way back`() {
+        awayInSeptember()
+        assertWhole("September 2026")
+        compose.onNodeWithTag(MonthTags.TODAY).assert(hasContentDescription("Today")).assertHasClickAction()
+        compose.onNodeWithTag(MonthTags.PREVIOUS).assertIsDisplayed()
+        compose.assertAccessible()
+        compose.writeScreenshot("month-away")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w360dp-h740dp-xxhdpi")
+    fun `the month's name is whole on a narrow phone`() {
+        awayInSeptember()
+        assertWhole("September 2026")
+        compose.onNodeWithTag(MonthTags.TODAY).assertIsDisplayed()
+        compose.assertAccessible()
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi")
+    fun `the month's name is whole in Italian`() {
+        awayInSeptember()
+        assertWhole("Settembre 2026")
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w360dp-h740dp-xxhdpi")
+    fun `the month's name is whole in Italian on a narrow phone`() {
+        awayInSeptember()
+        assertWhole("Settembre 2026")
+    }
+
+    /** The year's longest month, with a day other than today chosen: the way back is drawn. */
+    private fun awayInSeptember() {
+        val september = YearMonth.of(2026, 9)
+        draw(MonthSample.state(now = MonthSample.at("2026-09-10T10:20"), shown = september))
+        day("2026-09-03").performClick()
+    }
+
+    /** [name] is laid out on one line with nothing cut: no ellipsis, its last letter within the room it was given. */
+    private fun assertWhole(name: String) {
+        val node = compose.onNode(hasText(name) and hasAnyAncestor(hasTestTag(MonthTags.TITLE)), useUnmergedTree = true)
+            .fetchSemanticsNode()
+        val layouts = mutableListOf<TextLayoutResult>()
+        node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        val layout = layouts.single()
+        assertThat(layout.lineCount).isEqualTo(1)
+        assertThat(layout.isLineEllipsized(0)).isFalse()
+        assertThat(layout.getLineRight(0)).isAtMost(layout.layoutInput.constraints.maxWidth.toFloat())
     }
 
     @Test

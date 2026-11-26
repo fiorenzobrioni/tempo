@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -512,13 +513,29 @@ private fun NewEventButton(
 /** A state's card on the page's column. */
 private fun LazyListScope.card(key: String, gutter: PageGutter, content: @Composable () -> Unit) {
     item(key = key) {
-        Box(Modifier.padding(gutter).padding(horizontal = ScreenMargin, vertical = 6.dp)) { content() }
+        Box(moving().padding(gutter).padding(horizontal = ScreenMargin, vertical = 6.dp)) { content() }
     }
 }
 
 /** One of the agenda's items, on the page's column: a row of today's, or a day ahead. */
 private fun LazyListScope.row(key: String, gutter: PageGutter, content: @Composable () -> Unit) {
-    item(key = key) { Box(Modifier.padding(gutter)) { content() } }
+    item(key = key) { Box(moving().padding(gutter)) { content() } }
+}
+
+/**
+ * An item that keeps its place in sight while the list changes around it: the "earlier" rows
+ * opening, an event ending, the calendar changing under the page. It slides to where it now
+ * stands, and one that comes or goes fades; each item is known by its key, so a row whose state
+ * changes stays the row it was. Under reduced motion nothing slides and the fade is the short one.
+ */
+@Composable
+private fun LazyItemScope.moving(): Modifier {
+    val reduced = reducedMotion()
+    return Modifier.animateItem(
+        fadeInSpec = TempoMotion.effects(reduced),
+        placementSpec = if (reduced) null else TempoMotion.spatial(),
+        fadeOutSpec = TempoMotion.effects(reduced),
+    )
 }
 
 /**

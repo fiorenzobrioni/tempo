@@ -133,6 +133,20 @@ object TempoIcons {
         }
     }
 
+    /**
+     * A calendar's page with nothing on it: the frame and its two rings, no line under them, so
+     * the page has room for a day's number set over it ("go to today").
+     */
+    val CalendarPage: ImageVector by lazy {
+        icon("calendar_page") {
+            roundRect(4f, 5f, 20f, 20f, 2f)
+            moveTo(8f, 3f)
+            lineTo(8f, 6.5f)
+            moveTo(16f, 3f)
+            lineTo(16f, 6.5f)
+        }
+    }
+
     val Bell: ImageVector by lazy {
         icon("bell") {
             moveTo(6f, 16.5f)

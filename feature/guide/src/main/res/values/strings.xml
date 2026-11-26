@@ -46,7 +46,7 @@
     <string name="guide_month_day_title">The day under the month</string>
     <string name="guide_month_day_body">A touch on a date lists that day under the month, as Today would: its all-day events, then its events in order, each a touch from your calendar app. The button at the bottom starts a new event on that day; so does a long touch on a date.</string>
     <string name="guide_month_far_title">Near and far</string>
-    <string name="guide_month_far_body">The months turn under your finger. A touch on the month’s name goes to any month of any year; “Today” brings you back, and is there only while you are somewhere else.</string>
+    <string name="guide_month_far_body">The months turn under your finger. A touch on the month’s name goes to any month of any year; the small calendar with today’s number on it brings you back, and is there only while you are somewhere else.</string>
     <string name="guide_month_only_title">A month, and nothing else</string>
     <string name="guide_month_only_body">There is no week view and no day view here: Today is the day, and the rest is your calendar app’s to draw.</string>
 

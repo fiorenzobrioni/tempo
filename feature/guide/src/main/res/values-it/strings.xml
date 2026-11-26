@@ -45,7 +45,7 @@
     <string name="guide_month_day_title">Il giorno sotto il mese</string>
     <string name="guide_month_day_body">Un tocco su una data elenca quel giorno sotto il mese, come farebbe Oggi: gli eventi di tutto il giorno, poi gli impegni in ordine, ognuno a un tocco dalla tua app calendario. Il pulsante in fondo crea un nuovo impegno in quel giorno; lo fa anche un tocco lungo su una data.</string>
     <string name="guide_month_far_title">Vicino e lontano</string>
-    <string name="guide_month_far_body">I mesi scorrono sotto il dito. Un tocco sul nome del mese porta a qualunque mese di qualunque anno; «Oggi» ti riporta indietro, e c’è solo mentre sei altrove.</string>
+    <string name="guide_month_far_body">I mesi scorrono sotto il dito. Un tocco sul nome del mese porta a qualunque mese di qualunque anno; il piccolo calendario con il numero di oggi ti riporta indietro, e c’è solo mentre sei altrove.</string>
     <string name="guide_month_only_title">Un mese, e nient’altro</string>
     <string name="guide_month_only_body">Qui non c’è una vista della settimana né una del giorno: il giorno è Oggi, e il resto spetta alla tua app calendario.</string>
 

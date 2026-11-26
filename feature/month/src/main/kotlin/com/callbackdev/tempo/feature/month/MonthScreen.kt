@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -42,7 +43,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -65,10 +65,14 @@ import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -94,6 +98,7 @@ import com.callbackdev.tempo.core.designsystem.theme.TwoPanes
 import com.callbackdev.tempo.core.designsystem.theme.padding
 import com.callbackdev.tempo.core.designsystem.theme.pageGutter
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
+import com.callbackdev.tempo.core.designsystem.theme.tabular
 import com.callbackdev.tempo.core.designsystem.theme.twoPanes
 import com.callbackdev.tempo.core.domain.clock.newEventOn
 import com.callbackdev.tempo.core.domain.month.MonthGrid
@@ -397,6 +402,10 @@ private fun MonthPanes(view: MonthView, panes: TwoPanes, list: LazyListState) {
  * goes to any month; "Today", only while the page is elsewhere; and the two arrows to the months
  * beside, where the row has room for them at the reader's text size. The finger turns the months;
  * the arrows are for a pointer, and for whoever does not swipe.
+ *
+ * "Today" is an icon ([TodayIcon]): as a word it took the room the title needs, and away from the
+ * current month, where the year matters, the title read "November 20…" on a phone (PLANNING.md
+ * §15, 26 Nov 2026).
  */
 @Composable
 private fun MonthTopBar(view: MonthView, modifier: Modifier = Modifier) {
@@ -447,8 +456,8 @@ private fun MonthTopBar(view: MonthView, modifier: Modifier = Modifier) {
                 enter = fadeIn(TempoMotion.effects(reduced)),
                 exit = fadeOut(TempoMotion.effects(reduced)),
             ) {
-                TextButton(onClick = view.goToday, modifier = Modifier.testTag(MonthTags.TODAY)) {
-                    Text(stringResource(R.string.month_today))
+                IconButton(onClick = view.goToday, modifier = Modifier.testTag(MonthTags.TODAY)) {
+                    TodayIcon(view.state.today.dayOfMonth, stringResource(R.string.month_today))
                 }
             }
             if (arrows) {
@@ -471,6 +480,38 @@ private fun MonthTopBar(view: MonthView, modifier: Modifier = Modifier) {
         }
     }
 }
+
+/**
+ * The way back to today: a calendar's page with today's number on it, in the accent. The number
+ * is part of the drawing, so it keeps the icon's size whatever the reader's text size; a screen
+ * reader hears [label] alone.
+ */
+@Composable
+private fun TodayIcon(day: Int, label: String) {
+    val locale = LocalLocale.current.platformLocale
+    val accent = MaterialTheme.colorScheme.primary
+    val figures = with(LocalDensity.current) { TODAY_FIGURES.toSp() }
+    Box(Modifier.size(24.dp).clearAndSetSemantics { contentDescription = label }, contentAlignment = Alignment.Center) {
+        Icon(TempoIcons.CalendarPage, contentDescription = null, tint = accent)
+        Text(
+            text = String.format(locale, "%d", day),
+            style = MaterialTheme.typography.labelSmall.tabular().copy(
+                fontSize = figures,
+                lineHeight = figures,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.sp,
+            ),
+            color = accent,
+            maxLines = 1,
+            softWrap = false,
+            // The page's middle, under its rings: a little below the icon's own.
+            modifier = Modifier.offset(y = 1.5.dp),
+        )
+    }
+}
+
+/** The height of the number on [TodayIcon]'s page: two figures fit between its sides. */
+private val TODAY_FIGURES = 9.dp
 
 /**
  * The chosen day, under the month: its name and the day in a few words (a touch opens the calendar
