@@ -2,6 +2,7 @@ package com.callbackdev.tempo.feature.today
 
 import com.callbackdev.tempo.core.calendar.CalendarDoors
 import com.callbackdev.tempo.core.domain.today.EventKey
+import com.callbackdev.tempo.core.domain.today.TodayMonth
 import com.callbackdev.tempo.core.domain.today.TodaySentence
 import com.callbackdev.tempo.core.model.Agenda
 import com.callbackdev.tempo.core.model.CalendarInfo
@@ -46,6 +47,14 @@ sealed interface TodayContent {
     /** There are calendars, and the reader (or the calendar app) hid every one. */
     data object AllHidden : TodayContent
 
-    data class Ready(val agenda: Agenda, val sentence: TodaySentence, val calendars: Map<Long, CalendarInfo>) :
-        TodayContent
+    /**
+     * @property month the current month's marks, where the page shows the month beside the clock
+     *   (a large screen); null on a phone, where nothing of the month is read.
+     */
+    data class Ready(
+        val agenda: Agenda,
+        val sentence: TodaySentence,
+        val calendars: Map<Long, CalendarInfo>,
+        val month: TodayMonth? = null,
+    ) : TodayContent
 }

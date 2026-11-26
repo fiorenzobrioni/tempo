@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- A month's grid, wherever one is drawn (the month's page, Today on a large screen). -->
+
+    <!-- What TalkBack reads for a date in the grid: %1$s its name ("Thursday 26 November"). -->
+    <string name="month_day_today">%1$s, today</string>
+    <string name="month_day_nothing">%1$s, nothing planned</string>
+    <plurals name="month_day_events">
+        <item quantity="one">%1$s, %2$d event</item>
+        <item quantity="other">%1$s, %2$d events</item>
+    </plurals>
+</resources>

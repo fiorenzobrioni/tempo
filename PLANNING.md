@@ -18,7 +18,7 @@
 
 - **Released**: 1.1.0 (2 Nov 2026, `v1.1.0`). What came in after is in `CHANGELOG.md`'s `[Unreleased]` section.
 - **Closed**: Phases 0 to 6 (the 1.0.0, 10 Oct 2026) and the 1.0.1 after them: their steps, their acceptance and their log are in `docs/planning/01-phases-0-8.md`. Phase 8, the 1.1.0 (30 Oct to 2 Nov 2026): its plan, its steps and the log from 2 Nov 2026 are in `docs/planning/02-phase-8.md`, the entries of its steps 8.0 to 8.7 in archive 01.
-- **In progress**: Phase 10, Today's two grounds (§11; owner, 26 Nov 2026), on `claude/today-two-grounds`: steps 10.1 to 10.3 built, 10.4 to 10.6 open. Phase 9, the month and the time's door (§11; owner, 23 Nov 2026), is built and was checked on the owner's phone the same day (PR #35); it is in `CHANGELOG.md`'s `[Unreleased]`. Open, in §15: 8.4 («Join», on hold), 1.1's battery check on the phone, and two boxes carried from before.
+- **In progress**: Phase 10, Today's two grounds (§11; owner, 26 Nov 2026), on `claude/today-two-grounds`: steps 10.1 to 10.4 built, 10.5 and 10.6 open. Phase 9, the month and the time's door (§11; owner, 23 Nov 2026), is built and was checked on the owner's phone the same day (PR #35); it is in `CHANGELOG.md`'s `[Unreleased]`. Open, in §15: 8.4 («Join», on hold), 1.1's battery check on the phone, and two boxes carried from before.
 - **Later, and optional**: Phase 7, Google Play (§11).
 
 ---
@@ -163,7 +163,7 @@ The riskiest part of the app: wrong days, missing occurrences and stale cards ar
 - **Instances**, not Events: `CalendarContract.Instances.CONTENT_URI` with the window `[start, end)` in epoch millis appended (`Instances.CONTENT_URI.buildUpon()`, `ContentUris.appendId(begin)`, `appendId(end)`). The provider expands recurrences and applies exceptions; Tempo never parses an `RRULE`.
 - **Projection** (only what is shown or decided on): `EVENT_ID`, `BEGIN`, `END`, `START_DAY`, `END_DAY`, `START_MINUTE`, `END_MINUTE`, `ALL_DAY`, `TITLE`, `EVENT_LOCATION`, `CALENDAR_ID`, `DISPLAY_COLOR` (the event's colour, or its calendar's), `STATUS`, `SELF_ATTENDEE_STATUS`, `EVENT_TIMEZONE`, `AVAILABILITY`, `IS_ORGANIZER` (so an invitation the reader has not answered is told from a meeting they set up, review of 30 Oct 2026).
 - **Calendars**: `Calendars.CONTENT_URI` for `_ID`, `CALENDAR_DISPLAY_NAME`, `ACCOUNT_NAME`, `ACCOUNT_TYPE`, `CALENDAR_COLOR`, `VISIBLE`, `SYNC_EVENTS`, `IS_PRIMARY`. `VISIBLE = 0` (hidden in the calendar app) is hidden by default in Tempo too, and the reader's own choice in Tempo wins over it. `SYNC_EVENTS = 0` (a calendar the account lists but this phone does not sync: a colleague's, a country's holidays ticked off) is not on the phone: no switch in Settings, not counted, its events never shown, as the calendar apps list only the synced ones (`CalendarChoices.onPhone`, review of 30 Oct 2026).
-- **The window**: from the start of today to the end of the horizon's last day, in the zone of the phone, widened by a day on each side so that all-day events (stored in UTC, §4.2) are never cut off by the window itself; the domain trims.
+- **The window**: from the start of today to the end of the horizon's last day, in the zone of the phone, widened by a day on each side so that all-day events (stored in UTC, §4.2) are never cut off by the window itself; the domain trims. Where Today shows the current month beside the clock (two panes, step 10.4) the window is that one and the month's dates' as one (`TodayMonth.window`): one query for the two, and on a phone the agenda's alone.
 - **Selection in the domain, not in SQL**: hidden calendars, declined invitations and cancelled events are filtered by `AgendaBuilder`, in pure Kotlin, where they are tested. The query stays the same for every reader.
 - **Threading**: queries run on `Dispatchers.IO`; a `SecurityException` (the permission revoked while the app runs) becomes a state, never a crash.
 
@@ -272,6 +272,7 @@ One `WidgetLook` per `appWidgetId`: show clock, clock format, show date, date st
 - **`NextBoundary`**: the next moment the agenda changes by itself: the nearest `BEGIN` or `END` after now, or the next midnight, whichever is first; with an «At a glance» card placed, also the moment one of today's events comes onto the dial's face (`DialArcs.comesOnTheFace`, review of 30 Oct 2026; today's only since §15, 5 Nov 2026). The widget arms its alarm on it.
 - **`EventZone`** and **`SecondZone`** (step 8.5): whether an event's own zone reads another clock than the phone's at its start, and which zone the second clock shows (none where it would repeat the phone's own) and on which day there. The cities' names are the presentation's (`ZoneCities`, `:core:designsystem`, from ICU).
 - **`MonthGrid`, `MonthPages`, `MonthMarks`** (Phase 9, ADR 0005): a month as whole weeks from the reader's first day; the months as pages and the dates to read for one (itself and the two beside it); and what each date says of itself in its cell, as marks and never titles: a dot for an event with a time (three at most, then a plus), a bar for an event of whole dates, on one lane across all its dates (two lanes, given out over the whole run of dates read). The dates themselves are `AgendaBuilder.days(from, to)`: the agenda's own, for any span.
+- **`TodayMonth`** (step 10.4): the current month for Today on a large screen: the dates to read for one month (`MonthGrid.span`, every date its grid can hold whatever the week's first day), the one span that holds them and the agenda's (`AgendaWindow.covering`), and the month's marks from that read, built as the month's page builds them.
 - **`AgendaSections`**: the agenda's days as Today lays them out: today, tomorrow in full, the days after it compact, and every run of empty days folded into one row (§15, 9 Oct 2026).
 - **`AgendaFit`** (pure arithmetic, as Passo's `GlanceLayout`): given a card's granted size in dp, the header's choice and the text sizes measured in the system face, how many event rows fit, which form the card takes, and what the "N more" line says. Pinned by tests at the family's reference grants (one row ≈ 85 dp tall, two ≈ 189; widths 2 cells ≈ 159 dp, 3 ≈ 250, 4 ≈ 340).
 - **Calendar colours are data, not roles.** They are chosen in the calendar app with no thought for Tempo's grounds, so they mark an event (a dot, a bar at the start of its row, a quiet arc on Today's dial) and never colour its text or its ground. A mark keeps a 3:1 contrast with its ground by stepping its lightness when it must (`markColor`), and a mark drawn quieter fades only as far as that ratio allows (`markAlpha`): pure functions with their tests.
@@ -469,7 +470,9 @@ they are built: 10.3 stands on 10.2's ground, 10.5 on 10.4's grid.
   top, `assertAccessible()`, the walk at twice the text size and on a phone on its side (the bar
   must not take the page: look at the screenshot), TalkBack's order (the bar before the list).
   The reveal of a new event (`revealNewEvent`) counts the bar's height.
-- [ ] **10.4 The month's grid, shared** (point 8, first half; no change to see). The grid's
+- [x] **10.4 The month's grid, shared** (point 8, first half; no change to see). Built on 26 Nov
+  2026: what moved, the one read Today makes and how the plan's words were read are in §15, «Step
+  10.4 built». The grid's
   drawing moves from `:feature:month` to `:core:designsystem` (a month of cells with their marks,
   today and a chosen date: `DayCell`, `drawMarks`, `Weekdays`, their sizes), as the agenda's rows
   moved in 9.3; the pager, the long touch and the page stay in `:feature:month`, which draws as
@@ -556,7 +559,8 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [x] **Phase 9 on the phone, before the merge** (§11, step 9.6; §15, 23 Nov 2026, «The month, and the time's door»). (1) A touch on Today's time opens the Clock app, on its figures and on the face, morning and evening; off with the switch. (2) The month from Today's button, and back with the gesture, previewed under the finger. (3) The months under a real finger: the grid's height following it between a five-week and a six-week month, the day under it sliding. (4) The marks against the calendar app's own month, with the owner's real calendars: a holiday of several days as one bar, two at once on two lanes, a day of more than three events with its plus. (5) A new event from the button and from a long touch on a date: does the calendar app open on **that date**, at the time proposed (Google Calendar and Samsung Calendar both; §4.7's intent was measured for today's dates only, `docs/device-checks/calendar-intents.md`)? Back in Tempo, the event made is chosen and glows. (6) The way to a far month, and "Today" back. (7) TalkBack on a date ("Thursday 26 November, 3 events"), on the month's name, on the time row. (8) The Tab S8+: the month beside the day. (9) §9.6's `dumpsys alarm` and `dumpsys jobscheduler` unchanged with the month open and closed. Done by the owner on 23 Nov 2026 (§15, «Phase 9 checked on the phone»): "everything works, the new event on a date other than today too". The owner's word is on the whole; (9), which needs adb, rides with 1.1's battery check below.
 - [x] **The month button's switch: keep it, or let it go?** (§15, 23 Nov 2026.) `show_calendar_button` was a switch for a button that doubled the touch on the date (owner, 9 Oct 2026). The button is now the month's only door: turned off, the month cannot be reached, and a reader who had it off before the update does not find the month until they turn it on. Options: (a) as built: the switch stays, renamed «Month button», its note saying what it opens; (b) the switch goes, the button always there, the stored choice ignored. Asked of the owner; (a) was built. Answered on 23 Nov 2026: (b), the switch goes (§15, «The month's button has no switch, and nothing is logged to a file»).
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
-- [ ] **Phase 10 on the phone and the tablet, before the merge** (§11, step 10.6; §15, 26 Nov 2026, «Today has two grounds: the graphic review»). On the CI's APK of the branch, in both themes and, once, in the Paper dress. (1) Today's two grounds: the hero's against the page (a tone, 1.1:1: is it seen as a ground on the phone's screen, in daylight?), the dial's face on it, the status bar's icons readable over the hero's ground, and, the page scrolled, the strip of that ground left behind the status bar (no test draws a status bar: §15, «Step 10.2 built»). (2) The event under way in the accent, in the light and in the dark: is the dark one too loud? Its bar with a blue calendar and with a red one. (3) The amber button, over the last rows. (4) The days' names at their new size with the owner's real calendar in Italian: no word alone on a line, the chevron in its place. (5) How many events the first screen shows, against 1.1's. (6) The compact bar (§15, «Step 10.3 built»): it comes as the hero's foot goes up under it and goes as the foot comes back, without a jump, and with the status bar's strip over it reads as one ground with no seam (no test draws a status bar); its round foot over the rows passing under it; its time moves with the minute; its two doors open the calendar and the clock, and a touch on it never opens the row under it; on the 12-hour clock ("10:20 am" whole), and at the phone's largest text size, where the date takes two lines. (7) The rows' movement: "earlier" opened and closed, an event made in the calendar app and one deleted with Today open, an event ending. (8) The month away from today: the title whole, the "Today" icon understood at a glance. (9) The launch: no flash between the splash and the page. (10) The Tab S8+, on its side and upright: the month under the clock, a touch on a date, the pane scrolling where it must. (11) TalkBack on the compact bar, the "Today" icon, the month in the hero's pane.
+- [ ] **Phase 10 on the phone and the tablet, before the merge** (§11, step 10.6; §15, 26 Nov 2026, «Today has two grounds: the graphic review»). On the CI's APK of the branch, in both themes and, once, in the Paper dress. (1) Today's two grounds: the hero's against the page (a tone, 1.1:1: is it seen as a ground on the phone's screen, in daylight?), the dial's face on it, the status bar's icons readable over the hero's ground, and, the page scrolled, the strip of that ground left behind the status bar (no test draws a status bar: §15, «Step 10.2 built»). (2) The event under way in the accent, in the light and in the dark: is the dark one too loud? Its bar with a blue calendar and with a red one. (3) The amber button, over the last rows. (4) The days' names at their new size with the owner's real calendar in Italian: no word alone on a line, the chevron in its place. (5) How many events the first screen shows, against 1.1's. (6) The compact bar (§15, «Step 10.3 built»): it comes as the hero's foot goes up under it and goes as the foot comes back, without a jump, and with the status bar's strip over it reads as one ground with no seam (no test draws a status bar); its round foot over the rows passing under it; its time moves with the minute; its two doors open the calendar and the clock, and a touch on it never opens the row under it; on the 12-hour clock ("10:20 am" whole), and at the phone's largest text size, where the date takes two lines. (7) The rows' movement: "earlier" opened and closed, an event made in the calendar app and one deleted with Today open, an event ending. (8) The month away from today: the title whole, the "Today" icon understood at a glance. (9) The launch: no flash between the splash and the page. (10) The Tab S8+, on its side and upright: the month under the clock, a touch on a date, the pane scrolling where it must; an event made in the calendar app comes onto the grid as it comes onto the agenda, and after midnight the grid's today moves (§15, «Step 10.4 built»: Today reads the month with the agenda, in two panes only). (11) TalkBack on the compact bar, the "Today" icon, the month in the hero's pane.
+- [ ] **Archive 03, at Phase 10's close** (§15, 26 Nov 2026, «Step 10.4 built»). With that entry the log passed the ~80 KB of «How it is made» (82 KB). Not archived in the middle of a phase, whose steps in §11 point to this log's entries by name: the log since 2 Nov 2026 goes to `docs/planning/03-….md`, with Phases 9 and 10, when 10.6 closes, or at the next release if that comes first; then `python3 tools/planning_index.py`. Said to the owner, who may want it sooner.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
 
@@ -1438,3 +1442,96 @@ first.
 **Checked.** `spotlessCheck`, `test` (every module: 620 tests), `:app:lintDebug`,
 `:app:checkForbiddenPermissions`, `:app:assembleDebug`: green. No phone on adb: the bar under a real
 status bar waits for check 6.
+
+### Step 10.4 built: the month's grid, shared (26 Nov 2026)
+
+Built on `claude/today-two-grounds`, as §11 says (owner, 26 Nov 2026: "continue Phase 10 with
+step 10.4"). Nothing to see: the month draws as it drew, and Today draws nothing new until 10.5.
+What moved, what Today reads, and the two places where building it read the plan's words rather
+than their letter.
+
+- **The grid's drawing is `:core:designsystem`'s** (`components/MonthCells.kt`): `MonthWeekdays`
+  (the week's days over the columns) and `MonthWeeks` (a month's weeks of dates: the cell, its
+  marks' inks and their drawing, today's disc and the chosen date's, their sizes), with what they
+  need around them: `MonthDays` (what the grid asks of its page), `monthCellHeight()`,
+  `MonthGridEdge`, a date's test tags (`MonthCellTags`, which `MonthTags` now hands on) and what
+  TalkBack reads of a date (`MonthDayLabels`, with its three strings, moved from the month's
+  resources in both languages). `:feature:month` keeps `MonthPager` (the months under the finger,
+  the height that follows it), the page, the way to a far month, and what a touch does.
+- **What a touch does is the page's.** The cell takes the touch's label from its page
+  (`MonthDays.chooseLabel`: "Show the day" stays the month's string, and Today's will say another
+  thing), and takes a long touch only where the page gives one (`onNew`, null otherwise). *The
+  plan's "the long touch stays in `:feature:month`", read as what the touch does*: a new event on
+  that date is the month's; the gesture on a cell, its haptic and its label ("New event", the
+  design system's already) are the cell's, where the cell's one touch target is. Today passes none.
+- **Today reads the month in the agenda's own read.** *The plan's "reads the current month's
+  marks", built as one query and not a second beside the agenda's.* Where the page stands in two
+  panes, the span asked of the provider is the agenda's and the month's as one
+  (`TodayMonth.window`, on `AgendaWindow.covering`), and `AgendaBuilder` trims each view to its own
+  dates, as it always trimmed the agenda's (the window was already a day wider on each side).
+  Today is a date of its month, so the two spans always meet; near the month's end the agenda
+  runs past the month's last week, and the read ends with the agenda. On two panes the provider is
+  asked exactly as often as on a phone, for about six weeks of instances where the default agenda
+  asks for nine days. On a phone the span is the one it was, to the instant: `showMonth` is never
+  true there.
+- **The page says its panes** (`TodayRoute`: `twoPanes() != null`, in a `SideEffect`, so before
+  the first read starts; `TodayViewModel.showMonth`). A tablet turned to one column, or a foldable
+  closed, says so, and the next read is the agenda's alone. It rides the same collection as the
+  agenda's: no flow of its own, so nothing of it outlives the page (§9).
+- **The marks are built with the agenda, at each tick** (`TodayMonth.of`: `AgendaBuilder.days`
+  over the month's dates, then `MonthMarks.of`, the month's own two steps), on the thread the
+  agenda is built on: six weeks of dates, the agenda's week six times, where the month's page
+  builds a quarter of a year and does it off the main thread. The state says which month the
+  marks are of (`TodayContent.Ready.month`): in the moment after a month's last midnight, until
+  the new read lands, they are still the month before's, and are drawn as that.
+- **The dates to read for one month** are `MonthGrid.span`: every date its grid can hold whatever
+  day the week starts on, six of the month before and six of the month after at most.
+  `MonthPages.span`, the page's three months, is written with it and gives the dates it gave
+  (pinned by a test written before the change).
+
+**Until 10.5** a large screen reads six weeks for a page that shows one: on this branch only, the
+two steps reach `main` together.
+
+**Tests.** The domain's first, as the plan asks. `TodayMonthTest`: the one read holds the agenda's
+dates and the month's whole grid, from any first day of the week, on every day of a year at every
+horizon the settings offer, in Rome and in New York; it is no wider than the two ask for; every
+date the grid can hold has its marks and no other; a date says what it holds before today and
+after; the reader's choices hold as on the agenda (a hidden calendar, all-day events left out);
+an all-day event keeps its date west of Greenwich (§4.2). `AgendaWindowTest`: two spans read as
+one, and a span that holds the other. `MonthGridTest`: one month's dates, tight on both sides for
+every month of four years; the page's three months unchanged. `AgendaBuilderTest`: a wider read
+gives the same agenda (events weeks before today and past the horizon, the event under way and
+the next one the same). `MonthScreenTest` unchanged, its twenty-eight tests green; the month's
+seventeen screenshots and Today's fifty-four, drawn afresh before the step and after it, compared
+pixel by pixel: identical. No test of the ViewModel itself: the features have none (it would take
+a provider, a DataStore and the main looper); what it decides is `TodayMonth`'s, tested there, and
+what is left in it, a flag and a call, is for the tablet's check.
+
+**The words.** None for the reader: no string changed, the CHANGELOG has no line (nothing of this
+is seen until 10.5), the README's pictures are as they were. CLAUDE.md's modules and §4.1, §6 and
+§11 here follow.
+
+**For the tablet** (Open, check 10, grown): with 10.5's month on screen, an event made in the
+calendar app appears in the grid as it appears in the agenda, and after midnight the month's
+"today" moves.
+
+**What 10.5 finds.** In the state, on two panes, `TodayContent.Ready.month` (`TodayMonth`: the
+month and its marks); null in one column, and there is none in the contents that are not
+`Ready`, where a grid can still be drawn with no marks from the month of `state.now` (a month is
+a month). To draw it: `MonthWeekdays(firstDay)` and `MonthWeeks(MonthGrid.of(month, firstDay),
+MonthDays(…))`, `firstDay` from `DateTimeText.firstDayOfWeek(locale)`, kept `MonthGridEdge` from
+the sides. To change in the shared grid: `MonthDays.selected` is a date, and Today has no chosen
+day, so it becomes nullable and a cell then says no `selected` to a screen reader; `onNew` is
+null on Today; `chooseLabel` wants Today's own words, a new string in both languages. The marks
+are stepped against the page's `surface`, which is the ground the plan gives the month in the
+hero's pane. `MonthKey` is a `data object` (`TempoRoot.kt`) and gains the date; `MonthScreen`
+already takes `initialMonth` and `initialDay`, and `MonthRoute` is to hand them on.
+`TodaySample.state()` builds no month: the tablet's tests give it one with `TodayMonth.of`.
+
+**The log's size.** With this entry the log is 82 KB, past the ~80 KB at which «How it is made»
+archives it. Left for the phase's close, so that Phase 10 goes to the archive whole and §11's
+steps keep pointing here meanwhile: a box in Open says so.
+
+**Checked.** `spotlessCheck`, `test` (every module: 631 tests), `:app:lintDebug`,
+`:app:checkForbiddenPermissions`, `:app:assembleDebug`: green; the merged manifest is unchanged.
+No phone or tablet on adb: check 10 waits for 10.5's month on the branch's APK.

@@ -86,9 +86,13 @@ import com.callbackdev.tempo.core.designsystem.components.CalendarPermissionCard
 import com.callbackdev.tempo.core.designsystem.components.DayHeading
 import com.callbackdev.tempo.core.designsystem.components.LocalGlowingEvent
 import com.callbackdev.tempo.core.designsystem.components.LocalTimeColumn24
+import com.callbackdev.tempo.core.designsystem.components.MonthCellTags
+import com.callbackdev.tempo.core.designsystem.components.MonthDays
+import com.callbackdev.tempo.core.designsystem.components.MonthWeekdays
 import com.callbackdev.tempo.core.designsystem.components.REVEAL_MILLIS
 import com.callbackdev.tempo.core.designsystem.components.StatusCard
 import com.callbackdev.tempo.core.designsystem.components.StatusTone
+import com.callbackdev.tempo.core.designsystem.components.monthCellHeight
 import com.callbackdev.tempo.core.designsystem.format.AgendaText
 import com.callbackdev.tempo.core.designsystem.format.DateTimeText
 import com.callbackdev.tempo.core.designsystem.format.rememberAgendaText
@@ -263,6 +267,7 @@ fun MonthScreen(
         shown = shown,
         selected = selected,
         choose = choose,
+        chooseLabel = stringResource(R.string.month_show_day),
         turnBy = { months -> turnTo(MonthPages.monthOf(pager.currentPage + months)) },
         goToday = { choose(today) },
         jump = { jumping = true },
@@ -299,6 +304,7 @@ private class MonthView(
     val shown: YearMonth,
     val selected: LocalDate,
     val choose: (LocalDate) -> Unit,
+    val chooseLabel: String,
     val turnBy: (Int) -> Unit,
     val goToday: () -> Unit,
     val jump: () -> Unit,
@@ -318,12 +324,13 @@ private class MonthView(
             null
         }
 
-    val days: GridDays
-        get() = GridDays(
+    val days: MonthDays
+        get() = MonthDays(
             marks = (state.content as? MonthContent.Ready)?.marks,
             today = state.today,
             selected = selected,
             onChoose = choose,
+            chooseLabel = chooseLabel,
             onNew = newEvent,
         )
 }
@@ -347,7 +354,7 @@ private fun MonthPage(view: MonthView, gutter: PageGutter, list: LazyListState) 
             item(key = "top") { MonthTopBar(view, Modifier.padding(gutter)) }
             item(key = "grid") {
                 Column(Modifier.padding(gutter)) {
-                    Weekdays(view.firstDay)
+                    MonthWeekdays(view.firstDay)
                     MonthPager(view.pager, view.firstDay, view.days)
                 }
             }
@@ -370,7 +377,7 @@ private fun MonthPanes(view: MonthView, panes: TwoPanes, list: LazyListState) {
         BoxWithConstraints(Modifier.width(leading.start + panes.leading).fillMaxHeight()) {
             // The month fills its pane as a wall calendar fills its page: six weeks share the
             // height the top rows leave, up to a size past which a date is only air.
-            val least = dayCellHeight()
+            val least = monthCellHeight()
             val room = (maxHeight - PANE_TOP_ROWS - navigationBar) / MonthGrid.MOST_WEEKS
             Column(
                 Modifier
@@ -381,7 +388,7 @@ private fun MonthPanes(view: MonthView, panes: TwoPanes, list: LazyListState) {
                     .testTag(MonthTags.MONTH_PANE),
             ) {
                 MonthTopBar(view)
-                Weekdays(view.firstDay)
+                MonthWeekdays(view.firstDay)
                 MonthPager(view.pager, view.firstDay, view.days, cell = room.coerceIn(least, least * LARGEST_CELL))
             }
         }
@@ -785,10 +792,10 @@ object MonthTags {
     const val JUMP_YEAR = "month_jump_year"
 
     /** A date in its own month's grid. */
-    fun day(date: LocalDate) = "month_day_$date"
+    fun day(date: LocalDate) = MonthCellTags.day(date)
 
     /** A date drawn in the grid of the month beside its own. */
-    fun beside(date: LocalDate) = "month_beside_$date"
+    fun beside(date: LocalDate) = MonthCellTags.beside(date)
 
     fun event(id: Long) = "month_event_$id"
 

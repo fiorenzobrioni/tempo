@@ -106,6 +106,11 @@ all-day events), and without writing anything.
   write.
 - A new module, `:feature:month`. No new dependency: the pager, the sheet and the long touch are
   Compose Foundation's and Material 3's, already in the build.
+- Since 26 Nov 2026 (step 10.4; PLANNING.md §15, «Step 10.4 built») a month's weeks of dates,
+  their cells and their marks are drawn by `:core:designsystem` (`MonthCells.kt`), as a day's rows
+  are, so that Today on a large screen draws the current month with the same code (ADR 0004).
+  The months under the finger, the page and what a touch does stay this module's; the decisions
+  above are as they were, and the page draws as it drew.
 - The cost of the page is a read of about three months of instances when it opens and when a page
   comes to rest. Nothing runs with the page closed, so §9 stands as it was.
 

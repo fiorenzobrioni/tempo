@@ -68,6 +68,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -205,6 +206,10 @@ fun TodayRoute(
     viewModel: TodayViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    // The current month stands beside the clock in two panes only, and only there are its dates
+    // read (PLANNING.md §11, step 10.4): said before the first read, and again if the window changes.
+    val showsMonth = twoPanes() != null
+    SideEffect { viewModel.showMonth(showsMonth) }
     val activity = LocalActivity.current
     val context = LocalContext.current
     val asked = state?.settings?.askedCalendarPermission ?: false

@@ -37,6 +37,13 @@ data class MonthGrid(val month: YearMonth, val weeks: List<List<LocalDate>>) {
             return MonthGrid(month, weeks)
         }
 
+        /**
+         * The dates to read for [month] alone: every date its grid can hold, whatever day the
+         * week starts on (up to six of the month before, and six of the month after).
+         */
+        fun span(month: YearMonth): ClosedRange<LocalDate> =
+            month.atDay(1).minusDays(DAYS_A_WEEK - 1L)..month.atEndOfMonth().plusDays(DAYS_A_WEEK - 1L)
+
         /** The week's days in the reader's order, for the grid's heading. */
         fun weekdays(firstDayOfWeek: DayOfWeek): List<DayOfWeek> =
             (0 until DAYS_A_WEEK).map { firstDayOfWeek.plus(it.toLong()) }
@@ -60,14 +67,10 @@ object MonthPages {
 
     /**
      * The dates to read for the page on [month]: its own grid and the grids of the months beside
-     * it, whatever day the week starts on, so the page under the finger has its marks before it
-     * is turned to.
+     * it ([MonthGrid.span]), so the page under the finger has its marks before it is turned to.
      */
-    fun span(month: YearMonth): ClosedRange<LocalDate> = month.minusMonths(
-        1,
-    ).atDay(
-        1,
-    ).minusDays(MonthGrid.DAYS_A_WEEK - 1L)..month.plusMonths(1).atEndOfMonth().plusDays(MonthGrid.DAYS_A_WEEK - 1L)
+    fun span(month: YearMonth): ClosedRange<LocalDate> =
+        MonthGrid.span(month.minusMonths(1)).start..MonthGrid.span(month.plusMonths(1)).endInclusive
 
     /** The years the row holds, for the page that jumps to a month. */
     val YEARS: IntRange = FIRST.year..LAST.year

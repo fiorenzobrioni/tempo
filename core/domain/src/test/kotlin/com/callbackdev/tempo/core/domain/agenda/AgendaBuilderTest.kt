@@ -318,6 +318,30 @@ class AgendaBuilderTest {
         assertThat(result.days.map { it.date }.last()).isEqualTo(LocalDate.parse("2026-10-13"))
     }
 
+    @Test
+    fun `a wider read gives the same agenda`() {
+        // Today on a large screen reads the month with the week (PLANNING.md §11, step 10.4): the
+        // dates before today and past the horizon are in the read, and none of them on the agenda.
+        val week = arrayOf(
+            timed(1, "2026-10-07T09:00", "2026-10-07T10:00"),
+            timed(2, "2026-10-09T15:00", "2026-10-09T16:00"),
+            allDay(3, "2026-10-08", dates = 2),
+        )
+        val around = arrayOf(
+            timed(4, "2026-09-28T09:00", "2026-09-28T10:00"),
+            allDay(5, "2026-10-01", dates = 3),
+            timed(6, "2026-10-06T22:00", "2026-10-06T23:30"),
+            timed(7, "2026-10-14T00:00", "2026-10-14T01:00"),
+            timed(8, "2026-10-20T09:00", "2026-10-20T10:00"),
+            allDay(9, "2026-10-30", dates = 4),
+        )
+        val now = at("2026-10-07T09:30")
+        val wider = agenda(*week, *around, now = now)
+        assertThat(wider).isEqualTo(agenda(*week, now = now))
+        assertThat(wider.underWay.single().eventId).isEqualTo(1)
+        assertThat(wider.next?.eventId).isEqualTo(2)
+    }
+
     // The month's dates: any span of them, by the same rules.
 
     private fun span(vararg events: EventInstance, now: String, from: String, to: String) = AgendaBuilder.days(

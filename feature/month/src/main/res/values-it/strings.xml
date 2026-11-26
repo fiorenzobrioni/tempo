@@ -9,12 +9,5 @@
     <string name="month_next_year">Anno successivo</string>
 
     <string name="month_show_day">Mostra il giorno</string>
-    <string name="month_day_today">%1$s, oggi</string>
-    <string name="month_day_nothing">%1$s, niente in programma</string>
-    <plurals name="month_day_events">
-        <item quantity="one">%1$s, %2$d impegno</item>
-        <item quantity="many">%1$s, %2$d impegni</item>
-        <item quantity="other">%1$s, %2$d impegni</item>
-    </plurals>
     <string name="month_new_event_on">Nuovo evento %1$s</string>
 </resources>
