@@ -18,10 +18,12 @@ import com.callbackdev.tempo.core.domain.clock.untilNextMinute
 import com.callbackdev.tempo.core.domain.today.DaySentence
 import com.callbackdev.tempo.core.domain.today.EventKey
 import com.callbackdev.tempo.core.domain.today.NewEvents
+import com.callbackdev.tempo.core.domain.today.TodayMonth
 import com.callbackdev.tempo.core.model.EventInstance
 import com.callbackdev.tempo.core.model.UserSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -31,6 +33,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.merge
@@ -40,6 +43,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.Instant
+import java.time.YearMonth
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
@@ -52,6 +56,10 @@ import javax.inject.Inject
  *   changes, when the calendar changes (`CalendarChanges`, bound to the same collection) and when
  *   the reader comes back to the page ([reread]: the permission may have changed meanwhile);
  * - the agenda and its sentence built from the read at every tick, so "now" moves without a read;
+ * - where the page shows the current month beside the clock, on a large screen ([showMonth]), that
+ *   month's dates asked for in the same read and its marks built with the agenda: one query for
+ *   the two, on the same observer and the same ticker, and on a phone the read is the agenda's
+ *   alone (step 10.4);
  * - back from the calendar app's new-event page, the event the reader made, to bring into view
  *   ([onNewEventOpened]: the page's events kept in memory until then, nothing stored).
  */
@@ -73,6 +81,9 @@ class TodayViewModel @Inject constructor(
 
     private val awaiting = MutableStateFlow<Awaiting?>(null)
 
+    /** Whether the page shows the current month, as it does in two panes: only then is it read. */
+    private val showsMonth = MutableStateFlow(false)
+
     private val ticks: Flow<ZonedDateTime> = flow {
         while (true) {
             emit(ZonedDateTime.now())
@@ -90,23 +101,32 @@ class TodayViewModel @Inject constructor(
     /**
      * A read and the doors it found open, together: both change when the reader comes back (a
      * calendar or a clock app installed meanwhile).
+     *
+     * @property month the month whose dates the read holds besides the agenda's; null where the
+     *   page shows none.
      */
-    private data class Snapshot(val read: CalendarRead, val doors: CalendarDoors)
+    private data class Snapshot(val read: CalendarRead, val month: YearMonth?, val doors: CalendarDoors)
 
     private val snapshots: Flow<Snapshot> = combine(
         ticks.map { it.toLocalDate() to it.zone }.distinctUntilChanged(),
         settings.map { it.horizonDays }.distinctUntilChanged(),
+        showsMonth,
         merge(rereads.map { }, changes.flow(restarts = rereads)),
-    ) { day, days, _ -> day to days }
-        .mapLatest { (day, days) ->
-            val now = ZonedDateTime.now(day.second)
+    ) { day, days, withMonth, _ -> Triple(day.second, days, withMonth) }
+        .mapLatest { (zone, days, withMonth) ->
+            val now = ZonedDateTime.now(zone)
+            val agenda = AgendaWindow.of(now.toInstant(), zone, days)
+            val month = if (withMonth) YearMonth.from(now) else null
             Snapshot(
-                source.read(AgendaWindow.of(now.toInstant(), now.zone, days)),
-                CalendarDoors.of(context, now.toInstant()),
+                read = source.read(month?.let { TodayMonth.window(agenda, it, zone) } ?: agenda),
+                month = month,
+                doors = CalendarDoors.of(context, now.toInstant()),
             )
         }
 
+    // Built off the main thread: at each minute, and with the month's marks on a large screen.
     val state: StateFlow<TodayUiState?> = combine(ticks, settings, snapshots, awaiting, ::build)
+        .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), null)
 
     /**
@@ -117,6 +137,15 @@ class TodayViewModel @Inject constructor(
     fun reread() {
         awaiting.update { it?.takeIf { awaiting -> awaiting.back == null }?.copy(back = Instant.now()) }
         rereads.value++
+    }
+
+    /**
+     * Whether the page shows the current month beside the clock: said by the page, which knows
+     * its panes. Its dates are read from then on, with the agenda's, and no longer once it says
+     * otherwise (a tablet turned, a foldable closed).
+     */
+    fun showMonth(shown: Boolean) {
+        showsMonth.value = shown
     }
 
     /** The calendar app's new-event page is opening: the page's events, as they are, kept in memory. */
@@ -158,15 +187,25 @@ class TodayViewModel @Inject constructor(
                 CalendarStanding.ALL_HIDDEN -> TodayContent.AllHidden
 
                 CalendarStanding.SOME_SHOWN -> {
+                    val filter = CalendarChoices.agendaFilter(settings, read.calendars)
+                    // The read is wider than the agenda where it holds the month too: the builder
+                    // trims each to its own dates.
                     val agenda = AgendaBuilder.build(
                         instances = read.instances,
                         calendars = read.calendars,
-                        filter = CalendarChoices.agendaFilter(settings, read.calendars),
+                        filter = filter,
                         now = now.toInstant(),
                         zone = now.zone,
                         days = settings.horizonDays,
                     )
-                    TodayContent.Ready(agenda, DaySentence.today(agenda), read.calendars.associateBy { it.id })
+                    TodayContent.Ready(
+                        agenda = agenda,
+                        sentence = DaySentence.today(agenda),
+                        calendars = read.calendars.associateBy { it.id },
+                        month = snapshot.month?.let { month ->
+                            TodayMonth.of(month, read.instances, read.calendars, filter, now.toInstant(), now.zone)
+                        },
+                    )
                 }
             }
         }

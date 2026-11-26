@@ -6,5 +6,9 @@
     <style name="Theme.Tempo" parent="android:Theme.DeviceDefault.DayNight">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
+        <!-- The system's launch screen and the window before the first frame stand on the page's
+             own ground, so the launch does not flash from the phone's white or black to it. -->
+        <item name="android:windowSplashScreenBackground">@color/launch_ground</item>
+        <item name="android:windowBackground">@color/launch_ground</item>
     </style>
 </resources>

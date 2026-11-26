@@ -53,11 +53,11 @@ class ReadmeScreenshots {
         save("today-evening-dark")
     }
 
-    /** A tablet on its side (step 8.7): the hero in its pane, the agenda beside it. */
+    /** A tablet on its side (steps 8.7 and 10.5): the hero in its pane, the month under it, the agenda beside them. */
     @Test
     @Config(qualifiers = "en-rUS-w1280dp-h800dp-hdpi")
     fun todayTablet() {
-        show(TodaySample.state())
+        show(TodaySample.large())
         save("today-tablet")
     }
 

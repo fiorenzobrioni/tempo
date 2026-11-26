@@ -45,20 +45,33 @@ import kotlin.math.sin
  * from afar; here it stands beside the time in figures, and at the card's weight it was a second
  * clock as loud as the first (the owner's review, PLANNING.md §15, 10 Nov 2026).
  *
+ * The face is a disc of the page's surface, whatever the dial stands on: on the hero's ground
+ * (PLANNING.md §15, 26 Nov 2026) it is the one place the page shows through, and the clock reads
+ * as a thing on that ground and not a drawing in it. On the page itself the disc is the page.
+ *
  * The focus is in the accent, drawn last; the other arcs are quiet, each in its calendar's colour
- * as a mark (stepped to 3:1 on the page's surface, [markColor], and faded only as far as that
- * ratio allows, [markAlpha]), so the ring says which calendar an event is, as the list's bars do
- * under it; an arc with no colour known is the quiet ink (review of 30 Oct 2026). The cards keep
- * their own inks. An arc the window cut fades out at that end ([DialFade]): the event goes on.
- * With no arc the face is drawn all the same, its ring empty, while the page has a reason for it.
+ * as a mark (stepped to 3:1 against [ground], [markColor], and faded only as far as that ratio
+ * allows, [markAlpha]: [dialMark]), so the ring says which calendar an event is, as the list's
+ * bars do under it; an arc with no colour known is the page's ink, as quiet (review of 30 Oct
+ * 2026). The cards keep their own inks. An arc the window cut fades out at that end
+ * ([DialFade]): the event goes on. With no arc the face is drawn all the same, its ring empty,
+ * while the page has a reason for it.
  *
  * When the face appears the hands wind forward from twelve to now and the arcs draw themselves,
  * together, in one short movement; after that the hands move with the page's minute ticker, on
  * a spring, always forward (never back round the face at the hour). Under reduced motion every
  * movement is a plain jump. A picture to a screen reader: [description] says what it shows.
+ *
+ * @param ground what the dial stands on: the page's surface, or the hero's ground on Today.
  */
 @Composable
-fun DayDial(faceMinutes: Float, arcs: List<DialArc>, description: String, modifier: Modifier = Modifier) {
+fun DayDial(
+    faceMinutes: Float,
+    arcs: List<DialArc>,
+    description: String,
+    modifier: Modifier = Modifier,
+    ground: Color = MaterialTheme.colorScheme.surface,
+) {
     val reduced = reducedMotion()
     val sweep = remember { Animatable(0f) }
     LaunchedEffect(reduced) {
@@ -67,19 +80,15 @@ fun DayDial(faceMinutes: Float, arcs: List<DialArc>, description: String, modifi
     val hour = rememberHand(faceMinutes / DialArcs.FACE_MINUTES, reduced)
     val minute = rememberHand((faceMinutes % MINUTES_PER_HOUR) / MINUTES_PER_HOUR, reduced)
     val scheme = MaterialTheme.colorScheme
-    val surface = scheme.surface.toArgb()
-    val marks = remember(arcs, surface) {
-        arcs.map { arc ->
-            arc.color?.let { color ->
-                val mark = markColor(color, surface)
-                Color(mark).copy(alpha = markAlpha(mark, surface, OTHER_ALPHA))
-            }
-        }
-    }
+    val face = scheme.surface
+    val around = ground.toArgb()
+    val marks =
+        remember(arcs, around, face) { arcs.map { arc -> arc.color?.let { dialMark(it, around, face.toArgb()) } } }
     val inks = DialInks(
+        face = face,
         track = scheme.onSurface.copy(alpha = TRACK_ALPHA),
         focus = scheme.primary,
-        other = scheme.onSurface.copy(alpha = OTHER_ALPHA),
+        other = remember(scheme.onSurface, around, face) { dialMark(scheme.onSurface.toArgb(), around, face.toArgb()) },
         dots = scheme.onSurface.copy(alpha = DOTS_ALPHA),
         hands = scheme.onSurface,
     )
@@ -87,6 +96,18 @@ fun DayDial(faceMinutes: Float, arcs: List<DialArc>, description: String, modifi
         drawFace(arcs, marks, sweep.value, inks)
         drawHands(hour.value, minute.value, inks.hands)
     }
+}
+
+/**
+ * A quiet arc's ink: the colour [argb] (a calendar's, or the page's ink for an event with none)
+ * stepped to 3:1 against [ground] and drawn over [face] as faint as that ratio allows. The ring
+ * is at the face's rim, so an arc has the face on one side and the ground on the other: of the
+ * two the ground is the nearer to any mark (darker than the page in the light, lighter in the
+ * dark), and an arc that reads against it reads against the face.
+ */
+internal fun dialMark(argb: Int, ground: Int, face: Int): Color {
+    val mark = markColor(argb, ground)
+    return Color(mark).copy(alpha = markAlpha(mark, ground, OTHER_ALPHA, over = face))
 }
 
 /**
@@ -112,7 +133,14 @@ private fun rememberHand(turns: Float, reduced: Boolean): Animatable<Float, *> {
     return hand
 }
 
-private class DialInks(val track: Color, val focus: Color, val other: Color, val dots: Color, val hands: Color)
+private class DialInks(
+    val face: Color,
+    val track: Color,
+    val focus: Color,
+    val other: Color,
+    val dots: Color,
+    val hands: Color,
+)
 
 private fun DrawScope.drawFace(arcs: List<DialArc>, marks: List<Color?>, progress: Float, inks: DialInks) {
     val side = size.minDimension
@@ -121,6 +149,7 @@ private fun DrawScope.drawFace(arcs: List<DialArc>, marks: List<Color?>, progres
     val center = Offset(size.width / 2f, size.height / 2f)
     val topLeft = Offset(center.x - side / 2f + inset, center.y - side / 2f + inset)
     val oval = Size(side - stroke, side - stroke)
+    drawCircle(inks.face, radius = side / 2f, center = center)
     drawArc(inks.track, 0f, FULL_TURN, useCenter = false, topLeft = topLeft, size = oval, style = Stroke(stroke))
     // A round cap reaches half the stroke past each end: the arc is shortened by as much, so it
     // begins and ends where the event does, down to a dot for a moment.

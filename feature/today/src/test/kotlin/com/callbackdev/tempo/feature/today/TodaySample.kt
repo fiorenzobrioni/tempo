@@ -4,6 +4,7 @@ import com.callbackdev.tempo.core.calendar.CalendarDoors
 import com.callbackdev.tempo.core.domain.agenda.AgendaBuilder
 import com.callbackdev.tempo.core.domain.calendar.CalendarChoices
 import com.callbackdev.tempo.core.domain.today.DaySentence
+import com.callbackdev.tempo.core.domain.today.TodayMonth
 import com.callbackdev.tempo.core.model.AttendeeStatus
 import com.callbackdev.tempo.core.model.Availability
 import com.callbackdev.tempo.core.model.CalendarInfo
@@ -11,6 +12,7 @@ import com.callbackdev.tempo.core.model.EventInstance
 import com.callbackdev.tempo.core.model.UserSettings
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -61,17 +63,23 @@ object TodaySample {
     /** A reader past the first run and the first day's tip: the page as it is every day after. */
     val settings = UserSettings(onboardingCompleted = true, todayTipSeen = true)
 
+    /**
+     * @param month whether the state holds the current month's marks, as it does where the page
+     *   stands in two panes (a large screen); a phone's state has none.
+     */
     fun state(
         now: ZonedDateTime = at("2026-10-07T10:20"),
         settings: UserSettings = this.settings,
         alarm: String? = "2026-10-08T07:00",
         instances: List<EventInstance> = this.instances,
         doors: CalendarDoors = allDoors,
+        month: Boolean = false,
     ): TodayUiState {
+        val filter = CalendarChoices.agendaFilter(settings, calendars)
         val agenda = AgendaBuilder.build(
             instances = instances,
             calendars = calendars,
-            filter = CalendarChoices.agendaFilter(settings, calendars),
+            filter = filter,
             now = now.toInstant(),
             zone = zone,
             days = settings.horizonDays,
@@ -80,10 +88,23 @@ object TodaySample {
             now = now,
             settings = settings,
             alarm = alarm?.let { at(it).toInstant() },
-            content = TodayContent.Ready(agenda, DaySentence.today(agenda), calendars.associateBy { it.id }),
+            content = TodayContent.Ready(
+                agenda = agenda,
+                sentence = DaySentence.today(agenda),
+                calendars = calendars.associateBy { it.id },
+                month = if (month) {
+                    TodayMonth.of(YearMonth.from(now), instances, calendars, filter, now.toInstant(), zone)
+                } else {
+                    null
+                },
+            ),
             doors = doors,
         )
     }
+
+    /** The page's state on a large screen: [state] with the current month's marks. */
+    fun large(now: ZonedDateTime = at("2026-10-07T10:20"), settings: UserSettings = this.settings): TodayUiState =
+        state(now = now, settings = settings, month = true)
 
     private fun calendar(id: Long, name: String, account: String, color: Int) = CalendarInfo(
         id = id,

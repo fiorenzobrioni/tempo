@@ -50,7 +50,7 @@ Tempo only reads. It cannot write your calendar, so it can never damage it.
     <td align="center"><img src="docs/screenshots/month.png" width="250" alt="The month: November 2026 in whole weeks, today the 12th on the accent, under the dates a dot for each event with a time in its calendar's colour and a bar across the days of a conference, a birthday and a weekend away; under the month Thursday 12 November with its five events, the meeting under way with 40 minutes left, and the New event button"><br><sub><b>The month</b>: which days are taken, at a glance</sub></td>
   </tr>
   <tr>
-    <td align="center" colspan="3"><img src="docs/screenshots/today-tablet.png" width="760" alt="Today on a tablet held sideways, in two panes: on the left the date with the month and settings buttons, the time at 10:20 AM beside a large clock face with the day's events on its ring, the sentence Design review until 11:00 AM, then 3 more today, tomorrow's alarm, and the all-day events; on the right the morning folded, the meeting under way on its card with 40 minutes left, two free hours, the rest of the day's events, tomorrow in full and Friday, and the New event button"><br><sub><b>On a tablet</b>: the time beside the day</sub></td>
+    <td align="center" colspan="3"><img src="docs/screenshots/today-tablet.png" width="760" alt="Today on a tablet held sideways, in two panes: on the left the date with the month and settings buttons, the time at 10:20 AM beside a large clock face with the day's events on its ring, the sentence Design review until 11:00 AM, then 3 more today, tomorrow's alarm, the all-day events, and under them October 2026 as a small month with dots and bars under its dates and today's 7 on a blue disc; on the right the morning folded, the meeting under way on its card with 40 minutes left, two free hours, the rest of the day's events, tomorrow in full and Friday, and the New event button"><br><sub><b>On a tablet</b>: the time and the month beside the day</sub></td>
   </tr>
 </table>
 
@@ -64,7 +64,7 @@ For 1.1 ([VISION.md](./VISION.md) has the full scope):
 
 - 🕓 **Today**: the time large beside a clock face with what is left of today's events on its ring, the date, and one sentence on the day ("Dentist in 40 minutes, then 2 more today").
 - 📋 **The agenda**: all-day events, the day's events on a timeline with "now" on it and your next free hour (a touch starts an event there), then the rest of the week day by day (or two weeks, if you like), empty days said once.
-- 📱 **On a tablet**, or a foldable open wide: the clock and a larger dial on one side, the agenda beside them, each scrolling on its own.
+- 📱 **On a tablet**, or a foldable open wide: the clock and a larger dial on one side, with the current month under them (a touch on a date opens the month on that day), and the agenda beside them, each side scrolling on its own.
 - 🗓️ **The month at a glance**: a touch from Today, a whole month with a dot for each event and a bar across the days of a trip or a holiday. Touch a date to see that day under the month; a long touch, or the button, starts a new event on it. A touch on the month's name goes to any month of any year.
 - ⏰ **Your next alarm**, beside the clock: when you have to get up tomorrow. A touch on it, or on the time itself, opens your clock app.
 - 🌍 **Another time zone**: a second clock for a city you choose, under the alarm and on the widgets you want it on ("New York 4:20 AM"); an event written in another time zone says when it starts there too ("9:00 AM in Lisbon").

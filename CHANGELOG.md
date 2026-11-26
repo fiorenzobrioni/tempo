@@ -24,6 +24,15 @@ All notable changes to Tempo are documented here. The format follows
   face, opens the phone's Clock app, as a touch on the date opens your calendar. A switch in the
   settings, «Touch the time», turns it off.
 
+- **The time stays with you down the page.** On a phone, scroll down the day and a bar keeps the
+  date, the time and the month's and the settings' buttons at the top, on the clock's ground; the
+  date and the time still open your calendar and your clock. It fades away as you come back up.
+
+- **On a tablet, the month under the clock.** On a large screen (a tablet, or a foldable open
+  wide) Today shows the current month under the time: its dots and bars as on the month's page,
+  today marked, so the days that are taken are there at a glance beside the day itself. A touch
+  on a date opens the month on that day; a touch on the month's name opens it on today.
+
 - **«At a glance», the event alone.** Turn off «The day’s note» in the widget’s settings and a widget
   two rows high or more says only what comes next and when, and its clock face takes the room.
 
@@ -47,6 +56,13 @@ All notable changes to Tempo are documented here. The format follows
 
 - **The first run's words.** Its buttons read «Get started», «Continue» and «Later», and its
   battery promise says when a widget redraws: when your calendar changes or an event starts or ends.
+
+- **Today has two grounds.** The time, the date and the day's sentence stand on a ground of
+  their own, up to the top of the screen, with the clock face a clear disc on it; the agenda
+  stays on the page. The event under way is in the accent, with a thicker bar for how far it has
+  come, so "now" is the first thing you see in the list. The new-event button is amber. A day's
+  name is larger, and the lines between the days are gone. On a tablet the clock's ground is its
+  whole side of the page.
 
 - **Today, quieter.** The time is lighter and its clock face finer, and the face is there only
   while today has something left to show. The sentence comes first, with what is true now in

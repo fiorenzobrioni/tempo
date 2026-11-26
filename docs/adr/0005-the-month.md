@@ -76,7 +76,9 @@ all-day events), and without writing anything.
 
 8. **Far months: the month's name.** A touch on it opens a sheet with a year, stepped by two
    arrows, and its twelve months: any month of any year in two or three touches. "Today" stands in
-   the top row only while the page is elsewhere (no button that does nothing). The months are two
+   the top row only while the page is elsewhere (no button that does nothing); since 26 Nov 2026
+   it is an icon, a calendar's page with today's number, because as a word it took the room the
+   title needs and cut the year at 411 dp (PLANNING.md §11, step 10.1). The months are two
    centuries of pager pages (1900 to 2099).
 
 9. **Reached from Today's top row, not from a bar of destinations.** The owner proposed a bottom
@@ -104,6 +106,11 @@ all-day events), and without writing anything.
   write.
 - A new module, `:feature:month`. No new dependency: the pager, the sheet and the long touch are
   Compose Foundation's and Material 3's, already in the build.
+- Since 26 Nov 2026 (step 10.4; PLANNING.md §15, «Step 10.4 built») a month's weeks of dates,
+  their cells and their marks are drawn by `:core:designsystem` (`MonthCells.kt`), as a day's rows
+  are, so that Today on a large screen draws the current month with the same code (ADR 0004).
+  The months under the finger, the page and what a touch does stay this module's; the decisions
+  above are as they were, and the page draws as it drew.
 - The cost of the page is a read of about three months of instances when it opens and when a page
   comes to rest. Nothing runs with the page closed, so §9 stands as it was.
 

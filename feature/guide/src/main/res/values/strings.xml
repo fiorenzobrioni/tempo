@@ -24,9 +24,9 @@
     <string name="guide_today_dial_title">The dial</string>
     <string name="guide_today_dial_body">Beside the time, while today has something left, a clock face with it on its ring: what comes next in the accent, the rest quieter, each in its calendar’s colour. The hour hand walks through a meeting as it goes. The ring holds the next twelve hours, less half an hour: an event that goes on beyond them fades out at that end, and early in the day an afternoon’s events wait off the ring until they are within reach. Another day’s events are in the list, not on the face, and with nothing left today the face is not drawn. It is the face of the «At a glance» widget.</string>
     <string name="guide_today_doors_title">The date and the time</string>
-    <string name="guide_today_doors_body">Each opens the app it belongs to: a touch on the date, your calendar app on today; a touch on the time, its figures or its clock face, the phone’s Clock app, where the alarms and the timers are. A switch in the settings turns the time’s touch off.</string>
+    <string name="guide_today_doors_body">Each opens the app it belongs to: a touch on the date, your calendar app on today; a touch on the time, its figures or its clock face, the phone’s Clock app, where the alarms and the timers are. A switch in the settings turns the time’s touch off. Scroll down the day and a bar keeps the two at the top of the page, with the month’s and the settings’ buttons, each opening what it opens above.</string>
     <string name="guide_today_timeline_title">The day in order</string>
-    <string name="guide_today_timeline_body">Today’s events one under the other, each with its calendar’s colour as a mark. The one under way stands out on its own ground and says how long is left; with nothing under way, a line marks now. The ones that are over grow quieter, and two or more of them fold into one line that opens.</string>
+    <string name="guide_today_timeline_body">Today’s events one under the other, each with its calendar’s colour as a mark. The one under way stands out on a ground in the accent and says how long is left; with nothing under way, a line marks now. The ones that are over grow quieter, and two or more of them fold into one line that opens.</string>
     <string name="guide_today_free_title">Free time</string>
     <string name="guide_today_free_body">Your next free hour or more today is a row of its own, where it falls: a touch on it starts a new event there, and the sentence says how long you are free. Shorter gaps, and the free time later on, are left out, so the day does not fill up with rows of free time.</string>
     <string name="guide_today_ahead_title">The days ahead</string>
@@ -35,6 +35,8 @@
     <string name="guide_today_alarm_body">The next alarm you set in the Clock app, under the sentence; a touch on it opens the Clock app. Tempo only reads it; a switch in the settings hides it. Some calendar apps keep their reminders as alarms: those are not shown, and an alarm of yours that comes after one appears once the reminder has rung.</string>
     <string name="guide_today_zones_title">Other time zones</string>
     <string name="guide_today_zones_body">An event written in a time zone whose clock reads another time says when it starts there too: “08:00 in Lisbon”. In the settings you can choose a city for a second clock, under the alarm: “New York 04:20”, with “tomorrow” or “yesterday” when its date is not yours. A widget shows it too where you turn it on in its own settings.</string>
+    <string name="guide_today_large_title">On a large screen</string>
+    <string name="guide_today_large_body">On a tablet, or a foldable opened wide, Today stands in two parts: the clock on one side, the day beside it, each scrolling on its own. Under the clock is the current month, with the marks of the month’s own page: a touch on a date opens the month on that day, a touch on its name opens it on today.</string>
     <string name="guide_today_live_title">Live while you look</string>
     <string name="guide_today_live_body">While Today is open the clock moves at each minute, and an event made or changed in your calendar app is there when you come back. Once you leave, nothing runs.</string>
 
@@ -46,7 +48,7 @@
     <string name="guide_month_day_title">The day under the month</string>
     <string name="guide_month_day_body">A touch on a date lists that day under the month, as Today would: its all-day events, then its events in order, each a touch from your calendar app. The button at the bottom starts a new event on that day; so does a long touch on a date.</string>
     <string name="guide_month_far_title">Near and far</string>
-    <string name="guide_month_far_body">The months turn under your finger. A touch on the month’s name goes to any month of any year; “Today” brings you back, and is there only while you are somewhere else.</string>
+    <string name="guide_month_far_body">The months turn under your finger. A touch on the month’s name goes to any month of any year; the small calendar with today’s number on it brings you back, and is there only while you are somewhere else.</string>
     <string name="guide_month_only_title">A month, and nothing else</string>
     <string name="guide_month_only_body">There is no week view and no day view here: Today is the day, and the rest is your calendar app’s to draw.</string>
 

@@ -10,6 +10,13 @@ import java.time.ZoneId
  * stored in UTC (§4.2), is never cut off by the window itself. [AgendaBuilder] trims to the dates.
  */
 data class AgendaWindow(val start: Instant, val end: Instant) {
+    /**
+     * The one span that holds this one and [other]: a page that shows two views of the calendar
+     * (Today's agenda and, on a large screen, the month beside it) asks the provider once.
+     * [AgendaBuilder] trims each view to its own dates.
+     */
+    fun covering(other: AgendaWindow): AgendaWindow = AgendaWindow(minOf(start, other.start), maxOf(end, other.end))
+
     companion object {
         fun of(now: Instant, zone: ZoneId, days: Int): AgendaWindow {
             val today = LocalDate.ofInstant(now, zone)

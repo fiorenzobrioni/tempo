@@ -2,6 +2,8 @@
 <resources>
     <string name="today_settings">Settings</string>
     <string name="today_open_month">Open the month</string>
+    <!-- What a touch on a date of the month under the clock does (a large screen), said by a screen reader after the date. -->
+    <string name="today_month_open_day">Open the month on this day</string>
     <string name="today_open_clock">Open the clock app</string>
     <string name="today_dial">Clock face at %1$s, with what is left of today on its ring</string>
     <string name="today_dial_later">Clock face at %1$s; today’s next event is more than eleven hours away and not yet on its ring</string>

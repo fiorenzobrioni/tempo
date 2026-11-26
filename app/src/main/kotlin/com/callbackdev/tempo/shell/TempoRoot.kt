@@ -27,6 +27,7 @@ import com.callbackdev.tempo.feature.settings.SettingsRoute
 import com.callbackdev.tempo.feature.today.TodayRoute
 import com.callbackdev.tempo.widget.config.HomeWidgetPreview
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
 
 /*
  * The shell's destinations as Navigation 3 keys: on one back stack, so
@@ -37,9 +38,15 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object TodayKey : NavKey
 
-/** The month, from the button beside Today's gear (Phase 9). */
+/**
+ * The month, from the button beside Today's gear (Phase 9) and, on a large screen, from the month
+ * under Today's clock (step 10.5).
+ *
+ * @property day the date the page opens on, as its day's count, which is what a key can save;
+ *   null for today, whatever day the page is drawn on.
+ */
 @Serializable
-data object MonthKey : NavKey
+data class MonthKey(val day: Long? = null) : NavKey
 
 /** Settings, from Today's gear, and from the month where every calendar is hidden. */
 @Serializable
@@ -84,10 +91,16 @@ private fun MainPages() {
                     TodayRoute(
                         onOpenSettings = { backStack.add(SettingsKey) },
                         onOpenGuide = { backStack.add(GuideKey) },
-                        onOpenMonth = { backStack.add(MonthKey) },
+                        onOpenMonth = { date -> backStack.add(MonthKey(date?.toEpochDay())) },
                     )
                 }
-                entry<MonthKey> { MonthRoute(onBack = goBack, onOpenSettings = { backStack.add(SettingsKey) }) }
+                entry<MonthKey> { key ->
+                    MonthRoute(
+                        onBack = goBack,
+                        onOpenSettings = { backStack.add(SettingsKey) },
+                        openOn = key.day?.let(LocalDate::ofEpochDay),
+                    )
+                }
                 entry<SettingsKey> { SettingsRoute(onBack = goBack, onOpenGuide = { backStack.add(GuideKey) }) }
                 entry<GuideKey> { GuideRoute(onBack = goBack) }
             },

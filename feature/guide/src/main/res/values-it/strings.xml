@@ -24,9 +24,9 @@
     <string name="guide_today_dial_title">Il quadrante</string>
     <string name="guide_today_dial_body">Accanto all’ora, finché oggi resta qualcosa, un quadrante che lo porta sul suo anello: quello che viene dopo nel colore d’accento, il resto più tenue, ognuno nel colore del suo calendario. La lancetta delle ore attraversa una riunione mentre passa. L’anello tiene le prossime dodici ore, meno mezz’ora: un impegno che va oltre sfuma a quell’estremità, e al mattino presto gli impegni del pomeriggio restano fuori dall’anello finché non sono a portata. Gli impegni degli altri giorni sono nell’elenco, non sul quadrante, e quando oggi non resta altro il quadrante non si disegna. È il quadrante del widget «A colpo d’occhio».</string>
     <string name="guide_today_doors_title">La data e l’ora</string>
-    <string name="guide_today_doors_body">Ognuna apre l’app a cui appartiene: un tocco sulla data, la tua app calendario su oggi; un tocco sull’ora, sulle cifre o sul quadrante, l’app Orologio del telefono, dove stanno le sveglie e i timer. Un interruttore nelle impostazioni spegne il tocco sull’ora.</string>
+    <string name="guide_today_doors_body">Ognuna apre l’app a cui appartiene: un tocco sulla data, la tua app calendario su oggi; un tocco sull’ora, sulle cifre o sul quadrante, l’app Orologio del telefono, dove stanno le sveglie e i timer. Un interruttore nelle impostazioni spegne il tocco sull’ora. Scorrendo la giornata, una barra le tiene tutte e due in cima alla pagina, con i pulsanti del mese e delle impostazioni: ognuna apre quello che apre in alto.</string>
     <string name="guide_today_timeline_title">La giornata in ordine</string>
-    <string name="guide_today_timeline_body">Gli impegni di oggi uno sotto l’altro, ognuno con il colore del suo calendario come segno. Quello in corso spicca su un fondo suo e dice quanto manca; se non c’è niente in corso, una linea segna l’adesso. Quelli finiti si fanno più tenui, e da due in su si raccolgono in una riga che si apre.</string>
+    <string name="guide_today_timeline_body">Gli impegni di oggi uno sotto l’altro, ognuno con il colore del suo calendario come segno. Quello in corso spicca su un fondo nel colore d’accento e dice quanto manca; se non c’è niente in corso, una linea segna l’adesso. Quelli finiti si fanno più tenui, e da due in su si raccolgono in una riga che si apre.</string>
     <string name="guide_today_free_title">Il tempo libero</string>
     <string name="guide_today_free_body">La tua prossima ora libera, o più, di oggi è una riga a sé, dove cade: un tocco crea lì un nuovo impegno, e la frase dice fino a quando sei libero. I buchi più corti, e il tempo libero più tardi, restano fuori, così la giornata non si riempie di righe libere.</string>
     <string name="guide_today_ahead_title">I prossimi giorni</string>
@@ -35,6 +35,8 @@
     <string name="guide_today_alarm_body">La prossima sveglia impostata nell’app Orologio, sotto la frase; un tocco apre l’app Orologio. Tempo la legge soltanto; un interruttore nelle impostazioni la nasconde. Alcune app calendario tengono i loro promemoria come sveglie: quelli non compaiono, e una tua sveglia che viene dopo uno di loro compare quando il promemoria è suonato.</string>
     <string name="guide_today_zones_title">Altri fusi orari</string>
     <string name="guide_today_zones_body">Un impegno scritto in un fuso orario dove l’orologio segna un’altra ora dice anche quando comincia lì: «08:00 ora di Lisbona». Nelle impostazioni puoi scegliere una città per un secondo orologio, sotto la sveglia: «New York 04:20», con «domani» o «ieri» quando la sua data non è la tua. Anche un widget lo mostra, dove lo attivi nelle sue impostazioni.</string>
+    <string name="guide_today_large_title">Su uno schermo grande</string>
+    <string name="guide_today_large_body">Su un tablet, o un pieghevole aperto in largo, Oggi sta in due parti: l’orologio da un lato, la giornata accanto, e ognuna scorre per conto suo. Sotto l’orologio c’è il mese in corso, con i segni della pagina del mese: un tocco su una data apre il mese su quel giorno, un tocco sul suo nome lo apre su oggi.</string>
     <string name="guide_today_live_title">Viva mentre guardi</string>
     <string name="guide_today_live_body">Mentre Oggi è aperta l’orologio avanza a ogni minuto, e un impegno creato o cambiato nella tua app calendario è lì quando torni. Quando esci, non resta in funzione niente.</string>
 
@@ -45,7 +47,7 @@
     <string name="guide_month_day_title">Il giorno sotto il mese</string>
     <string name="guide_month_day_body">Un tocco su una data elenca quel giorno sotto il mese, come farebbe Oggi: gli eventi di tutto il giorno, poi gli impegni in ordine, ognuno a un tocco dalla tua app calendario. Il pulsante in fondo crea un nuovo impegno in quel giorno; lo fa anche un tocco lungo su una data.</string>
     <string name="guide_month_far_title">Vicino e lontano</string>
-    <string name="guide_month_far_body">I mesi scorrono sotto il dito. Un tocco sul nome del mese porta a qualunque mese di qualunque anno; «Oggi» ti riporta indietro, e c’è solo mentre sei altrove.</string>
+    <string name="guide_month_far_body">I mesi scorrono sotto il dito. Un tocco sul nome del mese porta a qualunque mese di qualunque anno; il piccolo calendario con il numero di oggi ti riporta indietro, e c’è solo mentre sei altrove.</string>
     <string name="guide_month_only_title">Un mese, e nient’altro</string>
     <string name="guide_month_only_body">Qui non c’è una vista della settimana né una del giorno: il giorno è Oggi, e il resto spetta alla tua app calendario.</string>
 

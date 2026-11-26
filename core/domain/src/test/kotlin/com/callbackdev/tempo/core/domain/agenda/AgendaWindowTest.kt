@@ -27,4 +27,23 @@ class AgendaWindowTest {
         assertThat(window.start).isEqualTo(at("2026-10-25T00:00"))
         assertThat(window.end).isEqualTo(at("2026-12-08T00:00"))
     }
+
+    @Test
+    fun `two spans read as one hold both`() {
+        // A fortnight from the month's last day runs past the month's last week.
+        val agenda = AgendaWindow.of(at("2026-11-30T10:00"), Rome, days = 14)
+        val month = AgendaWindow.of(LocalDate.parse("2026-10-26"), LocalDate.parse("2026-12-06"), Rome)
+        val both = agenda.covering(month)
+        assertThat(both.start).isEqualTo(month.start)
+        assertThat(both.end).isEqualTo(agenda.end)
+        assertThat(month.covering(agenda)).isEqualTo(both)
+    }
+
+    @Test
+    fun `a span that holds the other is the one read`() {
+        val agenda = AgendaWindow.of(at("2026-11-10T10:00"), Rome, days = 7)
+        val month = AgendaWindow.of(LocalDate.parse("2026-10-26"), LocalDate.parse("2026-12-06"), Rome)
+        assertThat(agenda.covering(month)).isEqualTo(month)
+        assertThat(agenda.covering(agenda)).isEqualTo(agenda)
+    }
 }

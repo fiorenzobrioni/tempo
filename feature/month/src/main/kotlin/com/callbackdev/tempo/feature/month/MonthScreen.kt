@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -37,12 +38,12 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -65,10 +66,14 @@ import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -76,13 +81,18 @@ import com.callbackdev.tempo.core.calendar.CalendarAccess
 import com.callbackdev.tempo.core.calendar.CalendarIntents
 import com.callbackdev.tempo.core.designsystem.components.AgendaAllDayRow
 import com.callbackdev.tempo.core.designsystem.components.AgendaEventRow
+import com.callbackdev.tempo.core.designsystem.components.AgendaRowEdge
 import com.callbackdev.tempo.core.designsystem.components.CalendarPermissionCard
 import com.callbackdev.tempo.core.designsystem.components.DayHeading
 import com.callbackdev.tempo.core.designsystem.components.LocalGlowingEvent
 import com.callbackdev.tempo.core.designsystem.components.LocalTimeColumn24
+import com.callbackdev.tempo.core.designsystem.components.MonthCellTags
+import com.callbackdev.tempo.core.designsystem.components.MonthDays
+import com.callbackdev.tempo.core.designsystem.components.MonthWeekdays
 import com.callbackdev.tempo.core.designsystem.components.REVEAL_MILLIS
 import com.callbackdev.tempo.core.designsystem.components.StatusCard
 import com.callbackdev.tempo.core.designsystem.components.StatusTone
+import com.callbackdev.tempo.core.designsystem.components.monthCellHeight
 import com.callbackdev.tempo.core.designsystem.format.AgendaText
 import com.callbackdev.tempo.core.designsystem.format.DateTimeText
 import com.callbackdev.tempo.core.designsystem.format.rememberAgendaText
@@ -94,6 +104,7 @@ import com.callbackdev.tempo.core.designsystem.theme.TwoPanes
 import com.callbackdev.tempo.core.designsystem.theme.padding
 import com.callbackdev.tempo.core.designsystem.theme.pageGutter
 import com.callbackdev.tempo.core.designsystem.theme.reducedMotion
+import com.callbackdev.tempo.core.designsystem.theme.tabular
 import com.callbackdev.tempo.core.designsystem.theme.twoPanes
 import com.callbackdev.tempo.core.domain.clock.newEventOn
 import com.callbackdev.tempo.core.domain.month.MonthGrid
@@ -110,6 +121,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import java.time.Clock
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
@@ -117,8 +129,23 @@ import java.time.YearMonth
 import kotlin.math.abs
 import com.callbackdev.tempo.core.designsystem.R as DesignR
 
+/**
+ * Whether the state's day is the one [clock] reads: a state the view model kept from the last time
+ * the page was open may be a day old.
+ */
+internal fun MonthUiState.isOfToday(clock: Clock = Clock.system(now.zone)): Boolean = today == LocalDate.now(clock)
+
+/**
+ * @param openOn the date the page opens on, chosen and its month shown: from a date of the month
+ *   under Today's clock, on a large screen (step 10.5). Null for today.
+ */
 @Composable
-fun MonthRoute(onBack: () -> Unit, onOpenSettings: () -> Unit, viewModel: MonthViewModel = hiltViewModel()) {
+fun MonthRoute(
+    onBack: () -> Unit,
+    onOpenSettings: () -> Unit,
+    openOn: LocalDate? = null,
+    viewModel: MonthViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val activity = LocalActivity.current
     val context = LocalContext.current
@@ -141,13 +168,21 @@ fun MonthRoute(onBack: () -> Unit, onOpenSettings: () -> Unit, viewModel: MonthV
     // back (CalendarChanges, PLANNING.md §4.5).
     val launch: (Intent) -> Unit = { intent -> runCatching { context.startActivity(intent) } }
     val current = state
-    if (current == null) {
+    // The view model is the activity's and outlives the page, with the state it last had: opened
+    // again the morning after, the page would begin from yesterday's, and what it begins on (its
+    // month, its chosen day) is kept from then on. It begins on a state of the clock's day.
+    var begun by rememberSaveable { mutableStateOf(false) }
+    if (current == null || !(begun || current.isOfToday())) {
         Surface(Modifier.fillMaxSize()) { }
         return
     }
+    LaunchedEffect(Unit) { begun = true }
+    val day = openOn ?: current.today
     MonthScreen(
         state = current,
         permission = permission,
+        initialMonth = YearMonth.from(day),
+        initialDay = day,
         actions = MonthActions(
             back = onBack,
             showMonth = viewModel::show,
@@ -200,7 +235,8 @@ class MonthActions(
  * On a large screen the month stands beside the day, each in its pane. Without the permission, or
  * a calendar, the month is drawn all the same and the day's place says why it is empty.
  *
- * @param initialMonth the month the page opens on: today's, save in a test.
+ * @param initialMonth the month the page opens on, and [initialDay] the day chosen in it: today
+ *   and its month, or the date touched in the month under Today's clock (step 10.5).
  */
 @Composable
 fun MonthScreen(
@@ -256,6 +292,7 @@ fun MonthScreen(
         shown = shown,
         selected = selected,
         choose = choose,
+        chooseLabel = stringResource(R.string.month_show_day),
         turnBy = { months -> turnTo(MonthPages.monthOf(pager.currentPage + months)) },
         goToday = { choose(today) },
         jump = { jumping = true },
@@ -292,6 +329,7 @@ private class MonthView(
     val shown: YearMonth,
     val selected: LocalDate,
     val choose: (LocalDate) -> Unit,
+    val chooseLabel: String,
     val turnBy: (Int) -> Unit,
     val goToday: () -> Unit,
     val jump: () -> Unit,
@@ -311,12 +349,13 @@ private class MonthView(
             null
         }
 
-    val days: GridDays
-        get() = GridDays(
+    val days: MonthDays
+        get() = MonthDays(
             marks = (state.content as? MonthContent.Ready)?.marks,
             today = state.today,
             selected = selected,
             onChoose = choose,
+            chooseLabel = chooseLabel,
             onNew = newEvent,
         )
 }
@@ -340,7 +379,7 @@ private fun MonthPage(view: MonthView, gutter: PageGutter, list: LazyListState) 
             item(key = "top") { MonthTopBar(view, Modifier.padding(gutter)) }
             item(key = "grid") {
                 Column(Modifier.padding(gutter)) {
-                    Weekdays(view.firstDay)
+                    MonthWeekdays(view.firstDay)
                     MonthPager(view.pager, view.firstDay, view.days)
                 }
             }
@@ -363,7 +402,7 @@ private fun MonthPanes(view: MonthView, panes: TwoPanes, list: LazyListState) {
         BoxWithConstraints(Modifier.width(leading.start + panes.leading).fillMaxHeight()) {
             // The month fills its pane as a wall calendar fills its page: six weeks share the
             // height the top rows leave, up to a size past which a date is only air.
-            val least = dayCellHeight()
+            val least = monthCellHeight()
             val room = (maxHeight - PANE_TOP_ROWS - navigationBar) / MonthGrid.MOST_WEEKS
             Column(
                 Modifier
@@ -374,7 +413,7 @@ private fun MonthPanes(view: MonthView, panes: TwoPanes, list: LazyListState) {
                     .testTag(MonthTags.MONTH_PANE),
             ) {
                 MonthTopBar(view)
-                Weekdays(view.firstDay)
+                MonthWeekdays(view.firstDay)
                 MonthPager(view.pager, view.firstDay, view.days, cell = room.coerceIn(least, least * LARGEST_CELL))
             }
         }
@@ -383,9 +422,9 @@ private fun MonthPanes(view: MonthView, panes: TwoPanes, list: LazyListState) {
                 state = list,
                 modifier = Modifier.fillMaxSize().testTag(MonthTags.LIST),
                 // The day's name level with the month's; room for the button over the last row.
-                contentPadding = PaddingValues(top = 4.dp, bottom = navigationBar + 88.dp),
+                contentPadding = PaddingValues(top = 2.dp, bottom = navigationBar + 88.dp),
             ) {
-                dayPanel(view, trailing, divider = false)
+                dayPanel(view, trailing, underGrid = false)
             }
             NewEventButton(view, trailing, Modifier.align(Alignment.BottomEnd))
         }
@@ -397,6 +436,10 @@ private fun MonthPanes(view: MonthView, panes: TwoPanes, list: LazyListState) {
  * goes to any month; "Today", only while the page is elsewhere; and the two arrows to the months
  * beside, where the row has room for them at the reader's text size. The finger turns the months;
  * the arrows are for a pointer, and for whoever does not swipe.
+ *
+ * "Today" is an icon ([TodayIcon]): as a word it took the room the title needs, and away from the
+ * current month, where the year matters, the title read "November 20…" on a phone (PLANNING.md
+ * §15, 26 Nov 2026).
  */
 @Composable
 private fun MonthTopBar(view: MonthView, modifier: Modifier = Modifier) {
@@ -447,8 +490,8 @@ private fun MonthTopBar(view: MonthView, modifier: Modifier = Modifier) {
                 enter = fadeIn(TempoMotion.effects(reduced)),
                 exit = fadeOut(TempoMotion.effects(reduced)),
             ) {
-                TextButton(onClick = view.goToday, modifier = Modifier.testTag(MonthTags.TODAY)) {
-                    Text(stringResource(R.string.month_today))
+                IconButton(onClick = view.goToday, modifier = Modifier.testTag(MonthTags.TODAY)) {
+                    TodayIcon(view.state.today.dayOfMonth, stringResource(R.string.month_today))
                 }
             }
             if (arrows) {
@@ -473,13 +516,46 @@ private fun MonthTopBar(view: MonthView, modifier: Modifier = Modifier) {
 }
 
 /**
+ * The way back to today: a calendar's page with today's number on it, in the accent. The number
+ * is part of the drawing, so it keeps the icon's size whatever the reader's text size; a screen
+ * reader hears [label] alone.
+ */
+@Composable
+private fun TodayIcon(day: Int, label: String) {
+    val locale = LocalLocale.current.platformLocale
+    val accent = MaterialTheme.colorScheme.primary
+    val figures = with(LocalDensity.current) { TODAY_FIGURES.toSp() }
+    Box(Modifier.size(24.dp).clearAndSetSemantics { contentDescription = label }, contentAlignment = Alignment.Center) {
+        Icon(TempoIcons.CalendarPage, contentDescription = null, tint = accent)
+        Text(
+            text = String.format(locale, "%d", day),
+            style = MaterialTheme.typography.labelSmall.tabular().copy(
+                fontSize = figures,
+                lineHeight = figures,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.sp,
+            ),
+            color = accent,
+            maxLines = 1,
+            softWrap = false,
+            // The page's middle, under its rings: a little below the icon's own.
+            modifier = Modifier.offset(y = 1.5.dp),
+        )
+    }
+}
+
+/** The height of the number on [TodayIcon]'s page: two figures fit between its sides. */
+private val TODAY_FIGURES = 9.dp
+
+/**
  * The chosen day, under the month: its name and the day in a few words (a touch opens the calendar
  * app on it), its all-day events, its events in order, each as Today draws it and a touch from the
  * calendar app. Or the state's card that says why the calendar gives nothing.
  *
- * @param divider the hairline between the month and the day; none where they stand side by side.
+ * @param underGrid whether the day stands under the month and not beside it: a hairline then
+ *   parts the two, the page's own (a day's name draws none).
  */
-private fun LazyListScope.dayPanel(view: MonthView, gutter: PageGutter, divider: Boolean = true) {
+private fun LazyListScope.dayPanel(view: MonthView, gutter: PageGutter, underGrid: Boolean = true) {
     val state = view.state
     val actions = view.actions
     when (val content = state.content) {
@@ -518,14 +594,23 @@ private fun LazyListScope.dayPanel(view: MonthView, gutter: PageGutter, divider:
             panelItems(date, day).forEach { item ->
                 row(item.key, gutter) {
                     when (item) {
-                        is PanelItem.Heading -> DayHeading(
-                            title = view.text.date(date, state.settings.dateStyle),
-                            // A date not read yet (the page is on its way to a far month): its name alone.
-                            summary = day?.let { view.text.summary(DaySummary.of(it)) }.orEmpty(),
-                            onOpen = openDay?.let { open -> { open(date.atStartOfDay(state.now.zone).toInstant()) } },
-                            modifier = Modifier.testTag(MonthTags.DAY),
-                            divider = divider,
-                        )
+                        is PanelItem.Heading -> Column {
+                            if (underGrid) {
+                                HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outlineVariant,
+                                    modifier = Modifier.padding(start = AgendaRowEdge, end = AgendaRowEdge, top = 8.dp),
+                                )
+                            }
+                            DayHeading(
+                                title = view.text.date(date, state.settings.dateStyle),
+                                // A date not read yet (the page is on its way to a far month): its name alone.
+                                summary = day?.let { view.text.summary(DaySummary.of(it)) }.orEmpty(),
+                                onOpen = openDay?.let { open ->
+                                    { open(date.atStartOfDay(state.now.zone).toInstant()) }
+                                },
+                                modifier = Modifier.testTag(MonthTags.DAY),
+                            )
+                        }
 
                         is PanelItem.AllDay -> AgendaAllDayRow(
                             item.day.allDay,
@@ -614,7 +699,8 @@ private fun LazyListScope.row(key: String, gutter: PageGutter, content: @Composa
 
 /**
  * The new-event button, at the page's bottom corner (over the day's pane on a large screen): a new
- * event on the chosen day. Not drawn where no calendar app takes one.
+ * event on the chosen day. Not drawn where no calendar app takes one. In the scheme's second
+ * colour, as Today's: the colour the chosen day wears in the grid.
  */
 @Composable
 private fun NewEventButton(view: MonthView, gutter: PageGutter, modifier: Modifier = Modifier) {
@@ -628,6 +714,8 @@ private fun NewEventButton(view: MonthView, gutter: PageGutter, modifier: Modifi
             .padding(gutter)
             .padding(ScreenMargin)
             .testTag(MonthTags.NEW_EVENT),
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
     ) {
         Icon(TempoIcons.Plus, contentDescription = stringResource(R.string.month_new_event_on, date))
     }
@@ -729,10 +817,10 @@ object MonthTags {
     const val JUMP_YEAR = "month_jump_year"
 
     /** A date in its own month's grid. */
-    fun day(date: LocalDate) = "month_day_$date"
+    fun day(date: LocalDate) = MonthCellTags.day(date)
 
     /** A date drawn in the grid of the month beside its own. */
-    fun beside(date: LocalDate) = "month_beside_$date"
+    fun beside(date: LocalDate) = MonthCellTags.beside(date)
 
     fun event(id: Long) = "month_event_$id"
 

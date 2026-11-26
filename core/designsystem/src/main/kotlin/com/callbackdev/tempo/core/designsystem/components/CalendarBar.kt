@@ -16,9 +16,11 @@ import com.callbackdev.tempo.core.domain.calendar.markColor
 /**
  * A calendar's colour as the bar at the start of an event's row: as tall as the row, 4dp wide,
  * stepped to 3:1 on [ground] like [CalendarDot]. A mark, never the colour of the event's text.
+ * With no colour, the outline's, stepped as a calendar's is: on the event under way's ground it
+ * falls just short of the ratio as it is.
  */
 @Composable
 fun CalendarBar(argb: Int?, ground: Color, modifier: Modifier = Modifier) {
-    val color = argb?.let { Color(markColor(it, ground.toArgb())) } ?: MaterialTheme.colorScheme.outline
+    val color = Color(markColor(argb ?: MaterialTheme.colorScheme.outline.toArgb(), ground.toArgb()))
     Box(modifier.width(4.dp).fillMaxHeight().background(color, RoundedCornerShape(2.dp)))
 }

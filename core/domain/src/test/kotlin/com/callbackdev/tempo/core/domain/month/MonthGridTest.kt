@@ -80,6 +80,26 @@ class MonthGridTest {
     }
 
     @Test
+    fun `one month's dates to read hold its grid, whatever day the week starts on, and no more`() {
+        var month = YearMonth.of(2024, 1)
+        repeat(48) {
+            val span = MonthGrid.span(month)
+            val grids = DayOfWeek.entries.map { MonthGrid.of(month, it) }
+            // Every date read is in one of the seven grids, and every grid's dates are read.
+            assertThat(grids.minOf { it.first }).isEqualTo(span.start)
+            assertThat(grids.maxOf { it.last }).isEqualTo(span.endInclusive)
+            month = month.plusMonths(1)
+        }
+    }
+
+    @Test
+    fun `the dates read for a page run from the month before to the month after`() {
+        val span = MonthPages.span(YearMonth.of(2026, 11))
+        assertThat(span.start).isEqualTo(LocalDate.parse("2026-09-25"))
+        assertThat(span.endInclusive).isEqualTo(LocalDate.parse("2027-01-06"))
+    }
+
+    @Test
     fun `the dates read hold the grids of the month and of the two beside it`() {
         val month = YearMonth.of(2026, 11)
         val span = MonthPages.span(month)

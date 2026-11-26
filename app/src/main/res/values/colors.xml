@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The launch's ground: the default dress's surface (VividLightScheme.surface in
+         :core:designsystem, theme/Scheme.kt), copied by hand because a window's theme is read
+         before any code runs. The one place a ground is written outside the schemes: change the
+         two together. A reader on the other dress, or on the wallpaper's colours, sees this one
+         until the first frame. -->
+    <color name="launch_ground">#F6FAFF</color>
+</resources>

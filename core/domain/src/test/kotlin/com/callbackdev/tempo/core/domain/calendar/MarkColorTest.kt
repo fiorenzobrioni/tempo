@@ -54,6 +54,30 @@ class MarkColorTest {
     }
 
     @Test
+    fun `a mark drawn over a lighter face keeps three to one against the ground beside it`() {
+        // The dial on the hero's ground: its face is the page, lighter, and a mark fades more
+        // over it than over the ground it must still read against.
+        val ground = 0xFFE6EFF9.toInt()
+        val face = 0xFFF6FAFF.toInt()
+        val green = markColor(0xFF0B8043.toInt(), ground)
+        val alpha = markAlpha(green, ground, 0.45f, over = face)
+        assertThat(alpha).isAtLeast(markAlpha(green, ground, 0.45f))
+        assertThat(contrast(blend(green, face, alpha), ground)).isAtLeast(MIN_CONTRAST)
+        assertThat(contrast(blend(green, face, alpha), face)).isAtLeast(MIN_CONTRAST)
+        assertThat(contrast(blend(green, face, alpha - 0.05f), ground)).isLessThan(MIN_CONTRAST)
+    }
+
+    @Test
+    fun `a mark drawn over a darker face keeps three to one against the ground beside it`() {
+        val ground = 0xFF192028.toInt()
+        val face = 0xFF0D141B.toInt()
+        val navy = markColor(0xFF1A237E.toInt(), ground)
+        val alpha = markAlpha(navy, ground, 0.45f, over = face)
+        assertThat(contrast(blend(navy, face, alpha), ground)).isAtLeast(MIN_CONTRAST)
+        assertThat(contrast(blend(navy, face, alpha), face)).isAtLeast(MIN_CONTRAST)
+    }
+
+    @Test
     fun `a blend is the ground at nothing and the colour at everything`() {
         val green = 0xFF0B8043.toInt()
         assertThat(blend(green, white, 0f)).isEqualTo(white)

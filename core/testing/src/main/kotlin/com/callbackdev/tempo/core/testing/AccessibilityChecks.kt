@@ -7,6 +7,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.isRoot
+import com.callbackdev.tempo.core.designsystem.components.COVER_TAG
 import com.callbackdev.tempo.core.designsystem.components.DENSE_TARGETS_TAG
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
@@ -28,18 +29,27 @@ import kotlin.math.roundToInt
  * month's days and Material's clock dial, marked with [DENSE_TARGETS_TAG]. A 7-day row cannot
  * give each day 48dp on a phone; each is still its own labelled node, reached one by one by
  * swiping in TalkBack.
+ *
+ * A bar drawn over a scrolling page ([COVER_TAG]) cuts the rows that pass under it as a list's
+ * edge does: a row partly under it is measured when it is scrolled clear, and one wholly under it
+ * is not on screen. The bar's own controls are measured as any other.
  */
 fun SemanticsNodeInteractionsProvider.assertAccessible() {
     val problems = mutableListOf<String>()
     // Every window: the page, and a dialog or a menu over it.
     for (root in onAllNodes(isRoot()).fetchSemanticsNodes()) {
         val controls = mutableListOf<Control>()
-        fun visit(node: SemanticsNode, dense: Boolean, ancestors: List<Int>) {
-            val inDense = dense || node.config.getOrNull(SemanticsProperties.TestTag) == DENSE_TARGETS_TAG
-            controlOf(node, inDense, ancestors, order = controls.size)?.let { controls += it }
-            node.children.forEach { visit(it, inDense, ancestors + node.id) }
+        val covers = coversIn(root)
+        fun visit(node: SemanticsNode, dense: Boolean, inCover: Boolean, ancestors: List<Int>) {
+            val tag = node.config.getOrNull(SemanticsProperties.TestTag)
+            val inDense = dense || tag == DENSE_TARGETS_TAG
+            val onCover = inCover || tag == COVER_TAG
+            // A cover's own controls are on top of it: nothing of them is under it.
+            val over = if (onCover) emptyList() else covers
+            controlOf(node, inDense, over, ancestors, order = controls.size)?.let { controls += it }
+            node.children.forEach { visit(it, inDense, onCover, ancestors + node.id) }
         }
-        visit(root, dense = false, ancestors = emptyList())
+        visit(root, dense = false, inCover = false, ancestors = emptyList())
         problems += problemsOf(controls)
     }
     assertWithMessage("Accessibility problems on screen").that(problems).isEmpty()
@@ -60,7 +70,30 @@ private class Control(
     fun apartFrom(other: Control) = id != other.id && id !in other.ancestors && other.id !in ancestors
 }
 
-private fun controlOf(node: SemanticsNode, dense: Boolean, ancestors: List<Int>, order: Int): Control? {
+/** Where the bars drawn over the page stand ([COVER_TAG]), in the window of [root]. */
+private fun coversIn(root: SemanticsNode): List<Rect> {
+    val covers = mutableListOf<Rect>()
+    fun visit(node: SemanticsNode) {
+        if (node.config.getOrNull(SemanticsProperties.TestTag) == COVER_TAG && node.layoutInfo.isPlaced) {
+            covers += node.boundsInRoot
+        }
+        node.children.forEach(::visit)
+    }
+    visit(root)
+    return covers
+}
+
+/**
+ * @param covers the bars drawn over the page that [node] may stand under; none for a control of a
+ *   bar's own.
+ */
+private fun controlOf(
+    node: SemanticsNode,
+    dense: Boolean,
+    covers: List<Rect>,
+    ancestors: List<Int>,
+    order: Int,
+): Control? {
     val config = node.config
     if (SemanticsActions.OnClick !in config || SemanticsProperties.Disabled in config) return null
     if (SemanticsProperties.HideFromAccessibility in config) return null
@@ -68,21 +101,43 @@ private fun controlOf(node: SemanticsNode, dense: Boolean, ancestors: List<Int>,
     // stood, and nothing on screen is there (a row of tomorrow's card read as beside Friday's,
     // 30 Oct 2026). TalkBack and the Scanner skip it too.
     if (!node.layoutInfo.isPlaced) return null
-    val bounds = node.boundsInRoot
+    val drawn = node.boundsInRoot
+    // Under a bar drawn over the page: what the bar leaves of it is what is on screen.
+    val bounds = covers.fold(drawn) { seen, cover -> seen.clearOf(cover) }
     if (bounds.width <= 0f || bounds.height <= 0f) return null
-    // Cut by a list's edge: measured once scrolled into view, not here, and only its visible
-    // part stands next to the others (a row scrolled under a top bar is not beside its buttons).
-    val clipped = bounds.width < node.size.width - 1 || bounds.height < node.size.height - 1
+    val touch = node.touchBoundsInRoot
+    val reach = covers.fold(touch) { area, cover -> area.clearOf(cover) }
+    // Cut by a list's edge, or by a bar over the list: measured once scrolled into view, not
+    // here, and only its visible part stands next to the others (a row scrolled under a top bar
+    // is not beside its buttons).
+    val clipped = drawn.width < node.size.width - 1 || drawn.height < node.size.height - 1
+    val covered = bounds != drawn || reach != touch
     return Control(
         id = node.id,
         ancestors = ancestors,
         label = labelOf(node),
-        area = if (clipped) bounds else node.touchBoundsInRoot,
+        area = if (clipped) bounds else reach,
         bounds = bounds,
         order = order,
         pxPerDp = node.layoutInfo.density.density,
-        measured = !dense && !clipped,
+        measured = !dense && !clipped && !covered,
     )
+}
+
+/**
+ * What [other], drawn over this area, leaves of it: the side of the four that gives a finger the
+ * most room, and nothing where it covers it all.
+ */
+private fun Rect.clearOf(other: Rect): Rect {
+    val overlap = intersect(other)
+    if (overlap.width <= 0f || overlap.height <= 0f) return this
+    val sides = listOf(
+        Rect(left, top, overlap.left, bottom),
+        Rect(overlap.right, top, right, bottom),
+        Rect(left, top, right, overlap.top),
+        Rect(left, overlap.bottom, right, bottom),
+    ).filter { it.width > 0f && it.height > 0f }
+    return sides.maxByOrNull { minOf(it.width, it.height) } ?: Rect(left, top, left, top)
 }
 
 /**
@@ -108,13 +163,7 @@ private fun shareOf(control: Control, controls: List<Control>): Rect {
         if (overlap.width <= 0f || overlap.height <= 0f) continue
         if (drawnOver) {
             // Under a floating control: keep the larger of the four sides it leaves free.
-            val sides = listOf(
-                Rect(left, top, overlap.left, bottom),
-                Rect(overlap.right, top, right, bottom),
-                Rect(left, top, right, overlap.top),
-                Rect(left, overlap.bottom, right, bottom),
-            ).filter { it.width > 0f && it.height > 0f }
-            val best = sides.maxByOrNull { minOf(it.width, it.height) } ?: Rect(left, top, left, top)
+            val best = Rect(left, top, right, bottom).clearOf(other.area)
             left = best.left
             top = best.top
             right = best.right
