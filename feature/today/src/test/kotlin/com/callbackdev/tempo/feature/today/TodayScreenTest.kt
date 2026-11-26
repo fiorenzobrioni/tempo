@@ -12,6 +12,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -763,6 +764,26 @@ class TodayScreenTest {
         assertThat(revealed).isEqualTo(1)
     }
 
+    /**
+     * The bar is measured when it is first drawn, and here bringing the row is what draws it: at
+     * twice the text size it is taller than the least it has, which is all the page knew of it.
+     */
+    @Test
+    @Config(qualifiers = "en-rGB-w411dp-h891dp-xxhdpi", fontScale = 2f)
+    fun `at twice the text size the event made is brought clear of the bar`() {
+        val tea = event(30, "2026-10-09T16:00", "2026-10-09T17:00", "Tea with Anna")
+        leftForNewEvent()(tea)
+        compose.waitForIdle()
+        compose.writeScreenshot("today-reveal-large-text")
+        val bar = bounds(TodayTags.BAR)
+        assertThat(bar.height).isGreaterThan(48 * compose.density.density)
+        // The row comes with its day's name over it: the name is what stands highest.
+        val friday = TodayTags.day(java.time.LocalDate.parse("2026-10-09"))
+        assertThat(isWhole(friday)).isTrue()
+        assertThat(bounds(friday).top).isAtLeast(bar.bottom)
+        compose.onNode(hasContentDescription("Tea with Anna", substring = true)).assertIsDisplayed()
+    }
+
     @Test
     fun `an event made in view is not scrolled to`() {
         val coffee = event(31, "2026-10-07T11:00", "2026-10-07T11:30", "Coffee with Marta")
@@ -892,6 +913,48 @@ class TodayScreenTest {
     fun `the two grounds in the dark`() {
         twoGrounds(dark = true)
         compose.assertAccessible()
+    }
+
+    /** Whether any of a node is drawn in [ink]: a text's strokes are its ink at their middle. */
+    private fun inked(page: Bitmap, tag: String, ink: Color): Boolean {
+        val area = bounds(tag)
+        val want = ink.toArgb()
+        for (y in area.top.toInt() until area.bottom.toInt()) {
+            for (x in area.left.toInt() until area.right.toInt()) {
+                val pixel = page.getPixel(x, y)
+                if (listOf(16, 8, 0).all { abs(((pixel shr it) and 0xFF) - ((want shr it) and 0xFF)) <= 2 }) return true
+            }
+        }
+        return false
+    }
+
+    @Test
+    fun `the event under way has its title in the accent's ink`() {
+        val review = TodayTags.event(TodaySample.review.eventId)
+        val scheme = drawn(dark = false)
+        assertThat(
+            inked(compose.onRoot().captureToImage().asAndroidBitmap(), review, scheme.onPrimaryContainer),
+        ).isTrue()
+    }
+
+    @Test
+    fun `a declined invitation under way is quiet on now's ground`() {
+        val review = TodayTags.event(TodaySample.review.eventId)
+        val declined = TodaySample.instances.map {
+            if (it.eventId == TodaySample.review.eventId) it.copy(selfStatus = AttendeeStatus.DECLINED) else it
+        }
+        val scheme = drawn(
+            dark = false,
+            state = TodaySample.state(instances = declined, settings = TodaySample.settings.copy(showDeclined = true)),
+        )
+        val page = compose.onRoot().captureToImage().asAndroidBitmap()
+        val now = dp(review)
+        assertGround("the event under way", page.at(now.left + 20f, now.top + 4f), scheme.primaryContainer)
+        assertThat(inked(page, review, scheme.onPrimaryContainer)).isFalse()
+        assertThat(inked(page, review, scheme.onSurfaceVariant)).isTrue()
+        compose.onNodeWithTag(review).assert(hasContentDescription("declined", substring = true))
+        compose.assertAccessible()
+        compose.writeScreenshot("today-declined-under-way")
     }
 
     @Test
@@ -1080,6 +1143,32 @@ class TodayScreenTest {
         compose.onNodeWithTag(TodayTags.BAR_TIME).assertHasNoClickAction().performClick()
         assertThat(opened).isNull()
         assertThat(day).isNull()
+    }
+
+    /**
+     * The list runs under the bar, and a screen reader is offered a row only where it shows: cut
+     * at the bar's foot while it passes under it, and nothing of it once it is behind it.
+     */
+    @Test
+    fun `a screen reader is offered a row under the bar only where it shows`() {
+        draw()
+        val review = TodayTags.event(TodaySample.review.eventId)
+        val view = (compose.onRoot().fetchSemanticsNode().root as ViewRootForTest).view
+        fun offered(): android.graphics.Rect {
+            val id = compose.onNodeWithTag(review).fetchSemanticsNode().id
+            val info = view.accessibilityNodeProvider.createAccessibilityNodeInfo(id)
+            return android.graphics.Rect().also { info?.getBoundsInScreen(it) }
+        }
+        // Half under the bar.
+        scrollBy(bounds(review).top + 10 * compose.density.density)
+        val bar = bounds(TodayTags.BAR)
+        assertThat(bounds(review).top).isLessThan(bar.bottom)
+        assertThat(offered().top).isEqualTo(bar.bottom.toInt())
+        assertThat(offered().bottom).isEqualTo(bounds(review).bottom.toInt())
+        // Behind it, but for a strip the bar's foot does not reach.
+        scrollBy(bounds(review).bottom - bar.bottom + 2)
+        assertThat(bounds(review).bottom).isLessThan(bar.bottom)
+        assertThat(offered().isEmpty).isTrue()
     }
 
     @Test

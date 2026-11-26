@@ -42,6 +42,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.time.Clock
 import java.time.Instant
 import java.time.YearMonth
 
@@ -356,6 +357,19 @@ class MonthScreenTest {
         compose.onNodeWithTag(MonthTags.TODAY).assertIsDisplayed()
         assertThat(read).containsExactly(december)
         compose.assertAccessible()
+    }
+
+    /**
+     * The view model outlives the page and keeps the state it last had: the page begins from a
+     * state of the clock's day, never from the one it was left with the day before.
+     */
+    @Test
+    fun `a state kept from the day before is not today's`() {
+        val state = MonthSample.state()
+        val later = Clock.fixed(state.now.plusHours(2).toInstant(), MonthSample.zone)
+        val midnight = Clock.fixed(state.today.plusDays(1).atStartOfDay(MonthSample.zone).toInstant(), MonthSample.zone)
+        assertThat(state.isOfToday(later)).isTrue()
+        assertThat(state.isOfToday(midnight)).isFalse()
     }
 
     /** [name] is laid out on one line with nothing cut: no ellipsis, its last letter within the room it was given. */

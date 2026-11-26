@@ -17,8 +17,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.BringIntoViewSpec
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -192,7 +195,7 @@ import com.callbackdev.tempo.core.model.EntryState
 import com.callbackdev.tempo.core.model.EventInstance
 import com.callbackdev.tempo.core.model.FreeGap
 import com.callbackdev.tempo.core.model.TimedEntry
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import java.time.Duration
@@ -377,6 +380,8 @@ fun TodayScreen(
  */
 private class TodayLists(val hero: LazyListState, val agenda: LazyListState, val twoPanes: Boolean)
 
+// A list's view of what is in it is the one place a list can be told of what covers it.
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TodayPage(
     state: TodayUiState,
@@ -393,34 +398,51 @@ private fun TodayPage(
     val navigationBar = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val density = LocalDensity.current
     // The bar's place: under the status bar, as high as the bar is.
-    val barFoot = WindowInsets.statusBars.getTop(density) + bar
+    val statusBar = WindowInsets.statusBars.getTop(density)
+    val barFoot = statusBar + bar
     val heroGap = with(density) { HERO_GAP.roundToPx() }
     val heroGone by remember(list, barFoot, heroGap) { derivedStateOf { list.heroAbove(barFoot + heroGap) } }
+    // The list runs to the screen's top edge, under the status bar's strip and the bar: a row a
+    // keyboard's focus brings up the page stops under them, not behind them.
+    val covered by rememberUpdatedState(if (heroGone) barFoot else statusBar)
+    val view = remember { UnderCover { covered } }
     Box(Modifier.fillMaxSize()) {
-        LazyColumn(
-            state = list,
-            // To the screen's top edge: the hero's ground runs under the status bar.
-            modifier = Modifier.fillMaxSize().testTag(TodayTags.LIST),
-            // Room for the button over the last row, whatever the list ends with.
-            contentPadding = PaddingValues(bottom = navigationBar + 88.dp),
-        ) {
-            item(key = "hero") {
-                Hero(
-                    state = state,
-                    text = text,
-                    gutter = gutter,
-                    actions = actions,
-                    bottom = HERO_BOTTOM,
-                    // The ground across the window, the gutter inside it: on an open foldable the
-                    // clock's ground is the screen's top, and its words keep the page's column.
-                    modifier = Modifier
-                        .padding(bottom = HERO_GAP)
-                        .background(heroGround, heroShape)
-                        .statusBarsPadding(),
+        CompositionLocalProvider(LocalBringIntoViewSpec provides view) {
+            LazyColumn(
+                state = list,
+                // To the screen's top edge: the hero's ground runs under the status bar.
+                modifier = Modifier.fillMaxSize().testTag(TodayTags.LIST),
+                // Room for the button over the last row, whatever the list ends with.
+                contentPadding = PaddingValues(bottom = navigationBar + 88.dp),
+            ) {
+                item(key = "hero") {
+                    Hero(
+                        state = state,
+                        text = text,
+                        gutter = gutter,
+                        actions = actions,
+                        bottom = HERO_BOTTOM,
+                        // The ground across the window, the gutter inside it: on an open foldable
+                        // the clock's ground is the screen's top, and its words keep the page's
+                        // column.
+                        modifier = Modifier
+                            .padding(bottom = HERO_GAP)
+                            .background(heroGround, heroShape)
+                            .statusBarsPadding(),
+                    )
+                }
+                if (showsTip(state)) card("tip", gutter) { TipCard(actions) }
+                agendaContent(
+                    state,
+                    permission,
+                    text,
+                    gutter,
+                    actions,
+                    showEarlier,
+                    onToggleEarlier,
+                    todayAllDay = true,
                 )
             }
-            if (showsTip(state)) card("tip", gutter) { TipCard(actions) }
-            agendaContent(state, permission, text, gutter, actions, showEarlier, onToggleEarlier, todayAllDay = true)
         }
         // The hero's ground stays behind the status bar when the hero has gone up: scrolled, the
         // page's words went up behind the system's clock and icons and were read through them
@@ -434,6 +456,19 @@ private fun TodayPage(
         )
         CompactBar(heroGone, state, text, gutter, actions, onBarHeight, Modifier.align(Alignment.TopCenter))
         NewEventButton(state, actions, gutter, Modifier.align(Alignment.BottomEnd))
+    }
+}
+
+/**
+ * A list's view where something is drawn over its top ([cover], in pixels): what is brought into
+ * view (a row a keyboard's focus lands on) is brought into the room under it, by the least scroll
+ * that shows it, as a list does within its own edges. A screen reader needs none of it: a row
+ * under the bar is offered to it only where it shows.
+ */
+private class UnderCover(private val cover: () -> Int) : BringIntoViewSpec {
+    override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
+        val top = cover()
+        return super.calculateScrollDistance(offset - top, size, containerSize - top)
     }
 }
 
@@ -896,7 +931,7 @@ private fun revealNewEvent(
     // column the list's top is the screen's, and the status bar and the compact bar, which is
     // there once the hero has gone up, are counted.
     val statusBar = if (lists.twoPanes) 0 else WindowInsets.statusBars.getTop(density)
-    val top = statusBar + bar + with(density) { REVEAL_MARGIN.roundToPx() }
+    val top by rememberUpdatedState(statusBar + bar + with(density) { REVEAL_MARGIN.roundToPx() })
     LaunchedEffect(state.reveal) {
         val reveal = state.reveal ?: return@LaunchedEffect
         revealing = reveal
@@ -912,11 +947,16 @@ private fun revealNewEvent(
                 ?: return@LaunchedEffect
             // The rows of the morning come in with the next layout.
             withTimeoutOrNull(REVEAL_MILLIS) { snapshotFlow { list.layoutInfo.totalItemsCount }.first { it > index } }
-            if (!list.shows(index, top)) {
+            suspend fun bring(top: Int) {
+                if (list.shows(index, top)) return
                 if (reduced) list.scrollToItem(index, -top) else list.animateScrollToItem(index, -top)
             }
+            bring(top)
             glowing = target
-            delay(REVEAL_MILLIS)
+            // The compact bar is measured when it is first drawn, and bringing the row may be what
+            // draws it: until then its height is the least it has, and under large text it is
+            // taller. While the row glows it is brought clear of the bar as it turns out to be.
+            withTimeoutOrNull(REVEAL_MILLIS) { snapshotFlow { top }.collectLatest { bring(it) } }
         } finally {
             if (glowing == target) glowing = null
             if (revealing == target) revealing = null

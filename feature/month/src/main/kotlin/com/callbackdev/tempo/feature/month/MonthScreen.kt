@@ -121,12 +121,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import java.time.Clock
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.math.abs
 import com.callbackdev.tempo.core.designsystem.R as DesignR
+
+/**
+ * Whether the state's day is the one [clock] reads: a state the view model kept from the last time
+ * the page was open may be a day old.
+ */
+internal fun MonthUiState.isOfToday(clock: Clock = Clock.system(now.zone)): Boolean = today == LocalDate.now(clock)
 
 /**
  * @param openOn the date the page opens on, chosen and its month shown: from a date of the month
@@ -161,10 +168,15 @@ fun MonthRoute(
     // back (CalendarChanges, PLANNING.md §4.5).
     val launch: (Intent) -> Unit = { intent -> runCatching { context.startActivity(intent) } }
     val current = state
-    if (current == null) {
+    // The view model is the activity's and outlives the page, with the state it last had: opened
+    // again the morning after, the page would begin from yesterday's, and what it begins on (its
+    // month, its chosen day) is kept from then on. It begins on a state of the clock's day.
+    var begun by rememberSaveable { mutableStateOf(false) }
+    if (current == null || !(begun || current.isOfToday())) {
         Surface(Modifier.fillMaxSize()) { }
         return
     }
+    LaunchedEffect(Unit) { begun = true }
     val day = openOn ?: current.today
     MonthScreen(
         state = current,

@@ -169,7 +169,10 @@ large screen (`docs/adr/0004-today-on-a-large-screen.md`, step 8.7): from 840 dp
 high (`twoPanes()`, `TwoPanes`) it stands in two panes, the hero beside the agenda, each scrolling
 on its own, and the current month under the hero, last in its pane (step 10.5); its tests walk both panes (a tablet on its side and upright, an open foldable over
 and under 840 dp, a phone on its side). The month does the same (ADR 0005): the grid in the leading
-pane, the chosen day beside it. Every other page keeps the centred column.
+pane, the chosen day beside it. Every other page keeps the centred column. A bar drawn over a
+scrolling list (Today's compact bar) is tagged `COVER_TAG`, so `assertAccessible()` measures the
+rows under it as a screen reader is offered them, and the list is told what covers it (`UnderCover`,
+a `BringIntoViewSpec`): a row a keyboard's focus lands on stops under the bar (`TodayKeyboardTest`).
 
 **Widgets** (PLANNING.md §7, `docs/adr/0003-widgets.md`): the family's pair, «At a glance» (`WordsWidget`: the name changed on 15 Nov 2026, the code's
 stayed) and «Agenda», on the family's card (Passo's ADR 0005, from Chiaro): its corner, insets,

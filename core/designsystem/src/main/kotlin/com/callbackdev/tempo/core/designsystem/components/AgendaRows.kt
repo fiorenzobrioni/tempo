@@ -307,7 +307,7 @@ private fun AllDayMark(
  * place a page says "now" (as a tone of the page it was 1.1:1 from it, and now was the quietest
  * thing on the page: PLANNING.md §15, 26 Nov 2026), with how long is left; today's others are a
  * little heavier than another day's ([today]); past ones are quieter; a declined invitation is
- * struck through; an event written in a zone whose clock reads another time says its start there
+ * struck through and quiet, under way too; an event written in a zone whose clock reads another time says its start there
  * ("08:00 in Lisbon"). TalkBack reads it as one sentence: "10:00 to 11:00, Dentist, Via Roma 3,
  * in Personal".
  *
@@ -329,14 +329,17 @@ fun AgendaEventRow(
     val quiet = entry.state == EntryState.PAST || event.selfStatus == AttendeeStatus.DECLINED
     val scheme = MaterialTheme.colorScheme
     val ground = if (underWay) scheme.primaryContainer else scheme.surface
+    // Quiet comes first: an invitation the reader declined keeps its quiet title while it is under
+    // way. It is still what the hour holds, on now's ground with how long is left, and not theirs.
     val titleStyle = when {
+        quiet -> MaterialTheme.typography.bodyLarge
         underWay -> MaterialTheme.typography.titleMedium
-        today && !quiet -> MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+        today -> MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
         else -> MaterialTheme.typography.bodyLarge
     }
     val ink = when {
-        underWay -> scheme.onPrimaryContainer
         quiet -> scheme.onSurfaceVariant
+        underWay -> scheme.onPrimaryContainer
         else -> scheme.onSurface
     }
     val strike = if (event.selfStatus == AttendeeStatus.DECLINED) TextDecoration.LineThrough else null
