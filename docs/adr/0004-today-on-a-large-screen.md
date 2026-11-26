@@ -88,3 +88,25 @@ one ground») changes three things written above, on every screen and so on this
 - **The dial** is drawn only while today has something left on its ring; with none the time
   stands alone in the hero's pane. Today's all-day events, in the hero's pane, are a dot and a
   title each, no longer chips.
+
+## Changed on 26 Nov 2026
+
+The graphic review (PLANNING.md §15, 26 Nov 2026, «Today has two grounds: the graphic review»;
+§11 step 10.2) gives the clock a ground of its own, on every screen and so on this one:
+
+- **The leading pane is the clock's ground, whole**: `surfaceContainer` from the window's top
+  edge to its bottom, behind the status bar, and from the window's outer edge (the page's gutter
+  with it) to where the two panes meet, in a straight edge. The trailing pane is the page. This
+  is not decision 6's glow back: a flat tone, which needs no fading across the two panes because
+  it ends where the clock's pane does. Each pane's list still ends under the status bar, the
+  leading one's on its own ground.
+- **What stands in the leading pane stands on that ground.** The dial's face is a disc of the
+  page's surface, its ring at the disc's rim, and its arcs are stepped to 3:1 against the pane's
+  ground (`dialMark`); today's all-day events step their dots against it; the first day's tip, a
+  note, is drawn on the page's surface, since a note's own tone is a step from the pane's and was
+  lost on it (`StatusCard`'s `onGround`).
+- **In the page's one column** the ground is under the hero alone, from the screen's top edge,
+  its lower corners round (28 dp), across the window whatever the gutter: on a foldable open under
+  840 dp the clock's ground is the screen's top and its words keep the centred column.
+
+Step 10.5 adds the month under the clock to this pane, and amends this ADR again.

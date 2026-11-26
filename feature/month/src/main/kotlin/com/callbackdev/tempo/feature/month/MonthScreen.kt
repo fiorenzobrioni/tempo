@@ -38,6 +38,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -80,6 +81,7 @@ import com.callbackdev.tempo.core.calendar.CalendarAccess
 import com.callbackdev.tempo.core.calendar.CalendarIntents
 import com.callbackdev.tempo.core.designsystem.components.AgendaAllDayRow
 import com.callbackdev.tempo.core.designsystem.components.AgendaEventRow
+import com.callbackdev.tempo.core.designsystem.components.AgendaRowEdge
 import com.callbackdev.tempo.core.designsystem.components.CalendarPermissionCard
 import com.callbackdev.tempo.core.designsystem.components.DayHeading
 import com.callbackdev.tempo.core.designsystem.components.LocalGlowingEvent
@@ -388,9 +390,9 @@ private fun MonthPanes(view: MonthView, panes: TwoPanes, list: LazyListState) {
                 state = list,
                 modifier = Modifier.fillMaxSize().testTag(MonthTags.LIST),
                 // The day's name level with the month's; room for the button over the last row.
-                contentPadding = PaddingValues(top = 4.dp, bottom = navigationBar + 88.dp),
+                contentPadding = PaddingValues(top = 2.dp, bottom = navigationBar + 88.dp),
             ) {
-                dayPanel(view, trailing, divider = false)
+                dayPanel(view, trailing, underGrid = false)
             }
             NewEventButton(view, trailing, Modifier.align(Alignment.BottomEnd))
         }
@@ -518,9 +520,10 @@ private val TODAY_FIGURES = 9.dp
  * app on it), its all-day events, its events in order, each as Today draws it and a touch from the
  * calendar app. Or the state's card that says why the calendar gives nothing.
  *
- * @param divider the hairline between the month and the day; none where they stand side by side.
+ * @param underGrid whether the day stands under the month and not beside it: a hairline then
+ *   parts the two, the page's own (a day's name draws none).
  */
-private fun LazyListScope.dayPanel(view: MonthView, gutter: PageGutter, divider: Boolean = true) {
+private fun LazyListScope.dayPanel(view: MonthView, gutter: PageGutter, underGrid: Boolean = true) {
     val state = view.state
     val actions = view.actions
     when (val content = state.content) {
@@ -559,14 +562,23 @@ private fun LazyListScope.dayPanel(view: MonthView, gutter: PageGutter, divider:
             panelItems(date, day).forEach { item ->
                 row(item.key, gutter) {
                     when (item) {
-                        is PanelItem.Heading -> DayHeading(
-                            title = view.text.date(date, state.settings.dateStyle),
-                            // A date not read yet (the page is on its way to a far month): its name alone.
-                            summary = day?.let { view.text.summary(DaySummary.of(it)) }.orEmpty(),
-                            onOpen = openDay?.let { open -> { open(date.atStartOfDay(state.now.zone).toInstant()) } },
-                            modifier = Modifier.testTag(MonthTags.DAY),
-                            divider = divider,
-                        )
+                        is PanelItem.Heading -> Column {
+                            if (underGrid) {
+                                HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outlineVariant,
+                                    modifier = Modifier.padding(start = AgendaRowEdge, end = AgendaRowEdge, top = 8.dp),
+                                )
+                            }
+                            DayHeading(
+                                title = view.text.date(date, state.settings.dateStyle),
+                                // A date not read yet (the page is on its way to a far month): its name alone.
+                                summary = day?.let { view.text.summary(DaySummary.of(it)) }.orEmpty(),
+                                onOpen = openDay?.let { open ->
+                                    { open(date.atStartOfDay(state.now.zone).toInstant()) }
+                                },
+                                modifier = Modifier.testTag(MonthTags.DAY),
+                            )
+                        }
 
                         is PanelItem.AllDay -> AgendaAllDayRow(
                             item.day.allDay,
@@ -655,7 +667,8 @@ private fun LazyListScope.row(key: String, gutter: PageGutter, content: @Composa
 
 /**
  * The new-event button, at the page's bottom corner (over the day's pane on a large screen): a new
- * event on the chosen day. Not drawn where no calendar app takes one.
+ * event on the chosen day. Not drawn where no calendar app takes one. In the scheme's second
+ * colour, as Today's: the colour the chosen day wears in the grid.
  */
 @Composable
 private fun NewEventButton(view: MonthView, gutter: PageGutter, modifier: Modifier = Modifier) {
@@ -669,6 +682,8 @@ private fun NewEventButton(view: MonthView, gutter: PageGutter, modifier: Modifi
             .padding(gutter)
             .padding(ScreenMargin)
             .testTag(MonthTags.NEW_EVENT),
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
     ) {
         Icon(TempoIcons.Plus, contentDescription = stringResource(R.string.month_new_event_on, date))
     }

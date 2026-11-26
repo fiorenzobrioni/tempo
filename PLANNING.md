@@ -434,8 +434,9 @@ they are built: 10.3 stands on 10.2's ground, 10.5 on 10.4's grid.
     to the Vivid dress's surface, so the system's splash and the page's first frame are one ground.
     The one place a ground is a hex outside `Scheme.kt`: said in a comment there, with the role it
     copies.
-- [ ] **10.2 Today's two grounds** (points 1, 2, 3 and 4, one review of the page: each asks for
-  the next).
+- [x] **10.2 Today's two grounds** (points 1, 2, 3 and 4, one review of the page: each asks for
+  the next). Built on 26 Nov 2026: what it measured and what building it added are in §15,
+  «Step 10.2 built».
   - **The clock's ground.** `Hero` stands on `surfaceContainer`, up to the screen's top edge
     (the status bar's inset inside it, no longer on the list), its lower corners 28 dp; the agenda
     stays on the page. On two panes the ground is the whole leading pane (ADR 0004, amended).
@@ -554,7 +555,7 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [x] **Phase 9 on the phone, before the merge** (§11, step 9.6; §15, 23 Nov 2026, «The month, and the time's door»). (1) A touch on Today's time opens the Clock app, on its figures and on the face, morning and evening; off with the switch. (2) The month from Today's button, and back with the gesture, previewed under the finger. (3) The months under a real finger: the grid's height following it between a five-week and a six-week month, the day under it sliding. (4) The marks against the calendar app's own month, with the owner's real calendars: a holiday of several days as one bar, two at once on two lanes, a day of more than three events with its plus. (5) A new event from the button and from a long touch on a date: does the calendar app open on **that date**, at the time proposed (Google Calendar and Samsung Calendar both; §4.7's intent was measured for today's dates only, `docs/device-checks/calendar-intents.md`)? Back in Tempo, the event made is chosen and glows. (6) The way to a far month, and "Today" back. (7) TalkBack on a date ("Thursday 26 November, 3 events"), on the month's name, on the time row. (8) The Tab S8+: the month beside the day. (9) §9.6's `dumpsys alarm` and `dumpsys jobscheduler` unchanged with the month open and closed. Done by the owner on 23 Nov 2026 (§15, «Phase 9 checked on the phone»): "everything works, the new event on a date other than today too". The owner's word is on the whole; (9), which needs adb, rides with 1.1's battery check below.
 - [x] **The month button's switch: keep it, or let it go?** (§15, 23 Nov 2026.) `show_calendar_button` was a switch for a button that doubled the touch on the date (owner, 9 Oct 2026). The button is now the month's only door: turned off, the month cannot be reached, and a reader who had it off before the update does not find the month until they turn it on. Options: (a) as built: the switch stays, renamed «Month button», its note saying what it opens; (b) the switch goes, the button always there, the stored choice ignored. Asked of the owner; (a) was built. Answered on 23 Nov 2026: (b), the switch goes (§15, «The month's button has no switch, and nothing is logged to a file»).
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
-- [ ] **Phase 10 on the phone and the tablet, before the merge** (§11, step 10.6; §15, 26 Nov 2026, «Today has two grounds: the graphic review»). On the CI's APK of the branch, in both themes and, once, in the Paper dress. (1) Today's two grounds: the hero's against the page, the dial's face on it, the status bar's icons readable over the hero's ground. (2) The event under way in the accent, in the light and in the dark: is the dark one too loud? Its bar with a blue calendar and with a red one. (3) The amber button, over the last rows. (4) The days' names at their new size with the owner's real calendar in Italian: no word alone on a line, the chevron in its place. (5) How many events the first screen shows, against 1.1's. (6) The compact bar: it comes and goes without a jump, its time moves with the minute, its two doors open the calendar and the clock. (7) The rows' movement: "earlier" opened and closed, an event made in the calendar app and one deleted with Today open, an event ending. (8) The month away from today: the title whole, the "Today" icon understood at a glance. (9) The launch: no flash between the splash and the page. (10) The Tab S8+, on its side and upright: the month under the clock, a touch on a date, the pane scrolling where it must. (11) TalkBack on the compact bar, the "Today" icon, the month in the hero's pane.
+- [ ] **Phase 10 on the phone and the tablet, before the merge** (§11, step 10.6; §15, 26 Nov 2026, «Today has two grounds: the graphic review»). On the CI's APK of the branch, in both themes and, once, in the Paper dress. (1) Today's two grounds: the hero's against the page (a tone, 1.1:1: is it seen as a ground on the phone's screen, in daylight?), the dial's face on it, the status bar's icons readable over the hero's ground, and, the page scrolled, the strip of that ground left behind the status bar (no test draws a status bar: §15, «Step 10.2 built»). (2) The event under way in the accent, in the light and in the dark: is the dark one too loud? Its bar with a blue calendar and with a red one. (3) The amber button, over the last rows. (4) The days' names at their new size with the owner's real calendar in Italian: no word alone on a line, the chevron in its place. (5) How many events the first screen shows, against 1.1's. (6) The compact bar: it comes and goes without a jump, its time moves with the minute, its two doors open the calendar and the clock. (7) The rows' movement: "earlier" opened and closed, an event made in the calendar app and one deleted with Today open, an event ending. (8) The month away from today: the title whole, the "Today" icon understood at a glance. (9) The launch: no flash between the splash and the page. (10) The Tab S8+, on its side and upright: the month under the clock, a touch on a date, the pane scrolling where it must. (11) TalkBack on the compact bar, the "Today" icon, the month in the hero's pane.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
 
@@ -1259,3 +1260,92 @@ Built on `claude/today-two-grounds`, as §11 says, with what building it found.
 the title already had room). Note for the next steps: Gradle's build cache gives back a passed
 test task without running it, and then the screenshots on disk are an earlier run's; before
 looking at them, run the module's `cleanTestDebugUnitTest` with it.
+
+### Step 10.2 built: Today's two grounds (26 Nov 2026)
+
+Built on `claude/today-two-grounds`, as §11 says. What each point became, what building it added
+to the plan, and the measures the plan asked for.
+
+- **The clock's ground.** `Hero` stands on `surfaceContainer` (`heroGround`, `TodayScreen.kt`). In
+  the page's one column the ground is the hero's item, from the screen's top edge (the list no
+  longer stops under the status bar: the inset is inside the hero), across the window whatever
+  the gutter, its lower corners the scheme's 28 dp; 16 dp of it under the hero's last line and
+  4 dp of page before the agenda's first row. On two panes it is the whole leading pane, behind
+  the status bar and the gutter too, with a straight edge where the panes meet (ADR 0004, amended).
+  *Added while building*: (a) a strip of the same ground stays behind the status bar when the
+  hero has scrolled away, so the rows do not pass behind the system's clock (the fault of 10 Nov
+  2026, which the list's padding had patched): at the top it is the hero's own ground and unseen;
+  step 10.3's bar will stand under it. Robolectric draws no status bar, so no test sees it: check
+  1 on the phone. (b) The reveal of a new event counts the status bar in the one column, where
+  the list's top is now the screen's. (c) In the hero's pane, today's all-day events step their
+  dots against the pane's ground (`AgendaAllDayRow`'s `ground`), and the first day's tip, a note
+  on `surfaceContainerHigh`, a step from the pane's tone and lost on it, is drawn on the page's
+  `surface` (`StatusCard`'s `onGround`).
+- **The dial.** `DayDial` takes `ground`. Its face is a disc of the page's `surface` out to the
+  ring's rim, so an arc has the face on one side and the ground on the other. A quiet arc is its
+  calendar's colour stepped to 3:1 against the ground and drawn over the face as faint as that
+  ratio allows (`dialMark`): `markAlpha` gained `over`, what the mark is drawn on where that is
+  not what it is read against, with its tests in `:core:domain` (a mark fades more over the
+  lighter face than over the ground, and the old arithmetic would have left it under 3:1 against
+  the ground). An arc with no colour known, the page's ink at 45%, was 2.9:1 on the page before
+  the step: it goes through the same function now. The guide's example stands on a plate of the
+  same ground (`DialSample`), so it shows the dial Today shows.
+- **"Now" in the accent.** The event under way on `primaryContainer`, its title and start in
+  `onPrimaryContainer`, its quiet words (the end, the place, the notes) in `onSurfaceVariant`, its
+  "40 min left" and its bar in `primary`; the bar 6 dp on a track of `primary` at 20%. The row's
+  bar with no calendar colour, the outline's, was 2.95:1 on that ground in the dark: `CalendarBar`
+  steps it as it steps a colour. The ground's inner top and bottom went from 14 to 12 dp, which
+  pays the hero's 4 dp (below). In `AgendaRows.kt`: the month's chosen day follows.
+- **The button** is `secondaryContainer` / `onSecondaryContainer` on Today and on the month. In
+  the Vivid dress that is amber; in Paper, whose accent is amber, it is the dress's azure: the
+  rule kept is the role (never now's colour), not the hue.
+- **A day's name** is `titleLarge`; `DayHeading` draws no hairline and has no `divider`. Today
+  gives a day 4 dp over its name's own 12 (`DAY_GAP`). The month draws its own line under the
+  grid, in the day's first item (so the items the reveal counts are the same), and none where the
+  day stands beside the month, where the list's top padding went from 4 to 2 dp to keep the day's
+  name level with the month's.
+
+**Measured** (411 × 891 dp, the sample's Wednesday at 10:20, in dp from the screen's top; before
+is the commit of step 10.1).
+
+| | before | after |
+|---|---|---|
+| The event under way, top and bottom | 378, 476 | 382, 476 |
+| "Tomorrow", the name's top and bottom | 732, 756 | 727, 755 |
+| Tomorrow's first event, top and bottom | 830, 891 | 829, 890 |
+
+The event under way starts 4 dp lower (the drawing said about 6) and ends where it ended, its
+ground 4 dp less high; tomorrow's name ends 1 dp higher (the drawing said level) and every row
+after it is 1 dp higher. The first screen holds the same five events whole, the event under way,
+the rest of today and tomorrow's first: pinned by a test. With no alarm line the hero's foot grew
+from 8 to 20 dp (one measure for the ground's foot, with or without the line), and the same rows
+stand 7 dp lower than before, the event under way 12: said here because the sample has an alarm.
+
+**The contrasts**, the same in the two dresses to a tenth, light and dark. On the clock's ground:
+the ink 14.8 and 12.7, the quiet ink 8.1 and 9.6, the accent 5.6 and 9.7. On now's: the title 13.3
+and 7.3, the quiet words 7.3 and 5.5, the accent 5.0 and 5.5 (the review computed "about 5:1 in
+the light"; the words in the dark are 7.3 as it said). The button's icon 13.3 and 7.2. The grounds
+against the page: the clock's 1.11 and 1.13, a tone and not a colour, seen as a ground by its
+size and its round foot; now's 1.23 in the light and 1.98 in the dark, where it is the loudest
+thing on the page (check 2 asks whether too loud).
+
+**Tests.** `ContrastTest`: the inks on the two grounds by name, every calendar colour as a mark at
+3:1 on the page, the clock's ground and now's (thirteen colours and the outline, the four
+schemes), and the dial's quiet arcs against the ground and against the face. `MarkColorTest`: the
+two cases of `over`. `TodayScreenTest`: the four grounds read from the page's pixels (the hero's
+corner, the page beside a row, the event under way, the button), in the light and in the dark;
+the dial's face and what is around it; the hero's pane and the tip on a tablet; the first
+screen's five events; a day ahead under its name; the year's longest run in Italian ("Da
+mercoledì 14 ottobre a martedì 20 ottobre") at 360 dp, where it breaks in two halves, and at twice
+the text size, where it takes three lines with no word alone. Every walk of Today, the month and
+the guide run afresh and looked at: phone, dark, twice the text size, a phone on its side, the
+foldable in one column and in two panes, the tablet on its side, upright and in the dark.
+
+**The words.** The guide's line on the day in order says the event under way stands "on a ground
+in the accent" («su un fondo nel colore d'accento»); the rest of the Today chapter reread in both
+languages and left: it says nothing of grounds or lines. VISION's line on the timeline, the
+CHANGELOG, CLAUDE.md's Design and ADR 0004 follow. The README's pictures of Today, the evening,
+the tablet and the month are redrawn.
+
+**Checked.** `spotlessCheck`, `test` (every module), `:app:lintDebug`,
+`:app:checkForbiddenPermissions`, `:app:assembleDebug`: green.

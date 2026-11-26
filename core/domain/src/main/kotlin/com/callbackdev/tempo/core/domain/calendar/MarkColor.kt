@@ -35,10 +35,14 @@ fun markColor(argb: Int, ground: Int): Int {
  * the lowest alpha above it that does, up to opaque. Today's dial draws its quiet arcs so (review
  * of 30 Oct 2026): a deep colour on a light page fades a long way, while a mark lifted to 3:1 on
  * a dark page barely fades, and is as quiet as the ratio allows.
+ *
+ * @param over what the mark is drawn on, where that is not the ground it is read against: the
+ *   dial's face, a disc of the page on the hero's ground, with its ring at the disc's rim. The
+ *   mark blended over the one must keep its ratio against the other.
  */
-fun markAlpha(mark: Int, ground: Int, quiet: Float): Float {
+fun markAlpha(mark: Int, ground: Int, quiet: Float, over: Int = ground): Float {
     var alpha = quiet
-    while (alpha < 1f && contrast(blend(mark, ground, alpha), ground) < MIN_CONTRAST) alpha += ALPHA_STEP
+    while (alpha < 1f && contrast(blend(mark, over, alpha), ground) < MIN_CONTRAST) alpha += ALPHA_STEP
     return alpha.coerceAtMost(1f)
 }
 

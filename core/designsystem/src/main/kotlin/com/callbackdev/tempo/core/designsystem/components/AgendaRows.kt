@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +32,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -111,10 +111,11 @@ val agendaTimeColumn: Dp
 /**
  * A day under its name: the name, the day in a few words under it, a touch on them opening the
  * calendar app on that day, and its rows after them. A run of empty days is its heading alone. No
- * ground of its own: a page keeps its one ground for the event under way.
+ * ground of its own: on the calendar's side of a page the one ground is the event under way's.
  *
- * @param divider the hairline that parts the day from the one before it; none over a day that
- *   follows nothing.
+ * The name is a size above its rows' titles and parts the day from the one before by that alone:
+ * at the rows' own size it needed a hairline over it to be a heading, and a page of days was a
+ * page of lines (PLANNING.md §15, 26 Nov 2026). The air over it is the page's to give.
  */
 @Composable
 fun DayHeading(
@@ -122,17 +123,10 @@ fun DayHeading(
     summary: String,
     onOpen: (() -> Unit)?,
     modifier: Modifier = Modifier,
-    divider: Boolean = true,
     content: @Composable () -> Unit = {},
 ) {
     val openLabel = stringResource(R.string.agenda_open_day)
-    Column(modifier.fillMaxWidth().padding(top = if (divider) 8.dp else 0.dp)) {
-        if (divider) {
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant,
-                modifier = Modifier.padding(horizontal = AgendaRowEdge),
-            )
-        }
+    Column(modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -152,7 +146,7 @@ fun DayHeading(
             DayName(
                 name = title,
                 opens = onOpen != null,
-                style = MaterialTheme.typography.titleMedium.copy(lineBreak = LineBreak.Heading),
+                style = MaterialTheme.typography.titleLarge.copy(lineBreak = LineBreak.Heading),
             )
             Text(
                 summary,
@@ -210,6 +204,9 @@ private const val CHEVRON = "chevron"
  * The all-day events, over the timeline: a holiday is the day's frame, not one of its rows. Each
  * its calendar's dot and its title, with no ground: what they say is short, and a row of filled
  * shapes over the list was the loudest thing under the sentence.
+ *
+ * @param ground what the row stands on, for its dots: the page, or the hero's pane on a large
+ *   screen.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -219,13 +216,14 @@ fun AgendaAllDayRow(
     text: AgendaText,
     openEvent: ((EventInstance) -> Unit)?,
     modifier: Modifier = Modifier,
+    ground: Color = MaterialTheme.colorScheme.surface,
 ) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(ALL_DAY_GAP - ALL_DAY_TOUCH * 2),
         // Each one's touch reaches a little past its words, so its dot stands on the page's edge.
         modifier = modifier.padding(horizontal = AgendaRowEdge - ALL_DAY_TOUCH),
     ) {
-        entries.forEach { entry -> AllDayMark(entry, calendars[entry.event.calendarId], text, openEvent) }
+        entries.forEach { entry -> AllDayMark(entry, calendars[entry.event.calendarId], text, openEvent, ground) }
     }
 }
 
@@ -241,11 +239,10 @@ private fun AllDayMark(
     calendar: CalendarInfo?,
     text: AgendaText,
     openEvent: ((EventInstance) -> Unit)?,
+    ground: Color,
 ) {
     val event = entry.event
-    val dayOf = if (entry.dayCount >
-        1
-    ) {
+    val dayOf = if (entry.dayCount > 1) {
         stringResource(R.string.agenda_day_of, entry.dayNumber, entry.dayCount)
     } else {
         null
@@ -275,7 +272,7 @@ private fun AllDayMark(
                 .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
                 .padding(horizontal = ALL_DAY_TOUCH),
         ) {
-            CalendarDot(event.color ?: calendar?.color, MaterialTheme.colorScheme.surface, size = 8.dp)
+            CalendarDot(event.color ?: calendar?.color, ground, size = 8.dp)
             Text(
                 text = text.title(event),
                 style = MaterialTheme.typography.labelLarge,
@@ -298,11 +295,13 @@ private fun AllDayMark(
 /**
  * One event on a day's timeline: its times in a column (the start's day marker set small: "AM" ten
  * times down a column was its loudest word), its calendar's colour as a bar, its title, its
- * place, and what is true of it now. The event under way stands on its own ground, the page's
- * only one, with how long is left; today's others are a little heavier than another day's
- * ([today]); past ones are quieter; a declined invitation is struck through; an event written in a
- * zone whose clock reads another time says its start there ("08:00 in Lisbon"). TalkBack reads it
- * as one sentence: "10:00 to 11:00, Dentist, Via Roma 3, in Personal".
+ * place, and what is true of it now. The event under way stands on the accent's ground, the one
+ * place a page says "now" (as a tone of the page it was 1.1:1 from it, and now was the quietest
+ * thing on the page: PLANNING.md §15, 26 Nov 2026), with how long is left; today's others are a
+ * little heavier than another day's ([today]); past ones are quieter; a declined invitation is
+ * struck through; an event written in a zone whose clock reads another time says its start there
+ * ("08:00 in Lisbon"). TalkBack reads it as one sentence: "10:00 to 11:00, Dentist, Via Roma 3,
+ * in Personal".
  *
  * @param modifier the row's own, on its touch target: a page's test tag.
  */
@@ -320,13 +319,18 @@ fun AgendaEventRow(
     val event = entry.event
     val underWay = entry.state == EntryState.UNDER_WAY
     val quiet = entry.state == EntryState.PAST || event.selfStatus == AttendeeStatus.DECLINED
-    val ground = if (underWay) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.surface
+    val scheme = MaterialTheme.colorScheme
+    val ground = if (underWay) scheme.primaryContainer else scheme.surface
     val titleStyle = when {
         underWay -> MaterialTheme.typography.titleMedium
         today && !quiet -> MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
         else -> MaterialTheme.typography.bodyLarge
     }
-    val ink = if (quiet) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
+    val ink = when {
+        underWay -> scheme.onPrimaryContainer
+        quiet -> scheme.onSurfaceVariant
+        else -> scheme.onSurface
+    }
     val strike = if (event.selfStatus == AttendeeStatus.DECLINED) TextDecoration.LineThrough else null
     val description = describe(entry, date, calendar, text, now)
     val openLabel = stringResource(R.string.a11y_open_event)
@@ -358,7 +362,7 @@ fun AgendaEventRow(
                 // On its ground the row keeps the page's edge: the ground stands 8dp from the sides.
                 .padding(
                     horizontal = if (underWay) AgendaRowEdge - 8.dp else AgendaRowEdge,
-                    vertical = if (underWay) 14.dp else 8.dp,
+                    vertical = if (underWay) 12.dp else 8.dp,
                 )
                 .clearAndSetSemantics { },
         ) {
@@ -437,8 +441,9 @@ fun agendaStartTime(text: AgendaText, moment: Instant): AnnotatedString {
 }
 
 /**
- * How far the event under way has come, and how long is left: a fine bar in the accent, the words
- * beside it. With the "now" line, a page's only accent: it means now, nothing else.
+ * How far the event under way has come, and how long is left: a bar in the accent on a track of
+ * its own tone, thick enough to be read as a measure and not a rule, and the words beside it.
+ * With the row's ground and the "now" line, a page's only accent: it means now, nothing else.
  */
 @Composable
 private fun UnderWayProgress(event: EventInstance, text: AgendaText, now: Instant) {
@@ -457,9 +462,9 @@ private fun UnderWayProgress(event: EventInstance, text: AgendaText, now: Instan
         LinearProgressIndicator(
             progress = { fraction },
             color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.outlineVariant,
+            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = TRACK_ALPHA),
             drawStopIndicator = {},
-            modifier = Modifier.weight(1f).height(3.dp),
+            modifier = Modifier.weight(1f).height(6.dp),
         )
         Text(
             text = stringResource(R.string.agenda_left, text.duration(Duration.between(now, event.end))),
@@ -468,6 +473,9 @@ private fun UnderWayProgress(event: EventInstance, text: AgendaText, now: Instan
         )
     }
 }
+
+/** The accent as the track of the event under way's bar: there, and far quieter than what is done. */
+private const val TRACK_ALPHA = 0.2f
 
 /** The row's sentence for TalkBack. */
 @Composable

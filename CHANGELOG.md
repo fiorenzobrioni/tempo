@@ -48,6 +48,13 @@ All notable changes to Tempo are documented here. The format follows
 - **The first run's words.** Its buttons read «Get started», «Continue» and «Later», and its
   battery promise says when a widget redraws: when your calendar changes or an event starts or ends.
 
+- **Today has two grounds.** The time, the date and the day's sentence stand on a ground of
+  their own, up to the top of the screen, with the clock face a clear disc on it; the agenda
+  stays on the page. The event under way is in the accent, with a thicker bar for how far it has
+  come, so "now" is the first thing you see in the list. The new-event button is amber. A day's
+  name is larger, and the lines between the days are gone. On a tablet the clock's ground is its
+  whole side of the page.
+
 - **Today, quieter.** The time is lighter and its clock face finer, and the face is there only
   while today has something left to show. The sentence comes first, with what is true now in
   bold; the alarm is under it. The event under way is the only filled card on the page, so "now"

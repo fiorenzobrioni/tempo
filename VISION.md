@@ -97,7 +97,7 @@ app the reader already uses.
 - **All-day and multi-day events** in a row of their own above the timeline ("Holiday, day 2 of 5").
 - **The timeline of the day's timed events**: the time range, the title, the calendar's colour
   as a mark, the location as one line of text (no map). The event under way says how much is
-  left ("ends in 25 min") on the page's one ground, past events are quieter, and with nothing
+  left ("ends in 25 min") on the accent's ground, past events are quieter, and with nothing
   under way a "now" line stands between what has been and what is next. An event written in a time zone whose clock reads another time than the
   phone's says its start there too, in one note: "09:00 in Lisbon" (step 8.5); never for an
   all-day event, and never for a zone on the phone's clock (Paris beside Rome).

@@ -26,7 +26,7 @@
     <string name="guide_today_doors_title">La data e l’ora</string>
     <string name="guide_today_doors_body">Ognuna apre l’app a cui appartiene: un tocco sulla data, la tua app calendario su oggi; un tocco sull’ora, sulle cifre o sul quadrante, l’app Orologio del telefono, dove stanno le sveglie e i timer. Un interruttore nelle impostazioni spegne il tocco sull’ora.</string>
     <string name="guide_today_timeline_title">La giornata in ordine</string>
-    <string name="guide_today_timeline_body">Gli impegni di oggi uno sotto l’altro, ognuno con il colore del suo calendario come segno. Quello in corso spicca su un fondo suo e dice quanto manca; se non c’è niente in corso, una linea segna l’adesso. Quelli finiti si fanno più tenui, e da due in su si raccolgono in una riga che si apre.</string>
+    <string name="guide_today_timeline_body">Gli impegni di oggi uno sotto l’altro, ognuno con il colore del suo calendario come segno. Quello in corso spicca su un fondo nel colore d’accento e dice quanto manca; se non c’è niente in corso, una linea segna l’adesso. Quelli finiti si fanno più tenui, e da due in su si raccolgono in una riga che si apre.</string>
     <string name="guide_today_free_title">Il tempo libero</string>
     <string name="guide_today_free_body">La tua prossima ora libera, o più, di oggi è una riga a sé, dove cade: un tocco crea lì un nuovo impegno, e la frase dice fino a quando sei libero. I buchi più corti, e il tempo libero più tardi, restano fuori, così la giornata non si riempie di righe libere.</string>
     <string name="guide_today_ahead_title">I prossimi giorni</string>

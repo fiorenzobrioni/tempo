@@ -26,7 +26,7 @@
     <string name="guide_today_doors_title">The date and the time</string>
     <string name="guide_today_doors_body">Each opens the app it belongs to: a touch on the date, your calendar app on today; a touch on the time, its figures or its clock face, the phone’s Clock app, where the alarms and the timers are. A switch in the settings turns the time’s touch off.</string>
     <string name="guide_today_timeline_title">The day in order</string>
-    <string name="guide_today_timeline_body">Today’s events one under the other, each with its calendar’s colour as a mark. The one under way stands out on its own ground and says how long is left; with nothing under way, a line marks now. The ones that are over grow quieter, and two or more of them fold into one line that opens.</string>
+    <string name="guide_today_timeline_body">Today’s events one under the other, each with its calendar’s colour as a mark. The one under way stands out on a ground in the accent and says how long is left; with nothing under way, a line marks now. The ones that are over grow quieter, and two or more of them fold into one line that opens.</string>
     <string name="guide_today_free_title">Free time</string>
     <string name="guide_today_free_body">Your next free hour or more today is a row of its own, where it falls: a touch on it starts a new event there, and the sentence says how long you are free. Shorter gaps, and the free time later on, are left out, so the day does not fill up with rows of free time.</string>
     <string name="guide_today_ahead_title">The days ahead</string>

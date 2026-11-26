@@ -1,6 +1,7 @@
 package com.callbackdev.tempo.feature.guide
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.callbackdev.tempo.core.designsystem.components.DayDial
 import com.callbackdev.tempo.core.designsystem.icons.TempoIcons
+import com.callbackdev.tempo.core.designsystem.theme.GroupShape
 import com.callbackdev.tempo.core.designsystem.theme.ScreenMargin
 import com.callbackdev.tempo.core.designsystem.theme.padding
 import com.callbackdev.tempo.core.designsystem.theme.pageGutter
@@ -182,18 +184,25 @@ private fun Caption(text: String) {
 
 /**
  * Today's dial, drawn by Today's own component: twenty past ten, a meeting under way until eleven
- * in the accent, lunch at one and a call at three quieter. It winds to its time as on Today.
+ * in the accent, lunch at one and a call at three quieter. It winds to its time as on Today, and
+ * stands on Today's ground for the clock, its face the page: an example that looked otherwise
+ * would be of another dial.
  */
 @Composable
 private fun DialSample() {
     // The dial grows with the reader's text size, as far as the page allows.
     val grow = LocalDensity.current.fontScale.coerceAtLeast(1f)
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+    val ground = MaterialTheme.colorScheme.surfaceContainer
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxWidth().background(ground, GroupShape).padding(vertical = 20.dp),
+    ) {
         DayDial(
             faceMinutes = SAMPLE_NOW,
             arcs = SAMPLE_ARCS,
             description = stringResource(R.string.guide_today_dial_description),
             modifier = Modifier.widthIn(max = 160.dp * grow).fillMaxWidth().testTag(GuideTags.DIAL),
+            ground = ground,
         )
     }
 }

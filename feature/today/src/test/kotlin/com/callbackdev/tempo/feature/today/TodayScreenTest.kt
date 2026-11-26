@@ -1,11 +1,17 @@
 package com.callbackdev.tempo.feature.today
 
+import android.graphics.Bitmap
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -32,6 +38,7 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.unit.dp
@@ -49,12 +56,14 @@ import com.callbackdev.tempo.core.testing.assertAccessible
 import com.callbackdev.tempo.core.testing.walkPage
 import com.callbackdev.tempo.core.testing.writeScreenshot
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.time.Instant
+import kotlin.math.abs
 
 /** Today drawn from states (PLANNING.md §11 Phase 3: UI tests on states, not databases). */
 @RunWith(AndroidJUnit4::class)
@@ -817,6 +826,154 @@ class TodayScreenTest {
         )
             .assertExists()
         compose.walkPage(hasTestTag(TodayTags.LIST), "today-foldable")
+    }
+
+    // --- Two grounds: the clock's and the calendar's (step 10.2) --------------------------------
+
+    /** Today drawn, and the scheme it was drawn in. */
+    private fun drawn(dark: Boolean, state: TodayUiState = TodaySample.state()): ColorScheme {
+        lateinit var scheme: ColorScheme
+        compose.setContent {
+            TempoTheme(darkTheme = dark) {
+                scheme = MaterialTheme.colorScheme
+                TodayScreen(state, CalendarPermission.GRANTED, TodayActions())
+            }
+        }
+        compose.waitForIdle()
+        return scheme
+    }
+
+    /** The colour drawn at a point of the page, in dp from the root's corner. */
+    private fun Bitmap.at(x: Float, y: Float): Int {
+        val density = compose.density.density
+        return getPixel((x * density).toInt(), (y * density).toInt())
+    }
+
+    private fun assertGround(what: String, pixel: Int, ground: Color) {
+        val want = ground.toArgb()
+        val near = listOf(16, 8, 0).all { abs(((pixel shr it) and 0xFF) - ((want shr it) and 0xFF)) <= 2 }
+        assertWithMessage("$what is #%08X, not #%08X".format(pixel, want)).that(near).isTrue()
+    }
+
+    /** A node's bounds in dp. */
+    private fun dp(tag: String): Rect {
+        val density = compose.density.density
+        val px = bounds(tag)
+        return Rect(px.left / density, px.top / density, px.right / density, px.bottom / density)
+    }
+
+    private fun twoGrounds(dark: Boolean) {
+        val scheme = drawn(dark)
+        val page = compose.onRoot().captureToImage().asAndroidBitmap()
+        val earlier = dp(TodayTags.EARLIER)
+        val now = dp(TodayTags.event(TodaySample.review.eventId))
+        val button = dp(TodayTags.NEW_EVENT)
+        // The clock's ground from the screen's top corner, square there.
+        assertGround("the hero's corner", page.at(1f, 1f), scheme.surfaceContainer)
+        assertGround("beside the date", page.at(4f, dp(TodayTags.DATE).center.y), scheme.surfaceContainer)
+        // The calendar's is the page.
+        assertGround("beside the morning's row", page.at(4f, earlier.center.y), scheme.surface)
+        // Now's is the accent's: inside its corner, over its words.
+        assertGround("the event under way", page.at(now.left + 20f, now.top + 4f), scheme.primaryContainer)
+        // The button's is the scheme's second colour: beside its icon.
+        assertGround("the button", page.at(button.left + 8f, button.center.y), scheme.secondaryContainer)
+    }
+
+    @Test
+    fun `the clock stands on its ground, now on the accent's, and the button wears the second colour`() {
+        twoGrounds(dark = false)
+        compose.assertAccessible()
+    }
+
+    @Test
+    fun `the two grounds in the dark`() {
+        twoGrounds(dark = true)
+        compose.assertAccessible()
+    }
+
+    @Test
+    fun `the dial's face is the page, on the clock's ground`() {
+        val scheme = drawn(dark = false)
+        val page = compose.onRoot().captureToImage().asAndroidBitmap()
+        val dial = dp(TodayTags.DIAL)
+        // Under the centre, half way to the ring: at 10:20 clear of both hands.
+        assertGround("the face", page.at(dial.center.x, dial.center.y + dial.height / 4), scheme.surface)
+        // The square's corner is outside the disc.
+        assertGround("around the face", page.at(dial.left + 1f, dial.top + 1f), scheme.surfaceContainer)
+    }
+
+    /**
+     * The acceptance of step 10.2: the clock's ground and a day's larger name cost the first
+     * screen no event. At 411 × 891 dp, before the step, it held the event under way, the rest of
+     * today and tomorrow's first event; it still does.
+     */
+    @Test
+    fun `the first screen holds the events it held before the page had two grounds`() {
+        draw()
+        val list = bounds(TodayTags.LIST)
+        val first = listOf(TodaySample.review, TodaySample.lunch, TodaySample.dentist, TodaySample.swimming) +
+            TodaySample.call
+        for (event in first) {
+            val row = compose.onNodeWithTag(TodayTags.event(event.eventId), useUnmergedTree = true)
+                .fetchSemanticsNode()
+            // Whole: what is on screen of it is all of it.
+            assertWithMessage(event.title).that(row.boundsInRoot.height).isEqualTo(row.size.height.toFloat())
+            assertWithMessage(event.title).that(row.boundsInRoot.bottom).isAtMost(list.bottom)
+        }
+    }
+
+    @Test
+    fun `a day ahead stands under its name, a size above its rows, and no line parts the days`() {
+        draw()
+        val friday = TodayTags.day(java.time.LocalDate.parse("2026-10-09"))
+        scrollTo(friday)
+        compose.onNode(hasAnyAncestor(hasTestTag(friday)) and hasText("Friday 9 October")).assertIsDisplayed()
+        compose.assertAccessible()
+        compose.writeScreenshot("today-days-ahead")
+    }
+
+    /** A fortnight with one event in its second week: the run after it has the year's longest name. */
+    private val longRun: TodayUiState
+        get() = TodaySample.state(
+            settings = TodaySample.settings.copy(horizonDays = 14),
+            instances = TodaySample.instances + event(40, "2026-10-13T18:00", "2026-10-13T19:00", "Cinema"),
+        )
+
+    private fun longNameReads(name: String) {
+        draw(longRun)
+        val run = TodayTags.day(java.time.LocalDate.parse("2026-10-14"))
+        scrollTo(run)
+        compose.onNode(hasAnyAncestor(hasTestTag(run)) and hasText("Da mercoledì 14 ottobre a martedì 20 ottobre"))
+            .assertIsDisplayed()
+        compose.assertAccessible()
+        compose.writeScreenshot(name)
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w360dp-h740dp-xxhdpi")
+    fun `in Italian a long run's name reads at its larger size on a narrow phone`() {
+        longNameReads("today-long-name-narrow")
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi", fontScale = 2f)
+    fun `in Italian a long run's name reads at twice the text size`() {
+        longNameReads("today-long-name-large-text")
+    }
+
+    @Test
+    @Config(qualifiers = "en-rGB-w1280dp-h800dp-xhdpi")
+    fun `on a large screen the whole hero's pane is the clock's ground, the agenda's the page`() {
+        val scheme = drawn(dark = false, TodaySample.state(settings = firstDay))
+        val page = compose.onRoot().captureToImage().asAndroidBitmap()
+        val hero = dp(TodayTags.HERO_PANE)
+        val agenda = dp(TodayTags.LIST)
+        val tip = dp(TodayTags.TIP)
+        assertGround("the pane's top", page.at(hero.left + 1f, hero.top + 1f), scheme.surfaceContainer)
+        assertGround("the pane's foot", page.at(hero.right - 2f, hero.bottom - 2f), scheme.surfaceContainer)
+        assertGround("the agenda's pane", page.at(agenda.left + 2f, agenda.bottom - 2f), scheme.surface)
+        // A note on the clock's ground is drawn on the page's surface, a step from its own it was lost.
+        assertGround("the tip", page.at(tip.left + 20f, tip.top + 4f), scheme.surface)
     }
 
     // --- Today on a large screen: two panes (step 8.7) ------------------------------------------

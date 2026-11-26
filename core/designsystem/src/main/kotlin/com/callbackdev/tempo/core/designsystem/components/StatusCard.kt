@@ -34,6 +34,10 @@ enum class StatusTone {
 /**
  * A state of the app stated as a card: a mark, what is going on, what to do, and the button that
  * does it. Never a toast: a toast is gone before it is read.
+ *
+ * @param onGround true where the card stands on a ground of its own tone and not on the page
+ *   (Today's hero pane on a large screen): a note is then drawn on the page's surface, as it
+ *   would be lost on a tone a step from its own. The other tones are colours and read anywhere.
  */
 @Composable
 fun StatusCard(
@@ -46,6 +50,7 @@ fun StatusCard(
     onAction: () -> Unit = {},
     dismiss: String? = null,
     onDismiss: () -> Unit = {},
+    onGround: Boolean = false,
 ) {
     val (container, content) = when (tone) {
         StatusTone.PROBLEM -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
@@ -54,7 +59,10 @@ fun StatusCard(
             MaterialTheme.colorScheme.secondaryContainer to
                 MaterialTheme.colorScheme.onSecondaryContainer
 
-        StatusTone.NOTE -> MaterialTheme.colorScheme.surfaceContainerHigh to MaterialTheme.colorScheme.onSurface
+        StatusTone.NOTE -> {
+            val scheme = MaterialTheme.colorScheme
+            (if (onGround) scheme.surface else scheme.surfaceContainerHigh) to scheme.onSurface
+        }
     }
     Surface(color = container, contentColor = content, shape = GroupShape, modifier = modifier.fillMaxWidth()) {
         Column(
