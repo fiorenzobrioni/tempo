@@ -24,6 +24,10 @@ All notable changes to Tempo are documented here. The format follows
   face, opens the phone's Clock app, as a touch on the date opens your calendar. A switch in the
   settings, «Touch the time», turns it off.
 
+- **The time stays with you down the page.** On a phone, scroll down the day and a bar keeps the
+  date, the time and the month's and the settings' buttons at the top, on the clock's ground; the
+  date and the time still open your calendar and your clock. It fades away as you come back up.
+
 - **«At a glance», the event alone.** Turn off «The day’s note» in the widget’s settings and a widget
   two rows high or more says only what comes next and when, and its clock face takes the room.
 

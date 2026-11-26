@@ -41,9 +41,11 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.callbackdev.tempo.core.calendar.CalendarDoors
+import com.callbackdev.tempo.core.designsystem.components.COVER_TAG
 import com.callbackdev.tempo.core.designsystem.theme.LocalReducedMotion
 import com.callbackdev.tempo.core.designsystem.theme.TempoTheme
 import com.callbackdev.tempo.core.domain.today.EventKey
@@ -976,6 +978,258 @@ class TodayScreenTest {
         assertGround("the tip", page.at(tip.left + 20f, tip.top + 4f), scheme.surface)
     }
 
+    // --- The compact bar (step 10.3) ------------------------------------------------------------
+
+    /** Far enough down the page that the hero has left it. */
+    private val sunday = TodayTags.day(java.time.LocalDate.parse("2026-10-11"))
+
+    /** The page moved by [px] under a finger, down the list or, below zero, back up. */
+    private fun scrollBy(px: Float) {
+        compose.onNodeWithTag(TodayTags.LIST).performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, px) }
+        compose.waitForIdle()
+    }
+
+    @Test
+    fun `once the hero has gone up, a bar keeps the date, the time and the page's two doors`() {
+        draw()
+        compose.onNodeWithTag(TodayTags.BAR).assertDoesNotExist()
+        scrollTo(sunday)
+        compose.onNodeWithTag(TodayTags.BAR).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.BAR_DATE).assertTextEquals("Wed, 7 Oct").assertHasClickAction()
+        compose.onNodeWithTag(TodayTags.BAR_TIME).assertTextEquals("10:20").assertHasClickAction()
+        compose.onNodeWithTag(TodayTags.BAR_MONTH).assert(hasContentDescription("Open the month"))
+        compose.onNodeWithTag(TodayTags.BAR_SETTINGS).assert(hasContentDescription("Settings"))
+        // One line, as high as its buttons, at the screen's top.
+        val bar = dp(TodayTags.BAR)
+        assertThat(bar.top).isEqualTo(0f)
+        assertThat(bar.height).isEqualTo(48f)
+        compose.assertAccessible()
+        compose.writeScreenshot("today-bar")
+        // Back at the top the hero says it all, and the bar is gone.
+        scrollTo(TodayTags.DATE)
+        compose.onNodeWithTag(TodayTags.BAR).assertDoesNotExist()
+        compose.onNodeWithTag(TodayTags.DATE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `the bar comes as the hero's foot goes up under its place, and goes as it comes back`() {
+        draw()
+        val density = compose.density.density
+        // The hero's ground ends 4 dp over the list's next item; the bar's place is the top 48 dp.
+        val foot = bounds(TodayTags.ALL_DAY).top - 4 * density
+        val under = foot - 48 * density
+        scrollBy(under - 2 * density)
+        compose.onNodeWithTag(TodayTags.BAR).assertDoesNotExist()
+        scrollBy(4 * density)
+        compose.onNodeWithTag(TodayTags.BAR).assertIsDisplayed()
+        // No row of the agenda was under it as it came: the first one starts below it.
+        assertThat(bounds(TodayTags.ALL_DAY).top).isAtLeast(bounds(TodayTags.BAR).bottom)
+        scrollBy(-4 * density)
+        compose.onNodeWithTag(TodayTags.BAR).assertDoesNotExist()
+    }
+
+    @Test
+    fun `the bar's date and time are the hero's doors, and its buttons the page's own`() {
+        var day: Instant? = null
+        var clock = 0
+        var month = 0
+        var settings = 0
+        draw(
+            actions = TodayActions(
+                openDay = { day = it },
+                openClock = { clock++ },
+                openMonth = { month++ },
+                openSettings = { settings++ },
+            ),
+        )
+        scrollTo(sunday)
+        compose.onNodeWithTag(TodayTags.BAR_DATE).performClick()
+        assertThat(day).isEqualTo(TodaySample.at("2026-10-07T10:20").toInstant())
+        compose.onNodeWithTag(TodayTags.BAR_TIME)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assert(
+                SemanticsMatcher("opens the clock app") {
+                    it.config.getOrNull(SemanticsActions.OnClick)?.label == "Open the clock app"
+                },
+            )
+            .performClick()
+        assertThat(clock).isEqualTo(1)
+        compose.onNodeWithTag(TodayTags.BAR_MONTH).performClick()
+        assertThat(month).isEqualTo(1)
+        compose.onNodeWithTag(TodayTags.BAR_SETTINGS).performClick()
+        assertThat(settings).isEqualTo(1)
+    }
+
+    @Test
+    fun `a touch on the bar never reaches the row under it`() {
+        var opened: EventInstance? = null
+        var day: Instant? = null
+        // No clock app: the time is plain words, with a row of the agenda under them.
+        draw(
+            TodaySample.state(doors = TodaySample.allDoors.copy(clockPackage = null)),
+            actions = TodayActions(openEvent = { opened = it }, openDay = { day = it }),
+        )
+        // The event under way brought half under the bar, the bar's middle over it.
+        val review = TodayTags.event(TodaySample.review.eventId)
+        scrollBy(bounds(review).top + 10 * compose.density.density)
+        val bar = bounds(TodayTags.BAR_TIME)
+        val row = bounds(review)
+        assertThat(row.top).isLessThan(bar.center.y)
+        assertThat(row.bottom).isGreaterThan(bar.center.y)
+        compose.onNodeWithTag(TodayTags.BAR_TIME).assertHasNoClickAction().performClick()
+        assertThat(opened).isNull()
+        assertThat(day).isNull()
+    }
+
+    @Test
+    fun `with no calendar app and no clock app the bar says the date and the time, and opens nothing`() {
+        draw(TodaySample.state(doors = CalendarDoors.None))
+        scrollTo(sunday)
+        compose.onNodeWithTag(TodayTags.BAR_DATE).assertTextEquals("Wed, 7 Oct").assertIsNotEnabled()
+        compose.onNodeWithTag(TodayTags.BAR_TIME).assertTextEquals("10:20").assertHasNoClickAction()
+        compose.onNodeWithTag(TodayTags.BAR_MONTH).assertHasClickAction()
+        compose.assertAccessible()
+        compose.writeScreenshot("today-bar-no-doors")
+    }
+
+    @Test
+    fun `the bar's time is no door where the reader turned the hero's off`() {
+        draw(TodaySample.state(settings = TodaySample.settings.copy(timeOpensClock = false)))
+        scrollTo(sunday)
+        compose.onNodeWithTag(TodayTags.BAR_TIME).assertTextEquals("10:20").assertHasNoClickAction()
+    }
+
+    @Test
+    fun `the bar's time moves with the page's minute`() {
+        var state by mutableStateOf(TodaySample.state())
+        compose.setContent { TempoTheme { TodayScreen(state, CalendarPermission.GRANTED, TodayActions()) } }
+        scrollTo(sunday)
+        compose.onNodeWithTag(TodayTags.BAR_TIME).assertTextEquals("10:20")
+        state = TodaySample.state(now = TodaySample.at("2026-10-07T10:21"))
+        compose.waitForIdle()
+        compose.onNodeWithTag(TodayTags.BAR_TIME).assertTextEquals("10:21")
+    }
+
+    @Test
+    fun `the bar says the date in the reader's style, a long one in its short names`() {
+        val twelve = TodaySample.settings.copy(dateStyle = DateStyle.NUMERIC, clockFormat = ClockFormat.H12)
+        draw(TodaySample.state(settings = twelve))
+        scrollTo(sunday)
+        compose.onNodeWithTag(TodayTags.BAR_DATE).assertTextEquals("07/10/2026")
+        compose.onNodeWithTag(TodayTags.BAR_TIME).assertTextEquals("10:20 am")
+        compose.assertAccessible()
+        compose.writeScreenshot("today-bar-twelve-hour")
+    }
+
+    @Test
+    @Config(qualifiers = "it-rIT-w411dp-h891dp-xxhdpi")
+    fun `the bar in Italian`() {
+        draw()
+        scrollTo(sunday)
+        compose.onNodeWithTag(TodayTags.BAR_DATE).assertTextEquals("Mer 7 ott")
+        compose.onNodeWithTag(TodayTags.BAR_TIME).assert(
+            SemanticsMatcher("apre l'orologio") {
+                it.config.getOrNull(SemanticsActions.OnClick)?.label == "Apri l’orologio"
+            },
+        )
+        compose.onNodeWithTag(TodayTags.BAR_MONTH).assert(hasContentDescription("Apri il mese"))
+    }
+
+    private fun barGround(dark: Boolean) {
+        val scheme = drawn(dark)
+        scrollTo(sunday)
+        val page = compose.onRoot().captureToImage().asAndroidBitmap()
+        val bar = dp(TodayTags.BAR)
+        // Between the date and the time, and at the screen's top corner, square as the hero's.
+        assertGround("the bar", page.at(dp(TodayTags.BAR_TIME).left - 4f, bar.center.y), scheme.surfaceContainer)
+        assertGround("the bar's corner", page.at(1f, 1f), scheme.surfaceContainer)
+        // The page under it: the agenda's ground, as before the scroll.
+        assertGround("under the bar", page.at(4f, bar.bottom + 60f), scheme.surface)
+    }
+
+    @Test
+    fun `the bar stands on the clock's ground`() {
+        barGround(dark = false)
+    }
+
+    @Test
+    fun `the bar's ground in the dark`() {
+        barGround(dark = true)
+        compose.writeScreenshot("today-bar-dark")
+    }
+
+    @Test
+    fun `a screen reader hears the bar before the list`() {
+        draw()
+        scrollTo(sunday)
+        // Its own group, ahead of everything else on the page whatever stands as high.
+        val bar = compose.onNode(hasTestTag(COVER_TAG)).fetchSemanticsNode().config
+        assertThat(bar.getOrNull(SemanticsProperties.IsTraversalGroup)).isTrue()
+        assertThat(bar.getOrNull(SemanticsProperties.TraversalIndex)).isEqualTo(-1f)
+        val list = compose.onNodeWithTag(TodayTags.LIST).fetchSemanticsNode().config
+        assertThat(list.getOrNull(SemanticsProperties.TraversalIndex) ?: 0f).isGreaterThan(-1f)
+    }
+
+    @Test
+    fun `the event made is brought under the bar, never behind it`() {
+        // A fortnight with a week of events in it, so the list has the room to bring tomorrow up.
+        val fortnight = TodaySample.settings.copy(horizonDays = 14)
+        val week = (12..16).map { event(40L + it, "2026-10-${it}T10:00", "2026-10-${it}T11:00", "Workshop") }
+        val visit = event(35, "2026-10-08T14:00", "2026-10-08T15:00", "Visit to the studio")
+        val thursday = TodayTags.day(java.time.LocalDate.parse("2026-10-08"))
+        var state by mutableStateOf(TodaySample.state(settings = fortnight, instances = TodaySample.instances + week))
+        compose.setContent { TempoTheme { TodayScreen(state, CalendarPermission.GRANTED, TodayActions()) } }
+        compose.waitForIdle()
+        state = TodaySample.state(settings = fortnight, instances = TodaySample.instances + week + visit)
+            .copy(reveal = EventKey.of(visit))
+        compose.waitForIdle()
+        compose.onNodeWithTag(TodayTags.BAR).assertIsDisplayed()
+        compose.onNodeWithTag(TodayTags.event(visit.eventId)).assertIsDisplayed()
+        // Tomorrow a margin under the bar, with the air a day's name keeps over it: the bar's
+        // height is counted, or the name would stand behind the bar.
+        val density = compose.density.density
+        val under = bounds(thursday).top - bounds(TodayTags.BAR).bottom
+        assertThat(under).isAtLeast(24 * density - 1)
+        assertThat(under).isAtMost(29 * density)
+    }
+
+    /** What the bar's ground is drawn as 80 ms after the scroll that brings it, and the scheme's. */
+    private fun barSoonAfter(reduced: Boolean): Pair<Int, ColorScheme> {
+        lateinit var scheme: ColorScheme
+        compose.setContent {
+            TempoTheme {
+                scheme = MaterialTheme.colorScheme
+                CompositionLocalProvider(LocalReducedMotion provides reduced) {
+                    TodayScreen(TodaySample.state(), CalendarPermission.GRANTED, TodayActions())
+                }
+            }
+        }
+        compose.waitForIdle()
+        compose.mainClock.autoAdvance = false
+        // By its index, in one call: with the clock paused, a scroll that looks for a node waits
+        // for a layout no frame will make. Any item past the first rows has the hero gone.
+        compose.onNodeWithTag(TodayTags.LIST).performSemanticsAction(SemanticsActions.ScrollToIndex) { it(6) }
+        Snapshot.sendApplyNotifications()
+        compose.mainClock.advanceTimeBy(80)
+        val page = compose.onRoot().captureToImage().asAndroidBitmap()
+        val pixel = page.at(dp(TodayTags.BAR_TIME).left - 4f, dp(TodayTags.BAR).center.y)
+        compose.mainClock.autoAdvance = true
+        return pixel to scheme
+    }
+
+    @Test
+    fun `under reduced motion the bar is there at once, with no fade`() {
+        val (pixel, scheme) = barSoonAfter(reduced = true)
+        assertGround("the bar, at once", pixel, scheme.surfaceContainer)
+    }
+
+    @Test
+    fun `the bar fades in`() {
+        val (pixel, scheme) = barSoonAfter(reduced = false)
+        // Still nearer the page under it than its own ground.
+        assertThat(pixel).isNotEqualTo(scheme.surfaceContainer.toArgb())
+    }
+
     // --- Today on a large screen: two panes (step 8.7) ------------------------------------------
 
     private val inHeroPane = hasAnyAncestor(hasTestTag(TodayTags.HERO_PANE))
@@ -1024,6 +1278,8 @@ class TodayScreenTest {
         assertThat(compose.onAllNodesWithTag(TodayTags.EARLIER).fetchSemanticsNodes().none { it.layoutInfo.isPlaced })
             .isTrue()
         assertThat(bounds(TodayTags.TIME)).isEqualTo(time)
+        // And no bar says it twice: the compact bar is the one column's.
+        compose.onNodeWithTag(TodayTags.BAR).assertDoesNotExist()
     }
 
     @Test
@@ -1053,6 +1309,10 @@ class TodayScreenTest {
         compose.onNodeWithTag(TodayTags.HERO_PANE).assertDoesNotExist()
         compose.onNodeWithTag(TodayTags.DIAL, useUnmergedTree = true).assertWidthIsEqualTo(112.dp)
         compose.walkPage(hasTestTag(TodayTags.LIST), "today-phone-sideways", maxScreens = 3)
+        // Down the page the bar is there, and one line of it: on a screen 411 dp high it must
+        // not take the page.
+        compose.onNodeWithTag(TodayTags.BAR).assertIsDisplayed()
+        assertThat(dp(TodayTags.BAR).height).isEqualTo(48f)
     }
 
     @Test

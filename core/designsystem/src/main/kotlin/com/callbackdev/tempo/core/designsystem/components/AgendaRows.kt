@@ -174,7 +174,12 @@ fun DayName(name: String, opens: Boolean, style: TextStyle, modifier: Modifier =
         text = remember(name, opens) {
             buildAnnotatedString {
                 append(name)
-                if (opens) appendInlineContent(CHEVRON)
+                if (opens) {
+                    // Joined to the name's last word: where the name breaks, the chevron goes
+                    // with that word and never stands on a line of its own.
+                    append(WORD_JOINER)
+                    appendInlineContent(CHEVRON)
+                }
             }
         },
         style = style,
@@ -199,6 +204,9 @@ fun DayName(name: String, opens: Boolean, style: TextStyle, modifier: Modifier =
 
 /** The chevron's place in a day's name ([DayName]). */
 private const val CHEVRON = "chevron"
+
+/** No line breaks on either side of it, and nothing drawn. */
+private const val WORD_JOINER = '\u2060'
 
 /**
  * The all-day events, over the timeline: a holiday is the day's frame, not one of its rows. Each

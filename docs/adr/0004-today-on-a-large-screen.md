@@ -108,5 +108,9 @@ The graphic review (PLANNING.md §15, 26 Nov 2026, «Today has two grounds: the 
 - **In the page's one column** the ground is under the hero alone, from the screen's top edge,
   its lower corners round (28 dp), across the window whatever the gutter: on a foldable open under
   840 dp the clock's ground is the screen's top and its words keep the centred column.
+- **The compact bar is the one column's alone** (step 10.3; PLANNING.md §15, 26 Nov 2026, «Step
+  10.3 built»): the date, the time and the two buttons kept at the top once the hero has gone up.
+  In two panes there is none: the hero's pane scrolls on its own and the clock never leaves, which
+  is what decision 2 gave a large screen.
 
 Step 10.5 adds the month under the clock to this pane, and amends this ADR again.

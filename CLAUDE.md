@@ -149,7 +149,9 @@ what it means, no dead tab and no switch for a feature that has not shipped, a s
 nothing to say is not drawn. The month says a date with marks, never titles (a dot an event with
 a time, a bar a span of days): a title in a cell is a calendar app's month. Today has two grounds, one for each of its subjects (Phase 10, PLANNING.md §15, 26 Nov 2026):
 the clock's (`surfaceContainer` under the hero, the whole leading pane on a large screen, the dial's
-face a disc of the page on it) and the calendar's, the page itself; the accent (`primaryContainer`
+face a disc of the page on it; in the page's one column, once the hero has scrolled away, a compact
+bar in that ground keeps the date, the time and the two buttons at the top) and the calendar's, the
+page itself; the accent (`primaryContainer`
 under the event under way, `primary`) means now and nothing else, and the new-event button is the
 scheme's second colour. Icons are `TempoIcons` (Passo's drawings), drawn in code. The
 launcher icon (the day's page with an amber clock in front of it, on the app's coral: the family's

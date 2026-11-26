@@ -18,7 +18,7 @@
 
 - **Released**: 1.1.0 (2 Nov 2026, `v1.1.0`). What came in after is in `CHANGELOG.md`'s `[Unreleased]` section.
 - **Closed**: Phases 0 to 6 (the 1.0.0, 10 Oct 2026) and the 1.0.1 after them: their steps, their acceptance and their log are in `docs/planning/01-phases-0-8.md`. Phase 8, the 1.1.0 (30 Oct to 2 Nov 2026): its plan, its steps and the log from 2 Nov 2026 are in `docs/planning/02-phase-8.md`, the entries of its steps 8.0 to 8.7 in archive 01.
-- **In progress**: nothing. Phase 9, the month and the time's door (§11; owner, 23 Nov 2026), is built and was checked on the owner's phone the same day (PR #35); it is in `CHANGELOG.md`'s `[Unreleased]`. Open, in §15: 8.4 («Join», on hold), 1.1's battery check on the phone, and two boxes carried from before.
+- **In progress**: Phase 10, Today's two grounds (§11; owner, 26 Nov 2026), on `claude/today-two-grounds`: steps 10.1 to 10.3 built, 10.4 to 10.6 open. Phase 9, the month and the time's door (§11; owner, 23 Nov 2026), is built and was checked on the owner's phone the same day (PR #35); it is in `CHANGELOG.md`'s `[Unreleased]`. Open, in §15: 8.4 («Join», on hold), 1.1's battery check on the phone, and two boxes carried from before.
 - **Later, and optional**: Phase 7, Google Play (§11).
 
 ---
@@ -459,7 +459,8 @@ they are built: 10.3 stands on 10.2's ground, 10.5 on 10.4's grid.
     today's (the review's drawing says about 6 dp lower for the first, level for the second) and
     write the figures in §15. The README's pictures of Today and the month redrawn and looked at;
     the guide's Today chapter reread in both languages.
-- [ ] **10.3 The compact bar** (point 5). On one column, once the hero has left the screen, a bar
+- [x] **10.3 The compact bar** (point 5). Built on 26 Nov 2026: when the bar comes, its shape and
+  what building it added are in §15, «Step 10.3 built». On one column, once the hero has left the screen, a bar
   stays at the top in the hero's ground: the date (short), the time in figures, the month's and
   the settings' buttons. It reads the page's own minute ticker (no timer added, §9); it fades in
   and out (a plain cut under reduced motion); the date and the time are the doors they are in the
@@ -555,7 +556,7 @@ What is still to decide or to do, in one place, besides the steps of the phases 
 - [x] **Phase 9 on the phone, before the merge** (§11, step 9.6; §15, 23 Nov 2026, «The month, and the time's door»). (1) A touch on Today's time opens the Clock app, on its figures and on the face, morning and evening; off with the switch. (2) The month from Today's button, and back with the gesture, previewed under the finger. (3) The months under a real finger: the grid's height following it between a five-week and a six-week month, the day under it sliding. (4) The marks against the calendar app's own month, with the owner's real calendars: a holiday of several days as one bar, two at once on two lanes, a day of more than three events with its plus. (5) A new event from the button and from a long touch on a date: does the calendar app open on **that date**, at the time proposed (Google Calendar and Samsung Calendar both; §4.7's intent was measured for today's dates only, `docs/device-checks/calendar-intents.md`)? Back in Tempo, the event made is chosen and glows. (6) The way to a far month, and "Today" back. (7) TalkBack on a date ("Thursday 26 November, 3 events"), on the month's name, on the time row. (8) The Tab S8+: the month beside the day. (9) §9.6's `dumpsys alarm` and `dumpsys jobscheduler` unchanged with the month open and closed. Done by the owner on 23 Nov 2026 (§15, «Phase 9 checked on the phone»): "everything works, the new event on a date other than today too". The owner's word is on the whole; (9), which needs adb, rides with 1.1's battery check below.
 - [x] **The month button's switch: keep it, or let it go?** (§15, 23 Nov 2026.) `show_calendar_button` was a switch for a button that doubled the touch on the date (owner, 9 Oct 2026). The button is now the month's only door: turned off, the month cannot be reached, and a reader who had it off before the update does not find the month until they turn it on. Options: (a) as built: the switch stays, renamed «Month button», its note saying what it opens; (b) the switch goes, the button always there, the stored choice ignored. Asked of the owner; (a) was built. Answered on 23 Nov 2026: (b), the switch goes (§15, «The month's button has no switch, and nothing is logged to a file»).
 - [ ] **1.1's battery check on the phone** (step 8.8's open box; §15, 2 Nov 2026, "1.1.0 released", in archive 02). §9.6's check with «In words» placed: still one non-wakeup alarm of Tempo's at most, about two boundaries an event a day plus the moments events come onto the dial; written in `docs/device-checks/widget-refresh.md`.
-- [ ] **Phase 10 on the phone and the tablet, before the merge** (§11, step 10.6; §15, 26 Nov 2026, «Today has two grounds: the graphic review»). On the CI's APK of the branch, in both themes and, once, in the Paper dress. (1) Today's two grounds: the hero's against the page (a tone, 1.1:1: is it seen as a ground on the phone's screen, in daylight?), the dial's face on it, the status bar's icons readable over the hero's ground, and, the page scrolled, the strip of that ground left behind the status bar (no test draws a status bar: §15, «Step 10.2 built»). (2) The event under way in the accent, in the light and in the dark: is the dark one too loud? Its bar with a blue calendar and with a red one. (3) The amber button, over the last rows. (4) The days' names at their new size with the owner's real calendar in Italian: no word alone on a line, the chevron in its place. (5) How many events the first screen shows, against 1.1's. (6) The compact bar: it comes and goes without a jump, its time moves with the minute, its two doors open the calendar and the clock. (7) The rows' movement: "earlier" opened and closed, an event made in the calendar app and one deleted with Today open, an event ending. (8) The month away from today: the title whole, the "Today" icon understood at a glance. (9) The launch: no flash between the splash and the page. (10) The Tab S8+, on its side and upright: the month under the clock, a touch on a date, the pane scrolling where it must. (11) TalkBack on the compact bar, the "Today" icon, the month in the hero's pane.
+- [ ] **Phase 10 on the phone and the tablet, before the merge** (§11, step 10.6; §15, 26 Nov 2026, «Today has two grounds: the graphic review»). On the CI's APK of the branch, in both themes and, once, in the Paper dress. (1) Today's two grounds: the hero's against the page (a tone, 1.1:1: is it seen as a ground on the phone's screen, in daylight?), the dial's face on it, the status bar's icons readable over the hero's ground, and, the page scrolled, the strip of that ground left behind the status bar (no test draws a status bar: §15, «Step 10.2 built»). (2) The event under way in the accent, in the light and in the dark: is the dark one too loud? Its bar with a blue calendar and with a red one. (3) The amber button, over the last rows. (4) The days' names at their new size with the owner's real calendar in Italian: no word alone on a line, the chevron in its place. (5) How many events the first screen shows, against 1.1's. (6) The compact bar (§15, «Step 10.3 built»): it comes as the hero's foot goes up under it and goes as the foot comes back, without a jump, and with the status bar's strip over it reads as one ground with no seam (no test draws a status bar); its round foot over the rows passing under it; its time moves with the minute; its two doors open the calendar and the clock, and a touch on it never opens the row under it; on the 12-hour clock ("10:20 am" whole), and at the phone's largest text size, where the date takes two lines. (7) The rows' movement: "earlier" opened and closed, an event made in the calendar app and one deleted with Today open, an event ending. (8) The month away from today: the title whole, the "Today" icon understood at a glance. (9) The launch: no flash between the splash and the page. (10) The Tab S8+, on its side and upright: the month under the clock, a touch on a date, the pane scrolling where it must. (11) TalkBack on the compact bar, the "Today" icon, the month in the hero's pane.
 
 Reread on 2 Nov 2026, at archive 02: four boxes open, the question on the two-row «In words» (asked of the owner on 30 Oct 2026), Phase 5's Baseline Profile (carried from archive 01), 8.4's «Join» (on hold) and 1.1's battery check (both carried from archive 02); the phases' open steps are in §11 (Phase 7, optional). No proposal undecided.
 
@@ -1349,3 +1350,91 @@ the tablet and the month are redrawn.
 
 **Checked.** `spotlessCheck`, `test` (every module), `:app:lintDebug`,
 `:app:checkForbiddenPermissions`, `:app:assembleDebug`: green.
+
+### Step 10.3 built: the compact bar (26 Nov 2026)
+
+Built on `claude/today-two-grounds`, as §11 says (owner, 26 Nov 2026: "continue Phase 10, build
+step 10.3"). What the bar is, the one place where building it read the plan's words rather than
+their letter, and what it added.
+
+- **What it is.** `CompactBar` (`TodayScreen.kt`), in the page's one column only: the date in the
+  reader's own style, a long one cut to its short names ("Wed, 7 Oct", "Mer 7 ott"; a numeric one
+  as it is), the time in figures on one line (`titleLarge`, tabular; "10:20 am" whole on the
+  12-hour clock), the month's and the settings' buttons. The date and the buttons are the hero's
+  own composables (`DateDoor`, `PageButtons`, taken out of `Hero`) and stand where the hero's top
+  row has them, so coming back up nothing changes place. The date opens the calendar app on today
+  and wears its chevron; the time opens the clock app where the hero's time does (a clock app on
+  the phone, and the reader's switch on); with no such app each is plain words, with no chevron.
+  It stands on `surfaceContainer`, over the strip step 10.2 left behind the status bar, which
+  stays: it holds the ground while the bar fades.
+- **When it comes: the plan's "once the hero has left the screen", read as the screen the bar
+  leaves.** The bar comes when the hero's foot has gone up under the bar's place (the hero's
+  ground ends at or over the status bar's height plus the bar's, `heroAbove`), not when the
+  hero's item has left the list. By the letter there was a stretch, the hero's last 48 dp and
+  more, with the hero's time gone and no bar yet, a strip of the hero's last line under the status
+  bar; and the bar then came over the agenda's first rows. Read this way the bar comes over the
+  hero's own ground, the rows only ever pass under a bar that is there already, and the stretch
+  with no time on the page is 48 dp shorter. It takes the hero's foot (the same 28 dp lower
+  corners): at the moment it comes it is the foot's own outline, so what changes is the words.
+  One line and two states, on a timed transition, never a bar that grows with the scroll: the
+  family's lesson, from Chiaro's bar, which takes its temperature once the number has gone under
+  it.
+- **The fade** is 300 ms in and out; the theme's spring for an alpha, about a tenth of a second,
+  reads as a snap on a thing as wide as the screen (measured on Chiaro's bar, on the phone). Under
+  reduced motion a plain cut, as the plan says.
+- **No timer** (§9): its time is the state's `now`, the page's minute ticker's. `TodayViewModel`
+  is not touched.
+- **A touch on the bar never reaches the row under it**: it is a `Surface`. Pinned by a test that
+  brings the event under way half under the bar and touches the time where it is no door.
+- **TalkBack hears the bar before the list**: its own traversal group, before everything else on
+  the page. The list was not made a group too: that would send the new-event button after the
+  list's last row, a week of swipes away, where today it is reached at the foot of each screen.
+- **The reveal counts the bar** (`revealNewEvent`): the event made is brought a margin under the
+  status bar and the bar, 48 dp until the bar is drawn and then its measured height.
+- **At a large text size the bar grows, and is not capped.** At twice the text size on a phone
+  411 dp wide the date takes two lines ("Wed, 7 / Oct") and the bar is 96 dp, two lines of the date; on a phone on
+  its side everything is on one line and the bar is 48 dp of the screen's 411. Weighed and left
+  out: capping the bar's text (as the hero's clock is capped): the reader who asked for twice the
+  size would have the date at two thirds of their own text, to save 48 dp upright, where the
+  height is there.
+
+**Added while building.**
+
+- **A day's name keeps its chevron.** At twice the text size the bar's date broke between its
+  last word and the chevron, which stood alone on a second line. `DayName` now joins the two (a
+  word joiner, U+2060): where a name breaks, the chevron goes with its last word. In
+  `AgendaRows.kt`, so it holds for every day's name on Today and under the month, and for Today's
+  own date, which is also balanced where it takes two lines ("Wednesday / 7 October" at twice the
+  text size).
+- **The accessibility check knows a bar over a page** (`COVER_TAG`, `:core:designsystem`;
+  `assertAccessible`, `:core:testing`). A row half under the bar was measured as a control with
+  half its height ("«Tomorrow 3 events, 09:00 to 18:00.»: 52 by 20dp for a finger": the walk
+  failed, verified by taking the mark away). What a marked bar covers of a control is not on
+  screen, as what a list's edge cuts: such a row is measured when it is scrolled clear, and one
+  wholly under the bar is not there. The bar's own controls are measured as any other: each has
+  its 48 dp.
+
+**Tests** (`TodayScreenTest`, fifteen new and two grown). The bar gone at the top, there after
+the scroll with its date, time and two buttons, 48 dp high at the screen's top, and gone again
+back at the top; it comes within 4 dp of the hero's foot passing under its place, with the
+agenda's first row still below it, and goes as the foot comes back; its four doors; a touch on it
+that reaches no row; no calendar app and no clock app, and the reader's switch off; the time
+moving with the state's minute; a numeric date on the 12-hour clock; Italian; its ground read
+from the page's pixels, in the light and in the dark; the traversal group; the reveal a margin
+under the bar; 80 ms after the scroll the bar whole under reduced motion and still fading
+otherwise. A phone on its side ends its walk with the bar on one line, 48 dp; two panes have no
+bar. Every walk of Today (phone, dark, twice the text size, a phone on its side, the foldable in
+one column) now crosses the bar and was looked at.
+
+**The words.** The guide's «The date and the time» says the bar keeps the two at the top with
+the two buttons, in both languages; the CHANGELOG has its line; CLAUDE.md's Design and ADR 0004
+(the bar is the one column's alone) follow. The README's pictures are unchanged: none shows the
+page scrolled, and the set is kept small.
+
+**For the phone** (Open, check 6, rewritten): Robolectric draws no status bar, so the bar under
+the system's clock, and the seam or its absence between the strip and the bar, are seen there
+first.
+
+**Checked.** `spotlessCheck`, `test` (every module: 620 tests), `:app:lintDebug`,
+`:app:checkForbiddenPermissions`, `:app:assembleDebug`: green. No phone on adb: the bar under a real
+status bar waits for check 6.
